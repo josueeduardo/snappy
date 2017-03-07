@@ -3,6 +3,8 @@ package com.josue.simpletow;
 import org.xnio.OptionMap;
 import org.xnio.Options;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +20,7 @@ public class Config {
     final OptionMap.Builder optionBuilder = OptionMap.builder();
     boolean httpTracer;
     ThreadPoolExecutor threadPoolExecutor;
+    List<Interceptor> interceptors = new LinkedList<>();
 
 //    //SSR
 //    public enum DiscoveryMode {
@@ -111,6 +114,11 @@ public class Config {
 
     public Config appExecutor(ThreadPoolExecutor threadPoolExecutor) {
         this.threadPoolExecutor = threadPoolExecutor;
+        return this;
+    }
+
+    public Config addInterceptor(Interceptor handlerInterceptor) {
+        this.interceptors.add(handlerInterceptor);
         return this;
     }
 

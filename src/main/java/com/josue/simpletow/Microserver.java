@@ -57,18 +57,23 @@ public class Microserver {
         }
 
         server = builder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(routingHandler).build();
-
-        AppExecutor.init(config.threadPoolExecutor);
-
     }
 
 
     public void start() {
         logger.info("Starting server...");
+
+        AppExecutors.init(config.threadPoolExecutor);
         logConfig();
 
         server.start();
     }
+
+    public void stop() {
+        logger.info("Stopping server...");
+        AppExecutors.shutdownAll();
+    }
+
 
     private void logConfig() {
         logger.info("-------------------- HTTP CONFIG --------------------");
@@ -85,10 +90,10 @@ public class Microserver {
         logger.info("Core pool size: {}", config.threadPoolExecutor.getCorePoolSize());
         logger.info("Maximum pool size: {}", config.threadPoolExecutor.getMaximumPoolSize());
         logger.info("Queue size: {}", config.threadPoolExecutor.getQueue().remainingCapacity());
-        logger.info("Rejection handler: {}", config.threadPoolExecutor.getRejectedExecutionHandler().getClass().getSimpleName());
+        logger.info("Rejection interceptors: {}", config.threadPoolExecutor.getRejectedExecutionHandler().getClass().getSimpleName());
 
         logger.info("-------------------- REST CONFIG --------------------");
-        for(MappedEndpoint endpoint : mappedEndpoints) {
+        for (MappedEndpoint endpoint : mappedEndpoints) {
             logger.info("{}  {}", endpoint.method, endpoint.url);
         }
     }
@@ -125,12 +130,13 @@ public class Microserver {
     }
 
     private HttpHandler buildHandlers(RestEndpoint endpoint) {
+        HttpHandler baseHandler = new BlockingHandler(new RestHandler(endpoint, config.interceptors));
+
         if (config.httpTracer) {
-            return Handlers.requestDump(new BlockingHandler(new RestHandler(endpoint)));
-        } else {
-            return new BlockingHandler(new RestHandler(endpoint));
+            baseHandler = Handlers.requestDump(baseHandler);
         }
 
+        return baseHandler;
     }
 
 }
