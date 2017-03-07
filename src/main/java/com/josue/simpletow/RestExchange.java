@@ -17,7 +17,7 @@ public class RestExchange {
 
     private static final String APPLICATION_JSON = "application/json";
     public final HttpServerExchange httpServerExchange;
-
+    private int status = -1;
 
     public RestExchange(HttpServerExchange httpServerExchange) {
         this.httpServerExchange = httpServerExchange;
@@ -29,18 +29,31 @@ public class RestExchange {
 
     public <T> T body(Class<T> type) {
         InputStream inputStream = read();
-        return getRequestParser().read(inputStream, type);
+        return getReadParserForContentType().read(inputStream, type);
+    }
+
+    public <T> T body(Class<T> type, String contentType) {
+        InputStream inputStream = read();
+        return getReadParser(contentType).read(inputStream, type);
     }
 
     public void send(Object response) {
-        Parser responseParser = getResponseParser();
-        httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, responseParser.mediaType());
-        httpServerExchange.setStatusCode(StatusCodes.OK);
+        this.response(response, APPLICATION_JSON);
+    }
+
+    public void send(Object response, String contentType) {
+        this.response(response, contentType);
+    }
+
+    private void response(Object response, String contentType) {
+        Parser responseParser = getWriteParser(contentType);
+        httpServerExchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
+        httpServerExchange.setStatusCode(status > 0 ? status : StatusCodes.OK);
         httpServerExchange.getResponseSender().send(responseParser.write(response));
     }
 
     public RestExchange status(int status) {
-        httpServerExchange.setStatusCode(status);
+        this.status = status;
         return this;
     }
 
@@ -63,12 +76,18 @@ public class RestExchange {
         return httpServerExchange.getInputStream();
     }
 
-    private Parser getResponseParser(){
-        return Parsers.getParser(httpServerExchange.getRequestHeaders().get(Headers.ACCEPT));
+    private Parser getWriteParser(String contentType){
+        //TODO investigate content negotiation
+//        return Parsers.find(httpServerExchange.getRequestHeaders().get(Headers.ACCEPT));
+        return Parsers.getParser(contentType);
     }
 
-    private Parser getRequestParser(){
-        return Parsers.getParser(httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE));
+    private Parser getReadParserForContentType(){
+        return Parsers.find(httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE));
+    }
+
+    private Parser getReadParser(String contentType){
+        return Parsers.getParser(contentType);
     }
 
 

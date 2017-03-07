@@ -19,7 +19,7 @@ public class Parsers {
         available.put(mediaType, parser);
     }
 
-    public static Parser getParser(HeaderValues types) {
+    public static Parser find(HeaderValues types) {
         String[] triedTypes = new String[types.size()];
         int idx = 0;
         for(String type : types) {
@@ -30,6 +30,10 @@ public class Parsers {
             triedTypes[idx++] = type;
         }
         throw new ParseNotFoundException(Arrays.toString(triedTypes));
+    }
+
+    public static Parser getParser(String contentType) {
+       return available.get(contentType);
     }
 
 }
