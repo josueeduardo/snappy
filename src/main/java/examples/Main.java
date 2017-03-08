@@ -1,5 +1,7 @@
-package com.josue.simpletow;
+package examples;
 
+import com.josue.simpletow.Config;
+import com.josue.simpletow.Microserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,8 @@ public class Main {
         });
 
         microserver.post("/echo", exchange -> exchange.send(exchange.body(User.class)));
+
+        microserver.websocket("/ws/{id}", new SampleEndpoint());
 
         microserver.start();
     }

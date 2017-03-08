@@ -5,11 +5,11 @@ package com.josue.simpletow;
  */
 public class MappedEndpoint {
 
-    final String method;
+    final String prefix; //HTTP methods or WS etc
     final String url;
 
-    public MappedEndpoint(String method, String url) {
-        this.method = method;
+    public MappedEndpoint(String prefix, String url) {
+        this.prefix = prefix;
         this.url = url;
     }
 }

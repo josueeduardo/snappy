@@ -4,13 +4,22 @@ import com.josue.simpletow.metric.Metric;
 import com.josue.simpletow.parser.JsonParser;
 import com.josue.simpletow.parser.Parsers;
 import com.josue.simpletow.parser.PlainTextParser;
+import com.josue.simpletow.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import io.undertow.server.handlers.BlockingHandler;
+import io.undertow.server.handlers.PathTemplateHandler;
+import io.undertow.server.handlers.PredicateHandler;
+import io.undertow.util.HeaderValues;
+import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
+import io.undertow.util.PathTemplateMatch;
+import io.undertow.websockets.WebSocketConnectionCallback;
+import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
+import io.undertow.websockets.core.AbstractReceiveListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.Xnio;
@@ -31,6 +40,9 @@ public class Microserver {
     private final Undertow server;
 
     private final List<MappedEndpoint> mappedEndpoints = new ArrayList<>();
+
+    PathTemplateHandler websocketHandler = Handlers.pathTemplate();
+
     private final Config config;
 
     private static final Logger logger = LoggerFactory.getLogger(Microserver.class);
@@ -59,8 +71,14 @@ public class Microserver {
 
         configureMetrics();
 
-        server = builder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(routingHandler).build();
+        PredicateHandler rootHandler = Handlers.predicate(value -> {
+            HeaderValues upgradeHeader = value.getRequestHeaders().get(Headers.UPGRADE);
+            return upgradeHeader != null && upgradeHeader.stream().anyMatch(v -> v.equalsIgnoreCase("websocket"));
+        }, websocketHandler, routingHandler);
+
+        server = builder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
     }
+
 
     private void configureMetrics() {
         get("/metrics", (exchange) -> exchange.send(new Metric(AppExecutors.executors, AppExecutors.schedulers), "application/json"));
@@ -95,7 +113,7 @@ public class Microserver {
         });
 
         logger.info("----------------- APP THREAD CONFIG -----------------");
-        if(AppExecutors.executors.isEmpty() && AppExecutors.schedulers.isEmpty()) {
+        if (AppExecutors.executors.isEmpty() && AppExecutors.schedulers.isEmpty()) {
             logger.info("No executors configured");
         }
         AppExecutors.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
@@ -103,7 +121,7 @@ public class Microserver {
 
         logger.info("-------------------- REST CONFIG --------------------");
         for (MappedEndpoint endpoint : mappedEndpoints) {
-            logger.info("{}  {}", endpoint.method, endpoint.url);
+            logger.info("{}  {}", endpoint.prefix, endpoint.url);
         }
     }
 
@@ -143,6 +161,49 @@ public class Microserver {
     public Microserver add(HttpString method, String url, RestEndpoint endpoint) {
         routingHandler.add(method, url, buildHandlers(endpoint));
         mappedEndpoints.add(new MappedEndpoint(method.toString(), url));
+        return this;
+    }
+
+    public Microserver websocket(String url, AbstractReceiveListener endpoint) {
+
+        WebSocketProtocolHandshakeHandler websocket = Handlers.websocket((exchange, channel) -> {
+
+
+            PathTemplateMatch pathMatch = exchange.getAttachment(PathTemplateMatch.ATTACHMENT_KEY);
+            logger.info(pathMatch.getParameters().get("id"));
+
+            channel.getReceiveSetter().set(endpoint);
+            channel.resumeReceives();
+        });
+
+        mappedEndpoints.add(new MappedEndpoint("WS", url));
+        websocketHandler.add(url, websocket);
+
+        return this;
+    }
+
+    public Microserver websocket(String url, WebSocketConnectionCallback connectionCallback) {
+
+        WebSocketProtocolHandshakeHandler websocket = Handlers.websocket(connectionCallback);
+
+        mappedEndpoints.add(new MappedEndpoint("WS", url));
+        websocketHandler.add(url, websocket);
+
+        return this;
+    }
+
+    public Microserver websocket(String url, WebsocketEndpoint websocketEndpoint) {
+
+        WebSocketProtocolHandshakeHandler websocket = Handlers.websocket((exchange, channel) -> {
+            websocketEndpoint.onConnect(exchange, channel);
+
+            channel.getReceiveSetter().set(websocketEndpoint);
+            channel.resumeReceives();
+        });
+
+        mappedEndpoints.add(new MappedEndpoint("WS", url));
+        websocketHandler.add(url, websocket);
+
         return this;
     }
 
