@@ -89,7 +89,7 @@ public class Microserver {
         logger.info("Port: {}", config.port);
         logger.info("Tracer enabled: {}", config.httpTracer);
 
-        logger.info("---------------- SERVER THREAD CONFIG ---------------");
+        logger.info("---------------- SERVER CONFIG ---------------");
         config.optionBuilder.getMap().forEach(option -> {
             logger.info("{}: {}", option.getName(), config.optionBuilder.getMap().get(option));
         });
