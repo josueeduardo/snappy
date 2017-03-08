@@ -3,13 +3,12 @@ package com.josue.simpletow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -18,17 +17,37 @@ import java.util.concurrent.TimeUnit;
  */
 public class AppExecutors {
 
+    private static final String DEFAULT = "default";
+
     private static final Logger logger = LoggerFactory.getLogger(AppExecutors.class);
 
-    private static ExecutorService defaultExecutor;
+    private static ThreadPoolExecutor defaultExecutor;
     private static ScheduledExecutorService defaultScheduler;
 
-    private static final Map<String, ExecutorService> executors = new HashMap<>();
-    private static final Map<String, ScheduledExecutorService> schedulers = new HashMap<>();
+    static final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
+    static final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
 
-    static void init(ThreadPoolExecutor threadPoolExecutor) {
-        defaultExecutor = threadPoolExecutor;
-        defaultScheduler = Executors.newSingleThreadScheduledExecutor(threadPoolExecutor.getThreadFactory());
+    static void init(Config config) {
+        executors.putAll(config.executors);
+        schedulers.putAll(config.schedulers);
+
+
+        if (executors.isEmpty()) {
+            ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
+            executors.put(DEFAULT + "-executor", executorService);
+            defaultExecutor = executorService;
+        } else {
+            defaultExecutor = executors.values().iterator().next();
+        }
+
+        if (schedulers.isEmpty()) {
+            ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(2);
+            schedulers.put(DEFAULT + "-scheduler", scheduler);
+            defaultScheduler = scheduler;
+        } else {
+            defaultExecutor = executors.values().iterator().next();
+        }
+
     }
 
     public static ExecutorService executor() {
@@ -48,14 +67,14 @@ public class AppExecutors {
     }
 
     static void shutdownAll() {
-        List<ExecutorService> all = new ArrayList<>();
-        all.add(defaultExecutor);
-        all.add(defaultScheduler);
-        all.addAll(executors.values());
-        all.addAll(schedulers.values());
+        executors.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
+        schedulers.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
+        logger.info("Executors shutdown");
+    }
 
-        logger.info("Shutting down executors...");
-        for(ExecutorService executorService : all) {
+    private static void shutdown(String name, ExecutorService executorService) {
+        logger.info("Shutting down pool: {}", name);
+        if (!executorService.isShutdown()) {
             executorService.shutdown();
             try {
                 executorService.awaitTermination(5, TimeUnit.SECONDS);
@@ -64,10 +83,7 @@ public class AppExecutors {
                 executorService.shutdownNow();
             }
         }
-        logger.info("Executors finished");
     }
-
-
 
 
 }

@@ -24,8 +24,8 @@ public class Main {
         microserver.get("/hello/{name}", exchange -> {
             logger.info(Thread.currentThread().getName());
             exchange.send(new User(exchange.pathParameter("name")));
-//            AppExecutors.executor().submit(() -> logger.info(Thread.currentThread().getName()));
-//            AppExecutors.scheduler().schedule(() -> logger.info("SCHEDULED -> " + Thread.currentThread().getName()), 2, TimeUnit.SECONDS);
+//            AppExecutors.executor().submit(() -> logger.info(Thread.currentThread().getPoolName()));
+//            AppExecutors.scheduler().schedule(() -> logger.info("SCHEDULED -> " + Thread.currentThread().getPoolName()), 2, TimeUnit.SECONDS);
         });
 
         microserver.post("/echo", exchange -> exchange.send(exchange.body(User.class)));

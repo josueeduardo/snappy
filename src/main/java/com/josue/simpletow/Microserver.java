@@ -1,5 +1,6 @@
 package com.josue.simpletow;
 
+import com.josue.simpletow.metric.Metric;
 import com.josue.simpletow.parser.JsonParser;
 import com.josue.simpletow.parser.Parsers;
 import com.josue.simpletow.parser.PlainTextParser;
@@ -18,6 +19,7 @@ import org.xnio.XnioWorker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by josh on 3/5/17.
@@ -41,7 +43,6 @@ public class Microserver {
     public Microserver(Config config) {
         this.config = config;
 
-
         Parsers.register("application/json", new JsonParser());
         Parsers.register("text/plain", new PlainTextParser());
         Parsers.register("*/*", new JsonParser());
@@ -56,14 +57,22 @@ public class Microserver {
             throw new RuntimeException(e);
         }
 
+        configureMetrics();
+
         server = builder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(routingHandler).build();
+    }
+
+    private void configureMetrics() {
+        get("/metrics", (exchange) -> exchange.send(new Metric(AppExecutors.executors, AppExecutors.schedulers), "application/json"));
     }
 
 
     public void start() {
         logger.info("Starting server...");
 
-        AppExecutors.init(config.threadPoolExecutor);
+        AppExecutors.init(config);
+        Runtime.getRuntime().addShutdownHook(new Thread(AppExecutors::shutdownAll));
+
         logConfig();
 
         server.start();
@@ -71,7 +80,6 @@ public class Microserver {
 
     public void stop() {
         logger.info("Stopping server...");
-        AppExecutors.shutdownAll();
     }
 
 
@@ -87,15 +95,24 @@ public class Microserver {
         });
 
         logger.info("----------------- APP THREAD CONFIG -----------------");
-        logger.info("Core pool size: {}", config.threadPoolExecutor.getCorePoolSize());
-        logger.info("Maximum pool size: {}", config.threadPoolExecutor.getMaximumPoolSize());
-        logger.info("Queue size: {}", config.threadPoolExecutor.getQueue().remainingCapacity());
-        logger.info("Rejection interceptors: {}", config.threadPoolExecutor.getRejectedExecutionHandler().getClass().getSimpleName());
+        if(AppExecutors.executors.isEmpty() && AppExecutors.schedulers.isEmpty()) {
+            logger.info("No executors configured");
+        }
+        AppExecutors.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
+        AppExecutors.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
 
         logger.info("-------------------- REST CONFIG --------------------");
         for (MappedEndpoint endpoint : mappedEndpoints) {
             logger.info("{}  {}", endpoint.method, endpoint.url);
         }
+    }
+
+    private void logExecutors(String name, ThreadPoolExecutor executor) {
+        logger.info("Pool name: {}", name);
+        logger.info("   Core pool size: {}", executor.getCorePoolSize());
+        logger.info("   Maximum pool size: {}", executor.getMaximumPoolSize());
+        logger.info("   Queue size: {}", executor.getQueue().remainingCapacity());
+        logger.info("   Rejection policy: {}", executor.getRejectedExecutionHandler().getClass().getSimpleName());
     }
 
 

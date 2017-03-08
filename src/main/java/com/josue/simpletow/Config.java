@@ -3,23 +3,25 @@ package com.josue.simpletow;
 import org.xnio.OptionMap;
 import org.xnio.Options;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Map;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Josue on 01/02/2017.
  */
-public class Config {
+public final class Config {
 
     int port = 8080;
     String bindAddress = "0.0.0.0";
 
     final OptionMap.Builder optionBuilder = OptionMap.builder();
     boolean httpTracer;
-    ThreadPoolExecutor threadPoolExecutor;
+    final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
+    final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
     List<Interceptor> interceptors = new LinkedList<>();
 
 //    //SSR
@@ -35,9 +37,6 @@ public class Config {
         int processors = Runtime.getRuntime().availableProcessors();
         this.coreThreads(processors * 2);
         this.ioThreads(processors);
-
-
-        this.threadPoolExecutor = new ThreadPoolExecutor(2, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
     }
 
     public Config port(int port) {
@@ -112,8 +111,13 @@ public class Config {
         return optionBuilder;
     }
 
-    public Config appExecutor(ThreadPoolExecutor threadPoolExecutor) {
-        this.threadPoolExecutor = threadPoolExecutor;
+    public Config addExecutor(String name, ThreadPoolExecutor threadPoolExecutor) {
+        this.executors.put(name, threadPoolExecutor);
+        return this;
+    }
+
+    public Config addScheduler(String name, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
+        this.schedulers.put(name, scheduledThreadPoolExecutor);
         return this;
     }
 
