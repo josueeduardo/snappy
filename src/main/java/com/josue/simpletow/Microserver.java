@@ -20,7 +20,6 @@ import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
-import io.undertow.util.PathTemplateMatch;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -44,6 +43,7 @@ public class Microserver {
     private final RoutingHandler routingRestHandler = Handlers.routing();
     private final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
     private final List<MappedEndpoint> mappedEndpoints = new ArrayList<>();
+
     private final Config config;
     private PathHandler staticHandler;
     private Undertow.Builder serverBuilder;
@@ -159,13 +159,7 @@ public class Microserver {
     }
 
     public Microserver websocket(String url, AbstractReceiveListener endpoint) {
-
         WebSocketProtocolHandshakeHandler websocket = Handlers.websocket((exchange, channel) -> {
-
-
-            PathTemplateMatch pathMatch = exchange.getAttachment(PathTemplateMatch.ATTACHMENT_KEY);
-            logger.info(pathMatch.getParameters().get("id"));
-
             channel.getReceiveSetter().set(endpoint);
             channel.resumeReceives();
         });
@@ -198,6 +192,12 @@ public class Microserver {
         mappedEndpoints.add(new MappedEndpoint("WS", url, MappedEndpoint.Type.WS));
         websocketHandler.add(url, websocket);
 
+        return this;
+    }
+
+    public Microserver sse(String url) {
+        routingRestHandler.get(url, Handlers.serverSentEvents());
+        mappedEndpoints.add(new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE));
         return this;
     }
 
