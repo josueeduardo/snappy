@@ -189,7 +189,7 @@ public class Microserver {
             channel.resumeReceives();
         });
 
-        mappedEndpoints.add(new MappedEndpoint("WS", url, MappedEndpoint.Type.WS));
+        mappedEndpoints.add(new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS));
         websocketHandler.add(url, websocket);
 
         return this;
@@ -197,7 +197,7 @@ public class Microserver {
 
     public Microserver sse(String url) {
         routingRestHandler.get(url, Handlers.serverSentEvents());
-        mappedEndpoints.add(new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE));
+        mappedEndpoints.add(new MappedEndpoint(MappedEndpoint.Type.SSE.name(), url, MappedEndpoint.Type.SSE));
         return this;
     }
 

@@ -35,6 +35,8 @@ public class Main {
         microserver.websocket("/ws/{id}", new SampleEndpoint());
         microserver.staticFiles("/pages");
 
+        microserver.sse("/sse/{id}");
+
         microserver.start();
     }
 
