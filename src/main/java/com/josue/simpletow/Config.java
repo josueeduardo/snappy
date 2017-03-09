@@ -21,6 +21,7 @@ public final class Config {
     int port = 8080;
     String bindAddress = "0.0.0.0";
     boolean httpTracer;
+    boolean httpMetrics;
     List<Interceptor> interceptors = new LinkedList<>();
 
 //    //SSR
@@ -103,6 +104,11 @@ public final class Config {
 
     public Config httpTracer(boolean httpTracer) {
         this.httpTracer = httpTracer;
+        return this;
+    }
+
+    public Config enableHttpMetrics() {
+        this.httpMetrics = true;
         return this;
     }
 

@@ -13,7 +13,14 @@ public class Parsers {
 
     private static final Map<String, Parser> available = new HashMap<>();
 
+    static {
+        Parsers.register("application/json", new JsonParser());
+        Parsers.register("text/plain", new PlainTextParser());
+        Parsers.register("*/*", new JsonParser());
+    }
+
     private Parsers() {
+
     }
 
     public static void register(String mediaType, Parser parser) {

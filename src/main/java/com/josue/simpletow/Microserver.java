@@ -1,9 +1,7 @@
 package com.josue.simpletow;
 
 import com.josue.simpletow.metric.Metric;
-import com.josue.simpletow.parser.JsonParser;
-import com.josue.simpletow.parser.Parsers;
-import com.josue.simpletow.parser.PlainTextParser;
+import com.josue.simpletow.metric.RestMetricHandler;
 import com.josue.simpletow.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -12,6 +10,7 @@ import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import io.undertow.server.handlers.BlockingHandler;
+import io.undertow.server.handlers.MetricsHandler;
 import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.PathTemplateHandler;
 import io.undertow.server.handlers.PredicateHandler;
@@ -41,6 +40,7 @@ public class Microserver {
     private static final Logger logger = LoggerFactory.getLogger(Microserver.class);
     //extends PathTemplateHandler
     private final RoutingHandler routingRestHandler = Handlers.routing();
+    private final List<RestMetricHandler> metricsHandlers = new ArrayList<>();
     private final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
     private final List<MappedEndpoint> mappedEndpoints = new ArrayList<>();
 
@@ -57,11 +57,6 @@ public class Microserver {
     public Microserver(Config config) {
         this.config = config;
 
-        Parsers.register("application/json", new JsonParser());
-        Parsers.register("text/plain", new PlainTextParser());
-        Parsers.register("*/*", new JsonParser());
-
-
         serverBuilder = Undertow.builder();
 
         try {
@@ -70,7 +65,6 @@ public class Microserver {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     //best effort to resolve url that may be unique
@@ -101,17 +95,23 @@ public class Microserver {
     }
 
     private void configureMetrics() {
-        get("/metrics", (exchange) -> exchange.send(new Metric(AppExecutors.executors, AppExecutors.schedulers), "application/json"));
+        get("/metrics", (exchange) -> exchange.send(new Metric(AppExecutors.executors, AppExecutors.schedulers, metricsHandlers), "application/json"));
+
+        delete("/metrics", (exchange) -> {
+            for (MetricsHandler mh : metricsHandlers) {
+                mh.reset();
+            }
+        });
     }
 
     public void start() {
         logger.info("Starting server...");
 
+        configureMetrics();
+
         HttpHandler rootHandler = resolveHandlers();
         server = serverBuilder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
 
-
-        configureMetrics();
 
         AppExecutors.init(config);
         Runtime.getRuntime().addShutdownHook(new Thread(AppExecutors::shutdownAll));
@@ -129,31 +129,35 @@ public class Microserver {
     }
 
     public Microserver get(String url, RestEndpoint endpoint) {
-        routingRestHandler.get(url, resolveRestEndpoints(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.REST));
+        String getString = Methods.GET_STRING;
+        routingRestHandler.get(url, resolveRestEndpoints(url, getString, endpoint));
+        mappedEndpoints.add(new MappedEndpoint(getString, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver post(String url, RestEndpoint endpoint) {
-        routingRestHandler.post(url, resolveRestEndpoints(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.POST_STRING, url, MappedEndpoint.Type.REST));
+        String postString = Methods.POST_STRING;
+        routingRestHandler.post(url, resolveRestEndpoints(url, postString, endpoint));
+        mappedEndpoints.add(new MappedEndpoint(postString, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver put(String url, RestEndpoint endpoint) {
-        routingRestHandler.put(url, resolveRestEndpoints(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.PUT_STRING, url, MappedEndpoint.Type.REST));
+        String putString = Methods.PUT_STRING;
+        routingRestHandler.put(url, resolveRestEndpoints(url, putString, endpoint));
+        mappedEndpoints.add(new MappedEndpoint(putString, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver delete(String url, RestEndpoint endpoint) {
-        routingRestHandler.delete(url, resolveRestEndpoints(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.DELETE_STRING, url, MappedEndpoint.Type.REST));
+        String deleteString = Methods.DELETE_STRING;
+        routingRestHandler.delete(url, resolveRestEndpoints(url, deleteString, endpoint));
+        mappedEndpoints.add(new MappedEndpoint(deleteString, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver add(HttpString method, String url, RestEndpoint endpoint) {
-        routingRestHandler.add(method, url, resolveRestEndpoints(endpoint));
+        routingRestHandler.add(method, url, resolveRestEndpoints(url, method.toString(), endpoint));
         mappedEndpoints.add(new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST));
         return this;
     }
@@ -219,22 +223,27 @@ public class Microserver {
     }
 
 
-    private HttpHandler resolveRestEndpoints(RestEndpoint endpoint) {
+    private HttpHandler resolveRestEndpoints(String url, String method, RestEndpoint endpoint) {
         HttpHandler baseHandler = new BlockingHandler(new RestHandler(endpoint, config.interceptors));
 
         if (config.httpTracer) {
             baseHandler = Handlers.requestDump(baseHandler);
         }
+        if (config.httpMetrics) {
+            RestMetricHandler restMetricHandler = new RestMetricHandler(url, method, baseHandler);
+            metricsHandlers.add(restMetricHandler);
+            baseHandler = restMetricHandler;
+        }
 
         return baseHandler;
     }
-
 
     private void logConfig() {
         logger.info("-------------------- HTTP CONFIG --------------------");
         logger.info("Bind address: {}", config.bindAddress);
         logger.info("Port: {}", config.port);
-        logger.info("Tracer enabled: {}", config.httpTracer);
+        logger.info("Http tracer : {}", config.httpTracer);
+        logger.info("Http metrics: {}", config.httpMetrics);
 
         logger.info("---------------- SERVER CONFIG ---------------");
         config.optionBuilder.getMap().forEach(option -> {

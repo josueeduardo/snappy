@@ -16,6 +16,7 @@ public class Main {
     public static void main(String[] args) {
 
         Config config = new Config()
+                .enableHttpMetrics()
                 .coreThreads(10)
                 .ioThreads(5)
                 .maxThreads(20);
@@ -36,6 +37,7 @@ public class Main {
         microserver.staticFiles("/pages");
 
         microserver.sse("/sse/{id}");
+
 
         microserver.start();
     }
