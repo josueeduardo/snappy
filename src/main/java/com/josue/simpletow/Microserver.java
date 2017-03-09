@@ -7,11 +7,15 @@ import com.josue.simpletow.parser.PlainTextParser;
 import com.josue.simpletow.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.predicate.Predicate;
+import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import io.undertow.server.handlers.BlockingHandler;
+import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.PathTemplateHandler;
 import io.undertow.server.handlers.PredicateHandler;
+import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
@@ -36,12 +40,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class Microserver {
 
     //extends PathTemplateHandler
-    private final RoutingHandler routingHandler = Handlers.routing();
-    private final Undertow server;
+    private final RoutingHandler routingRestHandler = Handlers.routing();
+    private final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
+    private PathHandler staticHandler;
+    private Undertow.Builder serverBuilder;
+    private Undertow server;
 
     private final List<MappedEndpoint> mappedEndpoints = new ArrayList<>();
 
-    PathTemplateHandler websocketHandler = Handlers.pathTemplate();
 
     private final Config config;
 
@@ -60,44 +66,70 @@ public class Microserver {
         Parsers.register("*/*", new JsonParser());
 
 
-        Undertow.Builder builder = Undertow.builder();
+        serverBuilder = Undertow.builder();
 
         try {
             XnioWorker worker = Xnio.getInstance().createWorker(config.optionBuilder.getMap());
-            builder.setWorker(worker);
+            serverBuilder.setWorker(worker);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        configureMetrics();
-
-        PredicateHandler rootHandler = Handlers.predicate(value -> {
-            HeaderValues upgradeHeader = value.getRequestHeaders().get(Headers.UPGRADE);
-            return upgradeHeader != null && upgradeHeader.stream().anyMatch(v -> v.equalsIgnoreCase("websocket"));
-        }, websocketHandler, routingHandler);
-
-        server = builder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
     }
 
+    //best effort to resolve url that may be unique
+    private String[] cleanedUrls() {
+        return mappedEndpoints.stream()
+                .filter(me -> !me.type.equals(MappedEndpoint.Type.STATIC))
+                .map(me -> {
+                    int idx = me.url.indexOf("/{");
+                    return idx >= 0 ? me.url.substring(0, idx) : me.url;
+                })
+                .distinct().toArray(String[]::new);
+    }
+
+
+    private HttpHandler resolveHandlers() {
+
+        PredicateHandler websocketRestResolved = Handlers.predicate(value -> {
+            HeaderValues upgradeHeader = value.getRequestHeaders().get(Headers.UPGRADE);
+            return upgradeHeader != null && upgradeHeader.stream().anyMatch(v -> v.equalsIgnoreCase("websocket"));
+        }, websocketHandler, routingRestHandler);
+
+        if (staticHandler != null) {
+            String[] mappedServices = cleanedUrls();
+            Predicate mappedPredicate = Predicates.prefixes(mappedServices);
+            return Handlers.predicate(mappedPredicate, websocketRestResolved, staticHandler);
+        }
+        return websocketRestResolved;
+    }
 
     private void configureMetrics() {
         get("/metrics", (exchange) -> exchange.send(new Metric(AppExecutors.executors, AppExecutors.schedulers), "application/json"));
     }
 
-
     public void start() {
         logger.info("Starting server...");
+
+        HttpHandler rootHandler = resolveHandlers();
+        server = serverBuilder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
+
+
+        configureMetrics();
 
         AppExecutors.init(config);
         Runtime.getRuntime().addShutdownHook(new Thread(AppExecutors::shutdownAll));
 
         logConfig();
-
         server.start();
+
     }
 
     public void stop() {
-        logger.info("Stopping server...");
+        if (server != null) {
+            logger.info("Stopping server...");
+            server.stop();
+        }
     }
 
 
@@ -121,7 +153,11 @@ public class Microserver {
 
         logger.info("-------------------- REST CONFIG --------------------");
         for (MappedEndpoint endpoint : mappedEndpoints) {
-            logger.info("{}  {}", endpoint.prefix, endpoint.url);
+            String ws = "";
+            for (int i = 0; i < 10 - endpoint.prefix.length(); i++) {
+                ws += " ";
+            }
+            logger.info("{}{}", endpoint.prefix, ws + endpoint.url);
         }
     }
 
@@ -135,32 +171,32 @@ public class Microserver {
 
 
     public Microserver get(String url, RestEndpoint endpoint) {
-        routingHandler.get(url, buildHandlers(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.GET_STRING, url));
+        routingRestHandler.get(url, resolveRestEndpoints(endpoint));
+        mappedEndpoints.add(new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver post(String url, RestEndpoint endpoint) {
-        routingHandler.post(url, buildHandlers(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.POST_STRING, url));
+        routingRestHandler.post(url, resolveRestEndpoints(endpoint));
+        mappedEndpoints.add(new MappedEndpoint(Methods.POST_STRING, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver put(String url, RestEndpoint endpoint) {
-        routingHandler.put(url, buildHandlers(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.PUT_STRING, url));
+        routingRestHandler.put(url, resolveRestEndpoints(endpoint));
+        mappedEndpoints.add(new MappedEndpoint(Methods.PUT_STRING, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver delete(String url, RestEndpoint endpoint) {
-        routingHandler.delete(url, buildHandlers(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(Methods.DELETE_STRING, url));
+        routingRestHandler.delete(url, resolveRestEndpoints(endpoint));
+        mappedEndpoints.add(new MappedEndpoint(Methods.DELETE_STRING, url, MappedEndpoint.Type.REST));
         return this;
     }
 
     public Microserver add(HttpString method, String url, RestEndpoint endpoint) {
-        routingHandler.add(method, url, buildHandlers(endpoint));
-        mappedEndpoints.add(new MappedEndpoint(method.toString(), url));
+        routingRestHandler.add(method, url, resolveRestEndpoints(endpoint));
+        mappedEndpoints.add(new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST));
         return this;
     }
 
@@ -176,7 +212,7 @@ public class Microserver {
             channel.resumeReceives();
         });
 
-        mappedEndpoints.add(new MappedEndpoint("WS", url));
+        mappedEndpoints.add(new MappedEndpoint("WS", url, MappedEndpoint.Type.WS));
         websocketHandler.add(url, websocket);
 
         return this;
@@ -186,7 +222,7 @@ public class Microserver {
 
         WebSocketProtocolHandshakeHandler websocket = Handlers.websocket(connectionCallback);
 
-        mappedEndpoints.add(new MappedEndpoint("WS", url));
+        mappedEndpoints.add(new MappedEndpoint("WS", url, MappedEndpoint.Type.WS));
         websocketHandler.add(url, websocket);
 
         return this;
@@ -201,13 +237,31 @@ public class Microserver {
             channel.resumeReceives();
         });
 
-        mappedEndpoints.add(new MappedEndpoint("WS", url));
+        mappedEndpoints.add(new MappedEndpoint("WS", url, MappedEndpoint.Type.WS));
         websocketHandler.add(url, websocket);
 
         return this;
     }
 
-    private HttpHandler buildHandlers(RestEndpoint endpoint) {
+    public Microserver staticFiles(String url, String docPath) {
+        docPath = docPath.startsWith("/") ? docPath.replaceFirst("/", "") : docPath;
+        staticHandler = Handlers.path()
+                .addPrefixPath(url,
+                        Handlers.resource(new ClassPathResourceManager(Thread.currentThread().getContextClassLoader(), docPath))
+                                .addWelcomeFiles("static/index.html"));
+
+        mappedEndpoints.add(new MappedEndpoint("STATIC", url, MappedEndpoint.Type.STATIC));
+
+        return this;
+    }
+
+    public Microserver staticFiles(String url) {
+        this.staticFiles(url, "static");
+        return this;
+    }
+
+
+    private HttpHandler resolveRestEndpoints(RestEndpoint endpoint) {
         HttpHandler baseHandler = new BlockingHandler(new RestHandler(endpoint, config.interceptors));
 
         if (config.httpTracer) {

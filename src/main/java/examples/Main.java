@@ -23,6 +23,7 @@ public class Main {
 
 
         Microserver microserver = new Microserver(config);
+//        microserver.get("/hello/{id}", exchange -> {});
         microserver.get("/hello/{name}", exchange -> {
             logger.info(Thread.currentThread().getName());
             exchange.send(new User(exchange.pathParameter("name")));
@@ -33,6 +34,7 @@ public class Main {
         microserver.post("/echo", exchange -> exchange.send(exchange.body(User.class)));
 
         microserver.websocket("/ws/{id}", new SampleEndpoint());
+        microserver.staticFiles("/pages");
 
         microserver.start();
     }
