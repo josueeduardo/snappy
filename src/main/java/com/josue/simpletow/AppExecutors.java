@@ -17,15 +17,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class AppExecutors {
 
-    private static final String DEFAULT = "default";
-
-    private static final Logger logger = LoggerFactory.getLogger(AppExecutors.class);
-
-    private static ThreadPoolExecutor defaultExecutor;
-    private static ScheduledExecutorService defaultScheduler;
-
     static final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
     static final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
+    private static final String DEFAULT = "default";
+    private static final Logger logger = LoggerFactory.getLogger(AppExecutors.class);
+    private static ThreadPoolExecutor defaultExecutor;
+    private static ScheduledExecutorService defaultScheduler;
 
     static void init(Config config) {
         executors.putAll(config.executors);

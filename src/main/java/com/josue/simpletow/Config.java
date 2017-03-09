@@ -15,13 +15,12 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public final class Config {
 
-    int port = 8080;
-    String bindAddress = "0.0.0.0";
-
     final OptionMap.Builder optionBuilder = OptionMap.builder();
-    boolean httpTracer;
     final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
     final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
+    int port = 8080;
+    String bindAddress = "0.0.0.0";
+    boolean httpTracer;
     List<Interceptor> interceptors = new LinkedList<>();
 
 //    //SSR

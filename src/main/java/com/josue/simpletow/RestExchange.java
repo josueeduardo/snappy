@@ -76,17 +76,17 @@ public class RestExchange {
         return httpServerExchange.getInputStream();
     }
 
-    private Parser getWriteParser(String contentType){
+    private Parser getWriteParser(String contentType) {
         //TODO investigate content negotiation
 //        return Parsers.find(httpServerExchange.getRequestHeaders().get(Headers.ACCEPT));
         return Parsers.getParser(contentType);
     }
 
-    private Parser getReadParserForContentType(){
+    private Parser getReadParserForContentType() {
         return Parsers.find(httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE));
     }
 
-    private Parser getReadParser(String contentType){
+    private Parser getReadParser(String contentType) {
         return Parsers.getParser(contentType);
     }
 

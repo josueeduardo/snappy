@@ -16,10 +16,9 @@ public class Main {
     public static void main(String[] args) {
 
         Config config = new Config()
-                        .coreThreads(10)
-                        .ioThreads(5)
-                        .maxThreads(20);
-
+                .coreThreads(10)
+                .ioThreads(5)
+                .maxThreads(20);
 
 
         Microserver microserver = new Microserver(config);

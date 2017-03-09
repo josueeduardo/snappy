@@ -7,7 +7,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class PoolMetric {
 
-    private String poolName;
     private final int activeCount;
     private final long completedTaskCount;
     private final int corePoolSize;
@@ -18,6 +17,7 @@ public class PoolMetric {
     private final long taskCount;
     private final int queueCapacity;
     private final int queuedTasks;
+    private String poolName;
 
     public PoolMetric(String poolName, ThreadPoolExecutor executor) {
         this.poolName = poolName;

@@ -11,9 +11,10 @@ import java.util.Map;
  */
 public class Parsers {
 
-    private Parsers(){}
-
     private static final Map<String, Parser> available = new HashMap<>();
+
+    private Parsers() {
+    }
 
     public static void register(String mediaType, Parser parser) {
         available.put(mediaType, parser);
@@ -22,9 +23,9 @@ public class Parsers {
     public static Parser find(HeaderValues types) {
         String[] triedTypes = new String[types.size()];
         int idx = 0;
-        for(String type : types) {
+        for (String type : types) {
             Parser parser = available.get(type);
-            if(parser != null) {
+            if (parser != null) {
                 return parser;
             }
             triedTypes[idx++] = type;
@@ -33,7 +34,7 @@ public class Parsers {
     }
 
     public static Parser getParser(String contentType) {
-       return available.get(contentType);
+        return available.get(contentType);
     }
 
 }

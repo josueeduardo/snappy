@@ -39,19 +39,15 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class Microserver {
 
+    private static final Logger logger = LoggerFactory.getLogger(Microserver.class);
     //extends PathTemplateHandler
     private final RoutingHandler routingRestHandler = Handlers.routing();
     private final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
+    private final List<MappedEndpoint> mappedEndpoints = new ArrayList<>();
+    private final Config config;
     private PathHandler staticHandler;
     private Undertow.Builder serverBuilder;
     private Undertow server;
-
-    private final List<MappedEndpoint> mappedEndpoints = new ArrayList<>();
-
-
-    private final Config config;
-
-    private static final Logger logger = LoggerFactory.getLogger(Microserver.class);
 
 
     public Microserver() {
@@ -131,44 +127,6 @@ public class Microserver {
             server.stop();
         }
     }
-
-
-    private void logConfig() {
-        logger.info("-------------------- HTTP CONFIG --------------------");
-        logger.info("Bind address: {}", config.bindAddress);
-        logger.info("Port: {}", config.port);
-        logger.info("Tracer enabled: {}", config.httpTracer);
-
-        logger.info("---------------- SERVER CONFIG ---------------");
-        config.optionBuilder.getMap().forEach(option -> {
-            logger.info("{}: {}", option.getName(), config.optionBuilder.getMap().get(option));
-        });
-
-        logger.info("----------------- APP THREAD CONFIG -----------------");
-        if (AppExecutors.executors.isEmpty() && AppExecutors.schedulers.isEmpty()) {
-            logger.info("No executors configured");
-        }
-        AppExecutors.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
-        AppExecutors.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
-
-        logger.info("-------------------- REST CONFIG --------------------");
-        for (MappedEndpoint endpoint : mappedEndpoints) {
-            String ws = "";
-            for (int i = 0; i < 10 - endpoint.prefix.length(); i++) {
-                ws += " ";
-            }
-            logger.info("{}{}", endpoint.prefix, ws + endpoint.url);
-        }
-    }
-
-    private void logExecutors(String name, ThreadPoolExecutor executor) {
-        logger.info("Pool name: {}", name);
-        logger.info("   Core pool size: {}", executor.getCorePoolSize());
-        logger.info("   Maximum pool size: {}", executor.getMaximumPoolSize());
-        logger.info("   Queue size: {}", executor.getQueue().remainingCapacity());
-        logger.info("   Rejection policy: {}", executor.getRejectedExecutionHandler().getClass().getSimpleName());
-    }
-
 
     public Microserver get(String url, RestEndpoint endpoint) {
         routingRestHandler.get(url, resolveRestEndpoints(endpoint));
@@ -269,6 +227,43 @@ public class Microserver {
         }
 
         return baseHandler;
+    }
+
+
+    private void logConfig() {
+        logger.info("-------------------- HTTP CONFIG --------------------");
+        logger.info("Bind address: {}", config.bindAddress);
+        logger.info("Port: {}", config.port);
+        logger.info("Tracer enabled: {}", config.httpTracer);
+
+        logger.info("---------------- SERVER CONFIG ---------------");
+        config.optionBuilder.getMap().forEach(option -> {
+            logger.info("{}: {}", option.getName(), config.optionBuilder.getMap().get(option));
+        });
+
+        logger.info("----------------- APP THREAD CONFIG -----------------");
+        if (AppExecutors.executors.isEmpty() && AppExecutors.schedulers.isEmpty()) {
+            logger.info("No executors configured");
+        }
+        AppExecutors.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
+        AppExecutors.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
+
+        logger.info("-------------------- REST CONFIG --------------------");
+        for (MappedEndpoint endpoint : mappedEndpoints) {
+            String ws = "";
+            for (int i = 0; i < 10 - endpoint.prefix.length(); i++) {
+                ws += " ";
+            }
+            logger.info("{}{}", endpoint.prefix, ws + endpoint.url);
+        }
+    }
+
+    private void logExecutors(String name, ThreadPoolExecutor executor) {
+        logger.info("Pool name: {}", name);
+        logger.info("   Core pool size: {}", executor.getCorePoolSize());
+        logger.info("   Maximum pool size: {}", executor.getMaximumPoolSize());
+        logger.info("   Queue size: {}", executor.getQueue().remainingCapacity());
+        logger.info("   Rejection policy: {}", executor.getRejectedExecutionHandler().getClass().getSimpleName());
     }
 
 }
