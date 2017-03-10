@@ -1,4 +1,4 @@
-package com.josue.simpletow;
+package com.josue.simpletow.sse;
 
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.server.handlers.sse.ServerSentEventHandler;

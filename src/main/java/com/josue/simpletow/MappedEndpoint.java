@@ -9,7 +9,7 @@ public class MappedEndpoint {
     final String url;
     final Type type;
 
-    public MappedEndpoint(String prefix, String url, Type type) {
+    MappedEndpoint(String prefix, String url, Type type) {
         this.prefix = prefix;
         this.url = url;
         this.type = type;

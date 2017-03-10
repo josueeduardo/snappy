@@ -1,7 +1,11 @@
 package com.josue.simpletow;
 
+import com.josue.simpletow.executor.AppExecutors;
 import com.josue.simpletow.metric.Metric;
 import com.josue.simpletow.metric.RestMetricHandler;
+import com.josue.simpletow.property.PropertyLoader;
+import com.josue.simpletow.rest.RestEndpoint;
+import com.josue.simpletow.rest.RestHandler;
 import com.josue.simpletow.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
@@ -97,7 +101,7 @@ public class Microserver {
     }
 
     private void configureMetrics() {
-        get("/metrics", (exchange) -> exchange.send(new Metric(AppExecutors.executors, AppExecutors.schedulers, metricsHandlers), "application/json"));
+        get("/metrics", (exchange) -> exchange.send(new Metric(AppExecutors.executors(), AppExecutors.schedulers(), metricsHandlers), "application/json"));
 
         delete("/metrics", (exchange) -> {
             for (MetricsHandler mh : metricsHandlers) {
@@ -109,13 +113,14 @@ public class Microserver {
     public void start() {
         logger.info("Starting server...");
 
+        PropertyLoader.load();
         configureMetrics();
 
         HttpHandler rootHandler = resolveHandlers();
         server = serverBuilder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
 
 
-        AppExecutors.init(config);
+        AppExecutors.init(config.executors, config.schedulers);
         Runtime.getRuntime().addShutdownHook(new Thread(AppExecutors::shutdownAll));
 
         logConfig();
@@ -253,11 +258,11 @@ public class Microserver {
         });
 
         logger.info("----------------- APP THREAD CONFIG -----------------");
-        if (AppExecutors.executors.isEmpty() && AppExecutors.schedulers.isEmpty()) {
+        if (config.executors.isEmpty() && config.schedulers.isEmpty()) {
             logger.info("No executors configured");
         }
-        AppExecutors.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
-        AppExecutors.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
+        config.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
+        config.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
 
         logger.info("-------------------- ENDPOINTS --------------------");
         Collections.sort(mappedEndpoints, Comparator.comparing(me -> me.url));

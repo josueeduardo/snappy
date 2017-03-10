@@ -1,4 +1,4 @@
-package com.josue.simpletow;
+package com.josue.simpletow.executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +24,9 @@ public class AppExecutors {
     private static ThreadPoolExecutor defaultExecutor;
     private static ScheduledExecutorService defaultScheduler;
 
-    static void init(Config config) {
-        executors.putAll(config.executors);
-        schedulers.putAll(config.schedulers);
-
+    public static void init(Map<String, ThreadPoolExecutor> execs, Map<String, ScheduledThreadPoolExecutor> scheds) {
+        executors.putAll(execs);
+        schedulers.putAll(scheds);
 
         if (executors.isEmpty()) {
             ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
@@ -51,6 +50,10 @@ public class AppExecutors {
         return defaultExecutor;
     }
 
+    public static Map<String, ThreadPoolExecutor> executors() {
+        return new HashMap<>(executors);
+    }
+
     public static ExecutorService executor(String name) {
         return executors.get(name);
     }
@@ -63,7 +66,11 @@ public class AppExecutors {
         return schedulers.get(name);
     }
 
-    static void shutdownAll() {
+    public static Map<String, ScheduledThreadPoolExecutor> schedulers() {
+        return new HashMap<>(schedulers);
+    }
+
+    public static void shutdownAll() {
         executors.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
         schedulers.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
         logger.info("Executors shutdown");

@@ -1,4 +1,4 @@
-package com.josue.simpletow;
+package com.josue.simpletow.rest;
 
 import com.josue.simpletow.parser.Parser;
 import com.josue.simpletow.parser.Parsers;

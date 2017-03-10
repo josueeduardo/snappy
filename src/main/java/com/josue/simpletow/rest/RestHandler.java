@@ -1,4 +1,4 @@
-package com.josue.simpletow;
+package com.josue.simpletow.rest;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;

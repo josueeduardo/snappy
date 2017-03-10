@@ -1,5 +1,6 @@
 package com.josue.simpletow;
 
+import com.josue.simpletow.rest.Interceptor;
 import org.xnio.OptionMap;
 import org.xnio.Options;
 
