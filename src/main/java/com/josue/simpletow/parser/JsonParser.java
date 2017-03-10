@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 
 /**
  * Created by josh on 3/6/17.
@@ -26,6 +27,11 @@ public class JsonParser implements Parser {
     @Override
     public <T> T read(InputStream is, Class<T> type) {
         return gson.fromJson(new BufferedReader(new InputStreamReader(is)), type);
+    }
+
+    @Override
+    public <T> T read(String data, Class<T> type) throws ParseException {
+        return gson.fromJson(new StringReader(data), type);
     }
 
     @Override

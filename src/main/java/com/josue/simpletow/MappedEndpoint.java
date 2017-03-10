@@ -3,7 +3,7 @@ package com.josue.simpletow;
 /**
  * Created by josh on 3/7/17.
  */
-public class MappedEndpoint {
+class MappedEndpoint {
 
     final String prefix; //HTTP methods or WS etc
     final String url;

@@ -23,6 +23,11 @@ public class PlainTextParser implements Parser {
     }
 
     @Override
+    public <T> T read(String data, Class<T> type) throws ParseException {
+        throw new UnsupportedOperationException("Cannot convert " + mediaType() + " to " + type);
+    }
+
+    @Override
     public String read(InputStream is) throws ParseException {
         StringBuilder sb = new StringBuilder();
         String line;

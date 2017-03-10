@@ -49,6 +49,7 @@ public class PropertyLoader {
         return fromSystem == null ? source.getProperty(key) : fromSystem;
     }
 
+
     public static Integer getIntegerProperty(String key) {
         String value = getProperty(key);
         if (value == null) {
@@ -88,7 +89,7 @@ public class PropertyLoader {
         }
     }
 
-    private static String getProperty(String key) {
+    public static String getProperty(String key) {
         if (key.isEmpty()) {
             logger.warn("No property key found for '{}'", key);
             return null;
