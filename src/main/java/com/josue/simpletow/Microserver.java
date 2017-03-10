@@ -29,6 +29,8 @@ import org.xnio.XnioWorker;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -38,7 +40,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 public class Microserver {
 
     private static final Logger logger = LoggerFactory.getLogger(Microserver.class);
-    //extends PathTemplateHandler
+    //Handlers
     private final RoutingHandler routingRestHandler = Handlers.routing();
     private final List<RestMetricHandler> metricsHandlers = new ArrayList<>();
     private final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
@@ -257,7 +259,8 @@ public class Microserver {
         AppExecutors.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
         AppExecutors.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
 
-        logger.info("-------------------- REST CONFIG --------------------");
+        logger.info("-------------------- ENDPOINTS --------------------");
+        Collections.sort(mappedEndpoints, Comparator.comparing(me -> me.url));
         for (MappedEndpoint endpoint : mappedEndpoints) {
             String ws = "";
             for (int i = 0; i < 10 - endpoint.prefix.length(); i++) {
