@@ -5,7 +5,7 @@ package io.joshworks.microserver.property;
  */
 public final class MicroserverProperties {
 
-    public static final String PROPERTIES_NAME = "microserver.properties";
+    public static final String PROPERTIES_NAME = "io.joshworks.microserver.properties";
 
     //http
     public static final String HTTP_PORT = "http.port";
