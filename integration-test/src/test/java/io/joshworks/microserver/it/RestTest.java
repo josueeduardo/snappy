@@ -1,11 +1,11 @@
 package io.joshworks.microserver.it;
 
-import io.joshworks.microserver.Endpoint;
 import io.joshworks.microserver.Microserver;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static io.joshworks.microserver.Endpoint.post;
 import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
@@ -18,7 +18,7 @@ public class RestTest {
 
     @BeforeClass
     public static void start(){
-        Endpoint.post("/echo", (exchange) -> exchange.send(exchange.body(User.class)));
+        post("/echo", (exchange) -> exchange.send(exchange.body(User.class)));
         server.start();
     }
 

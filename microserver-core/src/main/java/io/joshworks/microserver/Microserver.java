@@ -34,9 +34,10 @@ public class Microserver {
 
     public void start() {
         try {
+            Info.logo();
             PropertyLoader.load();
+            Info.deploymentInfo(config);
             AppExecutors.init(config.executors, config.schedulers);
-            displayInfo();
 
             logger.info("Starting server...");
 
@@ -60,10 +61,6 @@ public class Microserver {
         }
     }
 
-    private void displayInfo() {
-        Info.logo();
-        Info.deploymentInfo(config);
-    }
 
     public void stop() {
         if (server != null) {
