@@ -12,6 +12,7 @@ import javax.ws.rs.client.InvocationCallback;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +29,7 @@ public class RestClient {
     private MultivaluedMap<String, Object> headers = new Headers<>();
     private List<String> accepts = new ArrayList<>();
 
-    private RestClient(ResteasyClient client) {
+    RestClient(ResteasyClient client) {
         this.client = client;
     }
 
@@ -64,7 +65,8 @@ public class RestClient {
     }
 
     public <T, R> R post(String url, T body, Class<R> responseType) {
-        return post(url, body).readEntity(responseType);
+        InputStream inputStream = post(url, body).readEntity(InputStream.class);
+        return Parsers.find(accepts).read(inputStream, responseType);
     }
 
     public <T> Future<Response> postAsync(String url, T body) {

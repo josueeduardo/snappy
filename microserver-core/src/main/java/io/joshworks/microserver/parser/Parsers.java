@@ -1,9 +1,8 @@
 package io.joshworks.microserver.parser;
 
-import io.undertow.util.HeaderValues;
-
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -27,7 +26,10 @@ public class Parsers {
         available.put(mediaType, parser);
     }
 
-    public static Parser find(HeaderValues types) {
+    public static Parser find(List<String> types) {
+        if(types.isEmpty()) {
+            return available.get("*/*");
+        }
         String[] triedTypes = new String[types.size()];
         int idx = 0;
         for (String type : types) {

@@ -3,6 +3,8 @@ package io.joshworks.microserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -15,30 +17,39 @@ public class Info {
 
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
 
+    public static void logo() {
+        BufferedReader br = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("logo.txt")));
+        br.lines().forEach(System.err::println);
+    }
+
     public static void deploymentInfo(Config config) {
 
-        logger.info("-------------------- HTTP CONFIG --------------------");
-        logger.info("Bind address: {}", config.bindAddress);
-        logger.info("Port: {}", config.port);
-        logger.info("Http tracer : {}", config.httpTracer);
-        logger.info("Http metrics: {}", config.httpMetrics);
+        System.err.println("---------------- HTTP CONFIG ----------------");
+        System.err.println(String.format("Bind address: %s", config.bindAddress));
+        System.err.println(String.format("Port: %d", config.port));
+        System.err.println(String.format("Http tracer : %b", config.httpTracer));
+        System.err.println(String.format("Http metrics: %b", config.httpMetrics));
 
-        logger.info("---------------- SERVER CONFIG ---------------");
+        System.err.println();
+
+        System.err.println("--------------- SERVER CONFIG ---------------");
         config.optionBuilder.getMap().forEach(option -> {
-            logger.info("{}: {}", option.getName(), config.optionBuilder.getMap().get(option));
+            System.err.println(String.format("%s: %s", option.getName(), config.optionBuilder.getMap().get(option)));
         });
 
-        logger.info("----------------- APP THREAD CONFIG -----------------");
+        System.err.println();
+
+        System.err.println("------------- APP THREAD CONFIG -------------");
         if (config.executors.isEmpty() && config.schedulers.isEmpty()) {
-            logger.info("No executors configured");
+            System.err.println("No executors configured");
         }
         config.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
         config.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
 
-        logger.info("-------------------- ENDPOINTS --------------------");
-
+        System.err.println();
+        System.err.println("----------------- ENDPOINTS -----------------");
         logEndpoints(new ArrayList<>(Endpoint.mappedEndpoints));
-
+        System.err.println();
     }
 
     private static void logEndpoints(List<MappedEndpoint> endpoints) {
@@ -48,17 +59,17 @@ public class Info {
             for (int i = 0; i < 10 - endpoint.method.length(); i++) {
                 ws += " ";
             }
-            logger.info("{}{}", endpoint.method, ws + endpoint.url);
+            System.err.println(String.format("%s%s", endpoint.method, ws + endpoint.url));
 
         }
     }
 
     private static void logExecutors(String name, ThreadPoolExecutor executor) {
-        logger.info("Pool name: {}", name);
-        logger.info("   Core pool size: {}", executor.getCorePoolSize());
-        logger.info("   Maximum pool size: {}", executor.getMaximumPoolSize());
-        logger.info("   Queue size: {}", executor.getQueue().remainingCapacity());
-        logger.info("   Rejection policy: {}", executor.getRejectedExecutionHandler().getClass().getSimpleName());
+        System.err.println(String.format("Pool name: %s", name));
+        System.err.println(String.format("   Core pool size: %d", executor.getCorePoolSize()));
+        System.err.println(String.format("   Maximum pool size: %d", executor.getMaximumPoolSize()));
+        System.err.println(String.format("   Queue size: %d", executor.getQueue().remainingCapacity()));
+        System.err.println(String.format("   Rejection policy: %s", executor.getRejectedExecutionHandler().getClass().getSimpleName()));
     }
 
 }

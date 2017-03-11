@@ -34,6 +34,7 @@ public class Microserver {
 
     public void start() {
         try {
+            displayInfo();
             logger.info("Starting server...");
 
             serverBuilder = Undertow.builder();
@@ -43,14 +44,12 @@ public class Microserver {
 
             PropertyLoader.load();
 
-
             HttpHandler rootHandler = HandlerManager.resolveHandlers(Endpoint.mappedEndpoints, config.httpMetrics, config.httpTracer);
             server = serverBuilder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
 
             AppExecutors.init(config.executors, config.schedulers);
             Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
 
-            displayInfo();
             server.start();
 
         } catch (Exception e) {
@@ -60,6 +59,7 @@ public class Microserver {
     }
 
     private void displayInfo() {
+        Info.logo();
         Info.deploymentInfo(config);
     }
 
