@@ -38,11 +38,11 @@ public class RestClient {
     }
 
     public <T> T get(String url, Class<T> type) {
-        return invocation(url).get(type);
+        Response response = invocation(url).get();
+        return Parsers.find(accepts).read(response.readEntity(InputStream.class), type);
     }
 
     public Response get(String url) {
-
         return invocation(url).get();
     }
 
@@ -89,7 +89,8 @@ public class RestClient {
     }
 
     public <T, R> R put(String url, T body, Class<R> responseType) {
-        return post(url, body).readEntity(responseType);
+        InputStream inputStream = post(url, body).readEntity(InputStream.class);
+        return Parsers.find(accepts).read(inputStream, responseType);
     }
 
     public <T> Future<Response> putAsync(String url, T body) {
@@ -111,7 +112,8 @@ public class RestClient {
     }
 
     public <T, R> R delete(String url, T body, Class<R> responseType) {
-        return post(url, body).readEntity(responseType);
+        InputStream inputStream = post(url, body).readEntity(InputStream.class);
+        return Parsers.find(accepts).read(inputStream, responseType);
     }
 
     public <T> Future<Response> deleteAsync(String url, T body) {
@@ -128,13 +130,14 @@ public class RestClient {
 
     //------- METHODS -----
 
-    private  <T> Response method(String method, String url, T body) {
+    private <T> Response method(String method, String url, T body) {
         String bodyString = Parsers.getParser(mediaType).write(body);
         return invocation(url).method(method, Entity.entity(bodyString, mediaType));
     }
 
     private <T, R> R method(String method, String url, T body, Class<R> responseType) {
-        return method(method, url, body).readEntity(responseType);
+        InputStream inputStream = method(method, url, body).readEntity(InputStream.class);
+        return Parsers.find(accepts).read(inputStream, responseType);
     }
 
     private <T> Future<Response> methodAsync(String method, String url, T body) {
