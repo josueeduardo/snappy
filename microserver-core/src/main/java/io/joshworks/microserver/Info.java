@@ -34,14 +34,14 @@ public class Info {
 
         System.err.println("--------------- SERVER CONFIG ---------------");
         config.optionBuilder.getMap().forEach(option -> {
-            System.err.println(String.format("%s: %s", option.getName(), config.optionBuilder.getMap().get(option)));
+            System.err.println(String.format("%s: %s", option.getName().replaceAll("_", " ").toLowerCase(), config.optionBuilder.getMap().get(option)));
         });
 
         System.err.println();
 
         System.err.println("------------- APP THREAD CONFIG -------------");
         if (config.executors.isEmpty() && config.schedulers.isEmpty()) {
-            System.err.println("No executors configured");
+            System.err.println("No executors configured (default will be used)");
         }
         config.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
         config.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));

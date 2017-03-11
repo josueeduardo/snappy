@@ -34,7 +34,10 @@ public class Microserver {
 
     public void start() {
         try {
+            PropertyLoader.load();
+            AppExecutors.init(config.executors, config.schedulers);
             displayInfo();
+
             logger.info("Starting server...");
 
             serverBuilder = Undertow.builder();
@@ -42,12 +45,11 @@ public class Microserver {
             XnioWorker worker = Xnio.getInstance().createWorker(config.optionBuilder.getMap());
             serverBuilder.setWorker(worker);
 
-            PropertyLoader.load();
 
             HttpHandler rootHandler = HandlerManager.resolveHandlers(Endpoint.mappedEndpoints, config.httpMetrics, config.httpTracer);
             server = serverBuilder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
 
-            AppExecutors.init(config.executors, config.schedulers);
+
             Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
 
             server.start();
