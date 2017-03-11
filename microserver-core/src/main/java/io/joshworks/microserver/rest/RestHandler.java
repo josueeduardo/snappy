@@ -3,6 +3,7 @@ package io.joshworks.microserver.rest;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,11 +12,10 @@ import java.util.List;
 public class RestHandler implements HttpHandler {
 
     private final RestEndpoint endpoint;
-    private List<Interceptor> interceptors;
+    private List<Interceptor> interceptors = new ArrayList<>();
 
-    public RestHandler(RestEndpoint endpoint, List<Interceptor> interceptors) {
+    public RestHandler(RestEndpoint endpoint) {
         this.endpoint = endpoint;
-        this.interceptors = interceptors;
     }
 
     @Override
@@ -27,6 +27,10 @@ public class RestHandler implements HttpHandler {
         if (!httpServerExchange.isResponseComplete()) {
             endpoint.handle(restExchange);
         }
+    }
+
+    public void setInterceptors(List<Interceptor> interceptors) {
+        this.interceptors = interceptors;
     }
 
 

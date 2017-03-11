@@ -1,18 +1,22 @@
 package io.joshworks.microserver;
 
+import io.undertow.server.HttpHandler;
+
 /**
  * Created by josh on 3/7/17.
  */
-class MappedEndpoint {
+public class MappedEndpoint {
 
-    final String prefix; //HTTP methods or WS etc
-    final String url;
-    final Type type;
+    public final String method; //HTTP methods or WS etc
+    public final String url;
+    public final Type type;
+    public final HttpHandler handler;
 
-    MappedEndpoint(String prefix, String url, Type type) {
-        this.prefix = prefix;
+    MappedEndpoint(String method, String url, Type type, HttpHandler handler) {
+        this.method = method;
         this.url = url;
         this.type = type;
+        this.handler = handler;
     }
 
     public enum Type {

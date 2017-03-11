@@ -103,8 +103,8 @@ public final class Config {
         return this;
     }
 
-    public Config httpTracer(boolean httpTracer) {
-        this.httpTracer = httpTracer;
+    public Config enableTracer() {
+        this.httpTracer = true;
         return this;
     }
 

@@ -11,7 +11,7 @@ public class RestMetricHandler extends MetricsHandler {
     private final String url;
     private final String method;
 
-    public RestMetricHandler(String url, String method, HttpHandler next) {
+    public RestMetricHandler(String method, String url, HttpHandler next) {
         super(next);
         this.url = url;
         this.method = method;
@@ -19,7 +19,7 @@ public class RestMetricHandler extends MetricsHandler {
 
 
     public RestMetrics getRestMetrics() {
-        return new RestMetrics(url, method, getMetrics());
+        return new RestMetrics(method, url, getMetrics());
     }
 
     public static class RestMetrics {
