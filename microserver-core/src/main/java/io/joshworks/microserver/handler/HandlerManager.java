@@ -10,14 +10,19 @@ import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
+import io.undertow.server.handlers.PathHandler;
 import io.undertow.server.handlers.PathTemplateHandler;
 import io.undertow.server.handlers.PredicateHandler;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.StatusCodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.joshworks.microserver.handler.HandlerUtil.BASE_PATH;
 
 /**
  * Created by josh on 3/11/17.
@@ -26,13 +31,43 @@ public class HandlerManager {
 
     public static final List<RestMetricHandler> metricsHandlers = new ArrayList<>();
 
-    public static HttpHandler resolveHandlers(List<MappedEndpoint> mappedEndpoints, boolean httpMetrics, boolean httpTracer) {
-        registerMetrics();
+    private static final Logger logger = LoggerFactory.getLogger(HandlerManager.class);
 
+    public static HttpHandler resolvePath(Endpoint root, boolean httpMetrics, boolean httpTracer) {
+        registerMetrics(root);
+
+        PathHandler rootHandler = Handlers.path();
+//        PathTemplateHandler pathTemplateHandler = Handlers.pathTemplate();
+        traverse(root, rootHandler, root.getPath(), httpMetrics);
+
+        return httpTracer ? Handlers.requestDump(rootHandler) : rootHandler;
+    }
+
+    //TODO first call pass empty
+    //TODO add validation for PathTemplate (not supported)
+    private static void traverse(Endpoint endpoint, PathHandler rootHandler, String parentPath, boolean httpMetrics) {
+
+        String currentPath = BASE_PATH.equals(parentPath) ? endpoint.getPath() : parentPath + endpoint.getPath();
+
+        for (Endpoint child : endpoint.getRoutes()) {
+            traverse(child, rootHandler, currentPath, httpMetrics);
+        }
+
+        HttpHandler finalEndpoints = resolveEndpoints(endpoint, httpMetrics);
+        if (finalEndpoints != null) {
+            rootHandler.addPrefixPath(currentPath, finalEndpoints);
+        }
+    }
+
+    private static HttpHandler resolveEndpoints(Endpoint root, boolean httpMetrics) {
+        if (root.getMappedEndpoints().isEmpty()) {
+            return null;
+        }
         final RoutingHandler routingRestHandler = Handlers.routing();
         final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
         HttpHandler staticHandler = null;
 
+        List<MappedEndpoint> mappedEndpoints = root.getMappedEndpoints();
         for (MappedEndpoint me : mappedEndpoints) {
             if (MappedEndpoint.Type.REST.equals(me.type)) {
                 if (httpMetrics) {
@@ -55,12 +90,12 @@ public class HandlerManager {
         }
 
 
-        HttpHandler root = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
-        return httpTracer ? Handlers.requestDump(root) : root;
+        return resolvePath(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
+
     }
 
 
-    private static HttpHandler resolveHandlers(HttpHandler rest, HttpHandler ws, HttpHandler file, List<MappedEndpoint> mappedEndpoints) {
+    private static HttpHandler resolvePath(HttpHandler rest, HttpHandler ws, HttpHandler file, List<MappedEndpoint> mappedEndpoints) {
 
         PredicateHandler websocketRestResolved = Handlers.predicate(value -> {
             HeaderValues upgradeHeader = value.getRequestHeaders().get(Headers.UPGRADE);
@@ -88,11 +123,11 @@ public class HandlerManager {
     }
 
 
-    private static void registerMetrics() {
-        Endpoint.get("/metrics", (exchange) -> exchange.send(
+    private static void registerMetrics(Endpoint root) {
+        root.get("/metrics", (exchange) -> exchange.send(
                 new MetricData(), "application/json"));
 
-        Endpoint.delete("/metrics", (exchange) -> {
+        root.delete("/metrics", (exchange) -> {
             MetricManager.clear();
             exchange.status(StatusCodes.NO_CONTENT);
         });

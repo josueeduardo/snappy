@@ -12,7 +12,15 @@ public class MappedEndpoint {
     public final Type type;
     public final HttpHandler handler;
 
-    MappedEndpoint(String method, String url, Type type, HttpHandler handler) {
+//    public MappedEndpoint(String method, String url, HttpHandler handler, MappedEndpoint child) {
+//        this.method = method;
+//        this.url = url;
+//        this.type = Type.GROUP;
+//        this.handler = handler;
+//        this.child = child;
+//    }
+
+    public MappedEndpoint(String method, String url, Type type, HttpHandler handler) {
         this.method = method;
         this.url = url;
         this.type = type;
@@ -20,6 +28,6 @@ public class MappedEndpoint {
     }
 
     public enum Type {
-        REST, WS, STATIC, SSE
+        REST, WS, STATIC, SSE, GROUP
     }
 }

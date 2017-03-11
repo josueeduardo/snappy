@@ -47,7 +47,7 @@ public class Microserver {
             serverBuilder.setWorker(worker);
 
 
-            HttpHandler rootHandler = HandlerManager.resolveHandlers(Endpoint.mappedEndpoints, config.httpMetrics, config.httpTracer);
+            HttpHandler rootHandler = HandlerManager.resolvePath(Endpoint.root, config.httpMetrics, config.httpTracer);
             server = serverBuilder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
 
 

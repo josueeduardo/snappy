@@ -6,10 +6,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.microserver.Endpoint.delete;
-import static io.joshworks.microserver.Endpoint.get;
-import static io.joshworks.microserver.Endpoint.post;
-import static io.joshworks.microserver.Endpoint.put;
+import static io.joshworks.microserver.Endpoint.path;
 import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
@@ -27,10 +24,11 @@ public class RestTest {
 
     @BeforeClass
     public static void start() {
-        get(TEST_RESOURCE, (exchange) -> exchange.send(payload));
-        post(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)));
-        put(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)));
-        delete(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)));
+        path("/")
+                .get(TEST_RESOURCE, (exchange) -> exchange.send(payload))
+                .post(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)))
+                .put(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)))
+                .delete(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)));
         server.start();
     }
 
@@ -62,9 +60,6 @@ public class RestTest {
         SampleData response = client().delete(RESOURCE_PATH, payload, SampleData.class);
         assertEquals(payload.value, response.value);
     }
-
-
-
 
 
 }

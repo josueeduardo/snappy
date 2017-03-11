@@ -7,8 +7,7 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 
-import static io.joshworks.microserver.Endpoint.basePath;
-import static io.joshworks.microserver.Endpoint.get;
+import static io.joshworks.microserver.Endpoint.path;
 import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
@@ -28,8 +27,8 @@ public class BasePathTest {
 
     @BeforeClass
     public static void start() {
-        basePath(BASE_PATH);
-        get(TEST_RESOURCE, (exchange) -> exchange.status(200));
+        path(BASE_PATH)
+                .get(TEST_RESOURCE, (exchange) -> exchange.status(200));
         server.start();
     }
 
@@ -44,7 +43,6 @@ public class BasePathTest {
         Response response = client().get(RESOURCE_PATH);
         assertEquals(RESPONSE_STATUS, response.getStatus());
     }
-
 
 
 }

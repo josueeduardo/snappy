@@ -98,7 +98,7 @@ public class ServiceStore {
 
 //    private void sentStats(ServiceConfig config) {
 //        if (session != null && session.isOpen()) {
-//            eventBuffer.add(new Event(EventType.SERVICE_USAGE, config));
+//            eventBuffer.rest(new Event(EventType.SERVICE_USAGE, config));
 //
 //            if (eventBuffer.size() == eventBufferSize) {
 //                //for loop, since it will iterate a fixed ammount of times
