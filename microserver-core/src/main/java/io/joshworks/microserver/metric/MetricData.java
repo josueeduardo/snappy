@@ -1,7 +1,6 @@
 package io.joshworks.microserver.metric;
 
 import io.joshworks.microserver.executor.AppExecutors;
-import io.joshworks.microserver.handler.HandlerManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +21,7 @@ public class MetricData {
     private final List<PoolMetric> threads = new ArrayList<>();
     private final Map<String, Object> custom = new HashMap<>();
 
-    public MetricData() {
+    public MetricData(List<RestMetricHandler> metricsHandlers) {
         Runtime runtime = Runtime.getRuntime();
         this.maxMemory = runtime.maxMemory();
         this.totalMemory = runtime.totalMemory();
@@ -32,7 +31,7 @@ public class MetricData {
         AppExecutors.executors().entrySet().forEach(entry -> threads.add(new PoolMetric(entry.getKey(), entry.getValue())));
         AppExecutors.schedulers().entrySet().forEach(entry -> threads.add(new PoolMetric(entry.getKey(), entry.getValue())));
 
-        resources = HandlerManager.metricsHandlers.stream().map(RestMetricHandler::getRestMetrics).collect(Collectors.toList());
+        resources = metricsHandlers.stream().map(RestMetricHandler::getRestMetrics).collect(Collectors.toList());
         custom.putAll(Metrics.getData());
     }
 

@@ -7,7 +7,6 @@ import org.junit.Test;
 
 import javax.ws.rs.core.Response;
 
-import static io.joshworks.microserver.Endpoint.path;
 import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
@@ -17,18 +16,11 @@ import static org.junit.Assert.assertEquals;
 public class BasePathTest {
 
     private static Microserver server = new Microserver();
-    private static final String SERVER_URL = "http://localhost:8080";
-    private static final String BASE_PATH = "/v1";
-    private static final String TEST_RESOURCE = "/test";
-    private static final String RESOURCE_PATH = SERVER_URL + BASE_PATH + TEST_RESOURCE;
-
-
-    private static final int RESPONSE_STATUS = 200;
 
     @BeforeClass
     public static void start() {
-        path(BASE_PATH)
-                .get(TEST_RESOURCE, (exchange) -> exchange.status(200));
+        server.basePath("/v1").get("/test", (exchange) -> {
+        });
         server.start();
     }
 
@@ -40,8 +32,8 @@ public class BasePathTest {
 
     @Test
     public void getRequest() {
-        Response response = client().get(RESOURCE_PATH);
-        assertEquals(RESPONSE_STATUS, response.getStatus());
+        Response response = client().get("http://localhost:8080/v1/test");
+        assertEquals(200, response.getStatus());
     }
 
 

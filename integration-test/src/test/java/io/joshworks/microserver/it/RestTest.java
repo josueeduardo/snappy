@@ -6,7 +6,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.microserver.Endpoint.path;
 import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
@@ -24,11 +23,12 @@ public class RestTest {
 
     @BeforeClass
     public static void start() {
-        path("/")
+        server
                 .get(TEST_RESOURCE, (exchange) -> exchange.send(payload))
                 .post(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)))
                 .put(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)))
                 .delete(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)));
+
         server.start();
     }
 

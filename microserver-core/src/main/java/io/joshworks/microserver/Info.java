@@ -1,5 +1,7 @@
 package io.joshworks.microserver;
 
+import io.joshworks.microserver.handler.HandlerUtil;
+import io.joshworks.microserver.handler.MappedEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ public class Info {
         br.lines().forEach(System.err::println);
     }
 
-    public static void deploymentInfo(Config config) {
+    public static void deploymentInfo(Config config, List<MappedEndpoint> endpoints, String basePath) {
 
         System.err.println("---------------- HTTP CONFIG ----------------");
         System.err.println(String.format("Bind address: %s", config.bindAddress));
@@ -47,18 +49,19 @@ public class Info {
 
         System.err.println();
         System.err.println("----------------- ENDPOINTS -----------------");
-//        logEndpoints(new ArrayList<>(Endpoint.mappedEndpoints));
+        logEndpoints(endpoints, basePath);
         System.err.println();
     }
 
-    private static void logEndpoints(List<MappedEndpoint> endpoints) {
+    private static void logEndpoints(List<MappedEndpoint> endpoints, String basePath) {
         endpoints.sort(Comparator.comparing(me -> me.url));
         for (MappedEndpoint endpoint : endpoints) {
             String ws = "";
             for (int i = 0; i < 10 - endpoint.method.length(); i++) {
                 ws += " ";
             }
-            System.err.println(String.format("%s%s", endpoint.method, ws + endpoint.url));
+            String url = HandlerUtil.BASE_PATH.equals(basePath) ? endpoint.url : basePath + endpoint.url;
+            System.err.println(String.format("%s%s", endpoint.method, ws + url));
 
         }
     }

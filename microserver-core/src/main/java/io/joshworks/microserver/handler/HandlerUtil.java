@@ -1,6 +1,5 @@
 package io.joshworks.microserver.handler;
 
-import io.joshworks.microserver.MappedEndpoint;
 import io.joshworks.microserver.rest.RestEndpoint;
 import io.joshworks.microserver.rest.RestHandler;
 import io.joshworks.microserver.websocket.WebsocketEndpoint;
@@ -25,7 +24,7 @@ import static io.joshworks.microserver.Messages.INVALID_URL;
 public class HandlerUtil {
 
     public static final String BASE_PATH = "/";
-    public static final String STATIC_FILES_DEFAULT_FOLDER = "static";
+    public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
 
 
     public static MappedEndpoint rest(HttpString method, String url, RestEndpoint endpoint) {
@@ -81,7 +80,7 @@ public class HandlerUtil {
     }
 
     public static MappedEndpoint staticFiles(String url) {
-        return staticFiles(url, STATIC_FILES_DEFAULT_FOLDER);
+        return staticFiles(url, STATIC_FILES_DEFAULT_LOCATION);
     }
 
     public static String resolveUrl(String url) {
