@@ -28,6 +28,16 @@ public class MappedEndpoint {
     }
 
     public enum Type {
-        REST, WS, STATIC, SSE, GROUP
+        REST, WS, STATIC, SSE
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "method='" + method + '\'' +
+                ", url='" + url + '\'' +
+                ", type=" + type +
+                ", handler=" + handler +
+                '}';
     }
 }

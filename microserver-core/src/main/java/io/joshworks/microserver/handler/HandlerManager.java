@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.joshworks.microserver.handler.HandlerUtil.BASE_PATH;
 
@@ -60,40 +61,53 @@ public class HandlerManager {
     }
 
     private static HttpHandler resolveEndpoints(Endpoint root, boolean httpMetrics) {
-        if (root.getMappedEndpoints().isEmpty()) {
-            return null;
-        }
+
         final RoutingHandler routingRestHandler = Handlers.routing();
         final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
-        HttpHandler staticHandler = null;
 
-        List<MappedEndpoint> mappedEndpoints = root.getMappedEndpoints();
+        //static file handler
+        HttpHandler fileHandler = null;
+        Optional<MappedEndpoint> fileEndpoint = root.getEndpoints().stream()
+                .filter(me -> MappedEndpoint.Type.STATIC.equals(me.type)).findFirst();
+        if(fileEndpoint.isPresent()){
+            fileHandler = fileEndpoint.get().handler;
+        }
+
+        if(root.getDefaultEndpoint() != null) {
+            addToHandler(root.getDefaultEndpoint(), routingRestHandler, websocketHandler, httpMetrics);
+        }
+
+        List<MappedEndpoint> mappedEndpoints = root.getEndpoints();
         for (MappedEndpoint me : mappedEndpoints) {
-            if (MappedEndpoint.Type.REST.equals(me.type)) {
-                if (httpMetrics) {
-                    RestMetricHandler restMetricHandler = new RestMetricHandler(me.method, me.url, me.handler);
-                    metricsHandlers.add(restMetricHandler);
-                    routingRestHandler.add(me.method, me.url, restMetricHandler);
-                } else {
-                    routingRestHandler.add(me.method, me.url, me.handler);
-                }
-            }
-            if (MappedEndpoint.Type.SSE.equals(me.type)) {
-                routingRestHandler.add(me.method, me.url, me.handler);
-            }
-            if (MappedEndpoint.Type.WS.equals(me.type)) {
-                websocketHandler.add(me.url, me.handler);
-            }
-            if (MappedEndpoint.Type.STATIC.equals(me.type)) {
-                staticHandler = me.handler;
-            }
+            addToHandler(me, routingRestHandler, websocketHandler, httpMetrics);
         }
 
 
-        return resolvePath(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
+        return resolvePath(routingRestHandler, websocketHandler, fileHandler, mappedEndpoints);
 
     }
 
+    private static void addToHandler(MappedEndpoint me,
+                                     RoutingHandler routingRestHandler,
+                                     PathTemplateHandler websocketHandler,
+                                     boolean httpMetrics) {
+        if (MappedEndpoint.Type.REST.equals(me.type)) {
+            if (httpMetrics) {
+                RestMetricHandler restMetricHandler = new RestMetricHandler(me.method, me.url, me.handler);
+                metricsHandlers.add(restMetricHandler);
+                routingRestHandler.add(me.method, me.url, restMetricHandler);
+            } else {
+                routingRestHandler.add(me.method, me.url, me.handler);
+            }
+        }
+        if (MappedEndpoint.Type.SSE.equals(me.type)) {
+            routingRestHandler.add(me.method, me.url, me.handler);
+        }
+        if (MappedEndpoint.Type.WS.equals(me.type)) {
+            websocketHandler.add(me.url, me.handler);
+        }
+
+    }
 
     private static HttpHandler resolvePath(HttpHandler rest, HttpHandler ws, HttpHandler file, List<MappedEndpoint> mappedEndpoints) {
 
