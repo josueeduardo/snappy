@@ -1,13 +1,11 @@
 package io.joshworks.microserver.it;
 
 import io.joshworks.microserver.Microserver;
+import io.joshworks.microserver.client.RestClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.ws.rs.core.Response;
-
-import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -31,9 +29,8 @@ public class BasePathTest {
 
 
     @Test
-    public void getRequest() {
-        Response response = client().get("http://localhost:8080/v1/test");
-        assertEquals(200, response.getStatus());
+    public void getRequest() throws Exception {
+        assertEquals(200, RestClient.get("http://localhost:8080/v1/test").asString().getStatus());
     }
 
 

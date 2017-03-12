@@ -2,11 +2,11 @@ package io.joshworks.microserver.it;
 
 import io.joshworks.microserver.Config;
 import io.joshworks.microserver.Microserver;
+import io.joshworks.microserver.client.RestClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -37,36 +37,36 @@ public class MultipleInstances {
     }
 
     @Test
-    public void get_server1() {
-        assertEquals(200, client().get("http://localhost:8080/a").getStatus());
+    public void get_server1() throws Exception{
+        assertEquals(200, RestClient.get("http://localhost:8080/a").asString().getStatus());
     }
 
     @Test
-    public void get_server2() {
-        assertEquals(200, client().get("http://localhost:8081/b").getStatus());
+    public void get_server2() throws Exception{
+        assertEquals(200, RestClient.get("http://localhost:8081/b").asString().getStatus());
     }
 
     @Test
-    public void get_server3() {
-        assertEquals(200, client().get("http://localhost:8082/c").getStatus());
+    public void get_server3() throws Exception{
+        assertEquals(200, RestClient.get("http://localhost:8082/c").asString().getStatus());
     }
 
     @Test
-    public void get_server1_crossResource() {
-        assertEquals(404, client().get("http://localhost:8080/b").getStatus());
-        assertEquals(404, client().get("http://localhost:8080/c").getStatus());
+    public void get_server1_crossResource() throws Exception{
+        assertEquals(404, RestClient.get("http://localhost:8080/b").asString().getStatus());
+        assertEquals(404, RestClient.get("http://localhost:8080/c").asString().getStatus());
     }
 
     @Test
-    public void get_server2_crossRequest() {
-        assertEquals(404, client().get("http://localhost:8081/a").getStatus());
-        assertEquals(404, client().get("http://localhost:8081/c").getStatus());
+    public void get_server2_crossRequest() throws Exception{
+        assertEquals(404, RestClient.get("http://localhost:8081/a").asString().getStatus());
+        assertEquals(404, RestClient.get("http://localhost:8081/c").asString().getStatus());
     }
 
     @Test
-    public void get_server3_crossRequest() {
-        assertEquals(404, client().get("http://localhost:8082/a").getStatus());
-        assertEquals(404, client().get("http://localhost:8082/b").getStatus());
+    public void get_server3_crossRequest() throws Exception{
+        assertEquals(404, RestClient.get("http://localhost:8082/a").asString().getStatus());
+        assertEquals(404, RestClient.get("http://localhost:8082/b").asString().getStatus());
     }
 
 

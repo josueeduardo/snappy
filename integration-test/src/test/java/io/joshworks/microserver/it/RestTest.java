@@ -1,12 +1,12 @@
 package io.joshworks.microserver.it;
 
 import io.joshworks.microserver.Microserver;
+import io.joshworks.microserver.client.RestClient;
 import io.joshworks.microserver.it.util.SampleData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.microserver.client.Clients.client;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -24,10 +24,10 @@ public class RestTest {
     @BeforeClass
     public static void start() {
         server
-                .get(TEST_RESOURCE, (exchange) -> exchange.send(payload))
-                .post(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)))
-                .put(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)))
-                .delete(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body(SampleData.class)));
+                .get(TEST_RESOURCE, (exchange) -> exchange.response().send(payload))
+                .post(TEST_RESOURCE, (exchange) -> exchange.response().send(exchange.body().asObject(SampleData.class)))
+                .put(TEST_RESOURCE, (exchange) -> exchange.response().send(exchange.body().asObject(SampleData.class)))
+                .delete(TEST_RESOURCE, (exchange) -> exchange.response().send(exchange.body().asObject(SampleData.class)));
 
         server.start();
     }
@@ -38,26 +38,26 @@ public class RestTest {
     }
 
     @Test
-    public void getRequest() {
-        SampleData response = client().get(RESOURCE_PATH, SampleData.class);
+    public void getRequest() throws Exception {
+        SampleData body = RestClient.get(RESOURCE_PATH).asObject(SampleData.class).getBody();
+        assertEquals(payload.value, body.value);
+    }
+
+    @Test
+    public void postRequest() throws Exception {
+        SampleData response = RestClient.post(RESOURCE_PATH).body(payload).asObject(SampleData.class).getBody();
         assertEquals(payload.value, response.value);
     }
 
     @Test
-    public void postRequest() {
-        SampleData response = client().post(RESOURCE_PATH, payload, SampleData.class);
+    public void putRequest() throws Exception {
+        SampleData response = RestClient.put(RESOURCE_PATH).body(payload).asObject(SampleData.class).getBody();
         assertEquals(payload.value, response.value);
     }
 
     @Test
-    public void putRequest() {
-        SampleData response = client().put(RESOURCE_PATH, payload, SampleData.class);
-        assertEquals(payload.value, response.value);
-    }
-
-    @Test
-    public void deleteRequest() {
-        SampleData response = client().delete(RESOURCE_PATH, payload, SampleData.class);
+    public void deleteRequest() throws Exception {
+        SampleData response = RestClient.delete(RESOURCE_PATH).body(payload).asObject(SampleData.class).getBody();
         assertEquals(payload.value, response.value);
     }
 

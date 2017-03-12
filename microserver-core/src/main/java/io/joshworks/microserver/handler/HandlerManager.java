@@ -97,12 +97,12 @@ public class HandlerManager {
             List<RestMetricHandler> metricsHandlers) {
 
 
-        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.send(
+        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.response().send(
                 new MetricData(metricsHandlers), "application/json"));
 
         MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, "/metrics", (exchange) -> {
             metricsHandlers.forEach(MetricsHandler::reset);
-            exchange.status(StatusCodes.NO_CONTENT);
+            exchange.response().status(StatusCodes.NO_CONTENT);
         });
 
         routingRestHandler.add(getMetrics.method, getMetrics.url, getMetrics.handler);

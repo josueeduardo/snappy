@@ -14,7 +14,7 @@ public class Main {
         Microserver server = new Microserver(new Config().enableTracer().enableHttpMetrics());
 
         server.get("/echo", (exchange) -> {
-                    exchange.send("{}");
+                    exchange.response().send("{}");
                     Metrics.addMetric("Yolo", 1);
                 });
 

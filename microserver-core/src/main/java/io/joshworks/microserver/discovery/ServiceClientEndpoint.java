@@ -33,10 +33,14 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
 
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
-        logger.info("SSR: Sending connection event");
-        store.newSession(); //TODO WS is application scoped bean now
-        Instance currentInstance = Configurator.getCurrentInstance();
-        WebSockets.sendText(parser.write(currentInstance), channel, null);
+        try {
+            logger.info("SSR: Sending connection event");
+            store.newSession(); //TODO WS is application scoped bean now
+            Instance currentInstance = Configurator.getCurrentInstance();
+            WebSockets.sendText(parser.writeValue(currentInstance), channel, null);
+        }catch (Exception e) {
+            //TODO
+        }
     }
 
     @Override
@@ -64,20 +68,24 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
 
     @Override
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
-        Instance instance = parser.read(message.getData(), Instance.class);
-        logger.info("SSR: New Event: {}", instance);
+        try {
+            Instance instance = parser.readValue(message.getData(), Instance.class);
+            logger.info("SSR: New Event: {}", instance);
 
-        if (instance == null || instance.getState() == null) {
-            logger.warn("SSR: Invalid instance state");
-            return;
-        }
+            if (instance == null || instance.getState() == null) {
+                logger.warn("SSR: Invalid instance state");
+                return;
+            }
 
-        if (Instance.State.UP.equals(instance.getState())) {
-            store.onConnect(instance);
-        }
-        if (Instance.State.DOWN.equals(instance.getState())
-                || Instance.State.OUT_OF_SERVICE.equals(instance.getState())) {
-            store.onDisconnect(instance);
+            if (Instance.State.UP.equals(instance.getState())) {
+                store.onConnect(instance);
+            }
+            if (Instance.State.DOWN.equals(instance.getState())
+                    || Instance.State.OUT_OF_SERVICE.equals(instance.getState())) {
+                store.onDisconnect(instance);
+            }
+        }catch (Exception e) {
+            //TODO
         }
     }
 }

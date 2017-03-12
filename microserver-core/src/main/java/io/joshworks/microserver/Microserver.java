@@ -1,5 +1,6 @@
 package io.joshworks.microserver;
 
+import com.mashape.unirest.http.Unirest;
 import io.joshworks.microserver.executor.AppExecutors;
 import io.joshworks.microserver.handler.HandlerManager;
 import io.joshworks.microserver.handler.HandlerUtil;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,6 +81,11 @@ public class Microserver {
         if (server != null) {
             logger.info("Stopping server...");
             server.stop();
+            try {
+                Unirest.shutdown();
+            } catch (IOException e) {
+                logger.error("Error closing client connections", e);
+            }
         }
     }
 
@@ -88,7 +95,6 @@ public class Microserver {
 
 
     public Microserver basePath(String basePath) {
-        Objects.requireNonNull(basePath, Messages.INVALID_URL);
         this.basePath = basePath;
         return this;
     }
@@ -113,6 +119,16 @@ public class Microserver {
         return this;
     }
 
+    public Microserver options(String url, RestEndpoint endpoint) {
+        endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint));
+        return this;
+    }
+
+    public Microserver head(String url, RestEndpoint endpoint) {
+        endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint));
+        return this;
+    }
+
     public Microserver add(HttpString method, String url, RestEndpoint endpoint) {
         endpoints.add(HandlerUtil.rest(method, url, endpoint));
         return this;
@@ -134,16 +150,19 @@ public class Microserver {
     }
 
     public Microserver sse(String url) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
         endpoints.add(HandlerUtil.sse(url));
         return this;
     }
 
     public Microserver staticFiles(String url, String docPath) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
         endpoints.add(HandlerUtil.staticFiles(url, docPath));
         return this;
     }
 
     public Microserver staticFiles(String url) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
         endpoints.add(HandlerUtil.staticFiles(url));
         return this;
     }
@@ -160,6 +179,7 @@ public class Microserver {
 
         @Override
         public void run() {
+//            Clients.shutdown();
             AppExecutors.shutdownAll();
         }
     }
