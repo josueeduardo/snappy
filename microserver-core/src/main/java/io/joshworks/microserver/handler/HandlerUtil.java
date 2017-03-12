@@ -1,5 +1,6 @@
 package io.joshworks.microserver.handler;
 
+import io.joshworks.microserver.Messages;
 import io.joshworks.microserver.rest.RestEndpoint;
 import io.joshworks.microserver.rest.RestHandler;
 import io.joshworks.microserver.websocket.WebsocketEndpoint;
@@ -28,12 +29,17 @@ public class HandlerUtil {
 
 
     public static MappedEndpoint rest(HttpString method, String url, RestEndpoint endpoint) {
+        Objects.requireNonNull(method, Messages.INVALID_METHOD);
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);
         url = resolveUrl(url);
         HttpHandler handler = new BlockingHandler(new RestHandler(endpoint));
         return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, handler);
     }
 
     public static MappedEndpoint websocket(String url, AbstractReceiveListener endpoint) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);
         url = resolveUrl(url);
         WebSocketProtocolHandshakeHandler websocket = Handlers.websocket((exchange, channel) -> {
             channel.getReceiveSetter().set(endpoint);
@@ -44,13 +50,16 @@ public class HandlerUtil {
     }
 
     public static MappedEndpoint websocket(String url, WebSocketConnectionCallback connectionCallback) {
-
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        Objects.requireNonNull(connectionCallback, Messages.INVALID_HANDLER);
         WebSocketProtocolHandshakeHandler websocket = Handlers.websocket(connectionCallback);
         return new MappedEndpoint("WS", url, MappedEndpoint.Type.WS, websocket);
 
     }
 
     public static MappedEndpoint websocket(String url, WebsocketEndpoint websocketEndpoint) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        Objects.requireNonNull(websocketEndpoint, Messages.INVALID_HANDLER);
         url = resolveUrl(url);
         WebSocketProtocolHandshakeHandler websocket = Handlers.websocket((exchange, channel) -> {
             websocketEndpoint.onConnect(exchange, channel);
@@ -63,12 +72,15 @@ public class HandlerUtil {
     }
 
     public static MappedEndpoint sse(String url) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        Objects.requireNonNull(url, Messages.INVALID_HANDLER);
         url = resolveUrl(url);
         ServerSentEventHandler sseHandler = Handlers.serverSentEvents();
         return new MappedEndpoint(MappedEndpoint.Type.SSE.name(), url, MappedEndpoint.Type.SSE, sseHandler);
     }
 
     public static MappedEndpoint staticFiles(String url, String docPath) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
         url = resolveUrl(url);
         docPath = docPath.startsWith(BASE_PATH) ? docPath.replaceFirst(BASE_PATH, "") : docPath;
         HttpHandler handler = Handlers.path()
