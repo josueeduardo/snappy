@@ -1,6 +1,6 @@
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.Microserver;
+import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.it.util.SampleData;
 import org.junit.AfterClass;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class RestTest {
 
-    private static Microserver server = new Microserver();
+    private static SnappyServer server = new SnappyServer();
     private static final String SERVER_URL = "http://localhost:8080";
     private static final String TEST_RESOURCE = "/test";
     private static final String RESOURCE_PATH = SERVER_URL + TEST_RESOURCE;

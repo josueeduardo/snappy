@@ -1,6 +1,6 @@
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.Microserver;
+import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class ConegTest {
 
-    private static Microserver server = new Microserver();
+    private static SnappyServer server = new SnappyServer();
 
     @BeforeClass
     public static void start() {

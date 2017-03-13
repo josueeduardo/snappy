@@ -29,9 +29,9 @@ import java.util.Objects;
 /**
  * Created by josh on 3/5/17.
  */
-public class Microserver {
+public class SnappyServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(Microserver.class);
+    private static final Logger logger = LoggerFactory.getLogger(SnappyServer.class);
 
     private final HandlerManager handlerManager = new HandlerManager();
 
@@ -39,11 +39,11 @@ public class Microserver {
     private Undertow server;
 
 
-    public Microserver() {
+    public SnappyServer() {
         this(new Config());
     }
 
-    public Microserver(Config config) {
+    public SnappyServer(Config config) {
         this.config = config;
     }
 
@@ -95,78 +95,78 @@ public class Microserver {
     private String basePath = HandlerUtil.BASE_PATH;
 
 
-    public Microserver basePath(String basePath) {
+    public SnappyServer basePath(String basePath) {
         this.basePath = basePath;
         return this;
     }
 
-    public Microserver accepts(String mime) {
+    public SnappyServer accepts(String mime) {
         return this;
     }
 
-    public Microserver get(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public SnappyServer get(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
         endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, mimeTypes));
         return this;
     }
 
-    public Microserver post(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public SnappyServer post(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
         endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, mimeTypes));
         return this;
     }
 
-    public Microserver put(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public SnappyServer put(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
         endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, mimeTypes));
         return this;
     }
 
-    public Microserver delete(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public SnappyServer delete(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
         endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, mimeTypes));
         return this;
     }
 
-    public Microserver options(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public SnappyServer options(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
         endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, mimeTypes));
         return this;
     }
 
-    public Microserver head(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public SnappyServer head(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
         endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, mimeTypes));
         return this;
     }
 
-    public Microserver add(HttpString method, String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public SnappyServer add(HttpString method, String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
         endpoints.add(HandlerUtil.rest(method, url, endpoint, mimeTypes));
         return this;
     }
 
-    public Microserver websocket(String url, AbstractReceiveListener endpoint) {
+    public SnappyServer websocket(String url, AbstractReceiveListener endpoint) {
         endpoints.add(HandlerUtil.websocket(url, endpoint));
         return this;
     }
 
-    public Microserver websocket(String url, WebSocketConnectionCallback connectionCallback) {
+    public SnappyServer websocket(String url, WebSocketConnectionCallback connectionCallback) {
         endpoints.add(HandlerUtil.websocket(url, connectionCallback));
         return this;
     }
 
-    public Microserver websocket(String url, WebsocketEndpoint websocketEndpoint) {
+    public SnappyServer websocket(String url, WebsocketEndpoint websocketEndpoint) {
         endpoints.add(HandlerUtil.websocket(url, websocketEndpoint));
         return this;
     }
 
-    public Microserver sse(String url) {
+    public SnappyServer sse(String url) {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         endpoints.add(HandlerUtil.sse(url));
         return this;
     }
 
-    public Microserver staticFiles(String url, String docPath) {
+    public SnappyServer staticFiles(String url, String docPath) {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         endpoints.add(HandlerUtil.staticFiles(url, docPath));
         return this;
     }
 
-    public Microserver staticFiles(String url) {
+    public SnappyServer staticFiles(String url) {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         endpoints.add(HandlerUtil.staticFiles(url));
         return this;

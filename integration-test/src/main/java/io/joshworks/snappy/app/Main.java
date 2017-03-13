@@ -1,7 +1,7 @@
 package io.joshworks.snappy.app;
 
 import io.joshworks.snappy.Config;
-import io.joshworks.snappy.Microserver;
+import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.metric.Metrics;
 
 
@@ -11,7 +11,7 @@ import io.joshworks.snappy.metric.Metrics;
 public class Main {
 
     public static void main(String[] args) {
-        Microserver server = new Microserver(new Config().enableTracer().enableHttpMetrics());
+        SnappyServer server = new SnappyServer(new Config().enableTracer().enableHttpMetrics());
 
         server.get("/echo", (exchange) -> {
                     exchange.response().send("{}");

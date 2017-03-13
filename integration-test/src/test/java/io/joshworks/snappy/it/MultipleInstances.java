@@ -1,7 +1,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.snappy.Config;
-import io.joshworks.snappy.Microserver;
+import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -14,9 +14,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class MultipleInstances {
 
-    private static Microserver server1 = new Microserver(new Config().port(8080));
-    private static Microserver server2 = new Microserver(new Config().port(8081));
-    private static Microserver server3 = new Microserver(new Config().port(8082));
+    private static SnappyServer server1 = new SnappyServer(new Config().port(8080));
+    private static SnappyServer server2 = new SnappyServer(new Config().port(8081));
+    private static SnappyServer server3 = new SnappyServer(new Config().port(8082));
 
     @BeforeClass
     public static void start() {
