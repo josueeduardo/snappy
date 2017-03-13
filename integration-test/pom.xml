@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.joshworks</groupId>
-        <artifactId>microserver</artifactId>
+        <artifactId>snappy</artifactId>
         <version>0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -20,7 +20,7 @@
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>microserver-core</artifactId>
+            <artifactId>snappy-core</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
