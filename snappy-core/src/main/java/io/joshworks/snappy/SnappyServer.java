@@ -1,6 +1,7 @@
 package io.joshworks.snappy;
 
 import com.mashape.unirest.http.Unirest;
+import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
@@ -184,7 +185,7 @@ public class SnappyServer {
 
         @Override
         public void run() {
-//            Clients.shutdown();
+            RestClient.shutdown();
             AppExecutors.shutdownAll();
         }
     }

@@ -59,4 +59,12 @@ public class RestClient {
         return Unirest.patch(url);
     }
 
+    public static void shutdown() {
+        try {
+            Unirest.shutdown();
+        } catch (Exception e) {
+
+        }
+    }
+
 }
