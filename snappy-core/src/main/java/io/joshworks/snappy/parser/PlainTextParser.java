@@ -1,7 +1,8 @@
 package io.joshworks.snappy.parser;
 
+import io.joshworks.snappy.rest.MediaType;
+
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -21,8 +22,8 @@ public class PlainTextParser implements Parser {
     }
 
     @Override
-    public Set<String> mediaTypes() {
-        return new HashSet<>(Collections.singletonList("text/plain"));
+    public Set<MediaType> mediaTypes() {
+        return new HashSet<>(Arrays.asList(MediaType.TEXT_PLAIN_TYPE));
     }
 
 }

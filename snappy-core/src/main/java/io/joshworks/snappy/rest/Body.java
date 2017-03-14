@@ -81,7 +81,7 @@ public class Body {
         return Parsers.find(requestHeaders.get(Headers.CONTENT_TYPE));
     }
 
-    private Parser getReadParser(String contentType) {
+    private Parser getReadParser(MediaType contentType) {
         return Parsers.getParser(contentType);
     }
 

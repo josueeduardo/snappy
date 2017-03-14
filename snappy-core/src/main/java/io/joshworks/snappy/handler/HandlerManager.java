@@ -2,6 +2,7 @@ package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.metric.MetricData;
 import io.joshworks.snappy.metric.RestMetricHandler;
+import io.joshworks.snappy.rest.MediaType;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
@@ -101,7 +102,7 @@ public class HandlerManager {
 
 
         MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.response().send(
-                new MetricData(metricsHandlers), "application/json"));
+                new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE));
 
         MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, "/metrics", (exchange) -> {
             metricsHandlers.forEach(MetricsHandler::reset);

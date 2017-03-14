@@ -1,5 +1,6 @@
 package io.joshworks.snappy.rest;
 
+import io.joshworks.snappy.handler.RestHandler;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
 import io.undertow.server.HttpServerExchange;
@@ -14,10 +15,17 @@ public class Response {
 
     private final HttpServerExchange exchange;
     private int status = 200;
-    private String contentType = "application/json";
+    private MediaType contentType = MediaType.APPLICATION_JSON_TYPE;
 
     public Response(HttpServerExchange exchange) {
         this.exchange = exchange;
+        RestHandler.NegotiatedMediaType attachment = exchange.getAttachment(RestHandler.NEGOTIATED_MEDIA_TYPE);
+        if (attachment != null) {
+            contentType = attachment.produces;
+            if (contentType != null) {
+                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType.toString());
+            }
+        }
     }
 
 
@@ -31,8 +39,8 @@ public class Response {
         return this;
     }
 
-    public Response contentType(String contentType) {
-        this.contentType = contentType;
+    public Response contentType(MediaType mediaType) {
+        this.contentType = mediaType;
         return this;
     }
 
@@ -45,15 +53,19 @@ public class Response {
         this.response(response);
     }
 
-    public void send(Object response, String contentType) {
-        contentType(contentType);
+    public void send(Object response, MediaType mediaType) {
+        contentType(mediaType);
         this.response(response);
     }
 
     private void response(Object response) {
         try {
             Parser responseParser = Parsers.getParser(contentType);
-            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType);
+            if (responseParser == null) {
+                //TODO return as an 500 here instead
+                throw new RuntimeException("Could not find Parser for type " + contentType.toString());
+            }
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType.toString());
             exchange.setStatusCode(status);
             exchange.getResponseSender().send(responseParser.writeValue(response));
         } catch (Exception e) {

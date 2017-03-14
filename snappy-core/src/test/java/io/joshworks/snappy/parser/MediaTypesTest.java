@@ -4,6 +4,7 @@ import io.joshworks.snappy.rest.MediaType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by josh on 3/13/17.
@@ -107,7 +108,41 @@ public class MediaTypesTest {
         MediaType result = MediaType.valueOf(type);
         assertEquals("text", result.getType());
         assertEquals("*", result.getSubtype());
+    }
 
+    @Test
+    public void isCompatible_sameType() throws Exception {
+        String type = "text/plain";
+        MediaType mediaType = MediaType.valueOf(type);
+        assertTrue(mediaType.isCompatible(MediaType.valueOf(type)));
+    }
+
+    @Test
+    public void isCompatible_subtype_wildcard() throws Exception {
+        String type = "text/plain";
+        MediaType mediaType = MediaType.valueOf(type);
+        assertTrue(mediaType.isCompatible(MediaType.valueOf("text/*")));
+    }
+
+    @Test
+    public void isCompatible_all_wildcard() throws Exception {
+        String type = "text/plain";
+        MediaType mediaType = MediaType.valueOf(type);
+        assertTrue(mediaType.isCompatible(MediaType.valueOf("*/*")));
+    }
+
+    @Test
+    public void isCompatible_all_wildcard_input() throws Exception {
+        String type = "*/*";
+        MediaType mediaType = MediaType.valueOf(type);
+        assertTrue(mediaType.isCompatible(MediaType.valueOf("text/plain")));
+    }
+
+    @Test
+    public void isCompatible_subtype_wildcard_input() throws Exception {
+        String type = "*/*";
+        MediaType mediaType = MediaType.valueOf(type);
+        assertTrue(mediaType.isCompatible(MediaType.valueOf("text/*")));
     }
 
 }

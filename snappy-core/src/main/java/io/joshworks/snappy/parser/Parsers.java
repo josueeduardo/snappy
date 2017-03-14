@@ -1,14 +1,15 @@
 package io.joshworks.snappy.parser;
 
+import io.joshworks.snappy.rest.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by josh on 3/6/17.
@@ -17,8 +18,8 @@ public class Parsers {
 
     private static final Logger logger = LoggerFactory.getLogger(Parsers.class);
 
-    private static final Map<String, Parser> available = new HashMap<>();
-    private static final Parser fallback = new PlainTextParser();
+    private static final Map<MediaType, Parser> available = new HashMap<>();
+    private static final Parser defaultParser = new JsonParser();
 
     static {
         Parsers.register(new JsonParser());
@@ -29,47 +30,51 @@ public class Parsers {
 
     }
 
+    /**
+     * @param parser The {@link Parser to be registered}
+     * @throws IllegalArgumentException if a null instance or no media type is provided
+     */
     public static void register(Parser parser) {
         if (parser == null || parser.mediaTypes() == null || parser.mediaTypes().isEmpty()) {
-            throw new RuntimeException("Invalid parser");
+            throw new IllegalArgumentException("Invalid parser, media type not specified, or null instance");
         }
-        stripTypes(parser).forEach(t -> available.put(t, parser));
+        MediaType[] mediaTypes = parser.mediaTypes().toArray(new MediaType[parser.mediaTypes().size()]);
+        logger.info("Registering Parser {} for types {}", parser.getClass().getName(), Arrays.toString(mediaTypes));
+        parser.mediaTypes().forEach(t -> available.put(t, parser));
     }
 
-    private static Set<String> stripTypes(Parser parser) {
-        Set<String> types = new HashSet<>();
-        for (String type : parser.mediaTypes()) {
-            type = MediaTypes.removeCharset(type);
-            if (type != null) {
-                types.add(type);
+    /**
+     * @param contentTypes The accept types by the client
+     * @return The {@link Parser} for the first match, if no media type is provided, the default {@link JsonParser}
+     */
+    public static Parser find(List<String> contentTypes) throws ParseNotFoundException {
+        List<MediaType> types = new ArrayList<>();
+        for (String ct : contentTypes) {
+            types.add(MediaType.valueOf(ct));
+        }
+        return findByType(types);
+    }
+
+    public static Parser findByType(List<MediaType> contentTypes) throws ParseNotFoundException {
+        if (contentTypes == null || contentTypes.isEmpty()) {
+            return defaultParser;
+        }
+        for (Map.Entry<MediaType, Parser> parser : available.entrySet()) {
+            for (MediaType acceptType : contentTypes) {
+                if (parser.getKey().isCompatible(acceptType)) {
+                    return parser.getValue();
+                }
             }
         }
-        return types;
-
+        throw new ParseNotFoundException(contentTypes.toArray(new String[contentTypes.size()]));
     }
 
-
-    //TODO fallback to plain text
-    public static Parser find(List<String> types) {
-        if (types.isEmpty()) {
-            return fallback;
-        }
-        String[] triedTypes = new String[types.size()];
-        int idx = 0;
-        for (String type : types) {
-            type = MediaTypes.removeCharset(type);
-            Parser parser = available.get(type);
-            if (parser != null) {
-                return parser;
-            }
-            triedTypes[idx++] = type;
-        }
-        logger.warn("Parser not found media types {}", Arrays.toString(triedTypes));
-        return fallback;
-    }
-
-    public static Parser getParser(String contentType) {
-        return available.get(contentType);
+    /**
+     * @param contentType The accept types by the client
+     * @return The {@link Parser} for the first match, if no media type is provided, the default {@link JsonParser}
+     */
+    public static Parser getParser(MediaType contentType) {
+        return findByType(Collections.singletonList(contentType));
     }
 
 }

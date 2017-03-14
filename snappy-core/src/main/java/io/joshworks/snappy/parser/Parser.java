@@ -1,5 +1,7 @@
 package io.joshworks.snappy.parser;
 
+import io.joshworks.snappy.rest.MediaType;
+
 import java.util.Set;
 
 /**
@@ -11,5 +13,5 @@ public interface Parser {
 
     String writeValue(Object value) throws Exception;
 
-    public Set<String> mediaTypes();
+    public Set<MediaType> mediaTypes();
 }

@@ -1,8 +1,9 @@
 package io.joshworks.snappy.parser;
 
 import com.google.gson.Gson;
+import io.joshworks.snappy.rest.MediaType;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,7 +25,7 @@ public class JsonParser implements Parser {
     }
 
     @Override
-    public Set<String> mediaTypes() {
-        return new HashSet<>(Collections.singletonList("application/json"));
+    public Set<MediaType> mediaTypes() {
+        return new HashSet<>(Arrays.asList(MediaType.APPLICATION_JSON_TYPE));
     }
 }
