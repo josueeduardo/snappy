@@ -20,14 +20,13 @@ public class Response {
     public Response(HttpServerExchange exchange) {
         this.exchange = exchange;
         RestHandler.NegotiatedMediaType attachment = exchange.getAttachment(RestHandler.NEGOTIATED_MEDIA_TYPE);
-        if (attachment != null) {
+        if (attachment != null) { //should not happen
             contentType = attachment.produces;
             if (contentType != null) {
                 exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType.toString());
             }
         }
     }
-
 
     public Response header(String name, String value) {
         exchange.getResponseHeaders().add(HttpString.tryFromString(name), value);
@@ -44,6 +43,10 @@ public class Response {
         return this;
     }
 
+    public Response contentType(String mediaType) {
+        return this.contentType(MediaType.valueOf(mediaType));
+    }
+
     public Response status(int status) {
         this.status = status;
         return this;
@@ -51,6 +54,10 @@ public class Response {
 
     public void send(Object response) {
         this.response(response);
+    }
+
+    public void send(Object response, String mediaType) {
+        send(response, MediaType.valueOf(mediaType));
     }
 
     public void send(Object response, MediaType mediaType) {

@@ -1,14 +1,15 @@
 package io.joshworks.snappy.it;
 
-import com.mashape.unirest.http.Headers;
 import com.mashape.unirest.http.HttpResponse;
 import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
+import io.joshworks.snappy.rest.MediaType;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
+import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -26,6 +27,16 @@ public class ConegTest {
     public static void start() {
         server.basePath("/v1").get("/json", (exchange) -> {});
         server.basePath("/v1").get("/xml", (exchange) -> {}, consumes("application/xml"));
+        server.basePath("/v1").get("/simple-mime", (exchange) -> {}, consumes("json"));
+
+        //produces
+        server.basePath("/v1").get("/produces-json", (exchange) -> {}, produces("application/json"));
+        server.basePath("/v1").get("/produces-text", (exchange) -> {}, produces("text/plain"));
+
+        server.basePath("/v1").get("/overridden", (exchange) -> {
+            exchange.response().send("{}", MediaType.APPLICATION_JSON_TYPE);
+        }, produces("text/plain"));
+
         server.start();
     }
 
@@ -34,6 +45,7 @@ public class ConegTest {
         server.stop();
     }
 
+    // ----- SERVER CONSUMES -----
     @Test
     public void supportedMediaType() throws Exception {
         int responseStatus = RestClient.get("http://localhost:8080/v1/json").header(ACCEPT, "application/json").asString().getStatus();
@@ -53,7 +65,7 @@ public class ConegTest {
     }
 
     @Test
-    public void unsupportedMediaType() throws Exception {
+    public void unsupportedMediaType_withDefaults() throws Exception {
         int responseStatus = RestClient.get("http://localhost:8080/v1/json").header(ACCEPT, "application/xml").asString().getStatus();
         assertEquals(415, responseStatus);
     }
@@ -65,15 +77,20 @@ public class ConegTest {
     }
 
     @Test
+    public void simpleMime() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/simple-mime").header(ACCEPT, "application/json").asString();
+        assertEquals(200, response.getStatus());
+        assertNotNull(response.getHeaders().get(CONTENT_TYPE));
+        assertEquals("application/json", response.getHeaders().get(CONTENT_TYPE).get(0));
+    }
+
+    @Test
     public void supportedMediaType_prefer_json() throws Exception {
         HttpResponse<String> stringHttpResponse = RestClient.get("http://localhost:8080/v1/xml")
                 .header(ACCEPT, "application/json")
                 .header(ACCEPT, "text/plain")
                 .asString();
-        Headers headers = stringHttpResponse.getHeaders();
-        assertNotNull(headers.get(CONTENT_TYPE));
-        assertEquals(1, headers.get(CONTENT_TYPE).size());
-        assertEquals("application/json", headers.get(CONTENT_TYPE).iterator().next());
+        assertHeaderEquals("application/json", stringHttpResponse);
     }
 
     @Test
@@ -83,12 +100,65 @@ public class ConegTest {
                 .header(ACCEPT, "application/json")
                 .asString();
         assertEquals(200, stringHttpResponse.getStatus());
-
-        Headers headers = stringHttpResponse.getHeaders();
-        assertNotNull(headers.get(CONTENT_TYPE));
-        assertEquals(1, headers.get(CONTENT_TYPE).size());
-        assertEquals("text/plain", headers.get(CONTENT_TYPE).iterator().next());
+        assertHeaderEquals("text/plain", stringHttpResponse);
     }
 
+    @Test
+    public void validRequestPayloadMime() throws Exception {
+        int responseStatus = RestClient.get("http://localhost:8080/v1/xml").header(CONTENT_TYPE, "application/xml").asString().getStatus();
+        assertEquals(200, responseStatus);
+    }
+
+    @Test
+    public void invalidRequestPayloadMime() throws Exception {
+        int responseStatus = RestClient.get("http://localhost:8080/v1/xml").header(CONTENT_TYPE, "application/json").asString().getStatus();
+        assertEquals(415, responseStatus);
+    }
+
+    @Test
+    public void validRequestPayloadMime_with_consumes_sameType() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/json")
+                .header(CONTENT_TYPE, "application/json")
+                .header(ACCEPT, "application/json")
+                .asString();
+        assertEquals(200, response.getStatus());
+        assertHeaderEquals("application/json", response);
+    }
+
+
+    // ----- SERVER PRODUCES -----
+    @Test
+    public void noAcceptSpecified_default_json() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/json").asString();
+        assertEquals(200, response.getStatus());
+        assertHeaderEquals("application/json", response);
+    }
+
+    @Test
+    public void producesTextPlain() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/produces-text").asString();
+        assertEquals(200, response.getStatus());
+        assertHeaderEquals("text/plain", response);
+    }
+
+    @Test
+    public void producesJson() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/produces-json").asString();
+        assertEquals(200, response.getStatus());
+        assertHeaderEquals("application/json", response);
+    }
+
+    @Test
+    public void contentTypeOverridden() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/overridden").asString();
+        assertEquals(200, response.getStatus());
+        assertHeaderEquals("application/json", response);
+    }
+
+    private void assertHeaderEquals(String expected, HttpResponse response) {
+        assertNotNull(response.getHeaders().get(CONTENT_TYPE));
+        assertEquals(1, response.getHeaders().get(CONTENT_TYPE).size());
+        assertEquals(expected, response.getHeaders().get(CONTENT_TYPE).get(0));
+    }
 
 }

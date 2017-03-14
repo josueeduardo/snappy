@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -65,8 +66,12 @@ public class RestHandler implements HttpHandler {
         if (hasAcceptHeader) {
             return produces.match(acceptHeader);
         }
-        //if no Accept header is specified, application/json is used
-        return MediaType.APPLICATION_JSON_TYPE;
+        //if no Accept header is specified, the first specified by user OR default is used, PLAIN otherwise
+        Iterator<MediaType> iterator = produces.iterator();
+        if (iterator.hasNext()) {
+            return iterator.next();
+        }
+        return MediaType.TEXT_PLAIN_TYPE;
     }
 
     private MediaType matchConsumesMime(HttpServerExchange exchange) {

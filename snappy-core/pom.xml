@@ -10,10 +10,6 @@
         <version>0.1</version>
     </parent>
     <artifactId>snappy-core</artifactId>
-    <properties>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
-    </properties>
 
     <dependencies>
         <dependency>

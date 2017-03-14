@@ -20,7 +20,6 @@ public class Info {
     private static final String LOGO = "logo.txt";
     private static final String VERSION = "version.properties";
     private static final String VERSION_KEY = "version";
-    private static final String TIMESTAMP_KEY = "timestamp";
 
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
 
@@ -33,7 +32,7 @@ public class Info {
         try {
             Properties properties = new Properties();
             properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(VERSION));
-            System.err.println(String.format("Version: %s  (%s)\n\n", properties.get(VERSION_KEY), properties.get(TIMESTAMP_KEY)));
+            System.err.println(String.format("Version: %s\n\n", properties.get(VERSION_KEY)));
         } catch (Exception ex) {
 
         }
