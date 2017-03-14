@@ -52,6 +52,7 @@ public class SnappyServer {
     public void start() {
         try {
             Info.logo();
+            Info.version();
             PropertyLoader.load();
             Info.deploymentInfo(config, endpoints, basePath);
             AppExecutors.init(config.executors, config.schedulers);

@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -16,12 +17,28 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class Info {
 
+    private static final String LOGO = "logo.txt";
+    private static final String VERSION = "version.properties";
+    private static final String VERSION_KEY = "version";
+    private static final String TIMESTAMP_KEY = "timestamp";
+
     private static final Logger logger = LoggerFactory.getLogger(Info.class);
 
     public static void logo() {
-        BufferedReader br = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream("logo.txt")));
+        BufferedReader br = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(LOGO)));
         br.lines().forEach(System.err::println);
     }
+
+    public static void version() {
+        try {
+            Properties properties = new Properties();
+            properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(VERSION));
+            System.err.println(String.format("Version: %s  (%s)\n\n", properties.get(VERSION_KEY), properties.get(TIMESTAMP_KEY)));
+        } catch (Exception ex) {
+
+        }
+    }
+
 
     public static void deploymentInfo(Config config, List<MappedEndpoint> endpoints, String basePath) {
 
