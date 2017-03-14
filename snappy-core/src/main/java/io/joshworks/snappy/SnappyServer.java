@@ -3,6 +3,7 @@ package io.joshworks.snappy;
 import com.mashape.unirest.http.Unirest;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
+import io.joshworks.snappy.executor.ExecutorBootstrap;
 import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
@@ -55,7 +56,7 @@ public class SnappyServer {
             Info.version();
             PropertyLoader.load();
             Info.deploymentInfo(config, endpoints, basePath);
-            AppExecutors.init(config.executors, config.schedulers);
+            ExecutorBootstrap.init(config.executors, config.schedulers);
 
             logger.info("Starting server...");
 

@@ -23,7 +23,7 @@ public final class Config {
     String bindAddress = "0.0.0.0";
     boolean httpTracer;
     boolean httpMetrics;
-    List<Interceptor> interceptors = new LinkedList<>();
+    private List<Interceptor> interceptors = new LinkedList<>();
 
 //    //SSR
 //    public enum DiscoveryMode {

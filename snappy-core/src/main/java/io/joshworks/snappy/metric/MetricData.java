@@ -1,6 +1,6 @@
 package io.joshworks.snappy.metric;
 
-import io.joshworks.snappy.executor.AppExecutors;
+import io.joshworks.snappy.executor.ExecutorBootstrap;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,8 +28,8 @@ public class MetricData {
         this.freeMemory = runtime.freeMemory();
         this.usedMemory = (totalMemory - freeMemory);
 
-        AppExecutors.executors().entrySet().forEach(entry -> threads.add(new PoolMetric(entry.getKey(), entry.getValue())));
-        AppExecutors.schedulers().entrySet().forEach(entry -> threads.add(new PoolMetric(entry.getKey(), entry.getValue())));
+        threads.addAll(ExecutorBootstrap.executorMetrics());
+        threads.addAll(ExecutorBootstrap.schedulerMetrics());
 
         resources = metricsHandlers.stream().map(RestMetricHandler::getRestMetrics).collect(Collectors.toList());
         custom.putAll(Metrics.getData());

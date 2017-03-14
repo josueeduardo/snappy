@@ -5,9 +5,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -17,56 +18,89 @@ import java.util.concurrent.TimeUnit;
  */
 public class AppExecutors {
 
-    static final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
-    static final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
-    private static final String DEFAULT = "default";
+    private static final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
+    private static final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AppExecutors.class);
-    private static ThreadPoolExecutor defaultExecutor;
-    private static ScheduledExecutorService defaultScheduler;
+    private static String defaultExecutor;
+    private static String defaultScheduler;
 
-    public static void init(Map<String, ThreadPoolExecutor> execs, Map<String, ScheduledThreadPoolExecutor> scheds) {
+    static void init(
+            Map<String, ThreadPoolExecutor> execs, String defaultExec,
+            Map<String, ScheduledThreadPoolExecutor> scheds, String defaultSched) {
+
+        defaultExecutor = defaultExec;
+        defaultScheduler = defaultSched;
+
         executors.putAll(execs);
         schedulers.putAll(scheds);
-
-        if (executors.isEmpty()) {
-            ThreadPoolExecutor executorService = new ThreadPoolExecutor(0, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
-            executors.put(DEFAULT + "-executor", executorService);
-            defaultExecutor = executorService;
-        } else {
-            defaultExecutor = executors.values().iterator().next();
-        }
-
-        if (schedulers.isEmpty()) {
-            ScheduledThreadPoolExecutor scheduler = new ScheduledThreadPoolExecutor(2);
-            schedulers.put(DEFAULT + "-scheduler", scheduler);
-            defaultScheduler = scheduler;
-        } else {
-            defaultExecutor = executors.values().iterator().next();
-        }
-
     }
 
-    public static ExecutorService executor() {
-        return defaultExecutor;
+    public static void submit(Runnable runnable) {
+        submit(defaultExecutor, runnable);
     }
 
-    public static Map<String, ThreadPoolExecutor> executors() {
+    public static void submit(String poolName, Runnable runnable) {
+        ExecutorService executor = getExecutor(poolName);
+        executor.submit(runnable);
+    }
+
+    public static <T> Future<T> submit(Runnable runnable, T result) {
+        return submit(defaultExecutor, runnable, result);
+    }
+
+    public static <T> Future<T> submit(String poolName, Runnable runnable, T result) {
+        ExecutorService executor = getExecutor(poolName);
+        return executor.submit(runnable, result);
+    }
+
+    public static <T> ScheduledFuture<T> schedule(Callable<T> callable, long delay, TimeUnit timeUnit) {
+        return schedule(defaultScheduler, callable, delay, timeUnit);
+    }
+
+    public static <T> ScheduledFuture<T> schedule(String poolName, Callable<T> callable, long delay, TimeUnit timeUnit) {
+        ScheduledThreadPoolExecutor scheduler = getScheduler(poolName);
+        return scheduler.schedule(callable, delay, timeUnit);
+    }
+
+    public static void scheduleAtFixedRate(Runnable runnable, long delay, long period, TimeUnit timeUnit) {
+        scheduleAtFixedRate(defaultScheduler, runnable, delay, period, timeUnit);
+    }
+
+    public static void scheduleAtFixedRate(String poolName, Runnable runnable, long delay, long period, TimeUnit timeUnit) {
+        ScheduledThreadPoolExecutor scheduler = getScheduler(poolName);
+        scheduler.scheduleAtFixedRate(runnable, delay, period, timeUnit);
+    }
+
+    public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
+        return scheduleWithFixedDelay(defaultScheduler, runnable, initialDelay, delay, timeUnit);
+    }
+
+    public static ScheduledFuture<?> scheduleWithFixedDelay(String poolName, Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
+        ScheduledThreadPoolExecutor scheduler = getScheduler(poolName);
+        return scheduler.scheduleWithFixedDelay(runnable, initialDelay, delay, timeUnit);
+    }
+
+    private static ExecutorService getExecutor(String poolName) {
+        ThreadPoolExecutor threadPoolExecutor = executors.get(poolName);
+        if (threadPoolExecutor == null) {
+            throw new IllegalArgumentException("Thread pool not found for name " + poolName);
+        }
+        return threadPoolExecutor;
+    }
+
+    private static ScheduledThreadPoolExecutor getScheduler(String poolName) {
+        ScheduledThreadPoolExecutor threadPoolExecutor = schedulers.get(poolName);
+        if (threadPoolExecutor == null) {
+            throw new IllegalArgumentException("Thread pool not found for name " + poolName);
+        }
+        return threadPoolExecutor;
+    }
+
+    static Map<String, ThreadPoolExecutor> executors() {
         return new HashMap<>(executors);
     }
 
-    public static ExecutorService executor(String name) {
-        return executors.get(name);
-    }
-
-    public static ScheduledExecutorService scheduler() {
-        return defaultScheduler;
-    }
-
-    public static ScheduledExecutorService scheduler(String name) {
-        return schedulers.get(name);
-    }
-
-    public static Map<String, ScheduledThreadPoolExecutor> schedulers() {
+    static Map<String, ScheduledThreadPoolExecutor> schedulers() {
         return new HashMap<>(schedulers);
     }
 
