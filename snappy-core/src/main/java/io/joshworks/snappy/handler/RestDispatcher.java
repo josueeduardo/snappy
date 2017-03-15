@@ -44,8 +44,8 @@ public class RestDispatcher implements HttpHandler {
             this.connegHandler.handleRequest(exchange);
         } catch (ConnegException connex) {
 
-            sendErrorResponse(exchange, connex.getMessage());
             logger.error("Unsupported media type {}, possible values: {}", connex.headerValues, connex.types);
+            sendErrorResponse(exchange, connex.getMessage());
 
         } catch (Exception e) {
             HttpString requestMethod = exchange.getRequestMethod();

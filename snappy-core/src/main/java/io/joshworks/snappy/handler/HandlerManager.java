@@ -1,6 +1,7 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.metric.MetricData;
+import io.joshworks.snappy.metric.MetricsHandler;
 import io.joshworks.snappy.metric.RestMetricHandler;
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.Handlers;
@@ -8,7 +9,6 @@ import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
-import io.undertow.server.handlers.MetricsHandler;
 import io.undertow.server.handlers.PathTemplateHandler;
 import io.undertow.server.handlers.PredicateHandler;
 import io.undertow.util.HeaderValues;

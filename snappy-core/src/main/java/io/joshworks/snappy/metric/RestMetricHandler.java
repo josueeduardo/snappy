@@ -1,7 +1,6 @@
 package io.joshworks.snappy.metric;
 
 import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.MetricsHandler;
 
 /**
  * Created by josh on 3/9/17.
@@ -17,9 +16,8 @@ public class RestMetricHandler extends MetricsHandler {
         this.method = method;
     }
 
-
-    public RestMetrics getRestMetrics() {
-        return new RestMetrics(method, url, getMetrics());
+    RestMetrics getRestMetrics() {
+        return new RestMetrics(url, method, getMetrics());
     }
 
     public static class RestMetrics {
@@ -27,7 +25,7 @@ public class RestMetricHandler extends MetricsHandler {
         private final String method;
         private final MetricResult metrics;
 
-        public RestMetrics(String url, String method, MetricResult metrics) {
+        RestMetrics(String url, String method, MetricResult metrics) {
             this.url = url;
             this.method = method;
             this.metrics = metrics;

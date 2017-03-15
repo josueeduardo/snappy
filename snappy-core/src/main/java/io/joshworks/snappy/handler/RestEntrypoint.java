@@ -32,7 +32,10 @@ public class RestEntrypoint implements HttpHandler{
         }
 
         //TODO handle here after request interceptors
-        exchange.addExchangeCompleteListener((exchange1, nextListener) -> interceptors.forEach(i -> i.handleRequest(restExchange)));
+        exchange.addExchangeCompleteListener((exchange1, nextListener) -> {
+            interceptors.forEach(i -> i.handleRequest(restExchange));
+            nextListener.proceed();
+        });
 
         if (!exchange.isResponseComplete()) {
             endpoint.accept(restExchange);
