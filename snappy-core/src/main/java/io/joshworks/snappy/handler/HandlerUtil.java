@@ -93,7 +93,7 @@ public class HandlerUtil {
         HttpHandler handler = Handlers.path()
                 .addPrefixPath(url,
                         Handlers.resource(new ClassPathResourceManager(Thread.currentThread().getContextClassLoader(), docPath))
-                                .addWelcomeFiles("static/index.html"));
+                                .addWelcomeFiles("index.html"));
 
         return new MappedEndpoint("STATIC", url, MappedEndpoint.Type.STATIC, handler);
     }
