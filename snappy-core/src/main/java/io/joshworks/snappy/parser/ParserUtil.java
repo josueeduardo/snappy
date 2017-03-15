@@ -48,7 +48,7 @@ public class ParserUtil {
         if (contentEncoding == null) {
             return false;
         }
-        return contentEncoding.stream().anyMatch(hv -> Headers.GZIP.equals(hv.toLowerCase().trim()));
+        return contentEncoding.stream().anyMatch(hv -> Headers.GZIP.toString().equals(hv.toLowerCase().trim()));
     }
 
 }
