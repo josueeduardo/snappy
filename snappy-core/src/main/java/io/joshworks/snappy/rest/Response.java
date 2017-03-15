@@ -1,6 +1,6 @@
 package io.joshworks.snappy.rest;
 
-import io.joshworks.snappy.handler.RestHandler;
+import io.joshworks.snappy.handler.ConnegHandler;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
 import io.undertow.server.HttpServerExchange;
@@ -12,14 +12,13 @@ import io.undertow.util.HttpString;
  */
 public class Response {
 
-
     private final HttpServerExchange exchange;
     private int status = 200;
     private MediaType contentType = MediaType.APPLICATION_JSON_TYPE;
 
     public Response(HttpServerExchange exchange) {
         this.exchange = exchange;
-        RestHandler.NegotiatedMediaType attachment = exchange.getAttachment(RestHandler.NEGOTIATED_MEDIA_TYPE);
+        ConnegHandler.NegotiatedMediaType attachment = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
         if (attachment != null) { //should not happen
             contentType = attachment.produces;
             if (contentType != null) {

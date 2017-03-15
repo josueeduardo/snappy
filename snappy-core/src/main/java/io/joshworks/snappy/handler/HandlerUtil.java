@@ -16,6 +16,7 @@ import io.undertow.websockets.core.AbstractReceiveListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -38,7 +39,8 @@ public class HandlerUtil {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);
         url = resolveUrl(url);
-        HttpHandler handler = new BlockingHandler(new RestHandler(endpoint, mimeTypes));
+        //TODO implement interceptors - before / after
+        HttpHandler handler = new BlockingHandler(new RestDispatcher(endpoint, new ArrayList<>(), mimeTypes));
         return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, handler);
     }
 

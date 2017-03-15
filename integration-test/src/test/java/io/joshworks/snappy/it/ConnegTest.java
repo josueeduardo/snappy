@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by josh on 3/12/17.
  */
-public class ConegTest {
+public class ConnegTest {
 
     private static SnappyServer server = new SnappyServer();
 
