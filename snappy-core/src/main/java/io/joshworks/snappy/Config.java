@@ -1,15 +1,14 @@
 package io.joshworks.snappy;
 
+import io.joshworks.snappy.executor.ExecutorConfig;
+import io.joshworks.snappy.executor.SchedulerConfig;
 import io.joshworks.snappy.rest.Interceptor;
 import org.xnio.OptionMap;
 import org.xnio.Options;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * Created by Josue on 01/02/2017.
@@ -17,8 +16,8 @@ import java.util.concurrent.ThreadPoolExecutor;
 public final class Config {
 
     final OptionMap.Builder optionBuilder = OptionMap.builder();
-    final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
-    final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
+    final List<ExecutorConfig> executors = new ArrayList<>();
+    final List<SchedulerConfig> schedulers = new ArrayList<>();
     int port = 8080;
     String bindAddress = "0.0.0.0";
     boolean httpTracer;
@@ -117,13 +116,13 @@ public final class Config {
         return optionBuilder;
     }
 
-    public Config addExecutor(String name, ThreadPoolExecutor threadPoolExecutor) {
-        this.executors.put(name, threadPoolExecutor);
+    public Config addExecutor(ExecutorConfig executor) {
+        this.executors.add(executor);
         return this;
     }
 
-    public Config addScheduler(String name, ScheduledThreadPoolExecutor scheduledThreadPoolExecutor) {
-        this.schedulers.put(name, scheduledThreadPoolExecutor);
+    public Config addScheduler(SchedulerConfig scheduler) {
+        this.schedulers.add(scheduler);
         return this;
     }
 

@@ -9,7 +9,7 @@ import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.property.PropertyLoader;
-import io.joshworks.snappy.rest.RestEndpoint;
+import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Created by josh on 3/5/17.
@@ -56,7 +57,7 @@ public class SnappyServer {
             Info.version();
             PropertyLoader.load();
             Info.deploymentInfo(config, endpoints, basePath);
-            ExecutorBootstrap.init(config.executors, config.schedulers);
+            ExecutorBootstrap.init(config.schedulers, config.executors);
 
             logger.info("Starting server...");
 
@@ -107,38 +108,38 @@ public class SnappyServer {
         return this;
     }
 
-    public SnappyServer get(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, mimeTypes));
+    public SnappyServer get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, mediaTypes));
         return this;
     }
 
-    public SnappyServer post(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, mimeTypes));
+    public SnappyServer post(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, mediaTypes));
         return this;
     }
 
-    public SnappyServer put(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, mimeTypes));
+    public SnappyServer put(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, mediaTypes));
         return this;
     }
 
-    public SnappyServer delete(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, mimeTypes));
+    public SnappyServer delete(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, mediaTypes));
         return this;
     }
 
-    public SnappyServer options(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, mimeTypes));
+    public SnappyServer options(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, mediaTypes));
         return this;
     }
 
-    public SnappyServer head(String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, mimeTypes));
+    public SnappyServer head(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, mediaTypes));
         return this;
     }
 
-    public SnappyServer add(HttpString method, String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
-        endpoints.add(HandlerUtil.rest(method, url, endpoint, mimeTypes));
+    public SnappyServer add(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        endpoints.add(HandlerUtil.rest(method, url, endpoint, mediaTypes));
         return this;
     }
 

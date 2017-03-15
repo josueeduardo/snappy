@@ -40,12 +40,18 @@ public class ExecutorBootstrap {
         String defaultExecutor = execs.stream()
                 .filter(ExecutorConfig::isDefaultExecutor)
                 .findFirst()
-                .orElse(new ExecutorConfig(DEFAULT_EXECUTOR)).getName();
+                .orElse(execs.stream()
+                        .findFirst()
+                        .orElse(new ExecutorConfig(DEFAULT_EXECUTOR)))
+                .getName();
 
         String defaultScheduler = scheds.stream()
                 .filter(SchedulerConfig::isDefaultExecutor)
                 .findFirst()
-                .orElse(new SchedulerConfig(DEFAULT_SCHEDULER)).getName();
+                .orElse(scheds.stream()
+                        .findFirst()
+                        .orElse(new SchedulerConfig(DEFAULT_SCHEDULER)))
+                .getName();
 
         AppExecutors.init(executors, defaultExecutor, schedulers, defaultScheduler);
     }

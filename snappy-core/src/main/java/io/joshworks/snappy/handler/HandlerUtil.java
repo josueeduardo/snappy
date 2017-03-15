@@ -2,7 +2,7 @@ package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.Messages;
 import io.joshworks.snappy.parser.MediaTypes;
-import io.joshworks.snappy.rest.RestEndpoint;
+import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
@@ -15,6 +15,7 @@ import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
 import io.undertow.websockets.core.AbstractReceiveListener;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import static io.joshworks.snappy.Messages.EMPTY_URL;
 import static io.joshworks.snappy.Messages.INVALID_URL;
@@ -28,7 +29,7 @@ public class HandlerUtil {
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
 
 
-    public static MappedEndpoint rest(HttpString method, String url, RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    public static MappedEndpoint rest(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mimeTypes) {
         Objects.requireNonNull(method, Messages.INVALID_METHOD);
         Objects.requireNonNull(url, Messages.INVALID_URL);
         Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);

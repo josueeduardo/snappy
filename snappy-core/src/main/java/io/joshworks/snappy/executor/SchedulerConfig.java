@@ -24,7 +24,7 @@ public class SchedulerConfig extends ExecutorConfigBase {
         return defaultConfig;
     }
 
-    ScheduledThreadPoolExecutor getScheduler() {
+    public ScheduledThreadPoolExecutor getScheduler() {
         return scheduler;
     }
 }

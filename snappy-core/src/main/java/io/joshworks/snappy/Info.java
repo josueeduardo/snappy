@@ -60,8 +60,8 @@ public class Info {
         if (config.executors.isEmpty() && config.schedulers.isEmpty()) {
             System.err.println("No executors configured (default will be used)");
         }
-        config.executors.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
-        config.schedulers.entrySet().forEach(entry -> logExecutors(entry.getKey(), entry.getValue()));
+        config.executors.forEach(exec -> logExecutors(exec.getName(), exec.getExecutor()));
+        config.schedulers.forEach(entry -> logExecutors(entry.getName(), entry.getScheduler()));
 
         System.err.println();
         System.err.println("----------------- ENDPOINTS -----------------");

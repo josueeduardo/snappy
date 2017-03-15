@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by josh on 3/14/17.
  */
-public class ExecutorConfig extends ExecutorConfigBase{
+public class ExecutorConfig extends ExecutorConfigBase {
 
     private ThreadPoolExecutor executor;
 
@@ -26,7 +26,7 @@ public class ExecutorConfig extends ExecutorConfigBase{
         return defaultConfig;
     }
 
-    ThreadPoolExecutor getExecutor() {
+    public ThreadPoolExecutor getExecutor() {
         return executor;
     }
 }

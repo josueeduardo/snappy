@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
@@ -18,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class AppExecutors {
 
-    private static final Map<String, ThreadPoolExecutor> executors = new HashMap<>();
-    private static final Map<String, ScheduledThreadPoolExecutor> schedulers = new HashMap<>();
+    private static final Map<String, ThreadPoolExecutor> executors = new ConcurrentHashMap<>();
+    private static final Map<String, ScheduledThreadPoolExecutor> schedulers = new ConcurrentHashMap<>();
     private static final Logger logger = LoggerFactory.getLogger(AppExecutors.class);
     private static String defaultExecutor;
     private static String defaultScheduler;
@@ -104,14 +105,31 @@ public class AppExecutors {
         return new HashMap<>(schedulers);
     }
 
+    public static void shutdown(String poolName) {
+        ThreadPoolExecutor executor = executors.get(poolName);
+        ScheduledThreadPoolExecutor scheduler = schedulers.get(poolName);
+        if (executor != null) {
+            shutdown(poolName, executor);
+        }
+        if (scheduler != null) {
+            shutdown(poolName, scheduler);
+        }
+    }
+
     public static void shutdownAll() {
         executors.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
         schedulers.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
         logger.info("Executors shutdown");
     }
 
-    private static void shutdown(String name, ExecutorService executorService) {
+    private static void shutdown(String name, ThreadPoolExecutor executorService) {
         logger.info("Shutting down pool: {}", name);
+        shutdownExecutor(executorService);
+        executors.remove(name);
+        schedulers.remove(name);
+    }
+
+    private static void shutdownExecutor(ThreadPoolExecutor executorService) {
         if (!executorService.isShutdown()) {
             executorService.shutdown();
             try {

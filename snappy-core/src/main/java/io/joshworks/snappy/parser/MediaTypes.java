@@ -2,7 +2,6 @@ package io.joshworks.snappy.parser;
 
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.util.HeaderValues;
-import io.undertow.util.MimeMappings;
 
 import java.util.HashSet;
 
@@ -10,8 +9,6 @@ import java.util.HashSet;
  * Created by josh on 3/12/17.
  */
 public class MediaTypes extends HashSet<MediaType> {
-
-    private static MimeMappings mimeMappings = MimeMappings.builder().build();
 
     public enum Context {
         PRODUCES, CONSUMES

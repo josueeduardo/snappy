@@ -3,7 +3,6 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.MediaType;
-import io.joshworks.snappy.rest.RestEndpoint;
 import io.joshworks.snappy.rest.RestExchange;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -17,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Created by josh on 3/5/17.
@@ -27,13 +27,13 @@ public class RestHandler implements HttpHandler {
 
     public static final AttachmentKey<NegotiatedMediaType> NEGOTIATED_MEDIA_TYPE = AttachmentKey.create(NegotiatedMediaType.class);
 
-    private final RestEndpoint endpoint;
+    private final Consumer<RestExchange> endpoint;
     private List<Interceptor> interceptors = new ArrayList<>();
 
     private MediaTypes consumes;
     private MediaTypes produces;
 
-    RestHandler(RestEndpoint endpoint, MediaTypes... mimeTypes) {
+    RestHandler(Consumer<RestExchange> endpoint, MediaTypes... mimeTypes) {
         this.endpoint = endpoint;
         initTypes(mimeTypes);
         consumes = consumes == null ? MediaTypes.DEFAULT_CONSUMES : consumes;
@@ -95,7 +95,7 @@ public class RestHandler implements HttpHandler {
             }
         }
         if (!httpServerExchange.isResponseComplete()) {
-            endpoint.handle(restExchange);
+            endpoint.accept(restExchange);
         }
     }
 
