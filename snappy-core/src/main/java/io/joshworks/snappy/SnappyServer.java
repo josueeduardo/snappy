@@ -104,10 +104,6 @@ public class SnappyServer {
         return this;
     }
 
-    public SnappyServer accepts(String mime) {
-        return this;
-    }
-
     public SnappyServer get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, mediaTypes));
         return this;

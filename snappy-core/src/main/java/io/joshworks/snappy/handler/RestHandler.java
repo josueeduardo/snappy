@@ -1,6 +1,9 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.parser.MediaTypes;
+import io.joshworks.snappy.parser.Parser;
+import io.joshworks.snappy.parser.Parsers;
+import io.joshworks.snappy.rest.ExceptionResponse;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.MediaType;
 import io.joshworks.snappy.rest.RestExchange;
@@ -9,17 +12,23 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.util.AttachmentKey;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
+import io.undertow.util.HttpString;
 import io.undertow.util.StatusCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
- * Created by josh on 3/5/17.
+ * Created by Josh Gontijo on 3/5/17.
+ * <p>
+ * This should be the higher level Rest class, ideally this is wrapped in the Error handler which will return
+ * handler exceptions thrown by the endpoints
  */
 public class RestHandler implements HttpHandler {
 
@@ -95,34 +104,49 @@ public class RestHandler implements HttpHandler {
             }
         }
         if (!httpServerExchange.isResponseComplete()) {
-            endpoint.accept(restExchange);
+            handle(restExchange);
+        }
+    }
+
+    private void handle(RestExchange exchange) {
+        try {
+            endpoint.accept(exchange);
+        } catch (Exception e) {
+            HttpString requestMethod = exchange.httpServerExchange.getRequestMethod();
+            String requestPath = exchange.httpServerExchange.getResolvedPath();
+            logger.error("Exception was thrown from " + requestMethod + " " + requestPath, e);
+
+            exchange.httpServerExchange.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
+            sendErrorResponse(exchange.httpServerExchange, e.getMessage());
         }
     }
 
     private void contentNegotiation(HttpServerExchange httpServerExchange) {
         MediaType consumesType = matchConsumesMime(httpServerExchange);
         if (consumesType == null) {
-            HeaderValues bodyContentType = httpServerExchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
-            logger.warn("Server cannot read body for Content-Type header: " + bodyContentType.toString());
-            httpServerExchange.setStatusCode(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
-            httpServerExchange.endExchange();
+            invalidMediaType(httpServerExchange, Headers.CONTENT_TYPE);
             return;
         }
 
         MediaType producesType = matchProducesMime(httpServerExchange);
         if (producesType == null) {
-            HeaderValues bodyContentType = httpServerExchange.getRequestHeaders().get(Headers.ACCEPT);
-            String accepts = bodyContentType != null ? bodyContentType.toString() : "";
-            logger.warn("Server cannot send body for Accept header: " + accepts);
-            //TODO return a nice json with the allowed typed ?
-            httpServerExchange.setStatusCode(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
-            httpServerExchange.endExchange();
+            invalidMediaType(httpServerExchange, Headers.ACCEPT);
             return;
         }
 
-//        httpServerExchange.getResponseHeaders().add(Headers.CONTENT_TYPE, producesType.toString());
         httpServerExchange.putAttachment(NEGOTIATED_MEDIA_TYPE, new NegotiatedMediaType(consumesType, producesType));
+    }
 
+    private void invalidMediaType(HttpServerExchange exchange, HttpString headerName) {
+        HeaderValues headerValues = exchange.getRequestHeaders().get(headerName);
+        String values = headerValues != null ? headerValues.toString() : "";
+        logger.warn("Unsupported media type {}: {}", headerValues, values);
+
+        exchange.setStatusCode(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
+
+        String acceptedTypes = produces.stream().map(MediaType::toString).collect(Collectors.joining(", "));
+        sendErrorResponse(exchange, "Unsupported media type, acceptable types [" + acceptedTypes + "]");
+        exchange.endExchange();
     }
 
 
@@ -140,5 +164,24 @@ public class RestHandler implements HttpHandler {
         }
     }
 
+    //TODO add dev environment toggle features
+    public void sendErrorResponse(HttpServerExchange exchange, String message) {
+        int responseStatus = exchange.getStatusCode();
+        if (!exchange.getResponseHeaders().contains(Headers.CONTENT_TYPE)) {
+            exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+        }
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(responseStatus, message);
+
+        HeaderValues contentType = exchange.getResponseHeaders().get(Headers.CONTENT_TYPE);
+        try {
+            Parser parser = Parsers.find(contentType);
+            String responseData = parser.writeValue(exceptionResponse);
+            exchange.getResponseSender().send(responseData);
+        } catch (Exception e1) {
+            logger.warn("Could not find a parser or parse data for media type(s) {} when sending exception message", Arrays.toString(contentType.toArray()));
+        }
+
+    }
 
 }

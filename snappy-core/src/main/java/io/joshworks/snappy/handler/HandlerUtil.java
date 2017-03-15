@@ -13,6 +13,8 @@ import io.undertow.util.HttpString;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
 import io.undertow.websockets.core.AbstractReceiveListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -24,6 +26,8 @@ import static io.joshworks.snappy.Messages.INVALID_URL;
  * Created by josh on 3/11/17.
  */
 public class HandlerUtil {
+
+    private static final Logger logger = LoggerFactory.getLogger(HandlerUtil.class);
 
     public static final String BASE_PATH = "/";
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
