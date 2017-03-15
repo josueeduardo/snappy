@@ -25,12 +25,15 @@ public class RestEntrypoint implements HttpHandler{
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         RestExchange restExchange = new RestExchange(exchange);
-
         for (Interceptor interceptor : interceptors) {
             if (!exchange.isResponseComplete()) {
                 interceptor.handleRequest(restExchange);
             }
         }
+
+        //TODO handle here after request interceptors
+        exchange.addExchangeCompleteListener((exchange1, nextListener) -> interceptors.forEach(i -> i.handleRequest(restExchange)));
+
         if (!exchange.isResponseComplete()) {
             endpoint.accept(restExchange);
         }
