@@ -101,7 +101,7 @@ public class SnappyServer {
     private final ExceptionMapper exceptionMapper = new ExceptionMapper();
     private String basePath = HandlerUtil.BASE_PATH;
 
-    public <T extends Exception> SnappyServer exception(Class<T> exception, ErrorHandler<T> handler) {
+    public <T extends Exception> SnappyServer exception(Class<T> exception, ErrorHandler handler) {
         exceptionMapper.put(exception, handler);
         return this;
     }

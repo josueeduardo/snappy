@@ -11,16 +11,20 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception>, ErrorHandler> {
 
-    private final ErrorHandler fallbackInternalError = (e) -> {
+    private final ErrorHandler fallbackInternalError = (e, restExchange) -> {
         int status = StatusCodes.INTERNAL_SERVER_ERROR;
-        DefaultExceptionResponse response = new DefaultExceptionResponse(status, e.getMessage());
-        return new ExceptionResponse(status, response);
+        restExchange.status(status);
+
+        ExceptionResponse response = new ExceptionResponse(status, e.getMessage());
+        restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
     };
 
-    private final ErrorHandler fallbackConneg = (e) -> {
+    private final ErrorHandler fallbackConneg = (e, restExchange) -> {
         int status = StatusCodes.UNSUPPORTED_MEDIA_TYPE;
-        DefaultExceptionResponse response = new DefaultExceptionResponse(status, e.getMessage());
-        return new ExceptionResponse(status, response);
+        restExchange.status(status);
+
+        ExceptionResponse response = new ExceptionResponse(status, e.getMessage());
+        restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
     };
 
     public ExceptionMapper() {
@@ -28,11 +32,11 @@ public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception
         put(UnsupportedMediaType.class, fallbackConneg);
     }
 
-    public ErrorHandler getOrFallback(Class<? extends Exception> key) {
-        ErrorHandler errorHandler = super.get(key);
+    public <T extends Exception> ErrorHandler<T> getOrFallback(T key) {
+        ErrorHandler<T> errorHandler = super.get(key.getClass());
         if (errorHandler == null) {
             Optional<Entry<Class<? extends Exception>, ErrorHandler>> found = entrySet().stream()
-                    .filter(e -> e.getKey().isAssignableFrom(key))
+                    .filter(e -> e.getKey().isAssignableFrom(key.getClass()))
                     .findFirst();
 
             errorHandler = found.isPresent() ? found.get().getValue() : fallbackInternalError;

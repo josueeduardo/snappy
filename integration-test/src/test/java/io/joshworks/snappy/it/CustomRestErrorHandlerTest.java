@@ -4,7 +4,6 @@ import com.mashape.unirest.http.HttpResponse;
 import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.it.util.SampleData;
-import io.joshworks.snappy.rest.ExceptionResponse;
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
@@ -13,6 +12,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Josh Gontijo on 3/15/17.
@@ -30,10 +30,10 @@ public class CustomRestErrorHandlerTest {
 
     @BeforeClass
     public static void start() {
-        server.exception(Exception.class, (e) -> new ExceptionResponse(responseStatus_1, exceptionBody_1));
-        server.exception(UnsupportedOperationException.class, (e) -> new ExceptionResponse(responseStatus_2, exceptionBody_2));
+        server.exception(Exception.class, (e, exchange) -> exchange.status(responseStatus_1).send(exceptionBody_1));
+        server.exception(UnsupportedOperationException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2));
         //custom media type
-        server.exception(NumberFormatException.class, (e) -> new ExceptionResponse(responseStatus_2, exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
+        server.exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
 
         server.get("/custom-handler-1", (exchange) -> {
             throw new RuntimeException("Some error");
@@ -82,18 +82,17 @@ public class CustomRestErrorHandlerTest {
 
     @Test
     public void exceptionProvidedMediaType() throws Exception {
-        HttpResponse<CustomExceptionBody> response = RestClient.get("http://localhost:8080/custom-handler-3-mediaType")
-                .asObject(CustomExceptionBody.class);
+        HttpResponse<String> response = RestClient.get("http://localhost:8080/custom-handler-3-mediaType")
+                .asString();
 
         assertEquals(responseStatus_2, response.getStatus());
         //custom response type
         assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
         assertEquals(MediaType.TEXT_PLAIN, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
-        CustomExceptionBody body = response.getBody();
-        assertNotNull(body);
-        assertEquals(exceptionBody_2.getUuid(), body.getUuid());
-        assertEquals(exceptionBody_2.getTime(), body.getTime());
+        assertNotNull(response.getBody());
+        assertTrue(response.getBody().contains(exceptionBody_2.getUuid()));
+        assertTrue(response.getBody().contains(""+exceptionBody_2.getTime()));
     }
 
     private static class CustomExceptionBody {
@@ -113,6 +112,15 @@ public class CustomRestErrorHandlerTest {
 
         public long getTime() {
             return time;
+        }
+
+        //this is used to compare string result from the text/plain media type
+        @Override
+        public String toString() {
+            return "CustomExceptionBody{" +
+                    "uuid='" + uuid + '\'' +
+                    ", time=" + time +
+                    '}';
         }
     }
 

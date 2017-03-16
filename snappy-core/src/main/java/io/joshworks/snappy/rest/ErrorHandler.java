@@ -5,5 +5,5 @@ package io.joshworks.snappy.rest;
  */
 public interface ErrorHandler<T extends Exception> {
 
-    ExceptionResponse onException(T e);
+    void onException(T e, RestExchange exchange);
 }

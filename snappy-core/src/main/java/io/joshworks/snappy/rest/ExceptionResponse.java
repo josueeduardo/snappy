@@ -1,39 +1,30 @@
 package io.joshworks.snappy.rest;
 
+import java.io.Serializable;
+
 /**
- * Created by Josh Gontijo on 3/15/17.
+ * Created by Josh Gontijo on 3/16/17.
  */
-public class ExceptionResponse  {
+public class ExceptionResponse implements Serializable {
 
     private final int status;
-    private final Object body;
-    private MediaType mediaType;
+    private final String message;
 
-    public ExceptionResponse(int status, Object body) {
+    public ExceptionResponse(int status, String message) {
         this.status = status;
-        this.body = body;
-    }
-
-    public ExceptionResponse(int status, Object body, MediaType mediaType) {
-        this.status = status;
-        this.body = body;
-        this.mediaType = mediaType;
+        this.message = message;
     }
 
     public int getStatus() {
         return status;
     }
 
-    public Object getBody() {
-        return body;
-    }
-
-    public MediaType getMediaType() {
-        return mediaType;
+    public String getMessage() {
+        return message;
     }
 
     @Override
     public String toString() {
-        return "status=" + status + "\nmessage='" + String.valueOf(body) + '\'';
+        return "status=" + status +", message='" + message + '\'';
     }
 }

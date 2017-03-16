@@ -20,7 +20,7 @@ import java.util.Map;
 public class RestExchange {
 
     public final HttpServerExchange exchange;
-//    private Response response;
+    //    private Response response;
     private MediaType responseContentType = MediaType.APPLICATION_JSON_TYPE;
     private Body body;
 
@@ -132,42 +132,51 @@ public class RestExchange {
 //    }
 
     //--------------- Response ---------------
-    public void header(String name, String value) {
+    public RestExchange header(String name, String value) {
         exchange.getResponseHeaders().add(HttpString.tryFromString(name), value);
+        return this;
     }
 
-    public void header(String name, long value) {
+    public RestExchange header(String name, long value) {
         exchange.getResponseHeaders().add(HttpString.tryFromString(name), value);
+        return this;
     }
 
-    public void type(MediaType mediaType) {
+    public RestExchange type(MediaType mediaType) {
         setResponseMediaType(mediaType);
+        return this;
     }
 
-    public void type(String mediaType) {
+    public RestExchange type(String mediaType) {
         setResponseMediaType(MediaType.valueOf(mediaType));
+        return this;
     }
 
-    public void status(int status) {
+    public RestExchange status(int status) {
         exchange.setStatusCode(status);
+        return this;
     }
 
-    public void send(Object response) {
+    public RestExchange send(Object response) {
         this.response(response);
+        return this;
     }
 
-    public void send(Object response, String mediaType) {
+    public RestExchange send(Object response, String mediaType) {
         send(response, MediaType.valueOf(mediaType));
+        return this;
     }
 
-    public void send(Object response, MediaType mediaType) {
+    public RestExchange send(Object response, MediaType mediaType) {
         type(mediaType);
         this.response(response);
+        return this;
     }
 
-    private void setResponseMediaType(MediaType mediaType) {
+    private RestExchange setResponseMediaType(MediaType mediaType) {
         responseContentType = mediaType;
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, mediaType.toString());
+        return this;
     }
 
     private void response(Object response) {

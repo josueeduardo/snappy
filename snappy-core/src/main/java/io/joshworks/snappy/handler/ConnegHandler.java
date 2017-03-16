@@ -1,6 +1,7 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.parser.MediaTypes;
+import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -28,7 +29,10 @@ public class ConnegHandler implements HttpHandler {
 
     private final HttpHandler next;
 
-    public ConnegHandler(HttpHandler next, MediaTypes... mimeTypes) {
+    private final ExceptionMapper exceptionMapper;
+
+    public ConnegHandler(HttpHandler next, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
+        this.exceptionMapper = exceptionMapper;
         initTypes(mimeTypes);
         consumes = consumes == null ? MediaTypes.DEFAULT_CONSUMES : consumes;
         produces = produces == null ? MediaTypes.DEFAULT_PRODUCES : produces;
