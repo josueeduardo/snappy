@@ -24,10 +24,10 @@ public class RestTest {
     @BeforeClass
     public static void start() {
         server
-                .get(TEST_RESOURCE, (exchange) -> exchange.response().send(payload))
-                .post(TEST_RESOURCE, (exchange) -> exchange.response().send(exchange.body().asObject(SampleData.class)))
-                .put(TEST_RESOURCE, (exchange) -> exchange.response().send(exchange.body().asObject(SampleData.class)))
-                .delete(TEST_RESOURCE, (exchange) -> exchange.response().send(exchange.body().asObject(SampleData.class)));
+                .get(TEST_RESOURCE, (exchange) -> exchange.send(payload))
+                .post(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body().asObject(SampleData.class)))
+                .put(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body().asObject(SampleData.class)))
+                .delete(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body().asObject(SampleData.class)));
 
         server.start();
     }

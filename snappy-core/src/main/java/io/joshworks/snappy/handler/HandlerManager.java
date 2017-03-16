@@ -102,12 +102,12 @@ public class HandlerManager {
 
         ExceptionMapper internalExceptionMapper = new ExceptionMapper();
 
-        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.response().send(
+        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.send(
                 new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper);
 
         MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, "/metrics", (exchange) -> {
             metricsHandlers.forEach(MetricsHandler::reset);
-            exchange.response().status(StatusCodes.NO_CONTENT);
+            exchange.status(StatusCodes.NO_CONTENT);
         }, internalExceptionMapper);
 
         routingRestHandler.add(getMetrics.method, getMetrics.url, getMetrics.handler);

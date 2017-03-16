@@ -18,7 +18,7 @@ public class Main {
             if(Boolean.parseBoolean(number)){
                 throw new RuntimeException("Yolo");
             }
-            exchange.response().send("{}");
+            exchange.send("{}");
                     Metrics.addMetric("Yolo", 1);
                 });
 

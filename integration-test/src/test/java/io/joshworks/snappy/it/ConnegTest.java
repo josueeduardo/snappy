@@ -34,7 +34,7 @@ public class ConnegTest {
         server.basePath("/v1").get("/produces-text", (exchange) -> {}, produces("text/plain"));
 
         server.basePath("/v1").get("/overridden", (exchange) -> {
-            exchange.response().send("{}", MediaType.APPLICATION_JSON_TYPE);
+            exchange.send("{}", MediaType.APPLICATION_JSON_TYPE);
         }, produces("text/plain"));
 
         server.start();

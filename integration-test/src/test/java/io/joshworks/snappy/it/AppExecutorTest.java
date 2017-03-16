@@ -42,7 +42,7 @@ public class AppExecutorTest {
             try {
                 ScheduledFuture<String> schedule = AppExecutors.schedule(() -> RETURN_VALUE, 0, TimeUnit.SECONDS);
                 schedulerLatch.countDown();
-                exchange.response().send(schedule.get());
+                exchange.send(schedule.get());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

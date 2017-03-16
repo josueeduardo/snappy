@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,12 +36,11 @@ public class Parsers {
      * @throws IllegalArgumentException if a null instance or no media type is provided
      */
     public static void register(Parser parser) {
-        if (parser == null || parser.mediaTypes() == null || parser.mediaTypes().isEmpty()) {
+        if (parser == null || parser.mediaType() == null) {
             throw new IllegalArgumentException("Invalid parser, media type not specified, or null instance");
         }
-        MediaType[] mediaTypes = parser.mediaTypes().toArray(new MediaType[parser.mediaTypes().size()]);
-        logger.info("Registering Parser {} for types {}", parser.getClass().getName(), Arrays.toString(mediaTypes));
-        parser.mediaTypes().forEach(t -> available.put(t, parser));
+        logger.info("Registering Parser {} for type {}", parser.getClass().getName(), parser.mediaType().toString());
+        available.put(parser.mediaType(), parser);
     }
 
     /**
@@ -68,7 +66,7 @@ public class Parsers {
                 }
             }
         }
-        throw new ParseNotFoundException(contentTypes.toArray(new String[contentTypes.size()]));
+        throw new ParseNotFoundException(contentTypes.stream().map(MediaType::toString).toArray(String[]::new));
     }
 
     /**
@@ -77,6 +75,10 @@ public class Parsers {
      */
     public static Parser getParser(MediaType contentType) {
         return findByType(new HashSet<>(Collections.singletonList(contentType)));
+    }
+
+    public static Parser getParser(String contentType) {
+        return getParser(MediaType.valueOf(contentType));
     }
 
 }

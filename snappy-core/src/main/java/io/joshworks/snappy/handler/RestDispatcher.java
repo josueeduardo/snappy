@@ -50,12 +50,14 @@ public class RestDispatcher implements HttpHandler {
             logger.error("Unsupported media type {}, possible values: {}", connex.headerValues, connex.types, connex);
 
             sendErrorResponse(exchange, connex);
+            exchange.endExchange();
 
         } catch (Exception e) {
             HttpString requestMethod = exchange.getRequestMethod();
             String requestPath = exchange.getRequestPath();
             logger.error("Exception was thrown from " + requestMethod + " " + requestPath, e);
             sendErrorResponse(exchange, e);
+            exchange.endExchange();
 
         }
     }
@@ -68,7 +70,7 @@ public class RestDispatcher implements HttpHandler {
         ExceptionResponse response = tryHandleException(e, errorHandler);
         if (response != null) {
             Set<MediaType> contentTypes = getErrorMediaType(exchange, response);
-            String responseContent = parseError(contentTypes, response);
+            String responseContent = parseError(exchange, contentTypes, response);
             exchange.setStatusCode(response.getStatus());
             exchange.getResponseSender().send(responseContent);
         }
@@ -83,11 +85,13 @@ public class RestDispatcher implements HttpHandler {
         }
     }
 
-    private String parseError(Set<MediaType> contentTypes, ExceptionResponse exceptionResponse) {
+    private String parseError(HttpServerExchange exchange, Set<MediaType> contentTypes, ExceptionResponse exceptionResponse) {
         String responseData = null;
         try {
             if (exceptionResponse != null) {
                 Parser parser = Parsers.findByType(contentTypes);
+                //Sets the found parser content type as the response type, (if no other type was set)
+                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, parser.mediaType().toString());
                 responseData = parser.writeValue(exceptionResponse.getBody());
             }
         } catch (Exception e1) {

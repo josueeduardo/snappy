@@ -23,6 +23,7 @@ public class UnsupportedMediaType extends Exception {
 
     public static UnsupportedMediaType unsuportedMediaType(HeaderValues headerValues, MediaTypes types) {
         String typesString = types.stream().map(MediaType::toString).collect(Collectors.joining(", "));
+        typesString = "[" + typesString + "]";
         return new UnsupportedMediaType(MESSAGE_PREFIX + typesString, headerValues, types);
     }
 }
