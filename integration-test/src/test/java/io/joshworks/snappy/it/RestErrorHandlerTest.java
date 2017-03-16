@@ -4,6 +4,8 @@ import com.mashape.unirest.http.HttpResponse;
 import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.rest.DefaultExceptionResponse;
+import io.joshworks.snappy.rest.MediaType;
+import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,6 +43,9 @@ public class RestErrorHandlerTest {
                 .header("Content-Type", "application/xml").asObject(DefaultExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
+        //default response type
+        assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
         DefaultExceptionResponse body = response.getBody();
         assertNotNull(body);
@@ -54,6 +59,9 @@ public class RestErrorHandlerTest {
                 .header("Accept", "application/xml").asObject(DefaultExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
+        //default response type
+        assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
         DefaultExceptionResponse body = response.getBody();
         assertNotNull(body);
@@ -66,6 +74,9 @@ public class RestErrorHandlerTest {
         HttpResponse<DefaultExceptionResponse> response = RestClient.get("http://localhost:8080/exception").asObject(DefaultExceptionResponse.class);
 
         assertEquals(500, response.getStatus());
+        //default response type
+        assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
         DefaultExceptionResponse body = response.getBody();
         assertNotNull(body);
