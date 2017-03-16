@@ -3,6 +3,8 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
+import io.joshworks.snappy.rest.ErrorHandler;
+import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.ExceptionResponse;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.MediaType;
@@ -12,12 +14,13 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
-import io.undertow.util.StatusCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -30,10 +33,11 @@ public class RestDispatcher implements HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RestDispatcher.class);
 
-
     private final ConnegHandler connegHandler;
+    private final ExceptionMapper exceptionMapper;
 
-    RestDispatcher(Consumer<RestExchange> endpoint, List<Interceptor> interceptors, MediaTypes... mimeTypes) {
+    RestDispatcher(Consumer<RestExchange> endpoint, List<Interceptor> interceptors, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
+        this.exceptionMapper = exceptionMapper;
         RestEntrypoint restEntrypoint = new RestEntrypoint(endpoint, interceptors);
         this.connegHandler = new ConnegHandler(restEntrypoint, mimeTypes);
     }
@@ -42,38 +46,68 @@ public class RestDispatcher implements HttpHandler {
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         try {
             this.connegHandler.handleRequest(exchange);
-        } catch (ConnegException connex) {
+        } catch (UnsupportedMediaType connex) {
+            logger.error("Unsupported media type {}, possible values: {}", connex.headerValues, connex.types, connex);
 
-            logger.error("Unsupported media type {}, possible values: {}", connex.headerValues, connex.types);
-            sendErrorResponse(exchange, connex.getMessage());
+            sendErrorResponse(exchange, connex);
 
         } catch (Exception e) {
             HttpString requestMethod = exchange.getRequestMethod();
-            String requestPath = exchange.getResolvedPath();
+            String requestPath = exchange.getRequestPath();
             logger.error("Exception was thrown from " + requestMethod + " " + requestPath, e);
+            sendErrorResponse(exchange, e);
 
-            exchange.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
-            sendErrorResponse(exchange, e.getMessage());
         }
     }
 
-    //TODO add dev environment toggle features
-    private void sendErrorResponse(HttpServerExchange exchange, String message) {
-        int responseStatus = exchange.getStatusCode();
-        if (!exchange.getResponseHeaders().contains(Headers.CONTENT_TYPE)) {
-            exchange.getResponseHeaders().add(Headers.CONTENT_TYPE, MediaType.APPLICATION_JSON);
+    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, T e) {
+        ErrorHandler errorHandler = exceptionMapper.getOrFallback(e.getClass());
+        if (errorHandler == null) {
+            errorHandler = exceptionMapper.getFallbackInternalError();
         }
+        ExceptionResponse response = tryHandleException(e, errorHandler);
+        if (response != null) {
+            Set<MediaType> contentTypes = getErrorMediaType(exchange, response);
+            String responseContent = parseError(contentTypes, response);
+            exchange.setStatusCode(response.getStatus());
+            exchange.getResponseSender().send(responseContent);
+        }
+    }
 
-        ExceptionResponse exceptionResponse = new ExceptionResponse(responseStatus, message);
-
-        HeaderValues contentType = exchange.getResponseHeaders().get(Headers.CONTENT_TYPE);
+    private <T extends Exception> ExceptionResponse tryHandleException(T e, ErrorHandler<T> handler) {
         try {
-            Parser parser = Parsers.find(contentType);
-            String responseData = parser.writeValue(exceptionResponse);
-            exchange.getResponseSender().send(responseData);
-        } catch (Exception e1) {
-            logger.warn("Could not find a parser or parse data for media type(s) {} when sending exception message", Arrays.toString(contentType.toArray()));
+            return handler.onException(e);
+        } catch (Exception handlingError) {
+            logger.error("Exception was thrown when executing exception handler: {}, no body will be sent", handler.getClass().getName(), handlingError);
+            return null;
         }
+    }
+
+    private String parseError(Set<MediaType> contentTypes, ExceptionResponse exceptionResponse) {
+        String responseData = null;
+        try {
+            if (exceptionResponse != null) {
+                Parser parser = Parsers.findByType(contentTypes);
+                responseData = parser.writeValue(exceptionResponse.getBody());
+            }
+        } catch (Exception e1) {
+            logger.error("Could not find a parser or parse data for media type(s) {} when sending exception message", Arrays.toString(contentTypes.toArray()), e1);
+        }
+        return responseData;
+    }
+
+    private Set<MediaType> getErrorMediaType(HttpServerExchange exchange, ExceptionResponse response) {
+        Set<MediaType> mediaTypes = new HashSet<>();
+        HeaderValues fromHeader = exchange.getResponseHeaders().get(Headers.CONTENT_TYPE);
+        MediaType mediaType = response != null ? response.getMediaType() : null;
+        if (mediaType != null) {
+            mediaTypes.add(mediaType);
+        }
+        if (fromHeader != null) {
+            fromHeader.forEach(MediaType::valueOf);
+        }
+        mediaTypes.add(MediaType.APPLICATION_JSON_TYPE); //uses json instead plain text
+        return mediaTypes;
     }
 
 }

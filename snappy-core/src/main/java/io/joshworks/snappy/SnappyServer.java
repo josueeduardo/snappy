@@ -9,6 +9,8 @@ import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.property.PropertyLoader;
+import io.joshworks.snappy.rest.ErrorHandler;
+import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
@@ -96,8 +98,13 @@ public class SnappyServer {
 
 
     private final List<MappedEndpoint> endpoints = new ArrayList<>();
+    private final ExceptionMapper exceptionMapper = new ExceptionMapper();
     private String basePath = HandlerUtil.BASE_PATH;
 
+    public <T extends Exception> SnappyServer exception(Class<T> exception, ErrorHandler<T> handler) {
+        exceptionMapper.put(exception, handler);
+        return this;
+    }
 
     public SnappyServer basePath(String basePath) {
         this.basePath = basePath;
@@ -105,37 +112,37 @@ public class SnappyServer {
     }
 
     public SnappyServer get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, mediaTypes));
+        endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, exceptionMapper, mediaTypes));
         return this;
     }
 
     public SnappyServer post(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, mediaTypes));
+        endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, exceptionMapper, mediaTypes));
         return this;
     }
 
     public SnappyServer put(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, mediaTypes));
+        endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, exceptionMapper, mediaTypes));
         return this;
     }
 
     public SnappyServer delete(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, mediaTypes));
+        endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, exceptionMapper, mediaTypes));
         return this;
     }
 
     public SnappyServer options(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, mediaTypes));
+        endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, exceptionMapper, mediaTypes));
         return this;
     }
 
     public SnappyServer head(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, mediaTypes));
+        endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, exceptionMapper, mediaTypes));
         return this;
     }
 
     public SnappyServer add(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(method, url, endpoint, mediaTypes));
+        endpoints.add(HandlerUtil.rest(method, url, endpoint, exceptionMapper, mediaTypes));
         return this;
     }
 

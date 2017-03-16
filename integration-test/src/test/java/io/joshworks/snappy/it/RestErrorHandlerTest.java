@@ -4,6 +4,7 @@ import com.mashape.unirest.http.HttpResponse;
 import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.it.util.SampleData;
+import io.joshworks.snappy.rest.DefaultExceptionResponse;
 import io.joshworks.snappy.rest.ExceptionResponse;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -48,7 +49,7 @@ public class RestErrorHandlerTest {
         ExceptionResponse body = response.getBody();
         assertNotNull(body);
         assertEquals(415, body.getStatus());
-        assertNotNull(body.getMessage());
+        assertNotNull(body.getBody());
     }
 
     @Test
@@ -61,16 +62,16 @@ public class RestErrorHandlerTest {
         ExceptionResponse body = response.getBody();
         assertNotNull(body);
         assertEquals(415, body.getStatus());
-        assertNotNull(body.getMessage());
+        assertNotNull(body.getBody());
     }
 
     @Test
     public void exceptionThrown() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:8080/exception").asObject(ExceptionResponse.class);
+        HttpResponse<DefaultExceptionResponse> response = RestClient.get("http://localhost:8080/exception").asObject(DefaultExceptionResponse.class);
 
         assertEquals(500, response.getStatus());
 
-        ExceptionResponse body = response.getBody();
+        DefaultExceptionResponse body = response.getBody();
         assertNotNull(body);
         assertEquals(500, body.getStatus());
         assertEquals(EXCEPTION_MESSAGE, body.getMessage());

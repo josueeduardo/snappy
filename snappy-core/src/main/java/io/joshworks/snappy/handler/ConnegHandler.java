@@ -72,10 +72,10 @@ public class ConnegHandler implements HttpHandler {
         }
     }
 
-    private void invalidMediaType(HttpServerExchange exchange, HttpString headerName) throws ConnegException {
+    private void invalidMediaType(HttpServerExchange exchange, HttpString headerName) throws UnsupportedMediaType {
         HeaderValues headerValues = exchange.getRequestHeaders().get(headerName);
         exchange.setStatusCode(StatusCodes.UNSUPPORTED_MEDIA_TYPE);
-        throw ConnegException.unsuportedMediaType(headerValues, produces);
+        throw UnsupportedMediaType.unsuportedMediaType(headerValues, produces);
     }
 
     private MediaType matchProducesMime(HttpServerExchange exchange) {

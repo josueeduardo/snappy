@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by josh on 3/6/17.
@@ -52,10 +54,10 @@ public class Parsers {
         for (String ct : contentTypes) {
             types.add(MediaType.valueOf(ct));
         }
-        return findByType(types);
+        return findByType(new HashSet<>(types));
     }
 
-    public static Parser findByType(List<MediaType> contentTypes) throws ParseNotFoundException {
+    public static Parser findByType(Set<MediaType> contentTypes) throws ParseNotFoundException {
         if (contentTypes == null || contentTypes.isEmpty()) {
             return defaultParser;
         }
@@ -74,7 +76,7 @@ public class Parsers {
      * @return The {@link Parser} for the first match, if no media type is provided, the default {@link JsonParser}
      */
     public static Parser getParser(MediaType contentType) {
-        return findByType(Collections.singletonList(contentType));
+        return findByType(new HashSet<>(Collections.singletonList(contentType)));
     }
 
 }

@@ -2,6 +2,7 @@ package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.Messages;
 import io.joshworks.snappy.parser.MediaTypes;
+import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
@@ -34,13 +35,19 @@ public class HandlerUtil {
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
 
 
-    public static MappedEndpoint rest(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mimeTypes) {
+    public static MappedEndpoint rest(HttpString method,
+                                      String url,
+                                      Consumer<RestExchange> endpoint,
+                                      ExceptionMapper exceptionMapper,
+                                      MediaTypes... mimeTypes) {
+
         Objects.requireNonNull(method, Messages.INVALID_METHOD);
         Objects.requireNonNull(url, Messages.INVALID_URL);
         Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);
+        
         url = resolveUrl(url);
         //TODO implement interceptors - before / after
-        HttpHandler handler = new BlockingHandler(new RestDispatcher(endpoint, new ArrayList<>(), mimeTypes));
+        HttpHandler handler = new BlockingHandler(new RestDispatcher(endpoint, new ArrayList<>(), exceptionMapper, mimeTypes));
         return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, handler);
     }
 

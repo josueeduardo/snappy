@@ -1,0 +1,30 @@
+package io.joshworks.snappy.rest;
+
+import java.io.Serializable;
+
+/**
+ * Created by Josh Gontijo on 3/16/17.
+ */
+public class DefaultExceptionResponse implements Serializable {
+
+    private final int status;
+    private final String message;
+
+    public DefaultExceptionResponse(int status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    @Override
+    public String toString() {
+        return "status=" + status +", message='" + message + '\'';
+    }
+}

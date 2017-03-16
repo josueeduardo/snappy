@@ -3,6 +3,7 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.metric.MetricData;
 import io.joshworks.snappy.metric.MetricsHandler;
 import io.joshworks.snappy.metric.RestMetricHandler;
+import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
@@ -59,7 +60,6 @@ public class HandlerManager {
         registerMetrics(routingRestHandler, mappedEndpoints, metricsHandlers);
 
 
-
         HttpHandler root = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
         HttpHandler handler = httpTracer ? Handlers.requestDump(root) : root;
 
@@ -100,14 +100,15 @@ public class HandlerManager {
             List<MappedEndpoint> mappedEndpoints,
             List<RestMetricHandler> metricsHandlers) {
 
+        ExceptionMapper internalExceptionMapper = new ExceptionMapper();
 
         MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.response().send(
-                new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE));
+                new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper);
 
         MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, "/metrics", (exchange) -> {
             metricsHandlers.forEach(MetricsHandler::reset);
             exchange.response().status(StatusCodes.NO_CONTENT);
-        });
+        }, internalExceptionMapper);
 
         routingRestHandler.add(getMetrics.method, getMetrics.url, getMetrics.handler);
         routingRestHandler.add(clearMetrics.method, clearMetrics.url, clearMetrics.handler);

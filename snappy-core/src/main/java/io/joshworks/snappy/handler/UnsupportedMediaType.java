@@ -9,19 +9,20 @@ import java.util.stream.Collectors;
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-class ConnegException extends Exception {
+public class UnsupportedMediaType extends Exception {
 
+    private static final String MESSAGE_PREFIX = "Unsupported media type: ";
     final HeaderValues headerValues;
     final MediaTypes types;
 
-    ConnegException(String message, HeaderValues headerValues, MediaTypes mediaTypes) {
+    private UnsupportedMediaType(String message, HeaderValues headerValues, MediaTypes mediaTypes) {
         super(message);
         this.headerValues = headerValues;
         this.types = mediaTypes;
     }
 
-    static ConnegException unsuportedMediaType(HeaderValues headerValues, MediaTypes types) {
+    public static UnsupportedMediaType unsuportedMediaType(HeaderValues headerValues, MediaTypes types) {
         String typesString = types.stream().map(MediaType::toString).collect(Collectors.joining(", "));
-        return new ConnegException(typesString, headerValues, types);
+        return new UnsupportedMediaType(MESSAGE_PREFIX + typesString, headerValues, types);
     }
 }
