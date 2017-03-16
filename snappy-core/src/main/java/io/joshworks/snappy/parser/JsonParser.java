@@ -13,6 +13,7 @@ import java.util.Set;
 public class JsonParser implements Parser {
 
     private final Gson gson = new Gson();
+    private final com.google.gson.JsonParser parser = new com.google.gson.JsonParser();
 
     @Override
     public <T> T readValue(String value, Class<T> valueType) throws Exception {
@@ -21,6 +22,9 @@ public class JsonParser implements Parser {
 
     @Override
     public String writeValue(Object input) throws Exception {
+        if (input instanceof String) {
+            input = parser.parse((String) input);
+        }
         return gson.toJson(input);
     }
 

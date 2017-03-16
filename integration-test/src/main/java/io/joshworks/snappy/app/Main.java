@@ -13,8 +13,12 @@ public class Main {
     public static void main(String[] args) {
         SnappyServer server = new SnappyServer(new Config().enableTracer().enableHttpMetrics());
 
-        server.get("/echo", (exchange) -> {
-                    exchange.response().send("{}");
+        server.get("/echo/{ex}", (exchange) -> {
+            String number = exchange.parameters("ex");
+            if(Boolean.parseBoolean(number)){
+                throw new RuntimeException("Yolo");
+            }
+            exchange.response().send("{}");
                     Metrics.addMetric("Yolo", 1);
                 });
 

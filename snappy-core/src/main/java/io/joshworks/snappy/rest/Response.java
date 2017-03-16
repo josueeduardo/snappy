@@ -20,10 +20,12 @@ public class Response {
         this.exchange = exchange;
         ConnegHandler.NegotiatedMediaType attachment = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
         if (attachment != null) { //should not happen
-            contentType = attachment.produces;
-            if (contentType != null) {
-                exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType.toString());
+            MediaType negotiated = attachment.produces;
+            //If client accepts anything, json will be used
+            if (negotiated != null && !negotiated.equals(MediaType.WILDCARD_TYPE)) {
+                this.contentType = negotiated;
             }
+            exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, contentType.toString());
         }
     }
 
