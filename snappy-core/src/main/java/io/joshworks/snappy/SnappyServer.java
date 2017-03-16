@@ -1,6 +1,5 @@
 package io.joshworks.snappy;
 
-import com.mashape.unirest.http.Unirest;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.executor.ExecutorBootstrap;
@@ -24,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,11 +86,6 @@ public class SnappyServer {
         if (server != null) {
             logger.info("Stopping server...");
             server.stop();
-            try {
-                Unirest.shutdown();
-            } catch (IOException e) {
-                logger.error("Error closing client connections", e);
-            }
         }
     }
 
