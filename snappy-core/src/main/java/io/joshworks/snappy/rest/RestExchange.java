@@ -20,14 +20,12 @@ import java.util.Map;
 public class RestExchange {
 
     public final HttpServerExchange exchange;
-    //    private Response response;
     private MediaType responseContentType = MediaType.APPLICATION_JSON_TYPE;
     private Body body;
 
     public RestExchange(HttpServerExchange exchange) {
         this.exchange = exchange;
         this.body = new Body(exchange);
-//        this.response = new Response(exchange);
 
         setNegotiatedContentType();
     }
@@ -143,13 +141,11 @@ public class RestExchange {
     }
 
     public RestExchange type(MediaType mediaType) {
-        setResponseMediaType(mediaType);
-        return this;
+        return setResponseMediaType(mediaType);
     }
 
     public RestExchange type(String mediaType) {
-        setResponseMediaType(MediaType.valueOf(mediaType));
-        return this;
+        return setResponseMediaType(MediaType.valueOf(mediaType));
     }
 
     public RestExchange status(int status) {
@@ -162,15 +158,13 @@ public class RestExchange {
         return this;
     }
 
-    public RestExchange send(Object response, String mediaType) {
+    public void send(Object response, String mediaType) {
         send(response, MediaType.valueOf(mediaType));
-        return this;
     }
 
-    public RestExchange send(Object response, MediaType mediaType) {
+    public void send(Object response, MediaType mediaType) {
         type(mediaType);
         this.response(response);
-        return this;
     }
 
     private RestExchange setResponseMediaType(MediaType mediaType) {
