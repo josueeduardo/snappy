@@ -1,11 +1,11 @@
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -13,18 +13,16 @@ import static org.junit.Assert.assertEquals;
  */
 public class MethodNotAllowedTest {
 
-    private static SnappyServer server = new SnappyServer();
-
     @BeforeClass
-    public static void start() {
-        server.basePath("/v1");
-        server.get("/sample", (exchange) -> {});
-        server.start();
+    public static void setup() {
+        basePath("/v1");
+        get("/sample", (exchange) -> {});
+        start();
     }
 
     @AfterClass
     public static void shutdown() {
-        server.stop();
+        stop();
     }
 
     @Test

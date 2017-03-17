@@ -33,10 +33,7 @@ public final class Config {
 //    private String appName;
 
     public Config() {
-        optionBuilder.set(Options.TCP_NODELAY, true);
-        int processors = Runtime.getRuntime().availableProcessors();
-        this.coreThreads(processors * 2);
-        this.ioThreads(processors);
+
     }
 
     public Config port(int port) {

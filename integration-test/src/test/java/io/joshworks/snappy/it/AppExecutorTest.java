@@ -1,18 +1,15 @@
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.Config;
-import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
-import io.joshworks.snappy.executor.ExecutorConfig;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
+import static io.joshworks.snappy.SnappyServer.executor;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -22,7 +19,6 @@ import static org.junit.Assert.fail;
  */
 public class AppExecutorTest {
 
-    private static SnappyServer server = new SnappyServer();
 
     private static CountDownLatch executorLatch = new CountDownLatch(1);
     private static CountDownLatch customExecutorLatch = new CountDownLatch(1);
@@ -33,12 +29,12 @@ public class AppExecutorTest {
     private static final String RETURN_VALUE = "DONE";
 
     @BeforeClass
-    public static void start() {
-        server = new SnappyServer(new Config().addExecutor(ExecutorConfig.withDefaults(EXECUTOR_A)));
+    public static void setup() {
+        executor(EXECUTOR_A, 1, 1, 200);
 
-        server.get("/executor", (exchange -> AppExecutors.submit(() -> executorLatch.countDown())));
-        server.get("/custom-executor", (exchange -> AppExecutors.submit(EXECUTOR_A, () -> customExecutorLatch.countDown())));
-        server.get("/scheduler", exchange -> {
+        get("/executor", (exchange -> AppExecutors.submit(() -> executorLatch.countDown())));
+        get("/custom-executor", (exchange -> AppExecutors.submit(EXECUTOR_A, () -> customExecutorLatch.countDown())));
+        get("/scheduler", exchange -> {
             try {
                 ScheduledFuture<String> schedule = AppExecutors.schedule(() -> RETURN_VALUE, 0, TimeUnit.SECONDS);
                 schedulerLatch.countDown();
@@ -47,12 +43,13 @@ public class AppExecutorTest {
                 throw new RuntimeException(e);
             }
         }, produces("txt"));
-        server.start();
+
+        start();
     }
 
     @AfterClass
     public static void shutdown() {
-        server.stop();
+        stop();
     }
 
     @Test

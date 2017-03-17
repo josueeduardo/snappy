@@ -1,15 +1,14 @@
 package io.joshworks.snappy.it;
 
 import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
-import io.joshworks.snappy.it.util.SampleData;
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -19,40 +18,36 @@ import static org.junit.Assert.assertTrue;
  */
 public class CustomRestErrorHandlerTest {
 
-    private static SnappyServer server = new SnappyServer();
-
-    private static final SampleData payload = new SampleData("Yolo");
-
     private static final CustomExceptionBody exceptionBody_1 = new CustomExceptionBody("123", 123L);
     private static final CustomExceptionBody exceptionBody_2 = new CustomExceptionBody("456", 456L);
     private static final int responseStatus_1 = 401;
     private static final int responseStatus_2 = 405;
 
     @BeforeClass
-    public static void start() {
-        server.exception(Exception.class, (e, exchange) -> exchange.status(responseStatus_1).send(exceptionBody_1));
-        server.exception(UnsupportedOperationException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2));
+    public static void setup() {
+        exception(Exception.class, (e, exchange) -> exchange.status(responseStatus_1).send(exceptionBody_1));
+        exception(UnsupportedOperationException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2));
         //custom media type
-        server.exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
+        exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
 
-        server.get("/custom-handler-1", (exchange) -> {
+        get("/custom-handler-1", (exchange) -> {
             throw new RuntimeException("Some error");
         });
 
-        server.get("/custom-handler-2", (exchange) -> {
+        get("/custom-handler-2", (exchange) -> {
             throw new UnsupportedOperationException("Some other error");
         });
 
-        server.get("/custom-handler-3-mediaType", (exchange) -> {
+        get("/custom-handler-3-mediaType", (exchange) -> {
             throw new NumberFormatException("Some error with custom media type");
         });
 
-        server.start();
+        start();
     }
 
     @AfterClass
     public static void shutdown() {
-        server.stop();
+        stop();
     }
 
 
@@ -92,7 +87,7 @@ public class CustomRestErrorHandlerTest {
 
         assertNotNull(response.getBody());
         assertTrue(response.getBody().contains(exceptionBody_2.getUuid()));
-        assertTrue(response.getBody().contains(""+exceptionBody_2.getTime()));
+        assertTrue(response.getBody().contains("" + exceptionBody_2.getTime()));
     }
 
     private static class CustomExceptionBody {

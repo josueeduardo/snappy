@@ -1,9 +1,12 @@
 package io.joshworks.snappy;
 
+import io.joshworks.snappy.executor.ExecutorConfig;
+import io.joshworks.snappy.executor.SchedulerConfig;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnio.OptionMap;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -39,29 +42,36 @@ public class Info {
     }
 
 
-    public static void deploymentInfo(Config config, List<MappedEndpoint> endpoints, String basePath) {
+    public static void deploymentInfo(boolean bindAddress,
+                                      boolean httpTracer,
+                                      int port,
+                                      boolean httpMetrics,
+                                      List<ExecutorConfig> executorConfig,
+                                      List<SchedulerConfig> schedulerConfig,
+                                      OptionMap.Builder options,
+                                      List<MappedEndpoint> endpoints, String basePath) {
 
         System.err.println("---------------- HTTP CONFIG ----------------");
-        System.err.println(String.format("Bind address: %s", config.bindAddress));
-        System.err.println(String.format("Port: %d", config.port));
-        System.err.println(String.format("Http tracer : %b", config.httpTracer));
-        System.err.println(String.format("Http metrics: %b", config.httpMetrics));
+        System.err.println(String.format("Bind address: %s", bindAddress));
+        System.err.println(String.format("Port: %d", port));
+        System.err.println(String.format("Http tracer : %b", httpTracer));
+        System.err.println(String.format("Http metrics: %b", httpMetrics));
 
         System.err.println();
 
         System.err.println("--------------- SERVER CONFIG ---------------");
-        config.optionBuilder.getMap().forEach(option -> {
-            System.err.println(String.format("%s: %s", option.getName().replaceAll("_", " ").toLowerCase(), config.optionBuilder.getMap().get(option)));
+        options.getMap().forEach(option -> {
+            System.err.println(String.format("%s: %s", option.getName().replaceAll("_", " ").toLowerCase(), options.getMap().get(option)));
         });
 
         System.err.println();
 
         System.err.println("------------- APP THREAD CONFIG -------------");
-        if (config.executors.isEmpty() && config.schedulers.isEmpty()) {
+        if (executorConfig.isEmpty() && schedulerConfig.isEmpty()) {
             System.err.println("No executors configured (default will be used)");
         }
-        config.executors.forEach(exec -> logExecutors(exec.getName(), exec.getExecutor()));
-        config.schedulers.forEach(entry -> logExecutors(entry.getName(), entry.getScheduler()));
+        executorConfig.forEach(exec -> logExecutors(exec.getName(), exec.getExecutor()));
+        schedulerConfig.forEach(entry -> logExecutors(entry.getName(), entry.getScheduler()));
 
         System.err.println();
         System.err.println("----------------- ENDPOINTS -----------------");

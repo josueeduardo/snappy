@@ -1,11 +1,14 @@
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static io.joshworks.snappy.SnappyServer.basePath;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -13,18 +16,16 @@ import static org.junit.Assert.assertEquals;
  */
 public class BasePathTest {
 
-    private static SnappyServer server = new SnappyServer();
-
     @BeforeClass
-    public static void start() {
-        server.basePath("/v1").get("/test", (exchange) -> {
-        });
-        server.start();
+    public static void setup() {
+        basePath("/v1");
+        get("/test", (exchange) -> {});
+        start();
     }
 
     @AfterClass
     public static void shutdown() {
-        server.stop();
+        stop();
     }
 
 

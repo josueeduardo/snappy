@@ -44,17 +44,31 @@ public class SnappyServer {
     private static final Logger logger = LoggerFactory.getLogger(SnappyServer.class);
 
     private final HandlerManager handlerManager = new HandlerManager();
-
-    private final Config config;
     private Undertow server;
 
+    //--------------------------------------------
+    private final OptionMap.Builder optionBuilder = OptionMap.builder();
+    private final List<ExecutorConfig> executors = new ArrayList<>();
+    private final List<SchedulerConfig> schedulers = new ArrayList<>();
+    private int port = 8080;
+    private String bindAddress = "0.0.0.0";
+    private boolean httpTracer;
+    private boolean httpMetrics;
+    private List<Interceptor> interceptors = new LinkedList<>();
 
-    public SnappyServer() {
-        this(new Config());
-    }
+    //-------------------------------------------
+    private final List<MappedEndpoint> endpoints = new ArrayList<>();
+    private final ExceptionMapper exceptionMapper = new ExceptionMapper();
+    private String basePath = HandlerUtil.BASE_PATH;
 
-    public SnappyServer(Config config) {
-        this.config = config;
+    private boolean started = false;
+
+
+    private SnappyServer() {
+        optionBuilder.set(Options.TCP_NODELAY, true);
+        int processors = Runtime.getRuntime().availableProcessors();
+        this.optionBuilder.set(Options.WORKER_IO_THREADS, processors);
+        this.optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, processors * 2);
     }
 
     private static class ServerInstanceHolder {
@@ -70,24 +84,25 @@ public class SnappyServer {
     }
 
 
-    public void start() {
+    private void startServer() {
         try {
+            started = true;
             Info.logo();
             Info.version();
             PropertyLoader.load();
-            Info.deploymentInfo(config, endpoints, basePath);
-            ExecutorBootstrap.init(config.schedulers, config.executors);
+            Info.deploymentInfo(httpMetrics, httpTracer, port, httpMetrics, executors, schedulers, optionBuilder, endpoints, basePath);
+            ExecutorBootstrap.init(schedulers, executors);
 
             logger.info("Starting server...");
 
             Undertow.Builder serverBuilder = Undertow.builder();
 
-            XnioWorker worker = Xnio.getInstance().createWorker(config.optionBuilder.getMap());
+            XnioWorker worker = Xnio.getInstance().createWorker(optionBuilder.getMap());
             serverBuilder.setWorker(worker);
 
 
-            HttpHandler rootHandler = handlerManager.resolveHandlers(endpoints, basePath, config.httpMetrics, config.httpTracer);
-            server = serverBuilder.addHttpListener(config.getPort(), config.getBindAddress()).setHandler(rootHandler).build();
+            HttpHandler rootHandler = handlerManager.resolveHandlers(endpoints, basePath, httpMetrics, httpTracer);
+            server = serverBuilder.addHttpListener(port, bindAddress).setHandler(rootHandler).build();
 
 
             Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
@@ -95,87 +110,104 @@ public class SnappyServer {
             server.start();
 
         } catch (Exception e) {
+            started = false;
             logger.error("Error while starting the server", e);
             throw new RuntimeException(e);
         }
+        started = false;
     }
 
 
-    public void stop() {
+    private void stopServer() {
         if (server != null) {
             logger.info("Stopping server...");
             server.stop();
+            started = false;
         }
     }
 
-    //--------------------------------------------
-    final OptionMap.Builder optionBuilder = OptionMap.builder();
-    final List<ExecutorConfig> executors = new ArrayList<>();
-    final List<SchedulerConfig> schedulers = new ArrayList<>();
-    int port = 8080;
-    String bindAddress = "0.0.0.0";
-    boolean httpTracer;
-    boolean httpMetrics;
-    private List<Interceptor> interceptors = new LinkedList<>();
+    public static synchronized void start() {
+        checkStarted();
+        new Thread(() -> {
+            SnappyServer instance = instance();
+            instance.startServer();
+        }).start();
+    }
+
+    public static synchronized void stop() {
+        instance().stopServer();
+    }
+
 
     //TODO set defaults for options in the constructor
-    public void tcpNoDeplay(boolean tcpNoDelay) {
-        optionBuilder.set(Options.TCP_NODELAY, tcpNoDelay);
+    public static synchronized void tcpNoDeplay(boolean tcpNoDelay) {
+        checkStarted();
+        instance().optionBuilder.set(Options.TCP_NODELAY, tcpNoDelay);
     }
 
-    public void port(int port) {
-        this.port = port;
+    public static synchronized void port(int port) {
+        checkStarted();
+        instance().port = port;
     }
 
-    public void address(String address) {
-        this.bindAddress = address;
+    public static synchronized void address(String address) {
+        checkStarted();
+        instance().bindAddress = address;
     }
 
-    public void ioThreads(int ioThreads) {
-        optionBuilder.set(Options.WORKER_IO_THREADS, ioThreads);
+    public static synchronized void ioThreads(int ioThreads) {
+        checkStarted();
+        instance().optionBuilder.set(Options.WORKER_IO_THREADS, ioThreads);
     }
 
-    public void workerThreads(int coreThreads, int maxThreads) {
-        optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, coreThreads);
-        optionBuilder.set(Options.WORKER_TASK_MAX_THREADS, maxThreads);
+    public static synchronized void workerThreads(int coreThreads, int maxThreads) {
+        checkStarted();
+        instance().optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, coreThreads);
+        instance().optionBuilder.set(Options.WORKER_TASK_MAX_THREADS, maxThreads);
     }
 
-    public void workerThreads(int coreThreads, int maxThreads, int keepAliveMillis) {
+    public static synchronized void workerThreads(int coreThreads, int maxThreads, int keepAliveMillis) {
+        checkStarted();
         workerThreads(coreThreads, maxThreads);
-        optionBuilder.set(Options.WORKER_TASK_KEEPALIVE, keepAliveMillis);
+        instance().optionBuilder.set(Options.WORKER_TASK_KEEPALIVE, keepAliveMillis);
     }
 
-    public void enableTracer() {
-        this.httpTracer = true;
+    public static synchronized void enableTracer() {
+        checkStarted();
+        instance().httpTracer = true;
     }
 
-    public void enableHttpMetrics() {
-        this.httpMetrics = true;
+    public static synchronized void enableHttpMetrics() {
+        checkStarted();
+        instance().httpMetrics = true;
     }
 
-    public OptionMap.Builder xnioOptions() {
-        return optionBuilder;
+    public static synchronized OptionMap.Builder xnioOptions() {
+        checkStarted();
+        return instance().optionBuilder;
     }
 
-    public void executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
+    public static synchronized void executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
+        checkStarted();
         validateThreadPool(name, corePoolSize, maxPoolSize, keepAliveMillis);
         ExecutorConfig config = ExecutorConfig.withDefaults(name);
         config.getExecutor().setCorePoolSize(corePoolSize);
         config.getExecutor().setMaximumPoolSize(maxPoolSize);
         config.getExecutor().setKeepAliveTime(keepAliveMillis, TimeUnit.MILLISECONDS);
-        this.executors.add(config);
+        instance().executors.add(config);
     }
 
-    public void scheduler(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
+    public static synchronized void scheduler(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
+        checkStarted();
         validateThreadPool(name, corePoolSize, maxPoolSize, keepAliveMillis);
         SchedulerConfig schedulerConfig = SchedulerConfig.withDefaults(name);
         schedulerConfig.getScheduler().setCorePoolSize(corePoolSize);
         schedulerConfig.getScheduler().setMaximumPoolSize(maxPoolSize);
         schedulerConfig.getScheduler().setKeepAliveTime(keepAliveMillis, TimeUnit.MILLISECONDS);
-        this.schedulers.add(schedulerConfig);
+        instance().schedulers.add(schedulerConfig);
     }
 
-    private void validateThreadPool(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
+    private static void validateThreadPool(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
         Objects.requireNonNull(name, Messages.INVALID_POOL_NAME);
         if (corePoolSize < 1) {
             throw new IllegalArgumentException("Core pool size must be greater than zero");
@@ -193,90 +225,90 @@ public class SnappyServer {
     }
 
 
-    private final List<MappedEndpoint> endpoints = new ArrayList<>();
-    private final ExceptionMapper exceptionMapper = new ExceptionMapper();
-    private String basePath = HandlerUtil.BASE_PATH;
+    //--------------------- HTTP
 
-    public <T extends Exception> SnappyServer exception(Class<T> exception, ErrorHandler handler) {
-        exceptionMapper.put(exception, handler);
-        return this;
+    public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler handler) {
+        checkStarted();
+        instance().exceptionMapper.put(exception, handler);
     }
 
-    public SnappyServer basePath(String basePath) {
-        this.basePath = basePath;
-        return this;
+    public static synchronized void basePath(String basePath) {
+        checkStarted();
+        instance().basePath = basePath;
     }
 
-    public SnappyServer get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, exceptionMapper, mediaTypes));
-        return this;
+    public static synchronized void get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
-    public SnappyServer post(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, exceptionMapper, mediaTypes));
-        return this;
+    public static synchronized void post(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
-    public SnappyServer put(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, exceptionMapper, mediaTypes));
-        return this;
+    public static synchronized void put(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
-    public SnappyServer delete(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, exceptionMapper, mediaTypes));
-        return this;
+    public static synchronized void delete(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
-    public SnappyServer options(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, exceptionMapper, mediaTypes));
-        return this;
+    public static synchronized void options(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
-    public SnappyServer head(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, exceptionMapper, mediaTypes));
-        return this;
+    public static synchronized void head(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
-    public SnappyServer add(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
-        endpoints.add(HandlerUtil.rest(method, url, endpoint, exceptionMapper, mediaTypes));
-        return this;
+    public static synchronized void add(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.rest(method, url, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
-    public SnappyServer websocket(String url, AbstractReceiveListener endpoint) {
-        endpoints.add(HandlerUtil.websocket(url, endpoint));
-        return this;
+    public static synchronized void websocket(String url, AbstractReceiveListener endpoint) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.websocket(url, endpoint));
     }
 
-    public SnappyServer websocket(String url, WebSocketConnectionCallback connectionCallback) {
-        endpoints.add(HandlerUtil.websocket(url, connectionCallback));
-        return this;
+    public static synchronized void websocket(String url, WebSocketConnectionCallback connectionCallback) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.websocket(url, connectionCallback));
     }
 
-    public SnappyServer websocket(String url, WebsocketEndpoint websocketEndpoint) {
-        endpoints.add(HandlerUtil.websocket(url, websocketEndpoint));
-        return this;
+    public static synchronized void websocket(String url, WebsocketEndpoint websocketEndpoint) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.websocket(url, websocketEndpoint));
     }
 
-    public SnappyServer sse(String url) {
+    public static synchronized void sse(String url) {
+        checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        endpoints.add(HandlerUtil.sse(url));
-        return this;
+        instance().endpoints.add(HandlerUtil.sse(url));
     }
 
-    public SnappyServer staticFiles(String url, String docPath) {
+    public static synchronized void staticFiles(String url, String docPath) {
+        checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        endpoints.add(HandlerUtil.staticFiles(url, docPath));
-        return this;
+        instance().endpoints.add(HandlerUtil.staticFiles(url, docPath));
     }
 
-    public SnappyServer staticFiles(String url) {
+    public static synchronized void staticFiles(String url) {
+        checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        endpoints.add(HandlerUtil.staticFiles(url));
-        return this;
+        instance().endpoints.add(HandlerUtil.staticFiles(url));
     }
 
-    private void checkStarted() {
-
+    private static void checkStarted() {
+        if (instance().started) {
+            throw new IllegalStateException("Server already started");
+        }
     }
 
     public List<MappedEndpoint> getEndpoints() {

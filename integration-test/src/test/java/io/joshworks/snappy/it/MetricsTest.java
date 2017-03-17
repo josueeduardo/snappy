@@ -1,8 +1,6 @@
 package io.joshworks.snappy.it;
 
 import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.Config;
-import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.metric.MetricData;
 import io.joshworks.snappy.metric.RestMetricHandler;
@@ -12,6 +10,7 @@ import org.junit.Test;
 
 import java.util.Optional;
 
+import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -21,22 +20,20 @@ import static org.junit.Assert.assertTrue;
  */
 public class MetricsTest {
 
-    private static SnappyServer server = new SnappyServer(new Config().enableHttpMetrics());
-
     @BeforeClass
-    public static void start() {
+    public static void setup() {
+        enableHttpMetrics();
 
-
-        server.get("/test", (exchange) -> {
+        get("/test", (exchange) -> {
         });
 
 
-        server.start();
+        start();
     }
 
     @AfterClass
     public static void shutdown() {
-        server.stop();
+        stop();
     }
 
     @Test

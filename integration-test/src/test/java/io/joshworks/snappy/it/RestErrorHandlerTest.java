@@ -1,7 +1,6 @@
 package io.joshworks.snappy.it;
 
 import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.SnappyServer;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.rest.ExceptionResponse;
 import io.joshworks.snappy.rest.MediaType;
@@ -10,6 +9,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -18,23 +18,22 @@ import static org.junit.Assert.assertNotNull;
  */
 public class RestErrorHandlerTest {
 
-    private static SnappyServer server = new SnappyServer();
 
     private static final String EXCEPTION_MESSAGE = "SOME ERROR OCCURRED";
 
     @BeforeClass
-    public static void start() {
-        server.get("/error1", (exchange) -> {});
-        server.get("/exception", (exchange) -> {
+    public static void setup() {
+        get("/error1", (exchange) -> {});
+        get("/exception", (exchange) -> {
             throw new RuntimeException(EXCEPTION_MESSAGE);
         });
 
-        server.start();
+        start();
     }
 
     @AfterClass
     public static void shutdown() {
-        server.stop();
+        stop();
     }
 
     @Test
