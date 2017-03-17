@@ -223,13 +223,13 @@ public class MediaType {
 
     /**
      * Creates a new instance of MediaType with the supplied type, subtype and
-     * parameters.
+     * pathParameter.
      *
      * @param type       the primary type, null is equivalent to
      *                   {@link #MEDIA_TYPE_WILDCARD}.
      * @param subtype    the subtype, null is equivalent to
      *                   {@link #MEDIA_TYPE_WILDCARD}.
-     * @param parameters a map of media type parameters, null is the same as an
+     * @param parameters a map of media type pathParameter, null is the same as an
      *                   empty map.
      */
     public MediaType(String type, String subtype, Map<String, String> parameters) {
@@ -303,9 +303,9 @@ public class MediaType {
     }
 
     /**
-     * Getter for a read-only parameter map. Keys are case-insensitive.
+     * Getter for a read-only pathParameter map. Keys are case-insensitive.
      *
-     * @return an immutable map of parameters.
+     * @return an immutable map of pathParameter.
      */
     public Map<String, String> getParameters() {
         return parameters;
@@ -314,7 +314,7 @@ public class MediaType {
     /**
      * Check if this media type is compatible with another media type. E.g.
      * image/* is compatible with image/jpeg, image/png, etc. Media type
-     * parameters are ignored. The function is commutative.
+     * pathParameter are ignored. The function is commutative.
      *
      * @param other the media type to compare with
      * @return true if the types are compatible, false otherwise.
@@ -359,7 +359,7 @@ public class MediaType {
         for(Map.Entry<String, String> kv : parameters.entrySet()) {
             joiner.add(kv.getKey() + "=" + kv.getValue());
         }
-//        String params = parameters.entrySet().stream().reduce("", (t, u) -> t + u.getKey() + "=" + u.getValue(), (r, y) -> r + " " + y);
+//        String params = pathParameter.entrySet().stream().reduce("", (t, u) -> t + u.getKey() + "=" + u.getValue(), (r, y) -> r + " " + y);
         String params = joiner.toString();
         String type = this.type + SUBTYPE_SEPARATOR + subtype;
         return (params != null && !params.isEmpty()) ? type + "; " + params : type;

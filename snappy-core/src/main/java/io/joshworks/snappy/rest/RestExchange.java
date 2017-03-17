@@ -59,21 +59,29 @@ public class RestExchange {
         return exchange.getStatusCode();
     }
 
-    public String parameters(String key) {
+    public String pathParameter(String key) {
         PathTemplateMatch pathMatch = exchange.getAttachment(PathTemplateMatch.ATTACHMENT_KEY);
         return pathMatch.getParameters().get(key);
     }
 
-    public Map<String, Deque<String>> queryParams() {
+    public Property pathParameterValue(String key) {
+       return new Property(pathParameter(key));
+    }
+
+    public Map<String, Deque<String>> queryParameters() {
         return exchange.getQueryParameters();
     }
 
-    public String queryParams(String key) {
+    public String queryParameter(String key) {
         Deque<String> params = exchange.getQueryParameters().get(key);
         return params.isEmpty() ? null : params.getFirst();
     }
 
-    public Deque<String> queryParamsValues(String key) {
+    public Property queryParameterVal(String key) {
+        return new Property(queryParameter(key));
+    }
+
+    public Deque<String> queryParameters(String key) {
         return exchange.getQueryParameters().get(key);
     }
 
