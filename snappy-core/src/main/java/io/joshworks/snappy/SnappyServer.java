@@ -57,6 +57,18 @@ public class SnappyServer {
         this.config = config;
     }
 
+    private static class ServerInstanceHolder {
+        private static final SnappyServer INSTANCE = SnappyServer.createServer();
+    }
+
+    private static SnappyServer instance() {
+        return ServerInstanceHolder.INSTANCE;
+    }
+
+    private static SnappyServer createServer() {
+        return new SnappyServer();
+    }
+
 
     public void start() {
         try {
@@ -126,6 +138,11 @@ public class SnappyServer {
     public void workerThreads(int coreThreads, int maxThreads) {
         optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, coreThreads);
         optionBuilder.set(Options.WORKER_TASK_MAX_THREADS, maxThreads);
+    }
+
+    public void workerThreads(int coreThreads, int maxThreads, int keepAliveMillis) {
+        workerThreads(coreThreads, maxThreads);
+        optionBuilder.set(Options.WORKER_TASK_KEEPALIVE, keepAliveMillis);
     }
 
     public void enableTracer() {
