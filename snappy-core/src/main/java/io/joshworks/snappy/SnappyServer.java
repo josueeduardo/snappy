@@ -12,6 +12,7 @@ import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.property.PropertyLoader;
 import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
+import io.joshworks.snappy.rest.Group;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
@@ -28,13 +29,16 @@ import org.xnio.Options;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Created by josh on 3/5/17.
@@ -42,6 +46,8 @@ import java.util.function.Consumer;
 public class SnappyServer {
 
     private static final Logger logger = LoggerFactory.getLogger(SnappyServer.class);
+
+    protected final Deque<String> groups = new ArrayDeque<>();
 
     private final HandlerManager handlerManager = new HandlerManager();
     private Undertow server;
@@ -226,6 +232,7 @@ public class SnappyServer {
 
 
     //--------------------- HTTP
+    //TODO add url validation
 
     public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler handler) {
         checkStarted();
@@ -237,72 +244,83 @@ public class SnappyServer {
         instance().basePath = basePath;
     }
 
+    public static synchronized void group(String groupPath, Group group) {
+        checkStarted();
+        instance().groups.addLast(groupPath);
+        group.addResources();
+        instance().groups.removeLast();
+    }
+
+    private static String resolvePath(String url) {
+        return instance().groups.stream().collect(Collectors.joining("")) + url;
+    }
+
     public static synchronized void get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.GET, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     public static synchronized void post(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.POST, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     public static synchronized void put(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     public static synchronized void delete(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     public static synchronized void options(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     public static synchronized void head(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     public static synchronized void add(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(method, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(method, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     public static synchronized void websocket(String url, AbstractReceiveListener endpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(url, endpoint));
+        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), endpoint));
     }
 
     public static synchronized void websocket(String url, WebSocketConnectionCallback connectionCallback) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(url, connectionCallback));
+        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), connectionCallback));
     }
 
     public static synchronized void websocket(String url, WebsocketEndpoint websocketEndpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(url, websocketEndpoint));
+        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), websocketEndpoint));
     }
 
     public static synchronized void sse(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.sse(url));
+        instance().endpoints.add(HandlerUtil.sse(resolvePath(url)));
     }
 
     public static synchronized void staticFiles(String url, String docPath) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.staticFiles(url, docPath));
+        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url), docPath));
     }
 
     public static synchronized void staticFiles(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.staticFiles(url));
+        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url)));
     }
 
     private static void checkStarted() {
