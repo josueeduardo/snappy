@@ -146,7 +146,7 @@ public class MediaType {
     private static MimeMappings mimeMappings = MimeMappings.builder().build();
     private String type;
     private String subtype;
-    private Map<String, String> parameters;
+    private Map<String, String> parameters = new HashMap<>();
 
     /**
      * Creates a new instance of MediaType with the supplied type, subtype and
@@ -159,7 +159,7 @@ public class MediaType {
      * @param parameters a map of media type pathParameter, null is the same as an
      *                   empty map.
      */
-    private MediaType(String type, String subtype, Map<String, String> parameters) {
+    public MediaType(String type, String subtype, Map<String, String> parameters) {
         this.type = type == null ? MEDIA_TYPE_WILDCARD : type;
         this.subtype = subtype == null ? MEDIA_TYPE_WILDCARD : subtype;
         if (parameters == null) {
