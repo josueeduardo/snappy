@@ -17,6 +17,7 @@
 package io.joshworks.boot.maven;
 
 import io.joshworks.boot.maven.tools.Library;
+import io.joshworks.boot.maven.tools.LibraryCallback;
 import io.joshworks.boot.maven.tools.LibraryScope;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
@@ -27,7 +28,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import io.joshworks.boot.maven.tools.LibraryCallback;
 
 import java.io.File;
 import java.util.Arrays;

@@ -16,10 +16,10 @@
 
 package io.joshworks.boot.loader;
 
+import io.joshworks.boot.loader.jar.JarFile;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import io.joshworks.boot.loader.jar.JarFile;
 
 import java.io.File;
 import java.net.URL;

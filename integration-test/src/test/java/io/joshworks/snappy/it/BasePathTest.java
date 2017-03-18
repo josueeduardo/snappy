@@ -5,10 +5,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.basePath;
-import static io.joshworks.snappy.SnappyServer.get;
-import static io.joshworks.snappy.SnappyServer.start;
-import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -19,7 +16,8 @@ public class BasePathTest {
     @BeforeClass
     public static void setup() {
         basePath("/v1");
-        get("/test", (exchange) -> {});
+        get("/test", (exchange) -> {
+        });
         start();
     }
 

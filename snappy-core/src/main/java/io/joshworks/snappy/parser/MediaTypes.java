@@ -10,16 +10,10 @@ import java.util.HashSet;
  */
 public class MediaTypes extends HashSet<MediaType> {
 
-    public enum Context {
-        PRODUCES, CONSUMES
-
-    }
-
     public static MediaTypes DEFAULT_CONSUMES = new MediaTypes(Context.CONSUMES, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
     public static MediaTypes DEFAULT_PRODUCES = new MediaTypes(Context.CONSUMES, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
-
-
     private final Context context;
+
 
     private MediaTypes(Context context) {
         this.context = context;
@@ -32,12 +26,20 @@ public class MediaTypes extends HashSet<MediaType> {
         }
     }
 
+    public static MediaTypes consumes(String... types) {
+        return new MediaTypes(Context.CONSUMES, types);
+    }
+
+    public static MediaTypes produces(String... types) {
+        return new MediaTypes(Context.PRODUCES, types);
+    }
+
     /**
      * @param header
      * @return The first match of the provided content Mime context
      */
     public MediaType match(HeaderValues header) {
-        if(header != null) {
+        if (header != null) {
             for (String headerVal : header) {
                 try {
                     MediaType mediaType = MediaType.valueOf(headerVal);
@@ -53,17 +55,13 @@ public class MediaTypes extends HashSet<MediaType> {
         return null;
     }
 
-
-    public static MediaTypes consumes(String... types) {
-        return new MediaTypes(Context.CONSUMES, types);
-    }
-
-    public static MediaTypes produces(String... types) {
-        return new MediaTypes(Context.PRODUCES, types);
-    }
-
     public Context getContext() {
         return context;
+    }
+
+    public enum Context {
+        PRODUCES, CONSUMES
+
     }
 
 

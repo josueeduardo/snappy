@@ -18,11 +18,11 @@ package io.joshworks.boot.maven;
 
 import io.joshworks.boot.maven.tools.Libraries;
 import io.joshworks.boot.maven.tools.Library;
+import io.joshworks.boot.maven.tools.LibraryCallback;
 import io.joshworks.boot.maven.tools.LibraryScope;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.logging.Log;
-import io.joshworks.boot.maven.tools.LibraryCallback;
 
 import java.io.IOException;
 import java.util.Collection;

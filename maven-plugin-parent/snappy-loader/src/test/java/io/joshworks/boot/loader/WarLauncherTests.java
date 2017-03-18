@@ -16,10 +16,10 @@
 
 package io.joshworks.boot.loader;
 
-import io.joshworks.boot.loader.archive.JarFileArchive;
-import org.junit.Test;
 import io.joshworks.boot.loader.archive.Archive;
 import io.joshworks.boot.loader.archive.ExplodedArchive;
+import io.joshworks.boot.loader.archive.JarFileArchive;
+import org.junit.Test;
 import org.springframework.util.FileSystemUtils;
 
 import java.io.ByteArrayOutputStream;

@@ -32,16 +32,14 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
  * Handler that records some metrics
  *
  * @author Stuart Douglas
- *
- * Modified by Josh Gontijo - Added response code counter and replaced few methods with lambdas
- *
+ *         <p>
+ *         Modified by Josh Gontijo - Added response code counter and replaced few methods with lambdas
  */
 public class MetricsHandler implements HttpHandler {
 
     public static final HandlerWrapper WRAPPER = MetricsHandler::new;
-
-    private volatile MetricResult totalResult = new MetricResult(new Date());
     private final HttpHandler next;
+    private volatile MetricResult totalResult = new MetricResult(new Date());
 
     public MetricsHandler(HttpHandler next) {
         this.next = next;
@@ -52,7 +50,7 @@ public class MetricsHandler implements HttpHandler {
         final long start = System.currentTimeMillis();
         exchange.addExchangeCompleteListener((exchange1, nextListener) -> {
             long time = System.currentTimeMillis() - start;
-            totalResult.update((int)time, String.valueOf(exchange1.getStatusCode()));
+            totalResult.update((int) time, String.valueOf(exchange1.getStatusCode()));
             nextListener.proceed();
         });
         next.handleRequest(exchange);

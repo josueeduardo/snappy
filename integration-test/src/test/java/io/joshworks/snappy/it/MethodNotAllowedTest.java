@@ -16,7 +16,8 @@ public class MethodNotAllowedTest {
     @BeforeClass
     public static void setup() {
         basePath("/v1");
-        get("/sample", (exchange) -> {});
+        get("/sample", (exchange) -> {
+        });
         start();
     }
 

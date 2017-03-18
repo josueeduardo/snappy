@@ -8,10 +8,6 @@ import java.util.Date;
  */
 public class Instance {
 
-    public enum State {
-        UP, DOWN, OUT_OF_SERVICE
-    }
-
     private String id;
     private String address;
     private long lastUpdate;
@@ -129,5 +125,9 @@ public class Instance {
                 ", discoverable=" + discoverable +
                 ", client=" + client +
                 '}';
+    }
+
+    public enum State {
+        UP, DOWN, OUT_OF_SERVICE
     }
 }

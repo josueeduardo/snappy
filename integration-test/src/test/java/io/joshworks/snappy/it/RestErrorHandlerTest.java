@@ -23,7 +23,8 @@ public class RestErrorHandlerTest {
 
     @BeforeClass
     public static void setup() {
-        get("/error1", (exchange) -> {});
+        get("/error1", (exchange) -> {
+        });
         get("/exception", (exchange) -> {
             throw new RuntimeException(EXCEPTION_MESSAGE);
         });

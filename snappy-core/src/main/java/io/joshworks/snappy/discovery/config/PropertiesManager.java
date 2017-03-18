@@ -4,8 +4,8 @@ package io.joshworks.snappy.discovery.config;
 import io.joshworks.snappy.discovery.locator.Discovery;
 import io.joshworks.snappy.discovery.locator.EC2Discovery;
 import io.joshworks.snappy.discovery.locator.LocalDiscovery;
-import io.joshworks.snappy.property.PropertyLoader;
 import io.joshworks.snappy.property.MicroserverProperties;
+import io.joshworks.snappy.property.PropertyLoader;
 
 /**
  * Created by Josue on 26/08/2016.
@@ -24,19 +24,19 @@ public class PropertiesManager {
     }
 
     public int getRegistryPort() {
-        String port =  PropertyLoader.getProperty(MicroserverProperties.SSR_REGISTRY_PORT);
+        String port = PropertyLoader.getProperty(MicroserverProperties.SSR_REGISTRY_PORT);
         port = isEmpty(port) ? DEFAULT_REGISTRY_PORT : port;
         return Integer.parseInt(port);
     }
 
     public int getServicePort() {
-        String port =  PropertyLoader.getProperty(MicroserverProperties.SSR_SERVICE_PORT);
+        String port = PropertyLoader.getProperty(MicroserverProperties.SSR_SERVICE_PORT);
         port = isEmpty(port) ? DEFAULT_SERVICE_PORT : port;
         return Integer.parseInt(port);
     }
 
     public boolean useHostname() {
-        String useHost =  PropertyLoader.getProperty(MicroserverProperties.SSR_USE_HOST);
+        String useHost = PropertyLoader.getProperty(MicroserverProperties.SSR_USE_HOST);
         useHost = isEmpty(useHost) ? DEFAULT_USE_HOST : useHost;
         return Boolean.parseBoolean(useHost);
     }
@@ -57,7 +57,7 @@ public class PropertiesManager {
             String defaultHost = discovery.resolveHost(useHost);
             PropertyLoader.getProperties().put(key, defaultHost);
         }
-        return  PropertyLoader.getProperty(key);
+        return PropertyLoader.getProperty(key);
     }
 
     public boolean isAws() {

@@ -19,9 +19,8 @@ public class ServiceStore {
     private static final Object LOCK = new Object();
 
     private static final Map<String, Set<Instance>> store = new ConcurrentHashMap<>();
-    private Set<String> links = new HashSet<>();
-
     private static final List<ServiceEventListener> listeners = Collections.synchronizedList(new ArrayList<>());
+    private Set<String> links = new HashSet<>();
 
 
     //TODO implement

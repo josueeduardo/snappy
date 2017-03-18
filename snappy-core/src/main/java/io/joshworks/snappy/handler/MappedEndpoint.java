@@ -19,10 +19,6 @@ public class MappedEndpoint {
         this.handler = handler;
     }
 
-    public enum Type {
-        REST, WS, STATIC, SSE
-    }
-
     @Override
     public String toString() {
         return "{" +
@@ -31,5 +27,9 @@ public class MappedEndpoint {
                 ", type=" + type +
                 ", handler=" + handler +
                 '}';
+    }
+
+    public enum Type {
+        REST, WS, STATIC, SSE
     }
 }

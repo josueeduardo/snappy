@@ -2,14 +2,15 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
-import static io.joshworks.snappy.SnappyServer.executor;
-import static io.joshworks.snappy.SnappyServer.get;
-import static io.joshworks.snappy.SnappyServer.start;
-import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.SnappyServer.*;
 import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -20,13 +21,11 @@ import static org.junit.Assert.fail;
 public class AppExecutorTest {
 
 
+    private static final String EXECUTOR_A = "EXECUTOR-A";
+    private static final String RETURN_VALUE = "DONE";
     private static CountDownLatch executorLatch = new CountDownLatch(1);
     private static CountDownLatch customExecutorLatch = new CountDownLatch(1);
     private static CountDownLatch schedulerLatch = new CountDownLatch(1);
-
-    private static final String EXECUTOR_A = "EXECUTOR-A";
-
-    private static final String RETURN_VALUE = "DONE";
 
     @BeforeClass
     public static void setup() {

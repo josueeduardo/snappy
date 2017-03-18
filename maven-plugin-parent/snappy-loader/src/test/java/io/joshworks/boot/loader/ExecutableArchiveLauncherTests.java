@@ -16,11 +16,11 @@
 
 package io.joshworks.boot.loader;
 
+import io.joshworks.boot.loader.archive.Archive.Entry;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import io.joshworks.boot.loader.archive.Archive.Entry;
 
 import java.io.File;
 import java.net.URL;

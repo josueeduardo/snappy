@@ -13,15 +13,15 @@ public class SchedulerConfig extends ExecutorConfigBase {
         super(name);
     }
 
-    public SchedulerConfig executor(ScheduledThreadPoolExecutor scheduler) {
-        this.scheduler = scheduler;
-        return this;
-    }
-
     public static SchedulerConfig withDefaults(String name) {
         SchedulerConfig defaultConfig = new SchedulerConfig(name);
         defaultConfig.scheduler = new ScheduledThreadPoolExecutor(2);
         return defaultConfig;
+    }
+
+    public SchedulerConfig executor(ScheduledThreadPoolExecutor scheduler) {
+        this.scheduler = scheduler;
+        return this;
     }
 
     public ScheduledThreadPoolExecutor getScheduler() {

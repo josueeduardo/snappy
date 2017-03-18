@@ -24,10 +24,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ServiceRegister implements Runnable {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceRegister.class);
-
     public static final String SSR_ENDPOINT = "/ssr";
-
+    private static final Logger logger = LoggerFactory.getLogger(ServiceRegister.class);
     private static final Object LOCK = new Object();
     private static final AtomicInteger retryCounter = new AtomicInteger();
     private static final int RETRY_INTERVAL = 10;//in seconds
@@ -79,7 +77,7 @@ public class ServiceRegister implements Runnable {
             try {
                 if (webSocketChannel != null && webSocketChannel.isOpen()) {
                     logger.info("SSR: Closing WS webSocketChannel");
-                    
+
                     webSocketChannel.setCloseCode(1000); //normal closure
                     webSocketChannel.setCloseReason("Service disconnected");
                     webSocketChannel.sendClose();
@@ -124,7 +122,6 @@ public class ServiceRegister implements Runnable {
                 //block until connects
                 webSocketChannel = connectionFuture.get();
                 webSocketChannel.getReceiveSetter().set(new ServiceClientEndpoint(this, store));
-
 
 
                 logger.info("SSR: Connected !");

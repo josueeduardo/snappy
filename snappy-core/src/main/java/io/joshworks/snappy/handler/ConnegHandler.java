@@ -20,16 +20,12 @@ import java.util.Iterator;
  */
 public class ConnegHandler implements HttpHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ConnegHandler.class);
-
     public static final AttachmentKey<NegotiatedMediaType> NEGOTIATED_MEDIA_TYPE = AttachmentKey.create(NegotiatedMediaType.class);
-
+    private static final Logger logger = LoggerFactory.getLogger(ConnegHandler.class);
+    private final HttpHandler next;
+    private final ExceptionMapper exceptionMapper;
     private MediaTypes consumes;
     private MediaTypes produces;
-
-    private final HttpHandler next;
-
-    private final ExceptionMapper exceptionMapper;
 
     public ConnegHandler(HttpHandler next, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
         this.exceptionMapper = exceptionMapper;

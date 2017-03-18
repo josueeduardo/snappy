@@ -15,7 +15,6 @@ public class Metrics {
     private static final Map<String, Object> properties = new ConcurrentHashMap<>();
 
 
-
     private Metrics() {
     }
 

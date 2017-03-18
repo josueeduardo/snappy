@@ -16,9 +16,9 @@
 
 package io.joshworks.boot.loader;
 
-import io.joshworks.boot.loader.archive.JarFileArchive;
 import io.joshworks.boot.loader.archive.Archive;
 import io.joshworks.boot.loader.archive.ExplodedArchive;
+import io.joshworks.boot.loader.archive.JarFileArchive;
 import io.joshworks.boot.loader.jar.JarFile;
 
 import java.io.File;

@@ -25,6 +25,6 @@ public class ExceptionResponse implements Serializable {
 
     @Override
     public String toString() {
-        return "status=" + status +", message='" + message + '\'';
+        return "status=" + status + ", message='" + message + '\'';
     }
 }

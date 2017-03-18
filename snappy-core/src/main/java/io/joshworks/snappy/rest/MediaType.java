@@ -36,27 +36,10 @@ import java.util.TreeMap;
  */
 public class MediaType {
 
-    private String type;
-    private String subtype;
-    private Map<String, String> parameters;
-
-    /**
-     * Empty immutable map used for all instances without parameters
-     */
-    private static final Map<String, String> emptyMap = Collections.emptyMap();
-
-
     /**
      * The value of a type or subtype wildcard: "*"
      */
     public static final String MEDIA_TYPE_WILDCARD = "*";
-
-    private static final String SUBTYPE_SEPARATOR = "/";
-    private static final String PARAMETERS_SEPARATOR = ";";
-
-    private static MimeMappings mimeMappings = MimeMappings.builder().build();
-
-    // Common media type constants
     /**
      * "*&#47;*"
      */
@@ -65,7 +48,6 @@ public class MediaType {
      * "*&#47;*"
      */
     public final static MediaType WILDCARD_TYPE = new MediaType();
-
     /**
      * "application/xml"
      */
@@ -74,7 +56,6 @@ public class MediaType {
      * "application/xml"
      */
     public final static MediaType APPLICATION_XML_TYPE = new MediaType("application", "xml");
-
     /**
      * "application/atom+xml"
      */
@@ -83,16 +64,16 @@ public class MediaType {
      * "application/atom+xml"
      */
     public final static MediaType APPLICATION_ATOM_XML_TYPE = new MediaType("application", "atom+xml");
-
     /**
      * "application/xhtml+xml"
      */
     public final static String APPLICATION_XHTML_XML = "application/xhtml+xml";
+
+    // Common media type constants
     /**
      * "application/xhtml+xml"
      */
     public final static MediaType APPLICATION_XHTML_XML_TYPE = new MediaType("application", "xhtml+xml");
-
     /**
      * "application/svg+xml"
      */
@@ -101,7 +82,6 @@ public class MediaType {
      * "application/svg+xml"
      */
     public final static MediaType APPLICATION_SVG_XML_TYPE = new MediaType("application", "svg+xml");
-
     /**
      * "application/json"
      */
@@ -110,7 +90,6 @@ public class MediaType {
      * "application/json"
      */
     public final static MediaType APPLICATION_JSON_TYPE = new MediaType("application", "json");
-
     /**
      * "application/x-www-form-urlencoded"
      */
@@ -119,7 +98,6 @@ public class MediaType {
      * "application/x-www-form-urlencoded"
      */
     public final static MediaType APPLICATION_FORM_URLENCODED_TYPE = new MediaType("application", "x-www-form-urlencoded");
-
     /**
      * "multipart/form-data"
      */
@@ -128,7 +106,6 @@ public class MediaType {
      * "multipart/form-data"
      */
     public final static MediaType MULTIPART_FORM_DATA_TYPE = new MediaType("multipart", "form-data");
-
     /**
      * "application/octet-stream"
      */
@@ -137,7 +114,6 @@ public class MediaType {
      * "application/octet-stream"
      */
     public final static MediaType APPLICATION_OCTET_STREAM_TYPE = new MediaType("application", "octet-stream");
-
     /**
      * "text/plain"
      */
@@ -146,7 +122,6 @@ public class MediaType {
      * "text/plain"
      */
     public final static MediaType TEXT_PLAIN_TYPE = new MediaType("text", "plain");
-
     /**
      * "text/xml"
      */
@@ -155,7 +130,6 @@ public class MediaType {
      * "text/xml"
      */
     public final static MediaType TEXT_XML_TYPE = new MediaType("text", "xml");
-
     /**
      * "text/html"
      */
@@ -164,62 +138,16 @@ public class MediaType {
      * "text/html"
      */
     public final static MediaType TEXT_HTML_TYPE = new MediaType("text", "html");
-
     /**
-     * Creates a new instance of MediaType by parsing the supplied string.
-     *
-     * @param type the media type string
-     * @return the newly created MediaType
-     * @throws IllegalArgumentException if the supplied string cannot be parsed
-     *                                  or is null
+     * Empty immutable map used for all instances without parameters
      */
-    public static MediaType valueOf(String type) throws IllegalArgumentException {
-        if(type == null || type.trim().isEmpty() || type.startsWith(SUBTYPE_SEPARATOR) || type.endsWith(SUBTYPE_SEPARATOR)) {
-            throw new IllegalArgumentException("Invalid mime type '" + type + "'");
-        }
-        String[] splitType = type.split(SUBTYPE_SEPARATOR);
-        if (splitType.length == 2) {
-            nonEmpty(type, splitType[0]);
-            nonEmpty(type, splitType[1]);
-            Map<String, String> parameters = new HashMap<>();
-            String subType = splitType[1];
-            if (splitType[1].contains(PARAMETERS_SEPARATOR)) {
-                String[] subTypeWithparameter = splitType[1].split(PARAMETERS_SEPARATOR);
-                String paramString = subTypeWithparameter[1].trim();
-                subType = subTypeWithparameter[0];
-                parameters = parseParameters(paramString);
-            }
-            return new MediaType(splitType[0].trim(), subType.trim(), parameters);
-        }
-        if (!type.contains(SUBTYPE_SEPARATOR)) {
-            String mimeType = mimeMappings.getMimeType(type);
-            if (mimeType != null) {
-                return valueOf(mimeType);
-            }
-        }
-        throw new IllegalArgumentException("Invalid mime type '" + type + "'");
-    }
-
-    private static void nonEmpty(String original, String val) throws IllegalArgumentException{
-        if(val == null || val.trim().isEmpty()){
-            throw new IllegalArgumentException("Invalid mime type '" + original + "'");
-        }
-        if((val.length() - val.replace("/", "").length()) > 0){
-            throw new IllegalArgumentException("Invalid mime type '" + original + "'");
-        }
-    }
-
-    private static Map<String, String> parseParameters(String paramString) {
-        Map<String, String> parameters = new HashMap<>();
-        String[] split = paramString.split(" ");
-        for (String kv : split) {
-            String[] keyValue = kv.split("=");
-            if (keyValue.length == 2) {
-                parameters.put(keyValue[0], keyValue[1]);
-            }
-        }
-        return parameters;
-    }
+    private static final Map<String, String> emptyMap = Collections.emptyMap();
+    private static final String SUBTYPE_SEPARATOR = "/";
+    private static final String PARAMETERS_SEPARATOR = ";";
+    private static MimeMappings mimeMappings = MimeMappings.builder().build();
+    private String type;
+    private String subtype;
+    private Map<String, String> parameters;
 
     /**
      * Creates a new instance of MediaType with the supplied type, subtype and
@@ -264,6 +192,62 @@ public class MediaType {
      */
     public MediaType() {
         this(MEDIA_TYPE_WILDCARD, MEDIA_TYPE_WILDCARD);
+    }
+
+    /**
+     * Creates a new instance of MediaType by parsing the supplied string.
+     *
+     * @param type the media type string
+     * @return the newly created MediaType
+     * @throws IllegalArgumentException if the supplied string cannot be parsed
+     *                                  or is null
+     */
+    public static MediaType valueOf(String type) throws IllegalArgumentException {
+        if (type == null || type.trim().isEmpty() || type.startsWith(SUBTYPE_SEPARATOR) || type.endsWith(SUBTYPE_SEPARATOR)) {
+            throw new IllegalArgumentException("Invalid mime type '" + type + "'");
+        }
+        String[] splitType = type.split(SUBTYPE_SEPARATOR);
+        if (splitType.length == 2) {
+            nonEmpty(type, splitType[0]);
+            nonEmpty(type, splitType[1]);
+            Map<String, String> parameters = new HashMap<>();
+            String subType = splitType[1];
+            if (splitType[1].contains(PARAMETERS_SEPARATOR)) {
+                String[] subTypeWithparameter = splitType[1].split(PARAMETERS_SEPARATOR);
+                String paramString = subTypeWithparameter[1].trim();
+                subType = subTypeWithparameter[0];
+                parameters = parseParameters(paramString);
+            }
+            return new MediaType(splitType[0].trim(), subType.trim(), parameters);
+        }
+        if (!type.contains(SUBTYPE_SEPARATOR)) {
+            String mimeType = mimeMappings.getMimeType(type);
+            if (mimeType != null) {
+                return valueOf(mimeType);
+            }
+        }
+        throw new IllegalArgumentException("Invalid mime type '" + type + "'");
+    }
+
+    private static void nonEmpty(String original, String val) throws IllegalArgumentException {
+        if (val == null || val.trim().isEmpty()) {
+            throw new IllegalArgumentException("Invalid mime type '" + original + "'");
+        }
+        if ((val.length() - val.replace("/", "").length()) > 0) {
+            throw new IllegalArgumentException("Invalid mime type '" + original + "'");
+        }
+    }
+
+    private static Map<String, String> parseParameters(String paramString) {
+        Map<String, String> parameters = new HashMap<>();
+        String[] split = paramString.split(" ");
+        for (String kv : split) {
+            String[] keyValue = kv.split("=");
+            if (keyValue.length == 2) {
+                parameters.put(keyValue[0], keyValue[1]);
+            }
+        }
+        return parameters;
     }
 
     /**
@@ -356,7 +340,7 @@ public class MediaType {
         String param = "";
         StringJoiner joiner = new StringJoiner(" ");
 
-        for(Map.Entry<String, String> kv : parameters.entrySet()) {
+        for (Map.Entry<String, String> kv : parameters.entrySet()) {
             joiner.add(kv.getKey() + "=" + kv.getValue());
         }
 //        String params = pathParameter.entrySet().stream().reduce("", (t, u) -> t + u.getKey() + "=" + u.getValue(), (r, y) -> r + " " + y);

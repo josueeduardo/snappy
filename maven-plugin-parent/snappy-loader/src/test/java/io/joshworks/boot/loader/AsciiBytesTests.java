@@ -16,10 +16,10 @@
 
 package io.joshworks.boot.loader;
 
+import io.joshworks.boot.loader.util.AsciiBytes;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import io.joshworks.boot.loader.util.AsciiBytes;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.not;

@@ -1,9 +1,6 @@
 package io.joshworks.snappy.app;
 
-import static io.joshworks.snappy.SnappyServer.enableHttpMetrics;
-import static io.joshworks.snappy.SnappyServer.enableTracer;
-import static io.joshworks.snappy.SnappyServer.get;
-import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.*;
 import static io.joshworks.snappy.metric.Metrics.addMetric;
 
 

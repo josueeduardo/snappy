@@ -6,5 +6,4 @@ package io.joshworks.snappy.it;
 public class RestClientTest {
 
 
-
 }

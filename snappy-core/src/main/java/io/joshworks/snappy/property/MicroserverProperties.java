@@ -38,6 +38,4 @@ public final class MicroserverProperties {
 //    public static final String PROPERTIES_FILE_NAME = "registry";
 
 
-
-
 }

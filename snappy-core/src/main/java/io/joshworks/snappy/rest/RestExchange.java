@@ -65,7 +65,7 @@ public class RestExchange {
     }
 
     public Property pathParameterValue(String key) {
-       return new Property(pathParameter(key));
+        return new Property(pathParameter(key));
     }
 
     public Map<String, Deque<String>> queryParameters() {

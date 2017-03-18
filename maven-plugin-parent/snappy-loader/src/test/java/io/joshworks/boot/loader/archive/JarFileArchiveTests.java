@@ -17,12 +17,12 @@
 package io.joshworks.boot.loader.archive;
 
 import io.joshworks.boot.loader.TestJarCreator;
+import io.joshworks.boot.loader.archive.Archive.Entry;
 import io.joshworks.boot.loader.util.AsciiBytes;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import io.joshworks.boot.loader.archive.Archive.Entry;
 
 import java.io.File;
 import java.net.URL;

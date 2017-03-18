@@ -16,7 +16,12 @@
 
 package io.joshworks.boot.maven;
 
+import io.joshworks.boot.maven.tools.DefaultLaunchScript;
+import io.joshworks.boot.maven.tools.LaunchScript;
+import io.joshworks.boot.maven.tools.Layout;
+import io.joshworks.boot.maven.tools.Layouts;
 import io.joshworks.boot.maven.tools.Libraries;
+import io.joshworks.boot.maven.tools.Repackager;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -29,11 +34,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.MavenProjectHelper;
 import org.apache.maven.shared.artifact.filter.collection.ArtifactsFilter;
-import io.joshworks.boot.maven.tools.DefaultLaunchScript;
-import io.joshworks.boot.maven.tools.LaunchScript;
-import io.joshworks.boot.maven.tools.Layout;
-import io.joshworks.boot.maven.tools.Layouts;
-import io.joshworks.boot.maven.tools.Repackager;
 
 import java.io.File;
 import java.io.IOException;

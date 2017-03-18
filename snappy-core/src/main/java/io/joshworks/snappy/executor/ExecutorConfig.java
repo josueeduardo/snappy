@@ -15,15 +15,15 @@ public class ExecutorConfig extends ExecutorConfigBase {
         super(name);
     }
 
-    public ExecutorConfig executor(ThreadPoolExecutor executor) {
-        this.executor = executor;
-        return this;
-    }
-
     public static ExecutorConfig withDefaults(String name) {
         ExecutorConfig defaultConfig = new ExecutorConfig(name);
         defaultConfig.executor = new ThreadPoolExecutor(0, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
         return defaultConfig;
+    }
+
+    public ExecutorConfig executor(ThreadPoolExecutor executor) {
+        this.executor = executor;
+        return this;
     }
 
     public ThreadPoolExecutor getExecutor() {

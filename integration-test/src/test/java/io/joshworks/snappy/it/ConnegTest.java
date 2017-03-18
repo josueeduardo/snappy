@@ -7,11 +7,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-import static io.joshworks.snappy.SnappyServer.basePath;
-import static io.joshworks.snappy.SnappyServer.get;
-import static io.joshworks.snappy.SnappyServer.start;
-import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.SnappyServer.*;
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
 import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertEquals;
@@ -28,13 +24,18 @@ public class ConnegTest {
     @BeforeClass
     public static void setup() {
         basePath("/v1");
-        get("/json", (exchange) -> {});
-        get("/xml", (exchange) -> {}, consumes("application/xml"));
-        get("/simple-mime", (exchange) -> {}, consumes("json"));
+        get("/json", (exchange) -> {
+        });
+        get("/xml", (exchange) -> {
+        }, consumes("application/xml"));
+        get("/simple-mime", (exchange) -> {
+        }, consumes("json"));
 
         //produces
-        get("/produces-json", (exchange) -> {}, produces("application/json"));
-        get("/produces-text", (exchange) -> {}, produces("text/plain"));
+        get("/produces-json", (exchange) -> {
+        }, produces("application/json"));
+        get("/produces-text", (exchange) -> {
+        }, produces("text/plain"));
 
         get("/overridden", (exchange) -> {
             exchange.send("{}", MediaType.APPLICATION_JSON_TYPE);

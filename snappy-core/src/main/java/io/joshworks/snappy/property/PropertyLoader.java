@@ -16,7 +16,8 @@ public class PropertyLoader {
 
     private static final Properties properties = new Properties();
 
-    private PropertyLoader(){}
+    private PropertyLoader() {
+    }
 
     public static void load() {
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MicroserverProperties.PROPERTIES_NAME);
@@ -27,7 +28,7 @@ public class PropertyLoader {
             } catch (IOException e) {
                 throw new RuntimeException("Error while loading " + MicroserverProperties.PROPERTIES_NAME, e);
             }
-        } else{
+        } else {
             logger.info("{} not found", MicroserverProperties.PROPERTIES_NAME);
         }
 

@@ -48,25 +48,23 @@ public class SnappyServer {
     private static final Logger logger = LoggerFactory.getLogger(SnappyServer.class);
 
     private final HandlerManager handlerManager = new HandlerManager();
-    private Undertow server;
-
     //--------------------------------------------
     private final OptionMap.Builder optionBuilder = OptionMap.builder();
     private final List<ExecutorConfig> executors = new ArrayList<>();
     private final List<SchedulerConfig> schedulers = new ArrayList<>();
+    //-------------------------------------------
+    private final List<MappedEndpoint> endpoints = new ArrayList<>();
+    private final ExceptionMapper exceptionMapper = new ExceptionMapper();
+    //--------------------- REST -------------------
+    private final Deque<String> groups = new ArrayDeque<>();
+    private Undertow server;
     private int port = 8080;
     private String bindAddress = "0.0.0.0";
     private boolean httpTracer;
     private boolean httpMetrics;
     private List<Interceptor> interceptors = new LinkedList<>();
-
-    //-------------------------------------------
-    private final List<MappedEndpoint> endpoints = new ArrayList<>();
-    private final ExceptionMapper exceptionMapper = new ExceptionMapper();
     private String basePath = HandlerUtil.BASE_PATH;
-
     private boolean started = false;
-
 
     private SnappyServer() {
         optionBuilder.set(Options.TCP_NODELAY, true);
@@ -75,59 +73,12 @@ public class SnappyServer {
         this.optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, processors * 2);
     }
 
-    private static class ServerInstanceHolder {
-        private static final SnappyServer INSTANCE = SnappyServer.createServer();
-    }
-
     private static SnappyServer instance() {
         return ServerInstanceHolder.INSTANCE;
     }
 
     private static SnappyServer createServer() {
         return new SnappyServer();
-    }
-
-
-    private void startServer() {
-        try {
-            started = true;
-            Info.logo();
-            Info.version();
-            PropertyLoader.load();
-            Info.deploymentInfo(httpMetrics, httpTracer, port, httpMetrics, executors, schedulers, optionBuilder, endpoints, basePath);
-            ExecutorBootstrap.init(schedulers, executors);
-
-            logger.info("Starting server...");
-
-            Undertow.Builder serverBuilder = Undertow.builder();
-
-            XnioWorker worker = Xnio.getInstance().createWorker(optionBuilder.getMap());
-            serverBuilder.setWorker(worker);
-
-
-            HttpHandler rootHandler = handlerManager.resolveHandlers(endpoints, basePath, httpMetrics, httpTracer);
-            server = serverBuilder.addHttpListener(port, bindAddress).setHandler(rootHandler).build();
-
-
-            Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
-
-            server.start();
-
-        } catch (Exception e) {
-            started = false;
-            logger.error("Error while starting the server", e);
-            throw new RuntimeException(e);
-        }
-        started = false;
-    }
-
-
-    private void stopServer() {
-        if (server != null && started) {
-            logger.info("Stopping server...");
-            server.stop();
-            started = false;
-        }
     }
 
     public static synchronized void start() {
@@ -141,7 +92,6 @@ public class SnappyServer {
     public static synchronized void stop() {
         instance().stopServer();
     }
-
 
     //TODO set defaults for options in the constructor
     public static synchronized void tcpNoDeplay(boolean tcpNoDelay) {
@@ -228,12 +178,6 @@ public class SnappyServer {
 
     }
 
-
-    //--------------------- REST -------------------
-    private final Deque<String> groups = new ArrayDeque<>();
-
-    //TODO add url validation
-
     public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler handler) {
         checkStarted();
         instance().exceptionMapper.put(exception, handler);
@@ -250,6 +194,8 @@ public class SnappyServer {
         group.addResources();
         instance().groups.removeLast();
     }
+
+    //TODO add url validation
 
     public static synchronized void before(String url, Consumer<RestExchange> consumer) {
         checkStarted();
@@ -339,12 +285,57 @@ public class SnappyServer {
         }
     }
 
+    private void startServer() {
+        try {
+            started = true;
+            Info.logo();
+            Info.version();
+            PropertyLoader.load();
+            Info.deploymentInfo(httpMetrics, httpTracer, port, httpMetrics, executors, schedulers, optionBuilder, endpoints, basePath);
+            ExecutorBootstrap.init(schedulers, executors);
+
+            logger.info("Starting server...");
+
+            Undertow.Builder serverBuilder = Undertow.builder();
+
+            XnioWorker worker = Xnio.getInstance().createWorker(optionBuilder.getMap());
+            serverBuilder.setWorker(worker);
+
+
+            HttpHandler rootHandler = handlerManager.resolveHandlers(endpoints, basePath, httpMetrics, httpTracer);
+            server = serverBuilder.addHttpListener(port, bindAddress).setHandler(rootHandler).build();
+
+
+            Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
+
+            server.start();
+
+        } catch (Exception e) {
+            started = false;
+            logger.error("Error while starting the server", e);
+            throw new RuntimeException(e);
+        }
+        started = false;
+    }
+
+    private void stopServer() {
+        if (server != null && started) {
+            logger.info("Stopping server...");
+            server.stop();
+            started = false;
+        }
+    }
+
     public List<MappedEndpoint> getEndpoints() {
         return Collections.unmodifiableList(endpoints);
     }
 
     public String getBasePath() {
         return basePath;
+    }
+
+    private static class ServerInstanceHolder {
+        private static final SnappyServer INSTANCE = SnappyServer.createServer();
     }
 
     private static class Shutdown implements Runnable {

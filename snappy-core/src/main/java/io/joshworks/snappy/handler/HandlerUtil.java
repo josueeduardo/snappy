@@ -30,12 +30,10 @@ import static io.joshworks.snappy.Messages.INVALID_URL;
  */
 public class HandlerUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(HandlerUtil.class);
-
     public static final String BASE_PATH = "/";
     public static final String WILDCARD = "*";
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
-
+    private static final Logger logger = LoggerFactory.getLogger(HandlerUtil.class);
 
     public static MappedEndpoint rest(HttpString method,
                                       String url,
@@ -47,7 +45,7 @@ public class HandlerUtil {
         Objects.requireNonNull(method, Messages.INVALID_METHOD);
         Objects.requireNonNull(url, Messages.INVALID_URL);
         Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);
-        
+
         url = resolveUrl(url);
         //TODO implement interceptors - before / after
         HttpHandler handler = new BlockingHandler(new RestDispatcher(endpoint, interceptors, exceptionMapper, mimeTypes));

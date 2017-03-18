@@ -16,8 +16,8 @@
 
 package io.joshworks.boot.loader;
 
-import io.joshworks.boot.loader.util.AsciiBytes;
 import io.joshworks.boot.loader.archive.Archive;
+import io.joshworks.boot.loader.util.AsciiBytes;
 
 import java.util.List;
 
