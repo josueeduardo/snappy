@@ -162,6 +162,8 @@
                 </executions>
             </plugin>
 
+
+
             <!-- COPIES THE LOADER INSIDE META-INF SO IT CAN BE USED LATER INSIDE THE CODE TO COPY ITS CLASSES TO THE FINAL JAR-->
 
             <plugin>
@@ -216,6 +218,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
