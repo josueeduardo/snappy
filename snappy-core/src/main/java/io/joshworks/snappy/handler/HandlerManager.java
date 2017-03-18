@@ -30,7 +30,7 @@ public class HandlerManager {
     public HttpHandler resolveHandlers(List<MappedEndpoint> mappedEndpoints, String basePath, boolean httpMetrics, boolean httpTracer) {
 
         final List<RestMetricHandler> metricsHandlers = new ArrayList<>();
-        final RoutingHandler routingRestHandler = Handlers.routing();
+        final RoutingHandler routingRestHandler = new TrailingSlashRoutingHandler();
         final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
         HttpHandler staticHandler = null;
 
@@ -103,12 +103,12 @@ public class HandlerManager {
         ExceptionMapper internalExceptionMapper = new ExceptionMapper();
 
         MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.send(
-                new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper);
+                new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper, new ArrayList<>());
 
         MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, "/metrics", (exchange) -> {
             metricsHandlers.forEach(MetricsHandler::reset);
             exchange.status(StatusCodes.NO_CONTENT);
-        }, internalExceptionMapper);
+        }, internalExceptionMapper, new ArrayList<>());
 
         routingRestHandler.add(getMetrics.method, getMetrics.url, getMetrics.handler);
         routingRestHandler.add(clearMetrics.method, clearMetrics.url, clearMetrics.handler);

@@ -161,9 +161,8 @@ public class RestExchange {
         return this;
     }
 
-    public RestExchange send(Object response) {
+    public void send(Object response) {
         this.response(response);
-        return this;
     }
 
     public void send(Object response, String mediaType) {

@@ -38,7 +38,7 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
             store.newSession(); //TODO WS is application scoped bean now
             Instance currentInstance = Configurator.getCurrentInstance();
             WebSockets.sendText(parser.writeValue(currentInstance), channel, null);
-        }catch (Exception e) {
+        } catch (Exception e) {
             //TODO
         }
     }
@@ -84,7 +84,7 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
                     || Instance.State.OUT_OF_SERVICE.equals(instance.getState())) {
                 store.onDisconnect(instance);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             //TODO
         }
     }

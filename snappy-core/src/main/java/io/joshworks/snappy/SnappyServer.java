@@ -47,8 +47,6 @@ public class SnappyServer {
 
     private static final Logger logger = LoggerFactory.getLogger(SnappyServer.class);
 
-    protected final Deque<String> groups = new ArrayDeque<>();
-
     private final HandlerManager handlerManager = new HandlerManager();
     private Undertow server;
 
@@ -125,7 +123,7 @@ public class SnappyServer {
 
 
     private void stopServer() {
-        if (server != null) {
+        if (server != null && started) {
             logger.info("Stopping server...");
             server.stop();
             started = false;
@@ -231,7 +229,9 @@ public class SnappyServer {
     }
 
 
-    //--------------------- HTTP
+    //--------------------- REST -------------------
+    private final Deque<String> groups = new ArrayDeque<>();
+
     //TODO add url validation
 
     public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler handler) {
@@ -251,43 +251,49 @@ public class SnappyServer {
         instance().groups.removeLast();
     }
 
-    private static String resolvePath(String url) {
-        return instance().groups.stream().collect(Collectors.joining("")) + url;
+    public static synchronized void before(String url, Consumer<RestExchange> consumer) {
+        checkStarted();
+        instance().interceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
+    }
+
+    public static synchronized void after(String url, Consumer<RestExchange> consumer) {
+        checkStarted();
+        instance().interceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
     }
 
     public static synchronized void get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.GET, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.GET, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void post(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.POST, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.POST, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void put(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void delete(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void options(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void head(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void add(HttpString method, String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(method, resolvePath(url), endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(method, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void websocket(String url, AbstractReceiveListener endpoint) {
@@ -308,7 +314,7 @@ public class SnappyServer {
     public static synchronized void sse(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.sse(resolvePath(url)));
+        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors));
     }
 
     public static synchronized void staticFiles(String url, String docPath) {
@@ -321,6 +327,10 @@ public class SnappyServer {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url)));
+    }
+
+    private static String resolvePath(String url) {
+        return instance().groups.stream().collect(Collectors.joining("")) + url;
     }
 
     private static void checkStarted() {
