@@ -8,7 +8,10 @@ import io.joshworks.snappy.executor.SchedulerConfig;
 import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
+import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.MediaTypes;
+import io.joshworks.snappy.parser.Parsers;
+import io.joshworks.snappy.parser.PlainTextParser;
 import io.joshworks.snappy.property.PropertyLoader;
 import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
@@ -293,6 +296,10 @@ public class SnappyServer {
             PropertyLoader.load();
             Info.deploymentInfo(httpMetrics, httpTracer, port, httpMetrics, executors, schedulers, optionBuilder, endpoints, basePath);
             ExecutorBootstrap.init(schedulers, executors);
+
+            //register default parsers
+            Parsers.register(new JsonParser());
+            Parsers.register(new PlainTextParser());
 
             logger.info("Starting server...");
 

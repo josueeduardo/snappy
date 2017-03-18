@@ -22,11 +22,6 @@ public class Parsers {
     private static final Map<MediaType, Parser> available = new HashMap<>();
     private static final Parser defaultParser = new JsonParser();
 
-    static {
-        Parsers.register(new JsonParser());
-        Parsers.register(new PlainTextParser());
-    }
-
     private Parsers() {
 
     }

@@ -141,7 +141,6 @@ public class MediaType {
     /**
      * Empty immutable map used for all instances without parameters
      */
-    private static final Map<String, String> emptyMap = Collections.emptyMap();
     private static final String SUBTYPE_SEPARATOR = "/";
     private static final String PARAMETERS_SEPARATOR = ";";
     private static MimeMappings mimeMappings = MimeMappings.builder().build();
@@ -160,11 +159,11 @@ public class MediaType {
      * @param parameters a map of media type pathParameter, null is the same as an
      *                   empty map.
      */
-    public MediaType(String type, String subtype, Map<String, String> parameters) {
+    private MediaType(String type, String subtype, Map<String, String> parameters) {
         this.type = type == null ? MEDIA_TYPE_WILDCARD : type;
         this.subtype = subtype == null ? MEDIA_TYPE_WILDCARD : subtype;
         if (parameters == null) {
-            this.parameters = emptyMap;
+            this.parameters = new HashMap<>();
         } else {
             Map<String, String> map = new TreeMap<>(String::compareToIgnoreCase);
             for (Map.Entry<String, String> e : parameters.entrySet()) {
@@ -183,7 +182,7 @@ public class MediaType {
      *                {@link #MEDIA_TYPE_WILDCARD}
      */
     public MediaType(String type, String subtype) {
-        this(type, subtype, emptyMap);
+        this(type, subtype, new HashMap<>());
     }
 
     /**
