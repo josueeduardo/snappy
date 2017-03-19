@@ -24,16 +24,20 @@ public class ConnegTest {
     @BeforeClass
     public static void setup() {
         basePath("/v1");
+
         get("/json", (exchange) -> {
         });
+
         get("/xml", (exchange) -> {
         }, consumes("application/xml"));
+
         get("/simple-mime", (exchange) -> {
         }, consumes("json"));
 
         //produces
         get("/produces-json", (exchange) -> {
         }, produces("application/json"));
+
         get("/produces-text", (exchange) -> {
         }, produces("text/plain"));
 
@@ -131,7 +135,7 @@ public class ConnegTest {
 
 
     // ----- SERVER PRODUCES -----
-    @Test
+    @Test //this tests the order in which the produces are registered in the MediaTypes
     public void noAcceptSpecified_default_json() throws Exception {
         HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/json").asString();
         assertEquals(200, response.getStatus());

@@ -17,7 +17,7 @@ public class MediaTypes extends HashSet<MediaType> {
 
     private final Context context;
 
-    private MediaType defaultType = MediaType.TEXT_PLAIN_TYPE;
+    private MediaType defaultType;
 
     private MediaTypes(Context context) {
         this.context = context;
@@ -32,6 +32,7 @@ public class MediaTypes extends HashSet<MediaType> {
             }
             add(mediaType);
         }
+        defaultType = defaultType == null ? MediaType.TEXT_PLAIN_TYPE : defaultType;
     }
 
     public static MediaTypes consumes(String... types) {
