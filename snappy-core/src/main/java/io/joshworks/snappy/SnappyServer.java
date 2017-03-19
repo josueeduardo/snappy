@@ -170,12 +170,11 @@ public class SnappyServer {
         instance().executors.add(config);
     }
 
-    public static synchronized void scheduler(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
+    public static synchronized void scheduler(String name, int corePoolSize, long keepAliveMillis) {
         checkStarted();
-        validateThreadPool(name, corePoolSize, maxPoolSize, keepAliveMillis);
+        validateThreadPool(name, corePoolSize, corePoolSize, keepAliveMillis);
         SchedulerConfig schedulerConfig = SchedulerConfig.withDefaults(name);
         schedulerConfig.getScheduler().setCorePoolSize(corePoolSize);
-        schedulerConfig.getScheduler().setMaximumPoolSize(maxPoolSize);
         schedulerConfig.getScheduler().setKeepAliveTime(keepAliveMillis, TimeUnit.MILLISECONDS);
         instance().schedulers.add(schedulerConfig);
     }

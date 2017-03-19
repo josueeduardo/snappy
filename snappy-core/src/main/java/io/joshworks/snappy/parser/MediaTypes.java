@@ -12,8 +12,8 @@ import java.util.List;
  */
 public class MediaTypes extends HashSet<MediaType> {
 
-    public static MediaTypes DEFAULT_CONSUMES = new MediaTypes(Context.CONSUMES, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
-    public static MediaTypes DEFAULT_PRODUCES = new MediaTypes(Context.CONSUMES, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+    public static final MediaTypes DEFAULT_CONSUMES = new MediaTypes(Context.CONSUMES, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
+    public static final MediaTypes DEFAULT_PRODUCES = new MediaTypes(Context.CONSUMES, MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN);
 
     private final Context context;
 

@@ -33,8 +33,9 @@ public class EC2Discovery implements Discovery {
         try {
             URL url = new URL(awsUrl);
             URLConnection conn = url.openConnection();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            return reader.readLine();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                return reader.readLine();
+            }
         } catch (Exception e) {
             throw new RuntimeException("Could not resolve EC2 host address", e);
         }

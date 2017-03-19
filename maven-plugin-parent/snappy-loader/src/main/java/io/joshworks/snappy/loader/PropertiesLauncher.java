@@ -571,7 +571,7 @@ public class PropertiesLauncher extends Launcher {
                     urls.addAll(index + 1, extra);
                 }
             } catch (Exception ex) {
-                // ignore
+                // do nothing
             }
         }
     }

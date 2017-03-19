@@ -29,17 +29,20 @@ public class Info {
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     public static void logo() {
-        BufferedReader br = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(LOGO)));
-        br.lines().forEach(System.err::println);
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(LOGO)))) {
+            br.lines().forEach(System.err::println);
+        }catch (Exception e) {
+            //do nothing
+        }
     }
 
     public static void version() {
         try {
             Properties properties = new Properties();
             properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(VERSION));
-            System.err.println(String.format("Version: %s\n\n", properties.get(VERSION_KEY)));
+            System.err.println(String.format("Version: %s%n%n", properties.get(VERSION_KEY)));
         } catch (Exception ex) {
-
+            //do nothing
         }
     }
 
@@ -84,12 +87,12 @@ public class Info {
     private static void logEndpoints(List<MappedEndpoint> endpoints, String basePath) {
         endpoints.sort(Comparator.comparing(me -> me.url));
         for (MappedEndpoint endpoint : endpoints) {
-            String ws = "";
+            StringBuffer sb = new StringBuffer();
             for (int i = 0; i < 10 - endpoint.method.length(); i++) {
-                ws += " ";
+                sb.append(" ");
             }
             String url = HandlerUtil.BASE_PATH.equals(basePath) ? endpoint.url : basePath + endpoint.url;
-            System.err.println(String.format("%s%s", endpoint.method, ws + url));
+            System.err.println(String.format("%s%s", endpoint.method, sb.toString() + url));
 
         }
     }
