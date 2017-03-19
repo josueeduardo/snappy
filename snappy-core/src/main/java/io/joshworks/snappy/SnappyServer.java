@@ -9,6 +9,7 @@ import io.joshworks.snappy.executor.SchedulerConfig;
 import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
+import io.joshworks.snappy.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.parser.Parsers;
@@ -215,12 +216,12 @@ public class SnappyServer {
 
     //TODO add url validation
 
-    public static synchronized void before(String url, Consumer<RestExchange> consumer) {
+    public static synchronized void before(String url, Consumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
     }
 
-    public static synchronized void after(String url, Consumer<RestExchange> consumer) {
+    public static synchronized void after(String url, Consumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
     }
@@ -262,17 +263,17 @@ public class SnappyServer {
 
     public static synchronized void websocket(String url, AbstractReceiveListener endpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), endpoint));
+        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), endpoint, instance().interceptors));
     }
 
     public static synchronized void websocket(String url, WebSocketConnectionCallback connectionCallback) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), connectionCallback));
+        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), connectionCallback, instance().interceptors));
     }
 
     public static synchronized void websocket(String url, WebsocketEndpoint websocketEndpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), websocketEndpoint));
+        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), websocketEndpoint, instance().interceptors));
     }
 
     public static synchronized void sse(String url) {
@@ -284,13 +285,17 @@ public class SnappyServer {
     public static synchronized void staticFiles(String url, String docPath) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url), docPath));
+        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url), docPath, instance().interceptors));
     }
 
     public static synchronized void staticFiles(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url)));
+        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url), instance().interceptors));
+    }
+
+    public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint) {
+
     }
 
     private static String resolvePath(String url) {

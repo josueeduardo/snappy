@@ -1,5 +1,6 @@
 package io.joshworks.snappy.rest;
 
+import io.joshworks.snappy.Exchange;
 import io.joshworks.snappy.handler.HandlerUtil;
 
 import java.util.function.Consumer;
@@ -10,9 +11,9 @@ import java.util.function.Consumer;
 public class Interceptor {
     private final String url;
     private final Type type;
-    private final Consumer<RestExchange> exchange;
+    private final Consumer<Exchange> exchange;
     private final boolean wildcard;
-    public Interceptor(Type type, String url, Consumer<RestExchange> exchange) {
+    public Interceptor(Type type, String url, Consumer<Exchange> exchange) {
         if (url == null || url.isEmpty()) {
             throw new IllegalArgumentException("Interceptor url cannot be null or empty");
         }
@@ -42,7 +43,7 @@ public class Interceptor {
         return count;
     }
 
-    public void intercept(RestExchange restExchange) throws Exception {
+    public void intercept(Exchange restExchange) throws Exception {
         this.exchange.accept(restExchange);
     }
 

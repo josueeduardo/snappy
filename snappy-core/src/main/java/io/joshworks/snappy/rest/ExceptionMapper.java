@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception>, ErrorHandler> {
 
-    private final ErrorHandler fallbackInternalError = (e, restExchange) -> {
+    public final ErrorHandler fallbackInternalError = (e, restExchange) -> {
         int status = StatusCodes.INTERNAL_SERVER_ERROR;
         restExchange.status(status);
 
@@ -19,7 +19,7 @@ public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception
         restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
     };
 
-    private final ErrorHandler fallbackConneg = (e, restExchange) -> {
+    public final ErrorHandler fallbackConneg = (e, restExchange) -> {
         int status = StatusCodes.UNSUPPORTED_MEDIA_TYPE;
         restExchange.status(status);
 
@@ -33,22 +33,19 @@ public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception
     }
 
     public <T extends Exception> ErrorHandler<T> getOrFallback(T key) {
+        return this.getOrFallback(key, fallbackInternalError);
+    }
+
+    public <T extends Exception> ErrorHandler<T> getOrFallback(T key, ErrorHandler fallback) {
         ErrorHandler<T> errorHandler = super.get(key.getClass());
         if (errorHandler == null) {
             Optional<Entry<Class<? extends Exception>, ErrorHandler>> found = entrySet().stream()
                     .filter(e -> e.getKey().isAssignableFrom(key.getClass()))
                     .findFirst();
 
-            errorHandler = found.isPresent() ? found.get().getValue() : fallbackInternalError;
+            errorHandler = found.isPresent() ? found.get().getValue() : fallback;
         }
         return errorHandler;
     }
 
-    public ErrorHandler getFallbackInternalError() {
-        return fallbackInternalError;
-    }
-
-    public ErrorHandler getFallbackConneg() {
-        return fallbackConneg;
-    }
 }

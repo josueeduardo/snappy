@@ -7,6 +7,7 @@ import io.joshworks.snappy.metric.MetricData;
 import io.joshworks.snappy.metric.MetricsHandler;
 import io.joshworks.snappy.metric.RestMetricHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
+import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
@@ -26,11 +27,14 @@ public class AdminManager {
 
     private final List<MappedEndpoint> adminEndpoints = new ArrayList<>();
     private final RoutingHandler routingAdminHandler = new TrailingSlashRoutingHandler();
-    private final HttpHandler controlPanel = HandlerUtil.staticFiles("/", "admin").handler;
+    private final HttpHandler controlPanel;
+
+    //TODO add security interceptor etc
+    private final List<Interceptor> adminInterceptor = new ArrayList<>();
 
     public AdminManager() {
+        controlPanel = HandlerUtil.staticFiles("/", "admin", adminInterceptor).handler;
     }
-
 
     public void registerMetrics(List<RestMetricHandler> metricsHandlers) {
 

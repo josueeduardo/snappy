@@ -3,7 +3,6 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.RestExchange;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -11,10 +10,9 @@ import io.undertow.util.HttpString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.function.Consumer;
 
-import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by Josh Gontijo on 3/5/17.
@@ -29,10 +27,10 @@ public class RestDispatcher implements HttpHandler {
     private final ConnegHandler connegHandler;
     private final ExceptionMapper exceptionMapper;
 
-    RestDispatcher(Consumer<RestExchange> endpoint, List<Interceptor> interceptors, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
+    RestDispatcher(Consumer<RestExchange> endpoint, InterceptorHandler interceptorHandler, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
         this.exceptionMapper = exceptionMapper;
-        RestEntrypoint restEntrypoint = new RestEntrypoint(endpoint, interceptors, exceptionMapper);
-        this.connegHandler = new ConnegHandler(restEntrypoint, exceptionMapper, mimeTypes);
+        interceptorHandler.setNext(new RestEntrypoint(endpoint, exceptionMapper));
+        this.connegHandler = new ConnegHandler(interceptorHandler, exceptionMapper, mimeTypes);
     }
 
     @Override
@@ -57,9 +55,6 @@ public class RestDispatcher implements HttpHandler {
 
     private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, T e) {
         ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(e);
-        if (errorHandler == null) {
-            errorHandler = exceptionMapper.getFallbackInternalError();
-        }
         try {
             errorHandler.onException(e, new RestExchange(exchange));
         } catch (Exception handlingError) {
