@@ -39,7 +39,11 @@ public class MultipartTest {
             if (!saveFileToTemp(part.getPath())) {
                 exchange.status(500);
             }
-            exchange.status(200);
+
+            FormData.FormValue parameter = exchange.part(SOME_OTHER_FIELD);
+            String parameterValue = parameter.getValue();
+
+            exchange.status(200).send(parameterValue, "txt");
         });
 
         start();
@@ -63,10 +67,13 @@ public class MultipartTest {
 
     @Test
     public void upload() throws Exception {
+        String parameterValue = "SOME-VALUE";
+        String fileContent = "YOLO"; //content from the test file
+
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
         HttpResponse<String> response = RestClient.post("http://localhost:8080/upload")
                 .header("accept", "application/json")
-                .field(SOME_OTHER_FIELD, "value")
+                .field(SOME_OTHER_FIELD, parameterValue)
                 .field(FILE_PART_NAME, uploadFile, "sample-input.txt")
                 .asString();
 
@@ -74,7 +81,7 @@ public class MultipartTest {
         assertTrue(Files.exists(output));
 
         byte[] bytes = Files.readAllBytes(output);
-        assertEquals("YOLO", new String(bytes)); //content from the test file
+        assertEquals(fileContent, new String(bytes));
 
     }
 
