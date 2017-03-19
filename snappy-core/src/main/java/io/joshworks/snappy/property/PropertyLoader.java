@@ -7,11 +7,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by josh on 3/10/17.
  */
 public class PropertyLoader {
-    private static final Logger logger = LoggerFactory.getLogger(PropertyLoader.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
 
     private static final Properties properties = new Properties();

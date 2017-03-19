@@ -14,6 +14,8 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by josh on 3/7/17.
  */
@@ -21,7 +23,7 @@ public class AppExecutors {
 
     private static final Map<String, ThreadPoolExecutor> executors = new ConcurrentHashMap<>();
     private static final Map<String, ScheduledThreadPoolExecutor> schedulers = new ConcurrentHashMap<>();
-    private static final Logger logger = LoggerFactory.getLogger(AppExecutors.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     private static String defaultExecutor;
     private static String defaultScheduler;
 

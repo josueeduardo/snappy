@@ -26,6 +26,7 @@ import java.util.function.Consumer;
 
 import static io.joshworks.snappy.Messages.EMPTY_URL;
 import static io.joshworks.snappy.Messages.INVALID_URL;
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by josh on 3/11/17.
@@ -36,7 +37,7 @@ public class HandlerUtil {
     public static final String WILDCARD = "*";
     public static final String HEADER_VALUE_SEPARATOR = ",";
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
-    private static final Logger logger = LoggerFactory.getLogger(HandlerUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     public static MappedEndpoint rest(HttpString method,
                                       String url,

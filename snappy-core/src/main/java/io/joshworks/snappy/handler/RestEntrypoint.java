@@ -13,12 +13,14 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
 public class RestEntrypoint implements HttpHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestEntrypoint.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final Consumer<RestExchange> endpoint;
     private final List<Interceptor> interceptors;

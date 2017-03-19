@@ -15,12 +15,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by Josue on 16/06/2016.
  */
 public class ServiceClientEndpoint extends WebsocketEndpoint {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServiceClientEndpoint.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final ServiceRegister register;
     private final ServiceStore store;

@@ -12,12 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by josh on 3/6/17.
  */
 public class Parsers {
 
-    private static final Logger logger = LoggerFactory.getLogger(Parsers.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private static final Map<MediaType, Parser> available = new HashMap<>();
     private static final Parser defaultParser = new JsonParser();

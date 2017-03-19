@@ -13,13 +13,15 @@ import io.undertow.util.StatusCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
 public class ConnegHandler implements HttpHandler {
 
     public static final AttachmentKey<NegotiatedMediaType> NEGOTIATED_MEDIA_TYPE = AttachmentKey.create(NegotiatedMediaType.class);
-    private static final Logger logger = LoggerFactory.getLogger(ConnegHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     private final HttpHandler next;
     private final ExceptionMapper exceptionMapper;
     private MediaTypes consumes;

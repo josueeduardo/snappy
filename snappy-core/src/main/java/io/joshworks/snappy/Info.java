@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by josh on 3/11/17.
  */
@@ -24,7 +26,7 @@ public class Info {
     private static final String VERSION = "version.properties";
     private static final String VERSION_KEY = "version";
 
-    private static final Logger logger = LoggerFactory.getLogger(Info.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     public static void logo() {
         BufferedReader br = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(LOGO)));

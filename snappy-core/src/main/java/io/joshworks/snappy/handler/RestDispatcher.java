@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by Josh Gontijo on 3/5/17.
  * <p>
@@ -22,7 +24,7 @@ import java.util.function.Consumer;
  */
 public class RestDispatcher implements HttpHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(RestDispatcher.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final ConnegHandler connegHandler;
     private final ExceptionMapper exceptionMapper;

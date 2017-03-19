@@ -19,13 +19,15 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by Josue on 16/06/2016.
  */
 public class ServiceRegister implements Runnable {
 
     public static final String SSR_ENDPOINT = "/ssr";
-    private static final Logger logger = LoggerFactory.getLogger(ServiceRegister.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     private static final Object LOCK = new Object();
     private static final AtomicInteger retryCounter = new AtomicInteger();
     private static final int RETRY_INTERVAL = 10;//in seconds

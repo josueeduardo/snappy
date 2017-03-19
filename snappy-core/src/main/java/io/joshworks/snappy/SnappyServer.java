@@ -49,7 +49,9 @@ import java.util.stream.Collectors;
  */
 public class SnappyServer {
 
-    private static final Logger logger = LoggerFactory.getLogger("snappy");
+    public static final String LOGGER_NAME = "snappy";
+
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final HandlerManager handlerManager = new HandlerManager();
     private final AdminManager adminManager = new AdminManager();
