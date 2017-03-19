@@ -13,8 +13,6 @@ import io.undertow.util.StatusCodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
-
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
@@ -84,12 +82,8 @@ public class ConnegHandler implements HttpHandler {
         if (hasAcceptHeader) {
             return produces.match(acceptHeader);
         }
-        //if no Accept header is specified, the first specified by user OR default is used, PLAIN otherwise
-        Iterator<MediaType> iterator = produces.iterator();
-        if (iterator.hasNext()) {
-            return iterator.next();
-        }
-        return MediaType.TEXT_PLAIN_TYPE;
+        //if no Accept header is specified, the first specified by user OR default is used
+        return produces.getDefaultType();
     }
 
     private MediaType matchConsumesMime(HttpServerExchange exchange) {

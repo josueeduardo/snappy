@@ -11,6 +11,7 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.sse.ServerSentEventHandler;
+import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
@@ -18,6 +19,7 @@ import io.undertow.websockets.core.AbstractReceiveListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -32,6 +34,7 @@ public class HandlerUtil {
 
     public static final String BASE_PATH = "/";
     public static final String WILDCARD = "*";
+    public static final String HEADER_VALUE_SEPARATOR = ",";
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
     private static final Logger logger = LoggerFactory.getLogger(HandlerUtil.class);
 
@@ -121,6 +124,25 @@ public class HandlerUtil {
         url = url.startsWith(BASE_PATH) ? url : BASE_PATH + url;
         url = url.endsWith(BASE_PATH) ? url.substring(0, url.length() - 1) : url;
         return url;
+    }
+
+    public static List<String> splitHeaderValues(HeaderValues headerValues) {
+        List<String> splitted = new ArrayList<>();
+        if (headerValues == null) {
+            return splitted;
+        }
+        for (String vals : headerValues) {
+            if (!vals.isEmpty()) {
+                String[] split = vals.split(HEADER_VALUE_SEPARATOR);
+                for (String val : split) {
+                    val = val.trim();
+                    if (!val.isEmpty()) {
+                        splitted.add(val);
+                    }
+                }
+            }
+        }
+        return splitted;
     }
 
 }

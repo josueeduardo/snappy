@@ -20,7 +20,7 @@ import java.util.Map;
 public class RestExchange {
 
     public final HttpServerExchange exchange;
-    private MediaType responseContentType = MediaType.APPLICATION_JSON_TYPE;
+    private MediaType responseContentType = MediaType.TEXT_PLAIN_TYPE;
     private Body body;
 
     public RestExchange(HttpServerExchange exchange) {
@@ -32,14 +32,9 @@ public class RestExchange {
 
     //If client accepts anything, json will be used
     private void setNegotiatedContentType() {
-        ConnegHandler.NegotiatedMediaType attachment = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
-        if (attachment != null) { //should not happen
-            MediaType negotiated = attachment.produces;
-            if (negotiated != null && !negotiated.equals(MediaType.WILDCARD_TYPE)) {
-                responseContentType = negotiated;
-            }
-        }
-        setResponseMediaType(responseContentType);
+        ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
+        MediaType negotiated = negotiatedMediaType == null ? responseContentType : negotiatedMediaType.produces;
+        setResponseMediaType(negotiated);
     }
 
 

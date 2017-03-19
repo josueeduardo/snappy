@@ -162,8 +162,6 @@
                 </executions>
             </plugin>
 
-
-
             <!-- COPIES THE LOADER INSIDE META-INF SO IT CAN BE USED LATER INSIDE THE CODE TO COPY ITS CLASSES TO THE FINAL JAR-->
 
             <plugin>
