@@ -1,6 +1,7 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.Messages;
+import io.joshworks.snappy.multipart.MultipartEntrypointHandler;
 import io.joshworks.snappy.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.rest.ExceptionMapper;
@@ -10,9 +11,14 @@ import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.BlockingHandler;
+import io.undertow.server.handlers.form.EagerFormParsingHandler;
+import io.undertow.server.handlers.form.FormEncodedDataDefinition;
+import io.undertow.server.handlers.form.FormParserFactory;
+import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
+import io.undertow.util.Methods;
 import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -65,7 +71,7 @@ public class HandlerUtil {
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(websocket);
 
-        return new MappedEndpoint("WS", url, MappedEndpoint.Type.WS, interceptorHandler);
+        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
     }
 
     public static MappedEndpoint websocket(String url, WebSocketConnectionCallback connectionCallback, List<Interceptor> interceptors) {
@@ -75,7 +81,7 @@ public class HandlerUtil {
 
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(websocket);
-        return new MappedEndpoint("WS", url, MappedEndpoint.Type.WS, websocket);
+        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, websocket);
 
     }
 
@@ -94,7 +100,7 @@ public class HandlerUtil {
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(websocket);
 
-        return new MappedEndpoint("WS", url, MappedEndpoint.Type.WS, interceptorHandler);
+        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
     }
 
     public static MappedEndpoint sse(String url, List<Interceptor> interceptors) {
@@ -120,7 +126,7 @@ public class HandlerUtil {
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(handler);
 
-        return new MappedEndpoint("STATIC", url, MappedEndpoint.Type.STATIC, interceptorHandler);
+        return new MappedEndpoint(MappedEndpoint.Type.STATIC.name(), url, MappedEndpoint.Type.STATIC, interceptorHandler);
     }
 
     public static MappedEndpoint staticFiles(String url, List<Interceptor> interceptors) {
@@ -128,9 +134,30 @@ public class HandlerUtil {
     }
 
     public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint, List<Interceptor> interceptors) {
-
-        return null;
+        return multipart(url, endpoint, interceptors, -1);
     }
+
+    public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint, List<Interceptor> interceptors, long maxSize) {
+        MultipartEntrypointHandler entrypointHandler = new MultipartEntrypointHandler(endpoint);
+
+        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
+        interceptorHandler.setNext(entrypointHandler);
+
+        MultiPartParserDefinition multiPartParserDefinition = new MultiPartParserDefinition();
+        multiPartParserDefinition.setMaxIndividualFileSize(maxSize);
+
+        FormParserFactory factory = FormParserFactory.builder()
+                .addParser(multiPartParserDefinition)
+                .addParser(new FormEncodedDataDefinition())
+                .build();
+
+        EagerFormParsingHandler formHandler = new EagerFormParsingHandler();
+        formHandler.setNext(interceptorHandler);
+
+        return new MappedEndpoint(Methods.POST_STRING, url, MappedEndpoint.Type.MULTIPART, formHandler);
+    }
+
+
 
     private static String resolveUrl(String url) {
         Objects.requireNonNull(url, INVALID_URL);

@@ -295,7 +295,16 @@ public class SnappyServer {
     }
 
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint) {
+        checkStarted();
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors));
 
+    }
+
+    public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
+        checkStarted();
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors, maxSize));
     }
 
     private static String resolvePath(String url) {

@@ -36,6 +36,8 @@ public class HandlerManager {
 
         for (MappedEndpoint me : mappedEndpoints) {
 
+            //TODO clean this up
+            //TODO at the moment only rest has metrics
             if (MappedEndpoint.Type.REST.equals(me.type)) {
                 String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
                 if (httpMetrics) {
@@ -45,6 +47,9 @@ public class HandlerManager {
                 } else {
                     routingRestHandler.add(me.method, endpointPath, me.handler);
                 }
+            }
+            if (MappedEndpoint.Type.MULTIPART.equals(me.type)) {
+                routingRestHandler.add(me.method, me.url, me.handler);
             }
             if (MappedEndpoint.Type.SSE.equals(me.type)) {
                 routingRestHandler.add(me.method, me.url, me.handler);
@@ -80,11 +85,6 @@ public class HandlerManager {
         }
         return websocketRestResolved;
     }
-
-
-
-
-
 
 
 }

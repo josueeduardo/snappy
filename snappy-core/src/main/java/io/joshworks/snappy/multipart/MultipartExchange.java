@@ -21,14 +21,14 @@ public class MultipartExchange extends Exchange {
     }
 
     public FormData.FormValue part(String partName) {
-        return formData.getFirst(partName);
+        return formData == null ? null : formData.getFirst(partName);
     }
 
     public Deque<FormData.FormValue> parts(String partName) {
-        return formData.get(partName);
+        return formData == null ? null : formData.get(partName);
     }
 
     public Iterator<String> partNames() {
-        return formData.iterator();
+        return formData == null ? null : formData.iterator();
     }
 }
