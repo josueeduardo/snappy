@@ -145,4 +145,16 @@ public class HandlerUtil {
         return splitted;
     }
 
+    //best effort to resolve url that may be unique
+    public static String[] removedPathTemplate(List<MappedEndpoint> mappedEndpoints) {
+
+        return mappedEndpoints.stream()
+                .filter(me -> !me.type.equals(MappedEndpoint.Type.STATIC))
+                .map(me -> {
+                    int idx = me.url.indexOf("/{");
+                    return idx >= 0 ? me.url.substring(0, idx) : me.url;
+                })
+                .distinct().toArray(String[]::new);
+    }
+
 }

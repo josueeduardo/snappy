@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public class MetricsTest {
+public class AdminTest {
 
     @BeforeClass
     public static void setup() {
@@ -37,11 +37,11 @@ public class MetricsTest {
     }
 
     @Test
-    public void okResults() throws Exception {
+    public void metrics() throws Exception {
         int status = RestClient.get("http://localhost:8080/test").asString().getStatus();
         assertEquals(200, status);
 
-        HttpResponse<MetricData> response = RestClient.get("http://localhost:8080/metrics").asObject(MetricData.class);
+        HttpResponse<MetricData> response = RestClient.get("http://localhost:9090/metrics").asObject(MetricData.class);
         assertEquals(200, response.getStatus());
 
         MetricData metrics = response.getBody();
@@ -58,6 +58,12 @@ public class MetricsTest {
         assertEquals(1, metric.getMetrics().getResponseCodes().size());
         assertEquals(1, metric.getMetrics().getResponseCodes().get("200").get()); //200 OK
 
+    }
+
+    @Test
+    public void panel() throws Exception {
+        int status = RestClient.get("http://localhost:9090/").asString().getStatus();
+        assertEquals(200, status);
     }
 
 }

@@ -1,5 +1,6 @@
 package io.joshworks.snappy;
 
+import io.joshworks.snappy.admin.AdminManager;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.executor.ExecutorBootstrap;
@@ -48,9 +49,10 @@ import java.util.stream.Collectors;
  */
 public class SnappyServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(SnappyServer.class);
+    private static final Logger logger = LoggerFactory.getLogger("snappy");
 
     private final HandlerManager handlerManager = new HandlerManager();
+    private final AdminManager adminManager = new AdminManager();
     //--------------------------------------------
     private final OptionMap.Builder optionBuilder = OptionMap.builder();
     private final List<ExecutorConfig> executors = new ArrayList<>();
@@ -65,6 +67,8 @@ public class SnappyServer {
     private String bindAddress = "0.0.0.0";
     private boolean httpTracer;
     private boolean httpMetrics;
+    private int adminPort = 9090;
+    private String adminBindAddress = "127.0.0.1";
     private List<Interceptor> interceptors = new LinkedList<>();
     private String basePath = HandlerUtil.BASE_PATH;
     private boolean started = false;
@@ -86,10 +90,10 @@ public class SnappyServer {
 
     public static synchronized void start() {
         checkStarted();
-        new Thread(() -> {
-            SnappyServer instance = instance();
-            instance.startServer();
-        }).start();
+        instance().started = true;
+        Thread thread = new Thread(() -> instance().startServer());
+        thread.setName("snappy-runner");
+        thread.start();
     }
 
     public static synchronized void stop() {
@@ -100,6 +104,16 @@ public class SnappyServer {
     public static synchronized void tcpNoDeplay(boolean tcpNoDelay) {
         checkStarted();
         instance().optionBuilder.set(Options.TCP_NODELAY, tcpNoDelay);
+    }
+
+    public static synchronized void adminPort(int adminPort) {
+        checkStarted();
+        instance().adminPort = adminPort;
+    }
+
+    public static synchronized void adminAddress(String address) {
+        checkStarted();
+        instance().adminBindAddress = address;
     }
 
     public static synchronized void port(int port) {
@@ -290,7 +304,6 @@ public class SnappyServer {
 
     private void startServer() {
         try {
-            started = true;
             Info.logo();
             Info.version();
             PropertyLoader.load();
@@ -309,8 +322,12 @@ public class SnappyServer {
             serverBuilder.setWorker(worker);
 
 
-            HttpHandler rootHandler = handlerManager.resolveHandlers(endpoints, basePath, httpMetrics, httpTracer);
-            server = serverBuilder.addHttpListener(port, bindAddress).setHandler(rootHandler).build();
+            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, adminManager, basePath, httpMetrics, httpTracer);
+
+            server = serverBuilder
+                    .addHttpListener(port, bindAddress, rootHandler)
+                    .addHttpListener(adminPort, adminBindAddress, adminManager.resolveHandlers())
+                    .build();
 
 
             Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
