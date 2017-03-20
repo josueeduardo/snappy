@@ -81,7 +81,7 @@ public class HandlerUtil {
 
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(websocket);
-        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, websocket);
+        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
 
     }
 

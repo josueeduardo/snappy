@@ -94,9 +94,7 @@ public class SnappyServer {
     public static synchronized void start() {
         checkStarted();
         instance().started = true;
-        Thread thread = new Thread(() -> instance().startServer());
-        thread.setName("snappy-runner");
-        thread.start();
+        instance().startServer();
     }
 
     public static synchronized void stop() {
@@ -345,7 +343,9 @@ public class SnappyServer {
                     .build();
 
 
-            Runtime.getRuntime().addShutdownHook(new Thread(new Shutdown()));
+            Thread shutdownThread = new Thread(new Shutdown());
+            shutdownThread.setName("shutdown-hook");
+            Runtime.getRuntime().addShutdownHook(shutdownThread);
 
             server.start();
 
