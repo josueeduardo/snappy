@@ -36,7 +36,6 @@ import org.xnio.XnioWorker;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -363,14 +362,6 @@ public class SnappyServer {
             server.stop();
             started = false;
         }
-    }
-
-    public List<MappedEndpoint> getEndpoints() {
-        return Collections.unmodifiableList(endpoints);
-    }
-
-    public String getBasePath() {
-        return basePath;
     }
 
     private static class ServerInstanceHolder {

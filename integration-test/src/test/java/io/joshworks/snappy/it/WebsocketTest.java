@@ -1,7 +1,6 @@
 package io.joshworks.snappy.it;
 
-import io.undertow.server.DefaultByteBufferPool;
-import io.undertow.websockets.client.WebSocketClient;
+import io.joshworks.snappy.client.WsClient;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedTextMessage;
 import io.undertow.websockets.core.WebSocketChannel;
@@ -9,10 +8,6 @@ import io.undertow.websockets.core.WebSockets;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.xnio.OptionMap;
-import org.xnio.Options;
-import org.xnio.Xnio;
-import org.xnio.XnioWorker;
 
 import java.io.IOException;
 import java.net.URI;
@@ -51,14 +46,7 @@ public class WebsocketTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<String> result = new AtomicReference<>();
 
-        WebSocketChannel webSocketChannel = new WebSocketClient.ConnectionBuilder(
-                wsWorker(),
-                new DefaultByteBufferPool(false, 2048),
-                URI.create(WS_ENDPOINT))
-                .connect().get();
-
-        //block until connects
-        webSocketChannel.getReceiveSetter().set(new AbstractReceiveListener() {
+        WebSocketChannel webSocketChannel = WsClient.connect(URI.create(WS_ENDPOINT), new AbstractReceiveListener() {
             @Override
             protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
                 result.set(message.getData());
@@ -73,33 +61,11 @@ public class WebsocketTest {
                 latch.countDown();
             }
         });
-        webSocketChannel.resumeReceives();
 
         assertTrue(webSocketChannel.isOpen());
         latch.await(10, TimeUnit.SECONDS);
         assertNotNull(result.get());
 
     }
-
-
-
-    private XnioWorker wsWorker() {
-        try {
-            return Xnio.getInstance().createWorker(OptionMap.builder()
-                    .set(Options.WORKER_IO_THREADS, 2)
-                    .set(Options.CONNECTION_HIGH_WATER, 1000000)
-                    .set(Options.CONNECTION_LOW_WATER, 1000000)
-                    .set(Options.WORKER_TASK_CORE_THREADS, 30)
-                    .set(Options.WORKER_TASK_MAX_THREADS, 30)
-                    .set(Options.TCP_NODELAY, true)
-                    .set(Options.CORK, true)
-                    .getMap());
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-
-    }
-
 
 }
