@@ -1,6 +1,8 @@
 ## [Spring boot tools](https://github.com/spring-projects/spring-boot) fork
 **Changes:**
-- Fork from version 1.3.8.RELEASE, latest with specific Classloading behaviour that supports CDI without issues.
-- Small changes made to maven plugin to adapt to CDI and minor dependencies update
-- Separated maven plugin module from its parent
+- Fork from version 1.3.8.RELEASE.
+- Moved all spring-boot-tools into this dependency
+- Separated maven plugin module from its parent, making it self contained
+- Replaced package names, Spring related key
+- Altered manifest generation to include Snappy version instead
 
