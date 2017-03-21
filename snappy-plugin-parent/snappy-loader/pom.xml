@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>io.joshworks</groupId>
-        <artifactId>maven-plugin-parent</artifactId>
+        <artifactId>snappy-plugin-parent</artifactId>
         <version>0.2</version>
     </parent>
 
