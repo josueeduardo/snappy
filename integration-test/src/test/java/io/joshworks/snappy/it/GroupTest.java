@@ -21,6 +21,7 @@ public class GroupTest {
 
         get("/a", (exchange) -> exchange.send(exchange.path(), "txt"));
         group("/groupA", () -> {
+            get("/", (exchange) -> exchange.send(exchange.path(), "txt"));
             get("/b", (exchange) -> exchange.send(exchange.path(), "txt"));
             get("/c", (exchange) -> exchange.send(exchange.path(), "txt"));
 
@@ -44,6 +45,11 @@ public class GroupTest {
     @Test
     public void noGroup() throws Exception {
         assertPath("/a");
+    }
+
+    @Test
+    public void withRootPath() throws Exception {
+        assertPath("/groupA");
     }
 
     @Test
