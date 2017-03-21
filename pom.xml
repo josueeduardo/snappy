@@ -17,7 +17,7 @@
     <modules>
         <module>snappy-core</module>
         <module>integration-test</module>
-        <module>maven-plugin-parent</module>
+        <module>snappy-plugin-parent</module>
     </modules>
 
 
