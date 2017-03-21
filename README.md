@@ -1,5 +1,5 @@
 #Snappy
-A tiny and powerful sever for Java 8
+A tiny and powerful server for Java 8
 
 Features:
     
@@ -10,6 +10,7 @@ Features:
 - Bult in service discovery (in progress)
 - Small. Less than 6mb
 - Simple and compact
+- No magic, plain and simple
 - Static files
 - Rest client using [Unirest](https://github.com/Mashape/unirest-java)
 - Multipart support
@@ -18,7 +19,7 @@ Features:
 - Maven uber jar plugin using [Spring boot](https://projects.spring.io/spring-boot/)
 
 
-##Simple usage
+##Usage
 
 #### ** Available on Maven central soon
 
@@ -63,7 +64,7 @@ public class App {
 
            User user = exchange.body().asObject(User.class);
 
-       }, consumes("json")); //or application/json
+       });
        
        start();
     }
@@ -80,6 +81,17 @@ public class App {
     }
 }
 ```
+####Sending JSON
+```java
+public class App {
+
+    public static void main(final String[] args) {
+       get("/users", (exchange) -> exchange.send(new User("Yolo")));
+       start();
+    }
+}
+```
+
 
 ####Static files
 ```java
@@ -143,6 +155,27 @@ public class App {
        get("/xml", (exchange) -> exchange.send("some-xml"), produces("xml"));
        
     }
+}
+```
+####Resource group
+```java
+public class App {
+
+     public static void main(String[] args) {
+            group("/groupA", () -> {
+                get("/a", (exchange) -> {/* ... */});
+                put("/b", (exchange) -> {/* ... */});
+    
+                group("/subgroup", () -> {
+                    get("/c", (exchange) -> {/* ... */});
+                });
+            });
+    
+            group("/groupB", () -> {
+                get("/d", (exchange) -> {/* ... */});
+            });
+            
+        }
 }
 ```
 
