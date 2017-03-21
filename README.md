@@ -35,7 +35,7 @@ public class App {
 
     public static void main(final String[] args) {
        get("/hello", (exchange) -> exchange.send("Hello !", "txt")); //or text/plain
-       start();
+       start(); //8080
     }
 }
 ```
@@ -70,6 +70,40 @@ public class App {
     }
 }
 ```
+
+#### Filter ####
+```java
+public class App {
+
+    public static void main(final String[] args) {
+       
+       before("/*", (exchange) -> {/*...*/}); 
+       after("/users", (exchange) -> {/*...*/}); 
+       
+       get("/users", (exchange) -> {/*...*/});
+
+       
+       start();
+    }
+}
+```
+
+#### Error handling ####
+```java
+public class App {
+
+    public static void main(final String[] args) {
+       
+       exception(Exception.class, (e, exchange) -> exchange.status(500).send(e.getMessage()));
+       
+       get("/users", (exchange) -> {/*...*/});
+
+       
+       start();
+    }
+}
+```
+
 
 #### Sending JSON ####
 ```java
@@ -178,6 +212,14 @@ public class App {
         }
 }
 ```
+
+```java
+
+    //API methods
+    
+
+```
+
 
 ##### Metrics available at /metrics on port 9090 (default admin port) ####
 
