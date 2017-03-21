@@ -120,7 +120,7 @@ public class App {
 }
 ```
 
-#### Making request ####
+#### Rest client ####
 ```java
 public class App {
 
