@@ -7,9 +7,8 @@ Features:
 - Rest with content negotiation (media type only)
 - Server sent events
 - Websockets
-- Bult in service discovery (in progress)
+- Built in service discovery (in progress)
 - Small. Less than 6mb
-- Simple and compact
 - No magic, plain and simple
 - Static files
 - Rest client using [Unirest](https://github.com/Mashape/unirest-java)
@@ -215,9 +214,28 @@ public class App {
 
 ```java
 
-    //API methods
+    //Server core methods
+    start();
+    stop();
     
-
+    port(int port);
+    address(String address);
+    tcpNoDeplay(boolean tcpNoDelay);
+    
+    adminPort(int port);
+    adminAddress(String address);
+    
+    ioThreads(int ioThreads);
+    workerThreads(int core, int max);
+    
+    enableTracer();
+    enableHttpMetrics();
+    
+    executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis);
+    scheduler(String name, int corePoolSize, long keepAliveMillis);
+    
+    
+    
 ```
 
 
