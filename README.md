@@ -1,5 +1,5 @@
-#Snappy
-A tiny and powerful server for Java 8
+# Snappy #
+A tiny but powerful server for Java 8
 
 Features:
     
@@ -19,17 +19,17 @@ Features:
 - Maven uber jar plugin using [Spring boot](https://projects.spring.io/spring-boot/)
 
 
-##Usage
+## Usage ##
 
-#### ** Available on Maven central soon
+#### ** Available on Maven central soon ####
 
 
-###Import
+### Import ###
 ```java
 import static io.joshworks.snappy.SnappyServer.*;
 ```
 
-####Hello
+#### Hello ####
 ```java
 public class App {
 
@@ -40,7 +40,7 @@ public class App {
 }
 ```
 
-####Path parameter
+#### Path parameter ####
 ```java
 public class App {
 
@@ -55,7 +55,7 @@ public class App {
 }
 ```
 
-####Receiving JSON
+#### Receiving JSON ####
 ```java
 public class App {
 
@@ -71,7 +71,7 @@ public class App {
 }
 ```
 
-####Sending JSON
+#### Sending JSON ####
 ```java
 public class App {
 
@@ -81,7 +81,7 @@ public class App {
     }
 }
 ```
-####Sending JSON
+#### Sending JSON ####
 ```java
 public class App {
 
@@ -93,7 +93,7 @@ public class App {
 ```
 
 
-####Static files
+#### Static files ####
 ```java
 public class App {
 
@@ -107,7 +107,7 @@ public class App {
 }
 ```
 
-####Uploading file
+#### Uploading file ####
 ```java
 public class App {
 
@@ -120,7 +120,7 @@ public class App {
 }
 ```
 
-####Making request
+#### Making request ####
 ```java
 public class App {
 
@@ -131,7 +131,7 @@ public class App {
 }
 ```
 
-####Broadcasting data with SSE
+#### Broadcasting data with SSE ####
 ```java
 public class App {
 
@@ -145,7 +145,7 @@ public class App {
 }
 ```
 
-####Registering a parser
+#### Registering a parser ####
 ```java
 public class App {
 
@@ -157,7 +157,7 @@ public class App {
     }
 }
 ```
-####Resource group
+#### Resource group ####
 ```java
 public class App {
 
@@ -179,5 +179,5 @@ public class App {
 }
 ```
 
-##### Metrics available at /metrics on port 9090 (default admin port)
+##### Metrics available at /metrics on port 9090 (default admin port) ####
 
