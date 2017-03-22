@@ -16,7 +16,7 @@ import static org.junit.Assert.assertNotNull;
  */
 public class RestTest {
 
-    private static final String SERVER_URL = "http://localhost:8080";
+    private static final String SERVER_URL = "http://localhost:8000";
     private static final String TEST_RESOURCE = "/echo";
     private static final String RESOURCE_PATH = SERVER_URL + TEST_RESOURCE;
 

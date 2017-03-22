@@ -53,7 +53,7 @@ public class CustomRestErrorHandlerTest {
 
     @Test
     public void exceptionThrown() throws Exception {
-        HttpResponse<CustomExceptionBody> response = RestClient.get("http://localhost:8080/custom-handler-1").asObject(CustomExceptionBody.class);
+        HttpResponse<CustomExceptionBody> response = RestClient.get("http://localhost:8000/custom-handler-1").asObject(CustomExceptionBody.class);
 
         assertEquals(responseStatus_1, response.getStatus());
 
@@ -65,7 +65,7 @@ public class CustomRestErrorHandlerTest {
 
     @Test
     public void exceptionThrownExactMatch() throws Exception {
-        HttpResponse<CustomExceptionBody> response = RestClient.get("http://localhost:8080/custom-handler-2").asObject(CustomExceptionBody.class);
+        HttpResponse<CustomExceptionBody> response = RestClient.get("http://localhost:8000/custom-handler-2").asObject(CustomExceptionBody.class);
 
         assertEquals(responseStatus_2, response.getStatus());
 
@@ -77,7 +77,7 @@ public class CustomRestErrorHandlerTest {
 
     @Test
     public void exceptionProvidedMediaType() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:8080/custom-handler-3-mediaType")
+        HttpResponse<String> response = RestClient.get("http://localhost:8000/custom-handler-3-mediaType")
                 .asString();
 
         assertEquals(responseStatus_2, response.getStatus());

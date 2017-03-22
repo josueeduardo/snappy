@@ -39,7 +39,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void unsupportedContentType() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:8080/error1")
+        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:8000/error1")
                 .header("Content-Type", "application/xml").asObject(ExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
@@ -55,7 +55,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void unsupportedAcceptedType() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:8080/error1")
+        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:8000/error1")
                 .header("Accept", "application/xml").asObject(ExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
@@ -71,7 +71,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void exceptionThrown() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:8080/exception").asObject(ExceptionResponse.class);
+        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:8000/exception").asObject(ExceptionResponse.class);
 
         assertEquals(500, response.getStatus());
         //default response type

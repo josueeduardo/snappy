@@ -53,7 +53,7 @@ public class AppExecutorTest {
 
     @Test
     public void defaultExecutor() throws Exception {
-        int status = RestClient.get("http://localhost:8080/executor").asString().getStatus();
+        int status = RestClient.get("http://localhost:8000/executor").asString().getStatus();
         if (!executorLatch.await(10, TimeUnit.SECONDS)) {
             fail("Task didn't finish");
         }
@@ -62,7 +62,7 @@ public class AppExecutorTest {
 
     @Test
     public void defaultScheduler() throws Exception {
-        int status = RestClient.get("http://localhost:8080/scheduler").asString().getStatus();
+        int status = RestClient.get("http://localhost:8000/scheduler").asString().getStatus();
         if (!schedulerLatch.await(10, TimeUnit.SECONDS)) {
             fail("Task didn't finish");
         }
@@ -71,7 +71,7 @@ public class AppExecutorTest {
 
     @Test
     public void customExecutor() throws Exception {
-        int status = RestClient.get("http://localhost:8080/custom-executor").asString().getStatus();
+        int status = RestClient.get("http://localhost:8000/custom-executor").asString().getStatus();
 
         if (!customExecutorLatch.await(10, TimeUnit.SECONDS)) {
             fail("Task didn't finish");

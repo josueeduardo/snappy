@@ -56,37 +56,37 @@ public class ConnegTest {
     // ----- SERVER CONSUMES -----
     @Test
     public void supportedMediaType() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/json").header(ACCEPT, "application/json").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/json").header(ACCEPT, "application/json").asString().getStatus();
         assertEquals(200, responseStatus);
     }
 
     @Test
     public void acceptsAll() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/json").header(ACCEPT, "*/*").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/json").header(ACCEPT, "*/*").asString().getStatus();
         assertEquals(200, responseStatus);
     }
 
     @Test
     public void supportedMediaTypeWithCharset() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/json").header(ACCEPT, "application/json; charset=UTF-8").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/json").header(ACCEPT, "application/json; charset=UTF-8").asString().getStatus();
         assertEquals(200, responseStatus);
     }
 
     @Test
     public void unsupportedMediaType_withDefaults() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/json").header(ACCEPT, "application/xml").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/json").header(ACCEPT, "application/xml").asString().getStatus();
         assertEquals(415, responseStatus);
     }
 
     @Test
     public void supportedMediaType_with_provided_value() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/xml").header(ACCEPT, "application/xml").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/xml").header(ACCEPT, "application/xml").asString().getStatus();
         assertEquals(415, responseStatus);
     }
 
     @Test
     public void simpleMime() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/simple-mime").header(ACCEPT, "application/json").asString();
+        HttpResponse<String> response = RestClient.get("http://localhost:8000/v1/simple-mime").header(ACCEPT, "application/json").asString();
         assertEquals(200, response.getStatus());
         assertNotNull(response.getHeaders().get(CONTENT_TYPE));
         assertEquals("application/json", response.getHeaders().get(CONTENT_TYPE).get(0));
@@ -94,7 +94,7 @@ public class ConnegTest {
 
     @Test
     public void supportedMediaType_prefer_json() throws Exception {
-        HttpResponse<String> stringHttpResponse = RestClient.get("http://localhost:8080/v1/xml")
+        HttpResponse<String> stringHttpResponse = RestClient.get("http://localhost:8000/v1/xml")
                 .header(ACCEPT, "application/json")
                 .header(ACCEPT, "text/plain")
                 .asString();
@@ -103,7 +103,7 @@ public class ConnegTest {
 
     @Test
     public void supportedMediaType_prefer_plain() throws Exception {
-        HttpResponse<String> stringHttpResponse = RestClient.get("http://localhost:8080/v1/json")
+        HttpResponse<String> stringHttpResponse = RestClient.get("http://localhost:8000/v1/json")
                 .header(ACCEPT, "text/plain")
                 .header(ACCEPT, "application/json")
                 .asString();
@@ -113,19 +113,19 @@ public class ConnegTest {
 
     @Test
     public void validRequestPayloadMime() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/xml").header(CONTENT_TYPE, "application/xml").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/xml").header(CONTENT_TYPE, "application/xml").asString().getStatus();
         assertEquals(200, responseStatus);
     }
 
     @Test
     public void invalidRequestPayloadMime() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/xml").header(CONTENT_TYPE, "application/json").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/xml").header(CONTENT_TYPE, "application/json").asString().getStatus();
         assertEquals(415, responseStatus);
     }
 
     @Test
     public void validRequestPayloadMime_with_consumes_sameType() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/json")
+        HttpResponse<String> response = RestClient.get("http://localhost:8000/v1/json")
                 .header(CONTENT_TYPE, "application/json")
                 .header(ACCEPT, "application/json")
                 .asString();
@@ -137,28 +137,28 @@ public class ConnegTest {
     // ----- SERVER PRODUCES -----
     @Test //this tests the order in which the produces are registered in the MediaTypes
     public void noAcceptSpecified_default_json() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/json").asString();
+        HttpResponse<String> response = RestClient.get("http://localhost:8000/v1/json").asString();
         assertEquals(200, response.getStatus());
         assertHeaderEquals("application/json", response);
     }
 
     @Test
     public void producesTextPlain() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/produces-text").asString();
+        HttpResponse<String> response = RestClient.get("http://localhost:8000/v1/produces-text").asString();
         assertEquals(200, response.getStatus());
         assertHeaderEquals("text/plain", response);
     }
 
     @Test
     public void producesJson() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/produces-json").asString();
+        HttpResponse<String> response = RestClient.get("http://localhost:8000/v1/produces-json").asString();
         assertEquals(200, response.getStatus());
         assertHeaderEquals("application/json", response);
     }
 
     @Test
     public void contentTypeOverridden() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:8080/v1/overridden").asString();
+        HttpResponse<String> response = RestClient.get("http://localhost:8000/v1/overridden").asString();
         assertEquals(200, response.getStatus());
         assertHeaderEquals("application/json", response);
     }

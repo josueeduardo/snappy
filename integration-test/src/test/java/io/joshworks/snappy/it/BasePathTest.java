@@ -29,7 +29,7 @@ public class BasePathTest {
 
     @Test
     public void getRequest() throws Exception {
-        assertEquals(200, RestClient.get("http://localhost:8080/v1/test").asString().getStatus());
+        assertEquals(200, RestClient.get("http://localhost:8000/v1/test").asString().getStatus());
     }
 
 

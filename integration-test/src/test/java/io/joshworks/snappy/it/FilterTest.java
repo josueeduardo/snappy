@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class FilterTest {
 
-    private static final String SERVER_URL = "http://localhost:8080";
+    private static final String SERVER_URL = "http://localhost:8000";
 
     private static boolean filterAfterCalled = false;
 

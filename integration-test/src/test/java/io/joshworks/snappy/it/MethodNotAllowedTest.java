@@ -28,25 +28,25 @@ public class MethodNotAllowedTest {
 
     @Test
     public void validGet() throws Exception {
-        int responseStatus = RestClient.get("http://localhost:8080/v1/sample").asString().getStatus();
+        int responseStatus = RestClient.get("http://localhost:8000/v1/sample").asString().getStatus();
         assertEquals(200, responseStatus);
     }
 
     @Test
     public void invalidPut() throws Exception {
-        int responseStatus = RestClient.put("http://localhost:8080/v1/sample").asString().getStatus();
+        int responseStatus = RestClient.put("http://localhost:8000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 
     @Test
     public void invalidPost() throws Exception {
-        int responseStatus = RestClient.post("http://localhost:8080/v1/sample").asString().getStatus();
+        int responseStatus = RestClient.post("http://localhost:8000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 
     @Test
     public void invalidDelete() throws Exception {
-        int responseStatus = RestClient.delete("http://localhost:8080/v1/sample").asString().getStatus();
+        int responseStatus = RestClient.delete("http://localhost:8000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 

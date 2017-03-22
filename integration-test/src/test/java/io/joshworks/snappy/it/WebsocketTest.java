@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class WebsocketTest {
 
-    private static final String WS_ENDPOINT = "ws://localhost:8080/ws";
+    private static final String WS_ENDPOINT = "ws://localhost:8000/ws";
 
     private static final String message = "Yolo";
 
