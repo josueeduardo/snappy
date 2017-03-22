@@ -1,3 +1,20 @@
+/*
+ * Copyright 2017 Josue Gontijo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
 package io.joshworks.snappy.parser;
 
 import io.joshworks.snappy.handler.HandlerUtil;
@@ -27,7 +44,7 @@ public class MediaTypes extends HashSet<MediaType> {
         this(context);
         for (String mt : types) {
             MediaType mediaType = MediaType.valueOf(mt);
-            if(defaultType == null) {
+            if (defaultType == null) {
                 defaultType = mediaType;
             }
             add(mediaType);
@@ -49,13 +66,13 @@ public class MediaTypes extends HashSet<MediaType> {
      */
     public MediaType match(HeaderValues headerValues) {
         if (headerValues != null) {
-        List<String> values = HandlerUtil.splitHeaderValues(headerValues);
+            List<String> values = HandlerUtil.splitHeaderValues(headerValues);
             for (String headerVal : values) {
                 try {
                     MediaType mediaType = MediaType.valueOf(headerVal);
                     boolean match = this.stream().anyMatch(t -> t.isCompatible(mediaType));
                     if (match) {
-                        if(mediaType.isWildcardType() && mediaType.isWildcardSubtype()){
+                        if (mediaType.isWildcardType() && mediaType.isWildcardSubtype()) {
                             return this.defaultType;
                         }
                         return mediaType;
