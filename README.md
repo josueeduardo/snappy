@@ -18,9 +18,15 @@ Features:
 - Maven uber jar plugin using [Spring boot](https://projects.spring.io/spring-boot/)
 
 
-## Usage ##
+## Installing ##
 
-#### ** Available on Maven central soon ####
+```xml
+    <dependency>
+        <groupId>io.joshworks</groupId>
+        <artifactId>snappy-core</artifactId>
+        <version>0.1</version>
+    </dependency>
+```
 
 
 ### Import ###
@@ -214,7 +220,7 @@ public class App {
 
 ```java
 
-    //Server core methods
+    //Server core api
     start();
     stop();
     
