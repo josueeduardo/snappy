@@ -65,11 +65,11 @@ public class SnappyServer {
     //--------------------- REST -------------------
     private final Deque<String> groups = new ArrayDeque<>();
     private Undertow server;
-    private int port = 8000;
+    private int port = 9000;
     private String bindAddress = "0.0.0.0";
     private boolean httpTracer;
     private boolean httpMetrics;
-    private int adminPort = 9000;
+    private int adminPort = 9001;
     private String adminBindAddress = "127.0.0.1";
     private List<Interceptor> interceptors = new LinkedList<>();
     private String basePath = HandlerUtil.BASE_PATH;

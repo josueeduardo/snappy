@@ -14,7 +14,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class GroupTest {
 
-    private static final String basePath = "http://localhost:8000";
+    private static final String basePath = "http://localhost:9000";
 
     @BeforeClass
     public static void setup() {

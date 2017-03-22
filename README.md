@@ -34,7 +34,7 @@ public class App {
 
     public static void main(final String[] args) {
        get("/hello", (exchange) -> exchange.send("Hello !", "txt")); //or text/plain
-       start(); //8000
+       start(); //9000
     }
 }
 ```
@@ -239,5 +239,5 @@ public class App {
 ```
 
 
-##### Metrics available at /metrics on port 9090 (default admin port) ####
+##### Metrics available at /metrics on port 9001 (default admin port) ####
 

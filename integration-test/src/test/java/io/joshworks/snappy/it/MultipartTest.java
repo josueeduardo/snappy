@@ -71,7 +71,7 @@ public class MultipartTest {
         String fileContent = "YOLO"; //content from the test file
 
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
-        HttpResponse<String> response = RestClient.post("http://localhost:8000/upload")
+        HttpResponse<String> response = RestClient.post("http://localhost:9000/upload")
                 .header("accept", "application/json")
                 .field(SOME_OTHER_FIELD, parameterValue)
                 .field(FILE_PART_NAME, uploadFile, "sample-input.txt")

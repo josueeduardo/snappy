@@ -38,10 +38,10 @@ public class AdminTest {
 
     @Test
     public void metrics() throws Exception {
-        int status = RestClient.get("http://localhost:8000/test").asString().getStatus();
+        int status = RestClient.get("http://localhost:9000/test").asString().getStatus();
         assertEquals(200, status);
 
-        HttpResponse<MetricData> response = RestClient.get("http://localhost:9000/metrics").asObject(MetricData.class);
+        HttpResponse<MetricData> response = RestClient.get("http://localhost:9001/metrics").asObject(MetricData.class);
         assertEquals(200, response.getStatus());
 
         MetricData metrics = response.getBody();
@@ -62,7 +62,7 @@ public class AdminTest {
 
     @Test
     public void panel() throws Exception {
-        int status = RestClient.get("http://localhost:9000/").asString().getStatus();
+        int status = RestClient.get("http://localhost:9001/").asString().getStatus();
         assertEquals(200, status);
     }
 
