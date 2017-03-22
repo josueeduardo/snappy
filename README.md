@@ -34,7 +34,7 @@ public class App {
 
     public static void main(final String[] args) {
        get("/hello", (exchange) -> exchange.send("Hello !", "txt")); //or text/plain
-       start(); //8080
+       start(); //8000
     }
 }
 ```
