@@ -42,7 +42,7 @@ public final class Part {
     private String value;
     private boolean valid = false;
 
-    public Part() {
+    Part() {
     }
 
     Part(FormData.FormValue formValue) {
