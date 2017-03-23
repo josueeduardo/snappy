@@ -152,7 +152,7 @@ public class App {
 
     public static void main(final String[] args) {
         multipart("/fileUpload", (exchange) -> {
-            Path theFile = exchange.part("theFile").getPath();
+            Path theFile = exchange.part("theFile").file().path();
             Files.copy(theFile, someOutputStrem);
         });
     }
