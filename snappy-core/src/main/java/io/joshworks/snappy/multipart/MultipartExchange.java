@@ -22,8 +22,9 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.server.handlers.form.FormDataParser;
 
+import java.util.ArrayList;
 import java.util.Deque;
-import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by Josh Gontijo on 3/19/17.
@@ -37,15 +38,26 @@ public class MultipartExchange extends Exchange {
         this.formData = exchange.getAttachment(FormDataParser.FORM_DATA);
     }
 
-    public FormData.FormValue part(String partName) {
-        return formData == null ? null : formData.getFirst(partName);
+    public Part part(String partName) {
+        return formData == null ? new Part() : new Part(formData.getFirst(partName));
     }
 
-    public Deque<FormData.FormValue> parts(String partName) {
-        return formData == null ? null : formData.get(partName);
+    public List<Part> parts(String partName) {
+        List<Part> parts = new ArrayList<>();
+        if (formData == null) {
+            return parts;
+        }
+        Deque<FormData.FormValue> formValues = formData.get(partName);
+        formValues.forEach(p -> parts.add(new Part(p)));
+        return parts;
     }
 
-    public Iterator<String> partNames() {
-        return formData == null ? null : formData.iterator();
+    public List<String> partNames() {
+        List<String> names = new ArrayList<>();
+        if (formData == null) {
+            return names;
+        }
+        formData.iterator().forEachRemaining(names::add);
+        return names;
     }
 }
