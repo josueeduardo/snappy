@@ -19,7 +19,7 @@ package io.joshworks.snappy.it;
 
 import com.mashape.unirest.http.HttpResponse;
 import io.joshworks.snappy.client.RestClient;
-import io.undertow.server.handlers.form.FormData;
+import io.joshworks.snappy.multipart.Part;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,13 +52,13 @@ public class MultipartTest {
 
 
         multipart("/upload", (exchange) -> {
-            FormData.FormValue part = exchange.part(FILE_PART_NAME);
-            if (!saveFileToTemp(part.getPath())) {
+            Part part = exchange.part(FILE_PART_NAME);
+            if (!saveFileToTemp(part.file().path())) {
                 exchange.status(500);
             }
 
-            FormData.FormValue parameter = exchange.part(SOME_OTHER_FIELD);
-            String parameterValue = parameter.getValue();
+            Part parameter = exchange.part(SOME_OTHER_FIELD);
+            String parameterValue = parameter.value();
 
             exchange.status(200).send(parameterValue, "txt");
         });
