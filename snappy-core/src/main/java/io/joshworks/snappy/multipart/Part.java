@@ -60,7 +60,7 @@ public final class Part {
             Path path = formValue.getPath();
             String fileName = formValue.getFileName();
             long size = getSize(path);
-            partFile = new PartFile(path, fileName, size);
+            partFile = new PartFile(path, fileName, size, contentType);
 
         } else {
             value = formValue.getValue();

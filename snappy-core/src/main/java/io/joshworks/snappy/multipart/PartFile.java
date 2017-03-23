@@ -17,6 +17,8 @@
 
 package io.joshworks.snappy.multipart;
 
+import io.joshworks.snappy.rest.MediaType;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -31,11 +33,13 @@ public class PartFile {
     private final Path path;
     private final String fileName;
     private final long size;
+    private MediaType contentType;
 
-    public PartFile(Path path, String fileName, long size) {
+    public PartFile(Path path, String fileName, long size, MediaType contentType) {
         this.path = path;
         this.fileName = fileName;
         this.size = size;
+        this.contentType = contentType;
     }
 
     public String name() {
@@ -48,6 +52,10 @@ public class PartFile {
 
     public Path path() {
         return path;
+    }
+
+    public MediaType type() {
+        return contentType;
     }
 
     public InputStream stream() {

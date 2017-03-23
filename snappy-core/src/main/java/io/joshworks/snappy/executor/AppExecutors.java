@@ -60,7 +60,7 @@ public class AppExecutors {
     }
 
     public static void submit(String poolName, Runnable runnable) {
-        ExecutorService executor = getExecutor(poolName);
+        ExecutorService executor = executor(poolName);
         executor.submit(runnable);
     }
 
@@ -69,7 +69,7 @@ public class AppExecutors {
     }
 
     public static <T> Future<T> submit(String poolName, Runnable runnable, T result) {
-        ExecutorService executor = getExecutor(poolName);
+        ExecutorService executor = executor(poolName);
         return executor.submit(runnable, result);
     }
 
@@ -78,7 +78,7 @@ public class AppExecutors {
     }
 
     public static <T> ScheduledFuture<T> schedule(String poolName, Callable<T> callable, long delay, TimeUnit timeUnit) {
-        ScheduledThreadPoolExecutor scheduler = getScheduler(poolName);
+        ScheduledThreadPoolExecutor scheduler = scheduler(poolName);
         return scheduler.schedule(callable, delay, timeUnit);
     }
 
@@ -87,7 +87,7 @@ public class AppExecutors {
     }
 
     public static void scheduleAtFixedRate(String poolName, Runnable runnable, long delay, long period, TimeUnit timeUnit) {
-        ScheduledThreadPoolExecutor scheduler = getScheduler(poolName);
+        ScheduledThreadPoolExecutor scheduler = scheduler(poolName);
         scheduler.scheduleAtFixedRate(runnable, delay, period, timeUnit);
     }
 
@@ -96,11 +96,15 @@ public class AppExecutors {
     }
 
     public static ScheduledFuture<?> scheduleWithFixedDelay(String poolName, Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
-        ScheduledThreadPoolExecutor scheduler = getScheduler(poolName);
+        ScheduledThreadPoolExecutor scheduler = scheduler(poolName);
         return scheduler.scheduleWithFixedDelay(runnable, initialDelay, delay, timeUnit);
     }
 
-    private static ExecutorService getExecutor(String poolName) {
+    public static ExecutorService executor() {
+        return executor(defaultExecutor);
+    }
+
+    public static ExecutorService executor(String poolName) {
         ThreadPoolExecutor threadPoolExecutor = executors.get(poolName);
         if (threadPoolExecutor == null) {
             throw new IllegalArgumentException("Thread pool not found for name " + poolName);
@@ -108,7 +112,11 @@ public class AppExecutors {
         return threadPoolExecutor;
     }
 
-    private static ScheduledThreadPoolExecutor getScheduler(String poolName) {
+    public static ScheduledThreadPoolExecutor scheduler() {
+        return scheduler(defaultScheduler);
+    }
+
+    public static ScheduledThreadPoolExecutor scheduler(String poolName) {
         ScheduledThreadPoolExecutor threadPoolExecutor = schedulers.get(poolName);
         if (threadPoolExecutor == null) {
             throw new IllegalArgumentException("Thread pool not found for name " + poolName);
