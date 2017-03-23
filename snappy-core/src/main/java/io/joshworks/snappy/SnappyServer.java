@@ -36,6 +36,7 @@ import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Group;
 import io.joshworks.snappy.rest.Interceptor;
+import io.joshworks.snappy.rest.Interceptors;
 import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
@@ -89,6 +90,7 @@ public class SnappyServer {
     private int adminPort = 9001;
     private String adminBindAddress = "127.0.0.1";
     private List<Interceptor> interceptors = new LinkedList<>();
+    private List<Interceptor> rootInterceptors = new LinkedList<>();
     private String basePath = HandlerUtil.BASE_PATH;
     private boolean started = false;
 
@@ -230,6 +232,16 @@ public class SnappyServer {
 
     //TODO add url validation
 
+    public static synchronized void beforeAll(String url, Consumer<Exchange> consumer) {
+        checkStarted();
+        instance().rootInterceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
+    }
+
+    public static synchronized void afterAll(String url, Consumer<Exchange> consumer) {
+        checkStarted();
+        instance().rootInterceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
+    }
+
     public static synchronized void before(String url, Consumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
@@ -238,6 +250,11 @@ public class SnappyServer {
     public static synchronized void after(String url, Consumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
+    }
+
+    public static synchronized void cors() {
+        checkStarted();
+        instance().interceptors.add(Interceptors.cors());
     }
 
     public static synchronized void get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
@@ -351,7 +368,7 @@ public class SnappyServer {
             serverBuilder.setWorker(worker);
 
 
-            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, adminManager, basePath, httpMetrics, httpTracer);
+            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, adminManager, basePath, httpMetrics, httpTracer);
 
             server = serverBuilder
                     .addHttpListener(port, bindAddress, rootHandler)

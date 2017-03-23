@@ -19,6 +19,7 @@ package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.admin.AdminManager;
 import io.joshworks.snappy.metric.RestMetricHandler;
+import io.joshworks.snappy.rest.Interceptor;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
@@ -37,10 +38,10 @@ import java.util.List;
  */
 public class HandlerManager {
 
-
     //chain of responsibility
     public HttpHandler createRootHandler(
             List<MappedEndpoint> mappedEndpoints,
+            List<Interceptor> rootInterceptors,
             AdminManager adminManager,
             String basePath,
             boolean httpMetrics,
@@ -82,6 +83,12 @@ public class HandlerManager {
         adminManager.registerMetrics(metricsHandlers);
 
         HttpHandler root = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
+        if(!rootInterceptors.isEmpty()) {
+            InterceptorHandler interceptorHandler = new InterceptorHandler(rootInterceptors);
+            interceptorHandler.setNext(root);
+            root = interceptorHandler;
+        }
+
         HttpHandler handler = httpTracer ? Handlers.requestDump(root) : root;
 
         return Handlers.gracefulShutdown(handler);

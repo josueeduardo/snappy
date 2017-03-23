@@ -37,6 +37,7 @@ public class FilterTest {
     private static final String SERVER_URL = "http://localhost:9000";
 
     private static boolean filterAfterCalled = false;
+    private static boolean filterAfterAllCalled = false;
 
     @BeforeClass
     public static void setup() {
@@ -45,6 +46,12 @@ public class FilterTest {
         get("/b/c", (exchange) -> exchange.send("B", "txt"));
         get("/a/c", (exchange) -> exchange.send("AC", "txt"));
         get("/a/c/d", (exchange) -> exchange.send("ACD", "txt"));
+
+        beforeAll("/b", (exchange) -> exchange.header("FILTER-BEFORE-ALL-B", "OK"));
+        beforeAll("/*", (exchange) -> exchange.header("FILTER-BEFORE-ALL", "OK"));
+
+        afterAll("/*", (exchange) -> filterAfterAllCalled = true);
+
 
         before("/a/*", (exchange) -> exchange.header("FILTER-1", "OK"));
         before("/a/c/*", (exchange) -> exchange.header("FILTER-2", "OK"));
@@ -60,10 +67,14 @@ public class FilterTest {
         stop();
     }
 
-    @Test
+    @Test //only beforeAll will be applied anyway
     public void noFilter() throws Exception {
         HttpResponse<String> response = RestClient.get(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
+        assertNull(response.getHeaders().get("FILTER-1"));
+        assertNull(response.getHeaders().get("EXACT-FILTER"));
+        assertNull(response.getHeaders().get("FILTER-BEFORE-ALL-A"));
+        assertNull(response.getHeaders().get("FILTER-AFTER-ALL"));
     }
 
     @Test
@@ -115,6 +126,26 @@ public class FilterTest {
 
         assertNull(response.getHeaders().get("FILTER-1"));
         assertNull(response.getHeaders().get("FILTER-2"));
+    }
+
+    @Test
+    public void filter_exact_AllBefore() throws Exception {
+        HttpResponse<String> response = RestClient.get(SERVER_URL + "/b").asString();
+        assertNotNull(response.getHeaders().get("FILTER-BEFORE-ALL-B"));
+        assertTrue(filterAfterAllCalled); //after filters gets called after the response was submitted
+    }
+
+    @Test
+    public void filter_wildcard_AllBefore() throws Exception {
+        HttpResponse<String> response = RestClient.get(SERVER_URL + "/a").asString();
+        assertNotNull(response.getHeaders().get("FILTER-BEFORE-ALL"));
+    }
+
+    @Test
+    public void filter_wildcard_AllBefore_nonexistentPath() throws Exception {
+        HttpResponse<String> response = RestClient.get(SERVER_URL + "/nonexistentPath").asString();
+        assertEquals(404, response.getStatus());
+        assertNotNull(response.getHeaders().get("FILTER-BEFORE-ALL"));
     }
 
 
