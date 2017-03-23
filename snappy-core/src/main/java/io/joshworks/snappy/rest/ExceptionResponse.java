@@ -24,12 +24,14 @@ import java.io.Serializable;
  */
 public class ExceptionResponse implements Serializable {
 
+    private final String id;
     private final int status;
     private final String message;
 
-    public ExceptionResponse(int status, String message) {
+    public ExceptionResponse(String id, int status, String message) {
         this.status = status;
         this.message = message;
+        this.id = id;
     }
 
     public int getStatus() {
@@ -40,8 +42,12 @@ public class ExceptionResponse implements Serializable {
         return message;
     }
 
+    public String getId() {
+        return id;
+    }
+
     @Override
     public String toString() {
-        return "status=" + status + ", message='" + message + '\'';
+        return "id='" + id + "' " + "status=" + status + ", message='" + message + '\'';
     }
 }

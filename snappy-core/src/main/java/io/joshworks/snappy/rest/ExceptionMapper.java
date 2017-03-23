@@ -31,16 +31,18 @@ public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception
     public final ErrorHandler fallbackInternalError = (e, restExchange) -> {
         int status = StatusCodes.INTERNAL_SERVER_ERROR;
         restExchange.status(status);
+        String id = String.valueOf(System.currentTimeMillis());
 
-        ExceptionResponse response = new ExceptionResponse(status, e.getMessage());
+        ExceptionResponse response = new ExceptionResponse(id, status, e.getMessage());
         restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
     };
 
     public final ErrorHandler fallbackConneg = (e, restExchange) -> {
         int status = StatusCodes.UNSUPPORTED_MEDIA_TYPE;
         restExchange.status(status);
+        String id = String.valueOf(System.currentTimeMillis());
 
-        ExceptionResponse response = new ExceptionResponse(status, e.getMessage());
+        ExceptionResponse response = new ExceptionResponse(id, status, e.getMessage());
         restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
     };
 

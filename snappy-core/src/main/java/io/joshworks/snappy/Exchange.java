@@ -30,6 +30,7 @@ import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.PathTemplateMatch;
 
+import java.net.InetSocketAddress;
 import java.util.Deque;
 import java.util.Map;
 
@@ -123,6 +124,10 @@ public class Exchange {
 
     public String path() {
         return exchange.getRequestPath();
+    }
+
+    public InetSocketAddress remoteAddress() {
+        return exchange.getSourceAddress();
     }
 
     public String userAgent() {
