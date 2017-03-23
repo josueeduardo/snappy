@@ -36,6 +36,7 @@ public final class Part {
 
     private static final Logger logger = LoggerFactory.getLogger(Part.class);
 
+    private String name;
     private PartFile partFile;
     private MediaType contentType;
     private boolean isFile;
@@ -45,12 +46,13 @@ public final class Part {
     Part() {
     }
 
-    Part(FormData.FormValue formValue) {
+    Part(FormData.FormValue formValue, String name) {
         valid = formValue != null;
         if (!valid) {
             return;
         }
 
+        this.name = name;
         HeaderMap headers = formValue.getHeaders();
         contentType = getMediaType(headers);
         isFile = formValue.isFile();
@@ -82,6 +84,10 @@ public final class Part {
 
     public boolean isPresent() {
         return valid;
+    }
+
+    public String name() {
+        return name;
     }
 
     private long getSize(Path path) {

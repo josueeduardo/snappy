@@ -24,6 +24,7 @@ import io.undertow.server.handlers.form.FormDataParser;
 
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ public class MultipartExchange extends Exchange {
     }
 
     public Part part(String partName) {
-        return formData == null ? new Part() : new Part(formData.getFirst(partName));
+        return formData == null ? new Part() : new Part(formData.getFirst(partName), partName);
     }
 
     public List<Part> parts(String partName) {
@@ -48,7 +49,20 @@ public class MultipartExchange extends Exchange {
             return parts;
         }
         Deque<FormData.FormValue> formValues = formData.get(partName);
-        formValues.forEach(p -> parts.add(new Part(p)));
+        formValues.forEach(p -> parts.add(new Part(p, partName)));
+        return parts;
+    }
+
+    public List<Part> parts() {
+        Iterator<String> iterator = formData.iterator();
+        List<Part> parts = new ArrayList<>();
+        while (iterator.hasNext()) {
+            String next = iterator.next();
+            Deque<FormData.FormValue> formValues = formData.get(next);
+            for (FormData.FormValue value : formValues) {
+                parts.add(new Part(value, next));
+            }
+        }
         return parts;
     }
 
