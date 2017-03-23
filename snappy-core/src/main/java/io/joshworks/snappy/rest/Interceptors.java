@@ -17,6 +17,8 @@
 
 package io.joshworks.snappy.rest;
 
+import io.undertow.util.Methods;
+
 /**
  * Created by Josh Gontijo on 3/23/17.
  */
@@ -28,6 +30,9 @@ public class Interceptors {
             exchange.header("Access-Control-Allow-Credentials", "true");
             exchange.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
             exchange.header("Access-Control-Allow-Headers", "Origin, Accept, X-Requested-With, Content-Type, Authorization, Access-Control-Request-Method, Access-Control-Request-Headers");
+            if(exchange.method().equalsIgnoreCase(Methods.OPTIONS_STRING)){
+                exchange.status(200).end();
+            }
         }));
     }
 

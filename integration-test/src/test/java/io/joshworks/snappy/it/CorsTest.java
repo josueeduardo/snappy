@@ -1,0 +1,134 @@
+/*
+ * Copyright 2017 Josue Gontijo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package io.joshworks.snappy.it;
+
+import com.mashape.unirest.http.Headers;
+import com.mashape.unirest.http.HttpResponse;
+import io.joshworks.snappy.client.RestClient;
+import io.undertow.util.Methods;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.util.List;
+
+import static io.joshworks.snappy.SnappyServer.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+/**
+ * Created by josh on 3/10/17.
+ */
+public class CorsTest {
+
+    private static final String SERVER_URL = "http://localhost:9000";
+
+
+    @BeforeClass
+    public static void setup() {
+        get("/a", (exchange) -> exchange.send("A", "txt"));
+        cors();
+
+        start();
+    }
+
+    @AfterClass
+    public static void shutdown() {
+        stop();
+    }
+
+    @Test //only beforeAll will be applied anyway
+    public void cors_accessControl() throws Exception {
+        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        assertEquals(200, response.getStatus());
+
+        Headers headers = response.getHeaders();
+
+        List<String> allowOrigin = headers.get("Access-Control-Allow-Origin");
+        assertNotNull(allowOrigin);
+        assertEquals(1, allowOrigin.size());
+        assertEquals("*", allowOrigin.get(0));
+    }
+
+    @Test //only beforeAll will be applied anyway
+    public void cors_allowCrendetials() throws Exception {
+        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        assertEquals(200, response.getStatus());
+
+        Headers headers = response.getHeaders();
+
+        List<String> allowCredentials = headers.get("Access-Control-Allow-Credentials");
+        assertNotNull(allowCredentials);
+        assertEquals(1, allowCredentials.size());
+        assertTrue(Boolean.parseBoolean(allowCredentials.get(0)));
+    }
+
+    @Test //only beforeAll will be applied anyway
+    public void cors_allowedMethods() throws Exception {
+        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        assertEquals(200, response.getStatus());
+
+        Headers headers = response.getHeaders();
+
+        List<String> allowedMethods =headers.get("Access-Control-Allow-Methods");
+
+        assertNotNull(allowedMethods);
+        assertEquals(1, allowedMethods.size());
+        String headerValues = allowedMethods.get(0);
+
+        assertTrue(headerValues.contains(Methods.GET_STRING));
+        assertTrue(headerValues.contains(Methods.POST_STRING));
+        assertTrue(headerValues.contains(Methods.PUT_STRING));
+        assertTrue(headerValues.contains(Methods.DELETE_STRING));
+        assertTrue(headerValues.contains(Methods.HEAD_STRING));
+        assertTrue(headerValues.contains(Methods.OPTIONS_STRING));
+    }
+
+    @Test //only beforeAll will be applied anyway
+    public void cors_allowedHeaders() throws Exception {
+        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        assertEquals(200, response.getStatus());
+
+        Headers headers = response.getHeaders();
+
+        List<String> allowedHeaders = headers.get("Access-Control-Allow-Headers");
+
+        assertNotNull(allowedHeaders);
+        assertEquals(1, allowedHeaders.size());
+        String headerValues = allowedHeaders.get(0);
+
+        assertTrue(headerValues.contains("Accept"));
+        assertTrue(headerValues.contains("X-Requested-With"));
+        assertTrue(headerValues.contains("Content-Type"));
+        assertTrue(headerValues.contains("Origin"));
+        assertTrue(headerValues.contains("Authorization"));
+        assertTrue(headerValues.contains("Access-Control-Request-Method"));
+        assertTrue(headerValues.contains("Access-Control-Request-Headers"));
+    }
+
+//        exchange.header("Access-Control-Allow-Origin", "*");
+//        exchange.header("Access-Control-Allow-Credentials", "true");
+//        exchange.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+//        exchange.header("Access-Control-Allow-Headers", "Origin, Accept, X-Requested-With, Content-Type, Authorization, Access-Control-Request-Method, Access-Control-Request-Headers");
+
+
+
+
+
+}

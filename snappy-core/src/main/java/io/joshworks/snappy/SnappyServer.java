@@ -242,6 +242,11 @@ public class SnappyServer {
         instance().rootInterceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
     }
 
+    public static synchronized void cors() {
+        checkStarted();
+        instance().rootInterceptors.add(Interceptors.cors());
+    }
+
     public static synchronized void before(String url, Consumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
@@ -250,11 +255,6 @@ public class SnappyServer {
     public static synchronized void after(String url, Consumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
-    }
-
-    public static synchronized void cors() {
-        checkStarted();
-        instance().interceptors.add(Interceptors.cors());
     }
 
     public static synchronized void get(String url, Consumer<RestExchange> endpoint, MediaTypes... mediaTypes) {

@@ -183,6 +183,10 @@ public class Exchange {
         this.response(response);
     }
 
+    public void end() {
+        exchange.endExchange();
+    }
+
     private Exchange setResponseMediaType(MediaType mediaType) {
         responseContentType = mediaType;
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, mediaType.toString());
@@ -190,8 +194,10 @@ public class Exchange {
     }
 
     private void response(Object response) {
+        if (response == null) {
+            return;
+        }
         try {
-
             Parser responseParser = Parsers.getParser(responseContentType);
             if (responseParser == null) {
                 throw new RuntimeException("Could not find Parser for type " + responseContentType.toString());

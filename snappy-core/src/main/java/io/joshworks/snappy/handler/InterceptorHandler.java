@@ -60,15 +60,12 @@ public class InterceptorHandler implements HttpHandler {
             return;
         }
 
-        exchange.addExchangeCompleteListener((exchange1, nextListener) -> {
-            boolean afterProceed = intercept(Interceptor.Type.AFTER, exchange, url);
-            if (afterProceed) {
-                nextListener.proceed();
-            }
+        exchange.addExchangeCompleteListener((completeExchange, nextListener) -> {
+            intercept(Interceptor.Type.AFTER, completeExchange, url);
+            nextListener.proceed(); //always proceed
         });
 
         next.handleRequest(exchange);
-
     }
 
     private boolean intercept(Interceptor.Type type, HttpServerExchange exchange, String url) {
@@ -78,7 +75,7 @@ public class InterceptorHandler implements HttpHandler {
             try {
                 interceptor.intercept(requestExchange);
             } catch (Exception ex) {
-                logger.error("Error handling {} interceptor for url {}, next interceptor will not proceed", type.name(), url);
+                logger.error("Error handling " + type.name() + " interceptor for url " + url + ", next interceptor will not proceed", ex);
                 if (Interceptor.Type.BEFORE.equals(type)) {
                     ErrorHandler<Exception> orFallback = exceptionMapper.getOrFallback(ex);
                     orFallback.onException(ex, requestExchange);
@@ -89,7 +86,7 @@ public class InterceptorHandler implements HttpHandler {
                 return false;
             }
         }
-        return true;
+        return !exchange.isComplete();
     }
 
     public void setNext(HttpHandler next) {
