@@ -22,11 +22,17 @@ import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.GetRequest;
 import com.mashape.unirest.request.HttpRequestWithBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by josh on 3/11/17.
  */
 public class RestClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private static final Gson gson = new Gson();
 
@@ -80,7 +86,7 @@ public class RestClient {
         try {
             Unirest.shutdown();
         } catch (Exception e) {
-
+            logger.warn("Error while closing rest client", e);
         }
     }
 

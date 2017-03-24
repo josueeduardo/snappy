@@ -19,6 +19,7 @@ package io.joshworks.snappy.parser;
 
 import com.google.gson.Gson;
 import io.joshworks.snappy.rest.MediaType;
+import org.json.JSONObject;
 
 /**
  * Created by josh on 3/6/17.
@@ -35,9 +36,14 @@ public class JsonParser implements Parser {
 
     @Override
     public String writeValue(Object input) throws Exception {
+        if(input instanceof JSONObject) {
+            input = input.toString();
+        }
+
         if (input instanceof String) {
             input = parser.parse((String) input);
         }
+
         return gson.toJson(input);
     }
 
