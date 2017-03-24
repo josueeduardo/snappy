@@ -30,13 +30,13 @@ public class JsonParser implements Parser {
     private final com.google.gson.JsonParser parser = new com.google.gson.JsonParser();
 
     @Override
-    public <T> T readValue(String value, Class<T> valueType) throws Exception {
+    public <T> T readValue(String value, Class<T> valueType) {
         return gson.fromJson(value, valueType);
     }
 
     @Override
-    public String writeValue(Object input) throws Exception {
-        if(input instanceof JSONObject) {
+    public String writeValue(Object input) {
+        if (input instanceof JSONObject) {
             input = input.toString();
         }
 

@@ -15,28 +15,22 @@
  *
  */
 
-package io.joshworks.snappy.parser;
+package io.joshworks.snappy.it.util;
 
-import io.joshworks.snappy.rest.MediaType;
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
- * Created by josh on 3/6/17.
+ * Created by Josh Gontijo on 3/24/17.
  */
-public class PlainTextParser implements Parser {
+public class TestApp {
 
-    @Override
-    public <T> T readValue(String value, Class<T> valueType) {
-        throw new UnsupportedOperationException("Cannot convert " + valueType + " to " + mediaType());
+    public TestApp() {
+        get("/", exchange -> exchange.send("Yolo", "txt"));
+        start();
     }
 
-    @Override
-    public String writeValue(Object input) {
-        return String.valueOf(input);
-    }
-
-    @Override
-    public MediaType mediaType() {
-        return MediaType.TEXT_PLAIN_TYPE;
+    public void shutdown() {
+        stop();
     }
 
 }

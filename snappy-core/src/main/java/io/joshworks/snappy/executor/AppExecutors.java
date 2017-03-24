@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledFuture;
@@ -40,24 +39,19 @@ public class AppExecutors {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private static final Map<String, ThreadPoolExecutor> executors = new ConcurrentHashMap<>();
-    private static final Map<String, ScheduledThreadPoolExecutor> schedulers = new ConcurrentHashMap<>();
-    private static String defaultExecutor;
-    private static String defaultScheduler;
+   private static ExecutorContainer container;
 
-    static void init(
-            Map<String, ThreadPoolExecutor> execs, String defaultExec,
-            Map<String, ScheduledThreadPoolExecutor> scheds, String defaultSched) {
+    AppExecutors() {
 
-        defaultExecutor = defaultExec;
-        defaultScheduler = defaultSched;
-
-        executors.putAll(execs);
-        schedulers.putAll(scheds);
     }
 
+    synchronized static void init(ExecutorContainer executorContainer) {
+        container = executorContainer;
+    }
+
+
     public static void submit(Runnable runnable) {
-        submit(defaultExecutor, runnable);
+        submit(container.defaultExecutor, runnable);
     }
 
     public static void submit(String poolName, Runnable runnable) {
@@ -66,7 +60,7 @@ public class AppExecutors {
     }
 
     public static <T> Future<T> submit(Runnable runnable, T result) {
-        return submit(defaultExecutor, runnable, result);
+        return submit(container.defaultExecutor, runnable, result);
     }
 
     public static <T> Future<T> submit(String poolName, Runnable runnable, T result) {
@@ -75,7 +69,7 @@ public class AppExecutors {
     }
 
     public static <T> ScheduledFuture<T> schedule(Callable<T> callable, long delay, TimeUnit timeUnit) {
-        return schedule(defaultScheduler, callable, delay, timeUnit);
+        return schedule(container.defaultScheduler, callable, delay, timeUnit);
     }
 
     public static <T> ScheduledFuture<T> schedule(String poolName, Callable<T> callable, long delay, TimeUnit timeUnit) {
@@ -84,7 +78,7 @@ public class AppExecutors {
     }
 
     public static void scheduleAtFixedRate(Runnable runnable, long delay, long period, TimeUnit timeUnit) {
-        scheduleAtFixedRate(defaultScheduler, runnable, delay, period, timeUnit);
+        scheduleAtFixedRate(container.defaultScheduler, runnable, delay, period, timeUnit);
     }
 
     public static void scheduleAtFixedRate(String poolName, Runnable runnable, long delay, long period, TimeUnit timeUnit) {
@@ -93,7 +87,7 @@ public class AppExecutors {
     }
 
     public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
-        return scheduleWithFixedDelay(defaultScheduler, runnable, initialDelay, delay, timeUnit);
+        return scheduleWithFixedDelay(container.defaultScheduler, runnable, initialDelay, delay, timeUnit);
     }
 
     public static ScheduledFuture<?> scheduleWithFixedDelay(String poolName, Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
@@ -102,11 +96,11 @@ public class AppExecutors {
     }
 
     public static ExecutorService executor() {
-        return executor(defaultExecutor);
+        return executor(container.defaultExecutor);
     }
 
     public static ExecutorService executor(String poolName) {
-        ThreadPoolExecutor threadPoolExecutor = executors.get(poolName);
+        ThreadPoolExecutor threadPoolExecutor = container.executors.get(poolName);
         if (threadPoolExecutor == null) {
             throw new IllegalArgumentException("Thread pool not found for name " + poolName);
         }
@@ -114,11 +108,11 @@ public class AppExecutors {
     }
 
     public static ScheduledThreadPoolExecutor scheduler() {
-        return scheduler(defaultScheduler);
+        return scheduler(container.defaultScheduler);
     }
 
     public static ScheduledThreadPoolExecutor scheduler(String poolName) {
-        ScheduledThreadPoolExecutor threadPoolExecutor = schedulers.get(poolName);
+        ScheduledThreadPoolExecutor threadPoolExecutor = container.schedulers.get(poolName);
         if (threadPoolExecutor == null) {
             throw new IllegalArgumentException("Thread pool not found for name " + poolName);
         }
@@ -126,16 +120,16 @@ public class AppExecutors {
     }
 
     static Map<String, ThreadPoolExecutor> executors() {
-        return new HashMap<>(executors);
+        return new HashMap<>(container.executors);
     }
 
     static Map<String, ScheduledThreadPoolExecutor> schedulers() {
-        return new HashMap<>(schedulers);
+        return new HashMap<>(container.schedulers);
     }
 
     public static void shutdown(String poolName) {
-        ThreadPoolExecutor executor = executors.get(poolName);
-        ScheduledThreadPoolExecutor scheduler = schedulers.get(poolName);
+        ThreadPoolExecutor executor = container.executors.get(poolName);
+        ScheduledThreadPoolExecutor scheduler = container.schedulers.get(poolName);
         if (executor != null) {
             shutdown(poolName, executor);
         }
@@ -144,20 +138,20 @@ public class AppExecutors {
         }
     }
 
-    public static void shutdownAll() {
-        executors.forEach(AppExecutors::shutdown);
-        schedulers.forEach(AppExecutors::shutdown);
+    public synchronized static void shutdownAll() {
+        container.executors.forEach(AppExecutors::shutdown);
+        container.schedulers.forEach(AppExecutors::shutdown);
         logger.info("Executors shutdown");
     }
 
-    private static void shutdown(String name, ThreadPoolExecutor executorService) {
+    private synchronized static void shutdown(String name, ThreadPoolExecutor executorService) {
         logger.info("Shutting down pool: {}", name);
         shutdownExecutor(executorService);
-        executors.remove(name);
-        schedulers.remove(name);
+        container.executors.remove(name);
+        container.schedulers.remove(name);
     }
 
-    private static void shutdownExecutor(ThreadPoolExecutor executorService) {
+    private synchronized static void shutdownExecutor(ThreadPoolExecutor executorService) {
         if (!executorService.isShutdown()) {
             executorService.shutdown();
             try {

@@ -53,7 +53,7 @@ public class Parsers {
         if (parser == null || parser.mediaType() == null) {
             throw new IllegalArgumentException("Invalid parser, media type not specified, or null instance");
         }
-        logger.info("Registering Parser {} for type {}", parser.getClass().getName(), parser.mediaType().toString());
+        logger.info("Registering Parser '{}' for type {}", parser.getClass().getSimpleName(), parser.mediaType().toString());
         available.put(parser.mediaType(), parser);
     }
 

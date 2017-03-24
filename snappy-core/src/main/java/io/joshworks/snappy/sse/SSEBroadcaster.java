@@ -29,6 +29,7 @@ import java.util.function.Predicate;
  */
 public class SSEBroadcaster {
 
+    //TODO remove static
     private static final List<ServerSentEventHandler> endpoints = new ArrayList<>();
 
     private SSEBroadcaster() {

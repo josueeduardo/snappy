@@ -17,15 +17,16 @@
 
 package io.joshworks.snappy.client;
 
-import com.google.gson.Gson;
 import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.options.Options;
 import com.mashape.unirest.request.GetRequest;
 import com.mashape.unirest.request.HttpRequestWithBody;
+import io.joshworks.snappy.parser.JsonParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by josh on 3/11/17.
@@ -34,24 +35,21 @@ public class RestClient {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private static final Gson gson = new Gson();
 
-    static {
+    public static void init() {
+        Options.refresh();
+        JsonParser jsonParser = new JsonParser();
         Unirest.setObjectMapper(new ObjectMapper() {
             @Override
             public <T> T readValue(String value, Class<T> valueType) {
-                return gson.fromJson(value, valueType);
+                return jsonParser.readValue(value, valueType);
             }
 
             @Override
             public String writeValue(Object value) {
-                return gson.toJson(value);
+                return jsonParser.writeValue(value);
             }
         });
-    }
-
-    private RestClient() {
-
     }
 
     public static GetRequest get(String url) {

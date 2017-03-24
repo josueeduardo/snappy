@@ -70,7 +70,7 @@ public class ExecutorBootstrap {
                         .orElse(new SchedulerConfig(DEFAULT_SCHEDULER)))
                 .getName();
 
-        AppExecutors.init(executors, defaultExecutor, schedulers, defaultScheduler);
+        AppExecutors.init(new ExecutorContainer(defaultExecutor, defaultScheduler, executors, schedulers));
     }
 
     public static List<PoolMetric> executorMetrics() {

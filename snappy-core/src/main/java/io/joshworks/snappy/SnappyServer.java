@@ -94,6 +94,10 @@ public class SnappyServer {
     private String basePath = HandlerUtil.BASE_PATH;
     private boolean started = false;
 
+    private static final Object LOCK = new Object();
+    private static SnappyServer INSTANCE;
+
+
     private SnappyServer() {
         optionBuilder.set(Options.TCP_NODELAY, true);
         int processors = Runtime.getRuntime().availableProcessors();
@@ -102,16 +106,21 @@ public class SnappyServer {
     }
 
     private static SnappyServer instance() {
-        return ServerInstanceHolder.INSTANCE;
+        if (INSTANCE == null) {
+            synchronized (LOCK) {
+                if (INSTANCE == null) {
+                    INSTANCE = new SnappyServer();
+                }
+            }
+        }
+        return INSTANCE;
     }
 
     private static SnappyServer createServer() {
         return new SnappyServer();
     }
 
-    public static synchronized void start() {
-        checkStarted();
-        instance().started = true;
+    public static void start() {
         instance().startServer();
     }
 
@@ -348,10 +357,15 @@ public class SnappyServer {
         }
     }
 
-    private void startServer() {
+    private synchronized void startServer() {
         try {
+            checkStarted();
             Info.logo();
             Info.version();
+
+            long start = System.currentTimeMillis();
+            logger.info("Starting server...");
+
             PropertyLoader.load();
             Info.deploymentInfo(httpMetrics, httpTracer, port, httpMetrics, executors, schedulers, optionBuilder, endpoints, basePath);
             ExecutorBootstrap.init(schedulers, executors);
@@ -360,13 +374,14 @@ public class SnappyServer {
             Parsers.register(new JsonParser());
             Parsers.register(new PlainTextParser());
 
-            logger.info("Starting server...");
+            RestClient.init();
+
+
 
             Undertow.Builder serverBuilder = Undertow.builder();
 
             XnioWorker worker = Xnio.getInstance().createWorker(optionBuilder.getMap());
             serverBuilder.setWorker(worker);
-
 
             HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, adminManager, basePath, httpMetrics, httpTracer);
 
@@ -376,16 +391,18 @@ public class SnappyServer {
                     .build();
 
             server.start();
+            started = true;
+
+            logger.info("Server started in {}ms", System.currentTimeMillis() - start);
 
         } catch (Exception e) {
             started = false;
             logger.error("Error while starting the server", e);
             throw new RuntimeException(e);
         }
-        started = false;
     }
 
-    private void stopServer() {
+    private synchronized void stopServer() {
         if (server != null && started) {
             logger.info("Stopping server...");
 
@@ -393,11 +410,9 @@ public class SnappyServer {
             AppExecutors.shutdownAll();
 
             server.stop();
+            INSTANCE = null;
             started = false;
         }
     }
 
-    private static class ServerInstanceHolder {
-        private static final SnappyServer INSTANCE = SnappyServer.createServer();
-    }
 }
