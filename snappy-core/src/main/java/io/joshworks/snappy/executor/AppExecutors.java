@@ -145,8 +145,8 @@ public class AppExecutors {
     }
 
     public static void shutdownAll() {
-        executors.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
-        schedulers.entrySet().forEach(entry -> shutdown(entry.getKey(), entry.getValue()));
+        executors.forEach(AppExecutors::shutdown);
+        schedulers.forEach(AppExecutors::shutdown);
         logger.info("Executors shutdown");
     }
 
