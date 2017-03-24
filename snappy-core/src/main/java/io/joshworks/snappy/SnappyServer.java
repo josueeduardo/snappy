@@ -375,11 +375,6 @@ public class SnappyServer {
                     .addHttpListener(adminPort, adminBindAddress, adminManager.resolveHandlers())
                     .build();
 
-
-            Thread shutdownThread = new Thread(new Shutdown());
-            shutdownThread.setName("shutdown-hook");
-            Runtime.getRuntime().addShutdownHook(shutdownThread);
-
             server.start();
 
         } catch (Exception e) {
@@ -393,6 +388,10 @@ public class SnappyServer {
     private void stopServer() {
         if (server != null && started) {
             logger.info("Stopping server...");
+
+            RestClient.shutdown();
+            AppExecutors.shutdownAll();
+
             server.stop();
             started = false;
         }
@@ -400,14 +399,5 @@ public class SnappyServer {
 
     private static class ServerInstanceHolder {
         private static final SnappyServer INSTANCE = SnappyServer.createServer();
-    }
-
-    private static class Shutdown implements Runnable {
-
-        @Override
-        public void run() {
-            RestClient.shutdown();
-            AppExecutors.shutdownAll();
-        }
     }
 }
