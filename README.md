@@ -10,6 +10,7 @@ Features:
 - Built in service discovery (in progress)
 - Small. Less than 6mb
 - No magic, plain and simple
+- Small memory footprint
 - Static files
 - Rest client using [Unirest](https://github.com/Mashape/unirest-java)
 - Multipart support
@@ -76,6 +77,17 @@ public class App {
 }
 ```
 
+#### Sending JSON ####
+```java
+public class App {
+
+    public static void main(final String[] args) {
+       get("/users", (exchange) -> exchange.send(new User("Yolo")));
+       start();
+    }
+}
+```
+
 #### Filter ####
 ```java
 public class App {
@@ -108,29 +120,6 @@ public class App {
     }
 }
 ```
-
-
-#### Sending JSON ####
-```java
-public class App {
-
-    public static void main(final String[] args) {
-       get("/users", (exchange) -> exchange.send(new User("Yolo")));
-       start();
-    }
-}
-```
-#### Sending JSON ####
-```java
-public class App {
-
-    public static void main(final String[] args) {
-       get("/users", (exchange) -> exchange.send(new User("Yolo")));
-       start();
-    }
-}
-```
-
 
 #### Static files ####
 ```java
@@ -213,6 +202,26 @@ public class App {
             group("/groupB", () -> {
                 get("/d", (exchange) -> {/* ... */});
             });
+            
+        }
+}
+```
+
+#### Executors ####
+```java
+public class App {
+
+     public static void main(String[] args) {
+            executors("my-thread-pool", 10, 20, 60000); //corePoolSize, maxPoolSize, keepAliveMillis
+            schedulers("another-thread-pool", 10, 60000); //corePoolSize, keepAliveMillis
+            
+            //.... then
+            
+            AppExecutors.submit(myRunnable); //uses default
+            AppExecutors.submit("my-thread-pool", myRunnable);
+            
+            AppExecutors.schedule(myCallable, 10, TimeUnit.SECONDS);
+            AppExecutors.schedule("another-thread-pool", myCallable, 10, TimeUnit.SECONDS);
             
         }
 }
