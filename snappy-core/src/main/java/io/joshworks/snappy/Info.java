@@ -19,7 +19,6 @@ package io.joshworks.snappy;
 
 import io.joshworks.snappy.executor.ExecutorConfig;
 import io.joshworks.snappy.executor.SchedulerConfig;
-import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +62,6 @@ public class Info {
         }
     }
 
-
     public static void deploymentInfo(boolean bindAddress,
                                       boolean httpTracer,
                                       int port,
@@ -103,15 +101,7 @@ public class Info {
 
     private static void logEndpoints(List<MappedEndpoint> endpoints, String basePath) {
         endpoints.sort(Comparator.comparing(me -> me.url));
-        for (MappedEndpoint endpoint : endpoints) {
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < 10 - endpoint.method.length(); i++) {
-                sb.append(" ");
-            }
-            String url = HandlerUtil.BASE_PATH.equals(basePath) ? endpoint.url : basePath + endpoint.url;
-            System.err.println(String.format("%s%s", endpoint.method, sb.toString() + url));
-
-        }
+        endpoints.stream().sorted(Comparator.comparing(me -> me.url)).forEach(e -> System.err.println(e.toString(basePath)));
     }
 
     private static void logExecutors(String name, ThreadPoolExecutor executor) {

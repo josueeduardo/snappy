@@ -36,14 +36,14 @@ public class MappedEndpoint {
         this.handler = handler;
     }
 
-    @Override
-    public String toString() {
-        return "{" +
-                "method='" + method + '\'' +
-                ", url='" + url + '\'' +
-                ", type=" + type +
-                ", handler=" + handler +
-                '}';
+    public String toString(String basePath) {
+        StringBuilder sb = new StringBuilder();
+        String m = Type.REST.equals(method) ? method : type.name();
+        for (int i = 0; i < 10 - m.length(); i++) {
+            sb.append(" ");
+        }
+        String formatted = HandlerUtil.BASE_PATH.equals(basePath) ? url : basePath + url;
+        return String.format("%s%s", m, sb.toString() + formatted);
     }
 
     public enum Type {

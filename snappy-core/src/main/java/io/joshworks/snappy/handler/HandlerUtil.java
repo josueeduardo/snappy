@@ -98,7 +98,7 @@ public class HandlerUtil {
 
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(websocket);
-        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
+        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.WS, interceptorHandler);
 
     }
 
@@ -128,7 +128,7 @@ public class HandlerUtil {
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(Handlers.serverSentEvents());
 
-        return new MappedEndpoint(MappedEndpoint.Type.SSE.name(), url, MappedEndpoint.Type.SSE, interceptorHandler);
+        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE, interceptorHandler);
     }
 
     public static MappedEndpoint staticFiles(String url, String docPath, List<Interceptor> interceptors) {
@@ -143,7 +143,7 @@ public class HandlerUtil {
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
         interceptorHandler.setNext(handler);
 
-        return new MappedEndpoint(MappedEndpoint.Type.STATIC.name(), url, MappedEndpoint.Type.STATIC, interceptorHandler);
+        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.STATIC, interceptorHandler);
     }
 
     public static MappedEndpoint staticFiles(String url, List<Interceptor> interceptors) {
