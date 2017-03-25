@@ -17,12 +17,18 @@
 
 package io.joshworks.snappy.property;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by josh on 3/10/17.
  */
-public final class MicroserverProperties {
+public final class PropertyKeys {
 
     public static final String PROPERTIES_NAME = "snappy.properties";
+
+    public static final Set<String> RESERVED_PREFIXES = new HashSet<>(Arrays.asList("http", "xnio", "executor", "scheduler"));
 
     //http
     public static final String HTTP_PORT = "http.port";
@@ -42,6 +48,7 @@ public final class MicroserverProperties {
     public static final String EXECUTOR_CORE_POOL_SIZE = "core";
     public static final String EXECUTOR_MAX_POOL_SIZE = "max";
 
+    //TODO move to extras
     //ssr discovery registry
     public static final String SSR_AWS = "ssr.isAws";
     public static final String SSR_REGISTRY_HOST = "ssr.registry.host";

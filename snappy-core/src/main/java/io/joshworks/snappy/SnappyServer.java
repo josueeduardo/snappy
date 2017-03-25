@@ -38,6 +38,8 @@ import io.joshworks.snappy.rest.Group;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.Interceptors;
 import io.joshworks.snappy.rest.RestExchange;
+import io.joshworks.snappy.service.ExtensionProxy;
+import io.joshworks.snappy.service.ServerData;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -73,6 +75,7 @@ public class SnappyServer {
 
     private final HandlerManager handlerManager = new HandlerManager();
     private final AdminManager adminManager = new AdminManager();
+    private final ExtensionProxy extensions = new ExtensionProxy();
     //--------------------------------------------
     private final OptionMap.Builder optionBuilder = OptionMap.builder();
     private final List<ExecutorConfig> executors = new ArrayList<>();
@@ -376,7 +379,7 @@ public class SnappyServer {
 
             RestClient.init();
 
-
+            extensions.load();
 
             Undertow.Builder serverBuilder = Undertow.builder();
 
@@ -395,6 +398,8 @@ public class SnappyServer {
 
             logger.info("Server started in {}ms", System.currentTimeMillis() - start);
 
+            extensions.onStart(new ServerData(adminPort, bindAddress, httpTracer, httpMetrics, adminPort, adminBindAddress, basePath, endpoints));
+
         } catch (Exception e) {
             started = false;
             logger.error("Error while starting the server", e);
@@ -405,6 +410,8 @@ public class SnappyServer {
     private synchronized void stopServer() {
         if (server != null && started) {
             logger.info("Stopping server...");
+
+            extensions.onShutdown();
 
             RestClient.shutdown();
             AppExecutors.shutdownAll();

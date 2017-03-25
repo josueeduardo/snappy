@@ -39,22 +39,22 @@ public class PropertyLoader {
     }
 
     public static void load() {
-        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(MicroserverProperties.PROPERTIES_NAME);
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(PropertyKeys.PROPERTIES_NAME);
         if (is != null) {
-            logger.info("Loading {}", MicroserverProperties.PROPERTIES_NAME);
+            logger.info("Loading {}", PropertyKeys.PROPERTIES_NAME);
             try {
                 properties.load(is);
             } catch (IOException e) {
-                throw new RuntimeException("Error while loading " + MicroserverProperties.PROPERTIES_NAME, e);
+                throw new RuntimeException("Error while loading " + PropertyKeys.PROPERTIES_NAME, e);
             }
         } else {
-            logger.info("{} not found", MicroserverProperties.PROPERTIES_NAME);
+            logger.info("{} not found", PropertyKeys.PROPERTIES_NAME);
         }
 
         //override with system props
-        String override = resolveProperties(properties, MicroserverProperties.HTTP_PORT);
+        String override = resolveProperties(properties, PropertyKeys.HTTP_PORT);
         if (override != null) {
-            properties.setProperty(MicroserverProperties.HTTP_PORT, override);
+            properties.setProperty(PropertyKeys.HTTP_PORT, override);
         }
     }
 
