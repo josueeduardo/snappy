@@ -21,7 +21,7 @@
     </modules>
 
     <name>Snappy</name>
-    <description>A tiny but powerful server for Java 8</description>
+    <description>A tiny and powerful server for Java 8</description>
 
     <licenses>
         <license>

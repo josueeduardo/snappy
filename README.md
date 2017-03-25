@@ -1,5 +1,5 @@
 # Snappy #
-A tiny but powerful server for Java 8
+A tiny and powerful server for Java 8
 
 Features:
     
