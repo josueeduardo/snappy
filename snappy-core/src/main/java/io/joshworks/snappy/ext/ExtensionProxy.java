@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.service;
+package io.joshworks.snappy.ext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

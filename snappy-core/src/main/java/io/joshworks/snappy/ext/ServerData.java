@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.service;
+package io.joshworks.snappy.ext;
 
 import io.joshworks.snappy.handler.MappedEndpoint;
 

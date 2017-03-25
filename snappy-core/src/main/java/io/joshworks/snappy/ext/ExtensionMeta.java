@@ -15,17 +15,17 @@
  *
  */
 
-package io.joshworks.snappy.service;
+package io.joshworks.snappy.ext;
 
 /**
  * Created by Josh Gontijo on 3/25/17.
  */
-public interface SnappyExtension {
+public class ExtensionMeta {
+    public final String name;
+    public final String propertyPrefix;
 
-    void onStart(ServerData config);
-
-    void onShutdown();
-
-    ExtensionMeta details();
-
+    public ExtensionMeta(String name, String propertyPrefix) {
+        this.name = name == null ? "(Name not provided)" : name;
+        this.propertyPrefix = propertyPrefix;
+    }
 }
