@@ -29,8 +29,6 @@ import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.form.EagerFormParsingHandler;
-import io.undertow.server.handlers.form.FormEncodedDataDefinition;
-import io.undertow.server.handlers.form.FormParserFactory;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.util.HeaderValues;
@@ -162,11 +160,6 @@ public class HandlerUtil {
 
         MultiPartParserDefinition multiPartParserDefinition = new MultiPartParserDefinition();
         multiPartParserDefinition.setMaxIndividualFileSize(maxSize);
-
-        FormParserFactory factory = FormParserFactory.builder()
-                .addParser(multiPartParserDefinition)
-                .addParser(new FormEncodedDataDefinition())
-                .build();
 
         EagerFormParsingHandler formHandler = new EagerFormParsingHandler();
         formHandler.setNext(interceptorHandler);

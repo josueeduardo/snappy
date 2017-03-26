@@ -33,7 +33,7 @@ public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception
         restExchange.status(status);
         String id = String.valueOf(System.currentTimeMillis());
 
-        ExceptionResponse response = new ExceptionResponse(id, status, e.getMessage());
+        ExceptionResponse response = new ExceptionResponse(id, e.getMessage());
         restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
     };
 
@@ -42,7 +42,7 @@ public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception
         restExchange.status(status);
         String id = String.valueOf(System.currentTimeMillis());
 
-        ExceptionResponse response = new ExceptionResponse(id, status, e.getMessage());
+        ExceptionResponse response = new ExceptionResponse(id, e.getMessage());
         restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
     };
 

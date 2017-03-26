@@ -25,17 +25,15 @@ import java.io.Serializable;
 public class ExceptionResponse implements Serializable {
 
     private final String id;
-    private final int status;
     private final String message;
 
-    public ExceptionResponse(String id, int status, String message) {
-        this.status = status;
+    public ExceptionResponse(String id, String message) {
         this.message = message;
         this.id = id;
     }
 
-    public int getStatus() {
-        return status;
+    public ExceptionResponse(String message) {
+        this("" + System.currentTimeMillis(), message);
     }
 
     public String getMessage() {
@@ -48,6 +46,6 @@ public class ExceptionResponse implements Serializable {
 
     @Override
     public String toString() {
-        return "id='" + id + "' " + "status=" + status + ", message='" + message + '\'';
+        return "id='" + id + "' " + "message='" + message + '\'';
     }
 }
