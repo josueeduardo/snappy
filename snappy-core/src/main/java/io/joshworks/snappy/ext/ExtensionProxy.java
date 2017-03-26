@@ -17,7 +17,6 @@
 
 package io.joshworks.snappy.ext;
 
-import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,35 +37,31 @@ public class ExtensionProxy implements SnappyExtension {
 
     private final List<SnappyExtension> extensions = new ArrayList<>();
 
-
-    public void load() {
-        new FastClasspathScanner().matchClassesImplementing(SnappyExtension.class, aClass -> {
-            try {
-                if (!aClass.isAssignableFrom(this.getClass())) {
-                    SnappyExtension extension = aClass.newInstance();
-                    String name = extension.details() == null ? "NOt_PROVIDED" : extension.details().name;
-                    logger.info("Extension found: " + name);
-                    extensions.add(extension);
-                }
-
-            } catch (InstantiationException | IllegalAccessException e) {
-                logger.error("Error while loading extension", e);
-            }
-
-        }).scan();
+    public void register(SnappyExtension extension) {
+        extensions.add(extension);
     }
 
     @Override
     public void onStart(ServerData config) {
         extensions.forEach(ext -> {
-            config.properties = filter(ext.details(), config.properties);
-            ext.onStart(config);
+            try {
+                config.properties = filter(ext.details(), config.properties);
+                ext.onStart(config);
+            } catch (Exception e) {
+                logger.error("Error handling 'onStart' for extension {}", ext.details().name);
+            }
         });
     }
 
     @Override
     public void onShutdown() {
-        extensions.forEach(SnappyExtension::onShutdown);
+        for (SnappyExtension extension : extensions) {
+            try {
+                extension.onShutdown();
+            } catch (Exception e) {
+                logger.error("Error handling 'onShutdown' for extension {}", extension.details().name);
+            }
+        }
     }
 
     @Override

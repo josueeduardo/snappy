@@ -23,6 +23,9 @@ import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.executor.ExecutorBootstrap;
 import io.joshworks.snappy.executor.ExecutorConfig;
 import io.joshworks.snappy.executor.SchedulerConfig;
+import io.joshworks.snappy.ext.ExtensionProxy;
+import io.joshworks.snappy.ext.ServerData;
+import io.joshworks.snappy.ext.SnappyExtension;
 import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
@@ -31,15 +34,13 @@ import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.parser.PlainTextParser;
-import io.joshworks.snappy.property.PropertyLoader;
+import io.joshworks.snappy.property.AppProperties;
 import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Group;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.Interceptors;
 import io.joshworks.snappy.rest.RestExchange;
-import io.joshworks.snappy.ext.ExtensionProxy;
-import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -76,6 +77,7 @@ public class SnappyServer {
     private final HandlerManager handlerManager = new HandlerManager();
     private final AdminManager adminManager = new AdminManager();
     private final ExtensionProxy extensions = new ExtensionProxy();
+    private XnioWorker worker;
     //--------------------------------------------
     private final OptionMap.Builder optionBuilder = OptionMap.builder();
     private final List<ExecutorConfig> executors = new ArrayList<>();
@@ -131,7 +133,6 @@ public class SnappyServer {
         instance().stopServer();
     }
 
-    //TODO set defaults for options in the constructor
     public static synchronized void tcpNoDeplay(boolean tcpNoDelay) {
         checkStarted();
         instance().optionBuilder.set(Options.TCP_NODELAY, tcpNoDelay);
@@ -242,8 +243,12 @@ public class SnappyServer {
         instance().groups.removeLast();
     }
 
-    //TODO add url validation
+    public static synchronized void register(SnappyExtension extension) {
+        checkStarted();
+        instance().extensions.register(extension);
+    }
 
+    //TODO add url validation
     public static synchronized void beforeAll(String url, Consumer<Exchange> consumer) {
         checkStarted();
         instance().rootInterceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
@@ -366,28 +371,32 @@ public class SnappyServer {
             Info.logo();
             Info.version();
 
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                if (started) server.stop();
+            }));
+
             long start = System.currentTimeMillis();
             logger.info("Starting server...");
 
-            PropertyLoader.load();
+            AppProperties.load();
             Info.deploymentInfo(httpMetrics, httpTracer, port, httpMetrics, executors, schedulers, optionBuilder, endpoints, basePath);
             ExecutorBootstrap.init(schedulers, executors);
 
-            //register default parsers
             Parsers.register(new JsonParser());
             Parsers.register(new PlainTextParser());
 
             RestClient.init();
 
-            extensions.load();
-
             Undertow.Builder serverBuilder = Undertow.builder();
 
-            XnioWorker worker = Xnio.getInstance().createWorker(optionBuilder.getMap());
+            worker = Xnio.getInstance().createWorker(optionBuilder.getMap());
             serverBuilder.setWorker(worker);
 
-            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, adminManager, basePath, httpMetrics, httpTracer);
+            //Extension are capable of adding / removing mapped endpoints,
+            // therefore they must execute before the handler resolution
+            executeExtensions();
 
+            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, adminManager, basePath, httpMetrics, httpTracer);
             server = serverBuilder
                     .addHttpListener(port, bindAddress, rootHandler)
                     .addHttpListener(adminPort, adminBindAddress, adminManager.resolveHandlers())
@@ -398,7 +407,6 @@ public class SnappyServer {
 
             logger.info("Server started in {}ms", System.currentTimeMillis() - start);
 
-            extensions.onStart(new ServerData(adminPort, bindAddress, httpTracer, httpMetrics, adminPort, adminBindAddress, basePath, endpoints));
 
         } catch (Exception e) {
             started = false;
@@ -407,18 +415,36 @@ public class SnappyServer {
         }
     }
 
+    private void executeExtensions() {
+        extensions.onStart(
+                new ServerData(adminPort,
+                        bindAddress,
+                        httpTracer,
+                        httpMetrics,
+                        adminPort,
+                        adminBindAddress,
+                        basePath,
+                        AppProperties.getProperties(),
+                        endpoints));
+    }
+
     private synchronized void stopServer() {
-        if (server != null && started) {
-            logger.info("Stopping server...");
+        try {
+            if (server != null && started) {
+                logger.info("Stopping server...");
 
-            extensions.onShutdown();
+                extensions.onShutdown();
 
-            RestClient.shutdown();
-            AppExecutors.shutdownAll();
+                RestClient.shutdown();
+                AppExecutors.shutdownAll();
 
-            server.stop();
-            INSTANCE = null;
-            started = false;
+                server.stop();
+                worker.shutdownNow();
+                INSTANCE = null;
+                started = false;
+            }
+        } catch (Exception e) {
+            logger.error("Error when shutting down", e);
         }
     }
 

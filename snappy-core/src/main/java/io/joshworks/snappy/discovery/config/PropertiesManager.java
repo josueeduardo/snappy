@@ -21,8 +21,8 @@ package io.joshworks.snappy.discovery.config;
 import io.joshworks.snappy.discovery.locator.Discovery;
 import io.joshworks.snappy.discovery.locator.EC2Discovery;
 import io.joshworks.snappy.discovery.locator.LocalDiscovery;
+import io.joshworks.snappy.property.AppProperties;
 import io.joshworks.snappy.property.PropertyKeys;
-import io.joshworks.snappy.property.PropertyLoader;
 
 /**
  * Created by Josue on 26/08/2016.
@@ -41,19 +41,19 @@ public class PropertiesManager {
     }
 
     public int getRegistryPort() {
-        String port = PropertyLoader.getProperty(PropertyKeys.SSR_REGISTRY_PORT);
+        String port = AppProperties.getProperty(PropertyKeys.SSR_REGISTRY_PORT);
         port = isEmpty(port) ? DEFAULT_REGISTRY_PORT : port;
         return Integer.parseInt(port);
     }
 
     public int getServicePort() {
-        String port = PropertyLoader.getProperty(PropertyKeys.SSR_SERVICE_PORT);
+        String port = AppProperties.getProperty(PropertyKeys.SSR_SERVICE_PORT);
         port = isEmpty(port) ? DEFAULT_SERVICE_PORT : port;
         return Integer.parseInt(port);
     }
 
     public boolean useHostname() {
-        String useHost = PropertyLoader.getProperty(PropertyKeys.SSR_USE_HOST);
+        String useHost = AppProperties.getProperty(PropertyKeys.SSR_USE_HOST);
         useHost = isEmpty(useHost) ? DEFAULT_USE_HOST : useHost;
         return Boolean.parseBoolean(useHost);
     }
@@ -68,21 +68,21 @@ public class PropertiesManager {
 
 
     private String getHost(String key) {
-        String host = PropertyLoader.getProperty(key);
+        String host = AppProperties.getProperty(key);
         if (isEmpty(host)) {
             boolean useHost = useHostname();
             String defaultHost = discovery.resolveHost(useHost);
-            PropertyLoader.getProperties().put(key, defaultHost);
+            AppProperties.getProperties().put(key, defaultHost);
         }
-        return PropertyLoader.getProperty(key);
+        return AppProperties.getProperty(key);
     }
 
     public boolean isAws() {
-        return Boolean.parseBoolean(PropertyLoader.getProperty(PropertyKeys.SSR_AWS));
+        return Boolean.parseBoolean(AppProperties.getProperty(PropertyKeys.SSR_AWS));
     }
 
 //    private String getProperty(String key) {
-//        String fromFile = PropertyLoader.getProperty(key);
+//        String fromFile = AppProperties.getProperty(key);
 //        String fromEnv = fromSystemProperties(key);
 //        return (fromEnv == null || fromEnv.isEmpty()) ? fromFile : fromEnv;
 //    }

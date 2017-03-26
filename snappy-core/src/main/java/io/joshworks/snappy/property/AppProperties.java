@@ -29,13 +29,12 @@ import static io.joshworks.snappy.SnappyServer.*;
 /**
  * Created by josh on 3/10/17.
  */
-public class PropertyLoader {
+public class AppProperties {
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
-
 
     private static final Properties properties = new Properties();
 
-    private PropertyLoader() {
+    private AppProperties() {
     }
 
     public static void load() {
