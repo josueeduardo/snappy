@@ -21,7 +21,6 @@ import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -36,7 +35,6 @@ import static org.junit.Assert.fail;
 /**
  * Created by josh on 3/14/17.
  */
-@Ignore
 public class AppExecutorTest {
 
 

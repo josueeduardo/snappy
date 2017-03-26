@@ -20,14 +20,18 @@ package io.joshworks.snappy.it;
 import com.mashape.unirest.http.HttpResponse;
 import io.joshworks.snappy.client.RestClient;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created by josh on 3/10/17.
@@ -36,8 +40,8 @@ public class FilterTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
 
-    private static boolean filterAfterCalled = false;
-    private static boolean filterAfterAllCalled = false;
+    private static CountDownLatch filterAfterCalled;
+    private static CountDownLatch filterAfterAllCalled;
 
     @BeforeClass
     public static void setup() {
@@ -50,14 +54,14 @@ public class FilterTest {
         beforeAll("/b", (exchange) -> exchange.header("FILTER-BEFORE-ALL-B", "OK"));
         beforeAll("/*", (exchange) -> exchange.header("FILTER-BEFORE-ALL", "OK"));
 
-        afterAll("/*", (exchange) -> filterAfterAllCalled = true);
+        afterAll("/*", (exchange) -> filterAfterAllCalled.countDown());
 
 
         before("/a/*", (exchange) -> exchange.header("FILTER-1", "OK"));
         before("/a/c/*", (exchange) -> exchange.header("FILTER-2", "OK"));
         before("/b", (exchange) -> exchange.header("EXACT-FILTER", "OK"));
 
-        after("/b", (exchange) -> filterAfterCalled = true);
+        after("/b", (exchange) -> filterAfterCalled.countDown());
 
         start();
     }
@@ -65,6 +69,12 @@ public class FilterTest {
     @AfterClass
     public static void shutdown() {
         stop();
+    }
+
+    @Before
+    public void reset() {
+        filterAfterCalled = new CountDownLatch(1);
+        filterAfterAllCalled = new CountDownLatch(1);
     }
 
     @Test //only beforeAll will be applied anyway
@@ -122,17 +132,22 @@ public class FilterTest {
         HttpResponse<String> response = RestClient.get(SERVER_URL + "/b").asString();
         assertNotNull(response.getHeaders().get("EXACT-FILTER"));
         assertEquals(1, response.getHeaders().get("EXACT-FILTER").size());
-        assertTrue(filterAfterCalled); //after filters gets called after the response was submitted
-
         assertNull(response.getHeaders().get("FILTER-1"));
         assertNull(response.getHeaders().get("FILTER-2"));
+
+        if (!filterAfterCalled.await(10, TimeUnit.SECONDS)) {
+            fail("Filter after wasn't called");
+        }
+
     }
 
     @Test
     public void filter_exact_AllBefore() throws Exception {
         HttpResponse<String> response = RestClient.get(SERVER_URL + "/b").asString();
         assertNotNull(response.getHeaders().get("FILTER-BEFORE-ALL-B"));
-        assertTrue(filterAfterAllCalled); //after filters gets called after the response was submitted
+        if (!filterAfterAllCalled.await(10, TimeUnit.SECONDS)) {
+            fail("Filter after all wasn't called");
+        }
     }
 
     @Test

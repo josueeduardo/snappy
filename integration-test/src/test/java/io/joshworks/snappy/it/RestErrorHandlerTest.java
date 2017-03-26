@@ -66,7 +66,6 @@ public class RestErrorHandlerTest {
 
         ExceptionResponse body = response.getBody();
         assertNotNull(body);
-        assertEquals(415, body.getStatus());
         assertNotNull(body.getMessage());
     }
 
@@ -82,7 +81,6 @@ public class RestErrorHandlerTest {
 
         ExceptionResponse body = response.getBody();
         assertNotNull(body);
-        assertEquals(415, body.getStatus());
         assertNotNull(body.getMessage());
     }
 
@@ -97,7 +95,6 @@ public class RestErrorHandlerTest {
 
         ExceptionResponse body = response.getBody();
         assertNotNull(body);
-        assertEquals(500, body.getStatus());
         assertEquals(EXCEPTION_MESSAGE, body.getMessage());
     }
 
