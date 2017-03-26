@@ -27,6 +27,7 @@ import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.form.EagerFormParsingHandler;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
@@ -210,6 +211,12 @@ public class HandlerUtil {
                     return idx >= 0 ? me.url.substring(0, idx) : me.url;
                 })
                 .distinct().toArray(String[]::new);
+    }
+
+    public static String exceptionMessageTemplate(HttpServerExchange exchange, long timestamp, String shortMessage) {
+        HttpString requestMethod = exchange.getRequestMethod();
+        String requestPath = exchange.getRequestPath();
+        return String.format("[%d] %s %s - %s", timestamp, requestMethod, requestPath, shortMessage);
     }
 
 }

@@ -17,12 +17,16 @@
 
 package io.joshworks.snappy.rest;
 
-import io.joshworks.snappy.Exchange;
-
 /**
- * Created by Josh Gontijo on 3/15/17.
+ * Created by Josh Gontijo on 3/27/17.
  */
-public interface ErrorHandler<T extends Exception> {
+public class ExceptionWrapper<T extends Exception> {
 
-    void onException(ExceptionWrapper<T> e, Exchange exchange);
+    public final long timestamp;
+    public final T exception;
+
+    public ExceptionWrapper(T exception) {
+        this.timestamp = System.currentTimeMillis();
+        this.exception = exception;
+    }
 }

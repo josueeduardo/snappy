@@ -20,6 +20,7 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
+import io.joshworks.snappy.rest.ExceptionWrapper;
 import io.joshworks.snappy.rest.RestExchange;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -55,25 +56,28 @@ public class RestDispatcher implements HttpHandler {
         try {
             this.connegHandler.handleRequest(exchange);
         } catch (UnsupportedMediaType connex) {
-            logger.error("Unsupported media type {}, possible values: {}", connex.headerValues, connex.types, connex);
 
-            sendErrorResponse(exchange, connex);
+            ExceptionWrapper<UnsupportedMediaType> wrapper = new ExceptionWrapper<>(connex);
+            String description = "Unsupported media type " + connex.headerValues + " supported types: " + connex.types;
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, description));
+
+            sendErrorResponse(exchange, wrapper);
             exchange.endExchange();
 
         } catch (Exception e) { //Should not happen (server error)
-            HttpString requestMethod = exchange.getRequestMethod();
-            String requestPath = exchange.getRequestPath();
-            logger.error("An internal error was thrown " + requestMethod + " " + requestPath, e);
-            sendErrorResponse(exchange, e);
+            ExceptionWrapper<Exception> wrapper = new ExceptionWrapper<>(e);
+
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Server error"), e);
+            sendErrorResponse(exchange, wrapper);
             exchange.endExchange();
 
         }
     }
 
-    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, T e) {
-        ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(e);
+    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, ExceptionWrapper<T> wrapper) {
+        ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(wrapper.exception);
         try {
-            errorHandler.onException(e, new RestExchange(exchange));
+            errorHandler.onException(wrapper, new RestExchange(exchange));
         } catch (Exception handlingError) {
             logger.error("Exception was thrown when executing exception handler: {}, no body will be sent", errorHandler.getClass().getName(), handlingError);
         }

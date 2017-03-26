@@ -46,6 +46,7 @@ public class CustomRestErrorHandlerTest {
         exception(UnsupportedOperationException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2));
         //custom media type
         exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
+        exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
 
         get("/custom-handler-1", (exchange) -> {
             throw new RuntimeException("Some error");

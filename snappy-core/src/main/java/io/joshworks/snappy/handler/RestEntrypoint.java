@@ -18,10 +18,10 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.rest.ExceptionMapper;
+import io.joshworks.snappy.rest.ExceptionWrapper;
 import io.joshworks.snappy.rest.RestExchange;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HttpString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,10 +52,9 @@ public class RestEntrypoint implements HttpHandler {
                 endpoint.accept(restExchange);
             }
         }  catch (Exception e) {
-            HttpString requestMethod = exchange.getRequestMethod();
-            String requestPath = exchange.getRequestPath();
-            logger.error("Exception was thrown from " + requestMethod + " " + requestPath, e);
-            exceptionMapper.getOrFallback(e).onException(e, restExchange);
+            ExceptionWrapper<Exception> wrapper = new ExceptionWrapper<>(e);
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Application error"), e);
+            exceptionMapper.getOrFallback(e).onException(wrapper, restExchange);
             exchange.endExchange();
 
         }
