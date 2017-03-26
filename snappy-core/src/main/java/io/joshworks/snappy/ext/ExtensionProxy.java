@@ -17,13 +17,16 @@
 
 package io.joshworks.snappy.ext;
 
+import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
-import java.util.ServiceLoader;
 
+import static io.joshworks.snappy.SnappyServer.*;
 import static io.joshworks.snappy.property.PropertyKeys.RESERVED_PREFIXES;
 
 /**
@@ -31,43 +34,44 @@ import static io.joshworks.snappy.property.PropertyKeys.RESERVED_PREFIXES;
  */
 public class ExtensionProxy implements SnappyExtension {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExtensionProxy.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private ServiceLoader<SnappyExtension> extensions;
+    private final List<SnappyExtension> extensions = new ArrayList<>();
 
 
     public void load() {
-        try {
-            extensions = ServiceLoader.load(SnappyExtension.class);
-            for (SnappyExtension extension : extensions) {
-                String name = extension.details() == null ? "NOt_PROVIDED" : extension.details().name;
-                logger.info("Extension found: " + name);
+        new FastClasspathScanner().matchClassesImplementing(SnappyExtension.class, aClass -> {
+            try {
+                if (!aClass.isAssignableFrom(this.getClass())) {
+                    SnappyExtension extension = aClass.newInstance();
+                    String name = extension.details() == null ? "NOt_PROVIDED" : extension.details().name;
+                    logger.info("Extension found: " + name);
+                    extensions.add(extension);
+                }
+
+            } catch (InstantiationException | IllegalAccessException e) {
+                logger.error("Error while loading extension", e);
             }
-        } catch (Throwable e) {
-            logger.error("Error loading extension", e);
-        }
+
+        }).scan();
     }
 
     @Override
     public void onStart(ServerData config) {
-        if (extensions != null) {
-            extensions.forEach(ext -> {
-                config.properties = filter(ext.details(), config.properties);
-                ext.onStart(config);
-            });
-        }
+        extensions.forEach(ext -> {
+            config.properties = filter(ext.details(), config.properties);
+            ext.onStart(config);
+        });
     }
 
     @Override
     public void onShutdown() {
-        if (extensions != null) {
-            extensions.forEach(SnappyExtension::onShutdown);
-        }
+        extensions.forEach(SnappyExtension::onShutdown);
     }
 
     @Override
     public ExtensionMeta details() {
-        return new ExtensionMeta("EXTENSION-PROXY", null);
+        return null;
     }
 
     private Properties filter(ExtensionMeta meta, Properties original) {

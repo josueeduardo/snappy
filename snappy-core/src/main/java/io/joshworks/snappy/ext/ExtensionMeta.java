@@ -21,11 +21,17 @@ package io.joshworks.snappy.ext;
  * Created by Josh Gontijo on 3/25/17.
  */
 public class ExtensionMeta {
-    public final String name;
-    public final String propertyPrefix;
+    public String name;
+    public String propertyPrefix;
 
-    public ExtensionMeta(String name, String propertyPrefix) {
+    public ExtensionMeta name(String name) {
         this.name = name == null ? "(Name not provided)" : name;
-        this.propertyPrefix = propertyPrefix;
+        return this;
     }
+
+    public ExtensionMeta propertyPrefix(String propertyPrefix) {
+        this.propertyPrefix = propertyPrefix;
+        return this;
+    }
+
 }

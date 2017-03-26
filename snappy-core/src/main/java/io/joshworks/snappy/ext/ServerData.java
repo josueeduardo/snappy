@@ -35,7 +35,7 @@ public class ServerData {
     public final String adminBindAddress;
     public final String basePath;
     public final List<MappedEndpoint> mappedEndpoints;
-    public Properties properties = new Properties();
+    public Properties properties;
 
     public ServerData(int port,
                       String bindAddress,
@@ -44,6 +44,7 @@ public class ServerData {
                       int adminPort,
                       String adminBindAddress,
                       String basePath,
+                      Properties properties,
                       List<MappedEndpoint> mappedEndpoints) {
 
         this.port = port;
@@ -53,6 +54,7 @@ public class ServerData {
         this.adminPort = adminPort;
         this.adminBindAddress = adminBindAddress;
         this.basePath = basePath;
+        this.properties = properties;
         this.mappedEndpoints = mappedEndpoints;
     }
 }
