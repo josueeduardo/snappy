@@ -19,41 +19,52 @@ package io.joshworks.snappy.extras.jdbc;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import io.joshworks.snappy.ext.ExtensionMeta;
+import io.joshworks.snappy.ext.ServerData;
+import io.joshworks.snappy.ext.SnappyExtension;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.dbutils.QueryRunner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * Created by Josue on 07/02/2017.
  */
-public class DatabaseConfiguration {
+public class JdbcExtension implements SnappyExtension {
 
-    private static final String SQL_SCRIPT_FILE = "script.file";
-    private static final String AUTOCOMMIT = "script.autocommit";
-    private static final String FAIL_ON_ERROR = "script.failonerror";
+    private static final Logger logger = LoggerFactory.getLogger(JdbcExtension.class);
+
+    private static final String EXTENSION_NAME = "JDBC";
+    private static final String JDBC_PREFIX = "jdbc";
+
+    private static final String SCRIPT_PREFIX = JDBC_PREFIX + ".script.";
+    private static final String SQL_SCRIPT_FILE = SCRIPT_PREFIX + "file";
+    private static final String AUTOCOMMIT = SCRIPT_PREFIX + "autocommit";
+    private static final String FAIL_ON_ERROR = SCRIPT_PREFIX + "failonerror";
 
     //Hikary properties
-    private static final String HIKARI_PREFIX = "hikari.";
+    private static final String HIKARI_PREFIX = JDBC_PREFIX + ".hikari.";
     private static final String DS_CLASS_NAME = HIKARI_PREFIX + "dataSourceClassName";
     private static final String DS_DRIVER = HIKARI_PREFIX + "dataSource.driver";
     private static final String DS_URL = HIKARI_PREFIX + "dataSource.url";
-    private static final Logger logger = Logger.getLogger(DatabaseConfiguration.class.getName());
 
 
-    private Properties properties;
     private HikariDataSource dataSource;
 
-    public void configure() {
-        logger.info(":: Initializing Datasource connection pool ::");
+    @Override
+    public void onStart(ServerData config) {
+        if (dataSource != null) {
+            throw new IllegalStateException("Datasource already configured");
+        }
+        Properties properties = config.properties;
 
+        logger.info("Initializing Datasource connection pool");
 
         Properties hikariProps = new Properties();
         properties.forEach((key, val) -> {
@@ -63,21 +74,36 @@ public class DatabaseConfiguration {
             }
         });
 
-        dataSource = new HikariDataSource(new HikariConfig(hikariProps));
+        this.dataSource = new HikariDataSource(new HikariConfig(hikariProps));
+        JdbcRepository.init(dataSource);
 
         //dbUtils
         DbUtils.loadDriver(properties.getProperty(DS_DRIVER));
 
         String scriptFile = properties.getProperty(SQL_SCRIPT_FILE);
         if (scriptFile != null && !scriptFile.isEmpty()) {
-            logger.info("Running SQL start script '" + scriptFile + "' ::");
-            runStartScript(scriptFile);
+            logger.info("Running SQL start script '" + scriptFile + "'");
+            runStartScript(scriptFile, properties);
+            logger.info("Script execution of '" + scriptFile + "' completed");
         } else {
             logger.info("No SQL start script not found");
         }
     }
 
-    private void runStartScript(String scriptFile) {
+    @Override
+    public void onShutdown() {
+        if (dataSource != null && !dataSource.isClosed()) {
+            logger.info("Shutting down datasource");
+            dataSource.close();
+        }
+    }
+
+    @Override
+    public ExtensionMeta details() {
+        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(JDBC_PREFIX);
+    }
+
+    private void runStartScript(String scriptFile, Properties properties) {
         String autoCommit = properties.getProperty(AUTOCOMMIT, "false");
         String failOnError = properties.getProperty(FAIL_ON_ERROR, "true");
 
@@ -105,13 +131,4 @@ public class DatabaseConfiguration {
             throw new RuntimeException("Could not find sql file '" + scriptFile + "'", e);
         }
     }
-
-    public DataSource produceDatasource() {
-        return dataSource;
-    }
-
-    public QueryRunner prodyceQueryRunner() {
-        return new QueryRunner(dataSource);
-    }
-
 }
