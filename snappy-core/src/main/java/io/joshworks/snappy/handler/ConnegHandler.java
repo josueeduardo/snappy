@@ -70,7 +70,6 @@ public class ConnegHandler implements HttpHandler {
         next.handleRequest(exchange);
     }
 
-    //TODO improve this ugly code
     private void initTypes(MediaTypes... mimeTypes) {
         for (MediaTypes type : mimeTypes) {
             if (MediaTypes.Context.CONSUMES.equals(type.getContext())) {

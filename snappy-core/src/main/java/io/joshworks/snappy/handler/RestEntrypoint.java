@@ -21,13 +21,20 @@ import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.RestExchange;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.HttpString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
+
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
 public class RestEntrypoint implements HttpHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final Consumer<RestExchange> endpoint;
     private final ExceptionMapper exceptionMapper;
@@ -44,8 +51,13 @@ public class RestEntrypoint implements HttpHandler {
             if (!exchange.isResponseComplete()) {
                 endpoint.accept(restExchange);
             }
-        } catch (Exception e) {
+        }  catch (Exception e) {
+            HttpString requestMethod = exchange.getRequestMethod();
+            String requestPath = exchange.getRequestPath();
+            logger.error("Exception was thrown from " + requestMethod + " " + requestPath, e);
             exceptionMapper.getOrFallback(e).onException(e, restExchange);
+            exchange.endExchange();
+
         }
     }
 

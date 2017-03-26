@@ -60,10 +60,10 @@ public class RestDispatcher implements HttpHandler {
             sendErrorResponse(exchange, connex);
             exchange.endExchange();
 
-        } catch (Exception e) {
+        } catch (Exception e) { //Should not happen (server error)
             HttpString requestMethod = exchange.getRequestMethod();
             String requestPath = exchange.getRequestPath();
-            logger.error("Exception was thrown from " + requestMethod + " " + requestPath, e);
+            logger.error("An internal error was thrown " + requestMethod + " " + requestPath, e);
             sendErrorResponse(exchange, e);
             exchange.endExchange();
 
