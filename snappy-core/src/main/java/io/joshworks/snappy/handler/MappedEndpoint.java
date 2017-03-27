@@ -38,7 +38,7 @@ public class MappedEndpoint {
 
     public String toString(String basePath) {
         StringBuilder sb = new StringBuilder();
-        String m = Type.REST.equals(method) ? method : type.name();
+        String m = Type.REST.equals(type) ? method : type.name();
         for (int i = 0; i < 10 - m.length(); i++) {
             sb.append(" ");
         }
