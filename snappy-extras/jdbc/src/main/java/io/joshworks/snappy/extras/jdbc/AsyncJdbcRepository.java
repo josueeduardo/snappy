@@ -17,6 +17,8 @@
 
 package io.joshworks.snappy.extras.jdbc;
 
+import io.joshworks.snappy.executor.AppExecutors;
+import org.apache.commons.dbutils.AsyncQueryRunner;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 
@@ -24,104 +26,107 @@ import javax.sql.DataSource;
 import java.beans.PropertyDescriptor;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.concurrent.Future;
 
 /**
  * Created by Josh Gontijo on 3/25/17.
  */
-public class JdbcRepository {
+public class AsyncJdbcRepository {
 
-    private static QueryRunner queryRunner;
+    private static AsyncQueryRunner asyncQueryRunner;
 
     static void init(DataSource ds) {
-        queryRunner = new QueryRunner(ds);
+        QueryRunner queryRunner = new QueryRunner(ds);
+        asyncQueryRunner = new AsyncQueryRunner(AppExecutors.executor(), queryRunner);
     }
+
 
 
     // BeanHandler<Exchange> exchangeBeanHandler = new BeanHandler<>(Exchange.class);
     // ResultSetHandler<List<Exchange>> h = new BeanListHandler<Exchange>(Exchange.class);
-    public static int[] batch(String sql, Object[][] params) {
+    public static Future<int[]> batch(String sql, Object[][] params) {
         try {
-            return queryRunner.batch(sql, params);
+            return asyncQueryRunner.batch(sql, params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static <T> T query(String sql, ResultSetHandler<T> rsh, Object... params) {
+    public static <T> Future<T> query(String sql, ResultSetHandler<T> rsh, Object... params) {
         try {
-            return queryRunner.query(sql, rsh, params);
+            return asyncQueryRunner.query(sql, rsh, params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static <T> T query(String sql, ResultSetHandler<T> rsh) {
+    public static <T> Future<T> query(String sql, ResultSetHandler<T> rsh) {
         try {
-            return queryRunner.query(sql, rsh);
+            return asyncQueryRunner.query(sql, rsh);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static int update(String sql) {
+    public static Future<Integer> update(String sql) {
         try {
-            return queryRunner.update(sql);
+            return asyncQueryRunner.update(sql);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static int update(String sql, Object param) {
+    public static Future<Integer> update(String sql, Object param) {
         try {
-            return queryRunner.update(sql, param);
+            return asyncQueryRunner.update(sql, param);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static int update(String sql, Object... params) {
+    public static Future<Integer> update(String sql, Object... params) {
         try {
-            return queryRunner.update(sql, params);
+            return asyncQueryRunner.update(sql, params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static <T> T insert(String sql, ResultSetHandler<T> rsh) {
+    public static <T> Future<T> insert(String sql, ResultSetHandler<T> rsh) {
         try {
-            return queryRunner.insert(sql, rsh);
+            return asyncQueryRunner.insert(sql, rsh);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static <T> T insert(String sql, ResultSetHandler<T> rsh, Object... params) {
+    public static <T> Future<T> insert(String sql, ResultSetHandler<T> rsh, Object... params) {
         try {
-            return queryRunner.insert(sql, rsh, params);
+            return asyncQueryRunner.insert(sql, rsh, params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static <T> T insertBatch(String sql, ResultSetHandler<T> rsh, Object[][] params) {
+    public static <T> Future<T> insertBatch(String sql, ResultSetHandler<T> rsh, Object[][] params) {
         try {
-            return queryRunner.insertBatch(sql, rsh, params);
+            return asyncQueryRunner.insertBatch(sql, rsh, params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static DataSource getDataSource() {
-        return queryRunner.getDataSource();
+        return asyncQueryRunner.getDataSource();
     }
 
     public static boolean isPmdKnownBroken() {
-        return queryRunner.isPmdKnownBroken();
+        return asyncQueryRunner.isPmdKnownBroken();
     }
 
     public static void fillStatement(PreparedStatement stmt, Object... params) {
         try {
-            queryRunner.fillStatement(stmt, params);
+            asyncQueryRunner.fillStatement(stmt, params);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -129,7 +134,7 @@ public class JdbcRepository {
 
     public static void fillStatementWithBean(PreparedStatement stmt, Object bean, PropertyDescriptor[] properties) {
         try {
-            queryRunner.fillStatementWithBean(stmt, bean, properties);
+            asyncQueryRunner.fillStatementWithBean(stmt, bean, properties);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -137,7 +142,7 @@ public class JdbcRepository {
 
     public static void fillStatementWithBean(PreparedStatement stmt, Object bean, String... propertyNames) {
         try {
-            queryRunner.fillStatementWithBean(stmt, bean, propertyNames);
+            asyncQueryRunner.fillStatementWithBean(stmt, bean, propertyNames);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

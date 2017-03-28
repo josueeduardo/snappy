@@ -76,6 +76,7 @@ public class JdbcExtension implements SnappyExtension {
 
         this.dataSource = new HikariDataSource(new HikariConfig(hikariProps));
         JdbcRepository.init(dataSource);
+        AsyncJdbcRepository.init(dataSource);
 
         //dbUtils
         DbUtils.loadDriver(properties.getProperty(DS_DRIVER));
