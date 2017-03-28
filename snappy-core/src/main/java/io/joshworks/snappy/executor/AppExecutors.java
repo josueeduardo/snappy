@@ -45,6 +45,10 @@ public class AppExecutors {
 
     }
 
+    private static Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> {
+        logger.error(e.getMessage(), e);
+    };
+
     synchronized static void init(ExecutorContainer executorContainer) {
         container = executorContainer;
     }
@@ -54,9 +58,20 @@ public class AppExecutors {
         submit(container.defaultExecutor, runnable);
     }
 
-    public static void submit(String poolName, Runnable runnable) {
+    public static void execute(Runnable runnable) {
+        execute(container.defaultExecutor, runnable);
+    }
+
+    public static void execute(String poolName, Runnable runnable) {
         ExecutorService executor = executor(poolName);
-        executor.submit(runnable);
+        Thread thread = new Thread(runnable);
+        thread.setUncaughtExceptionHandler(uncaughtExceptionHandler);
+        executor.execute(thread);
+    }
+
+    public static Future<?> submit(String poolName, Runnable runnable) {
+        ExecutorService executor = executor(poolName);
+        return executor.submit(runnable);
     }
 
     public static <T> Future<T> submit(Runnable runnable, T result) {
