@@ -10,7 +10,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>extras-jdbc</artifactId>
+    <artifactId>jdbc</artifactId>
     <version>0.2-SNAPSHOT</version>
 
     <dependencies>
@@ -19,6 +19,11 @@
             <artifactId>snappy-core</artifactId>
             <version>0.2-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
         </dependency>
 
         <dependency>
