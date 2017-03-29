@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.discovery;
+package io.joshworks.snappy.extras.ssr;
 
-import io.joshworks.snappy.discovery.common.Instance;
-import io.joshworks.snappy.discovery.config.Configurator;
+import io.joshworks.snappy.extras.ssr.common.Instance;
+import io.joshworks.snappy.extras.ssr.config.Configurator;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;

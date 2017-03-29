@@ -15,27 +15,30 @@
  *
  */
 
-package io.joshworks.snappy.discovery;
+package io.joshworks.snappy.extras.ssr;
+
+import io.joshworks.snappy.ext.ExtensionMeta;
+import io.joshworks.snappy.ext.ServerData;
+import io.joshworks.snappy.ext.SnappyExtension;
 
 /**
- * Created by Josue on 16/06/2016.
+ * Created by Josh Gontijo on 3/29/17.
  */
-public class RegistryException extends Exception {
+public class SSRExtension implements SnappyExtension {
 
-    private final String code;
-    private final int status;
 
-    public RegistryException(String message, String code, int status) {
-        super(message);
-        this.code = code;
-        this.status = status;
+    @Override
+    public void onStart(ServerData config) {
+
     }
 
-    public String getCode() {
-        return code;
+    @Override
+    public void onShutdown() {
+
     }
 
-    public int getStatus() {
-        return status;
+    @Override
+    public ExtensionMeta details() {
+        return null;
     }
 }

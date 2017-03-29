@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.discovery;
+package io.joshworks.snappy.extras.ssr;
 
 
-import io.joshworks.snappy.discovery.common.Instance;
+import io.joshworks.snappy.extras.ssr.common.Instance;
 
 import java.util.ArrayList;
 import java.util.Collections;

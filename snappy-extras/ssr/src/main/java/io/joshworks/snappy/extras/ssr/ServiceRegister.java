@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.discovery;
+package io.joshworks.snappy.extras.ssr;
 
 
-import io.joshworks.snappy.discovery.config.Configurator;
+import io.joshworks.snappy.extras.ssr.config.Configurator;
 import io.undertow.server.DefaultByteBufferPool;
 import io.undertow.websockets.client.WebSocketClient;
 import io.undertow.websockets.core.WebSocketChannel;

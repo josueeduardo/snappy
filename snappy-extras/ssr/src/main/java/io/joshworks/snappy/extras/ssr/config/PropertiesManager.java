@@ -15,12 +15,12 @@
  *
  */
 
-package io.joshworks.snappy.discovery.config;
+package io.joshworks.snappy.extras.ssr.config;
 
 
-import io.joshworks.snappy.discovery.locator.Discovery;
-import io.joshworks.snappy.discovery.locator.EC2Discovery;
-import io.joshworks.snappy.discovery.locator.LocalDiscovery;
+import io.joshworks.snappy.extras.ssr.locator.Discovery;
+import io.joshworks.snappy.extras.ssr.locator.EC2Discovery;
+import io.joshworks.snappy.extras.ssr.locator.LocalDiscovery;
 import io.joshworks.snappy.property.AppProperties;
 import io.joshworks.snappy.property.PropertyKeys;
 

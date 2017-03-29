@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.discovery.locator;
+package io.joshworks.snappy.extras.ssr.locator;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;

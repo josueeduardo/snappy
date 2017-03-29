@@ -15,19 +15,27 @@
  *
  */
 
-package io.joshworks.snappy.discovery;
-
-
-import io.joshworks.snappy.discovery.common.Instance;
+package io.joshworks.snappy.extras.ssr;
 
 /**
- * Created by Josue on 10/07/2016.
+ * Created by Josue on 16/06/2016.
  */
-public interface ServiceEventListener {
+public class RegistryException extends Exception {
 
-    void onConnect(Instance instance);
+    private final String code;
+    private final int status;
 
-    void onDisconnect(Instance instance);
+    public RegistryException(String message, String code, int status) {
+        super(message);
+        this.code = code;
+        this.status = status;
+    }
 
-    void newSession();
+    public String getCode() {
+        return code;
+    }
+
+    public int getStatus() {
+        return status;
+    }
 }

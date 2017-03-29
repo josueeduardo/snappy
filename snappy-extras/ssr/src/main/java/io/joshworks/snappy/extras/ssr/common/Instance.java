@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.discovery.common;
+package io.joshworks.snappy.extras.ssr.common;
 
 
 import java.util.Date;

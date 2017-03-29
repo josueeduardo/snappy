@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.discovery.config;
+package io.joshworks.snappy.extras.ssr.config;
 
 
-import io.joshworks.snappy.discovery.common.Instance;
+import io.joshworks.snappy.extras.ssr.common.Instance;
 
 import java.util.Date;
 import java.util.logging.Logger;

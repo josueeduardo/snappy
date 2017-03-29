@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.discovery.locator;
+package io.joshworks.snappy.extras.ssr.locator;
 
 /**
  * Created by Josue on 26/08/2016.

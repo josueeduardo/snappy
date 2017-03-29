@@ -16,6 +16,7 @@
         <module>jdbc</module>
         <module>local-store</module>
         <module>hazelcast</module>
+        <module>ssr</module>
     </modules>
 
     <dependencies>
