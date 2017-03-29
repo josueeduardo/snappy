@@ -20,26 +20,20 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.joshworks</groupId>
         <artifactId>snappy-extras</artifactId>
+        <groupId>io.joshworks</groupId>
         <version>0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>local-store</artifactId>
+    <artifactId>hazelcast</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>com.couchbase.lite</groupId>
-            <artifactId>couchbase-lite-java</artifactId>
-            <version>1.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.couchbase.lite</groupId>
-            <artifactId>couchbase-lite-java-sqlcipher</artifactId>
-            <version>1.4.0</version>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>3.8</version>
         </dependency>
     </dependencies>
-
 
 </project>

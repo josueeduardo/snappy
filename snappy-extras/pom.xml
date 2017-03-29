@@ -15,6 +15,21 @@
     <modules>
         <module>jdbc</module>
         <module>local-store</module>
+        <module>hazelcast</module>
     </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>io.joshworks</groupId>
+            <artifactId>snappy-core</artifactId>
+            <version>0.2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 </project>
