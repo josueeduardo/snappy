@@ -48,7 +48,7 @@ public class ExtensionProxy implements SnappyExtension {
                 config.properties = filter(ext.details(), config.properties);
                 ext.onStart(config);
             } catch (Exception e) {
-                logger.error("Error handling 'onStart' for extension {}", ext.details().name);
+                logger.error("Error handling 'onStart' for extension " + ext.details().name, e);
             }
         });
     }
@@ -59,7 +59,7 @@ public class ExtensionProxy implements SnappyExtension {
             try {
                 extension.onShutdown();
             } catch (Exception e) {
-                logger.error("Error handling 'onShutdown' for extension {}", extension.details().name);
+                logger.error("Error handling 'onShutdown' for extension " + extension.details().name, e);
             }
         }
     }
