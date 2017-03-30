@@ -48,18 +48,4 @@ public final class PropertyKeys {
     public static final String EXECUTOR_CORE_POOL_SIZE = "core";
     public static final String EXECUTOR_MAX_POOL_SIZE = "max";
 
-    //TODO move to extras
-    //ssr discovery registry
-    public static final String SSR_AWS = "ssr.isAws";
-    public static final String SSR_REGISTRY_HOST = "ssr.registry.host";
-    public static final String SSR_REGISTRY_PORT = "ssr.registry.port";
-    //ssr discovery service
-    public static final String SSR_SERVICE_HOST = "ssr.service.host";
-    public static final String SSR_SERVICE_PORT = "ssr.service.port";
-    public static final String SSR_USE_HOST = "ssr.service.useHostname";
-
-//    public static final String SSR_ENVIRONMENT_SELECTOR = "ssr.environment";
-//    public static final String PROPERTIES_FILE_NAME = "registry";
-
-
 }

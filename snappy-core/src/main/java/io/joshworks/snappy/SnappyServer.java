@@ -417,12 +417,14 @@ public class SnappyServer {
 
     private void executeExtensions() {
         extensions.onStart(
-                new ServerData(adminPort,
+                new ServerData(port,
                         bindAddress,
                         httpTracer,
                         httpMetrics,
                         adminPort,
                         adminBindAddress,
+                        interceptors,
+                        exceptionMapper,
                         basePath,
                         AppProperties.getProperties(),
                         endpoints));

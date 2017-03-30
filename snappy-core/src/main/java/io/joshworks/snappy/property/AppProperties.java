@@ -61,11 +61,19 @@ public class AppProperties {
         return properties;
     }
 
-    private static String resolveProperties(Properties source, String key) {
-        String fromEnv = System.getenv(key);
+    public static String resolveProperties(Properties source, String key) {
+        String fromEnv = fromEnv(key);
         String fromSystem = System.getProperty(key, fromEnv);
 
         return fromSystem == null ? source.getProperty(key) : fromSystem;
+    }
+
+    private static String fromEnv(String key) {
+        if (key == null) {
+            return null;
+        }
+        String envKey = key.replaceAll("\\.", "_").replaceAll("-", "_").toUpperCase();
+        return System.getenv(envKey);
     }
 
 
