@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception>, ErrorHandler> {
 
     private final ErrorHandler fallbackInternalError = (e, restExchange) -> {
-        int status = StatusCodes.INTERNAL_SERVER_ERROR;
+        int status = e.assignedStatusCode > 0 ? e.assignedStatusCode : StatusCodes.INTERNAL_SERVER_ERROR;
         restExchange.status(status);
 
         ExceptionResponse response = new ExceptionResponse(String.valueOf(e.timestamp), e.exception.getMessage());

@@ -24,7 +24,6 @@ import io.joshworks.snappy.rest.ExceptionWrapper;
 import io.joshworks.snappy.rest.RestExchange;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.util.HttpString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -24,8 +24,10 @@ public class ExceptionWrapper<T extends Exception> {
 
     public final long timestamp;
     public final T exception;
+    public final int assignedStatusCode;
 
     public ExceptionWrapper(T exception) {
+        assignedStatusCode = exception instanceof RestException ? ((RestException) exception).status : -1;
         this.timestamp = System.currentTimeMillis();
         this.exception = exception;
     }
