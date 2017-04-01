@@ -96,7 +96,7 @@ public class Body {
         Parser parser = Parsers.getParser(negotiatedConsumeType);
 
         //ref: http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
-        Scanner s = new Scanner(is).useDelimiter("\\A");
+        Scanner s = new Scanner(is, getCharset()).useDelimiter("\\A");
         String data = s.hasNext() ? s.next() : "";
         return parser.readValue(data, type);
     }
