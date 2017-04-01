@@ -32,9 +32,9 @@ import io.undertow.util.Headers;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -44,9 +44,12 @@ public class Body {
 
     private final InputStream is;
     private final HeaderMap requestHeaders;
+    private final MediaType negotiatedConsumeType;
 
     public Body(HttpServerExchange exchange) {
         this.is = exchange.getInputStream();
+        ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
+        this.negotiatedConsumeType = negotiatedMediaType.consumes;
         this.requestHeaders = exchange.getRequestHeaders();
     }
 
@@ -89,19 +92,14 @@ public class Body {
         return new Gson().fromJson(asString(), type);
     }
 
-    //TODO this the only one which requires content negotiation
     public <T> T asObject(Class<T> type) {
-        return new Gson().fromJson(new InputStreamReader(is), type);
-    }
+        Parser parser = Parsers.getParser(negotiatedConsumeType);
 
-    private Parser getReadParserForContentType() {
-        return Parsers.find(requestHeaders.get(Headers.CONTENT_TYPE));
+        //ref: http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
+        Scanner s = new Scanner(is).useDelimiter("\\A");
+        String data = s.hasNext() ? s.next() : "";
+        return parser.readValue(data, type);
     }
-
-    private Parser getReadParser(MediaType contentType) {
-        return Parsers.getParser(contentType);
-    }
-
 
     private String getCharset() {
         String charset = "UTF-8";
