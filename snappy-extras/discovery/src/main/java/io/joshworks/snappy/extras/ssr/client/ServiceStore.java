@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr;
+package io.joshworks.snappy.extras.ssr.client;
 
 
-import io.joshworks.snappy.extras.ssr.common.Instance;
+import io.joshworks.snappy.extras.ssr.Instance;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +61,7 @@ public class ServiceStore {
             return null;
         }
 
-        Instance apply = strategy.apply(new ArrayList<Instance>(instances));
+        Instance apply = strategy.apply(new ArrayList<>(instances));
         sendLink(apply.getName());
 
 //        sentStats(instances);
@@ -100,11 +100,11 @@ public class ServiceStore {
 //            Map<String, String> targetMap = new HashMap<>();
 //            targetMap.put("target", target);
 //
-//            String path = "http://" + Configurator.getRegistryUrl();
+//            String path = "http://" + Configuration.getRegistryUrl();
 //            client.target(path)
 //                    .path("api")
 //                    .path("services")
-//                    .path(Configurator.getCurrentInstance().getName())
+//                    .path(Configuration.getCurrentInstance().getName())
 //                    .request()
 //                    .async()
 //                    .put(Entity.json(targetMap));

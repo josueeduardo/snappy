@@ -15,14 +15,28 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr.locator;
+package io.joshworks.snappy.extras.ssr.server.service;
+
+import java.util.List;
 
 /**
- * Created by Josue on 26/08/2016.
+ * Created by Josue on 30/06/2016.
  */
-public interface Discovery {
+public class ServiceConfigResponse {
+    private final String name;
+    private final List<Service> instances;
 
-    String resolveHost(boolean useHostname);
+    public ServiceConfigResponse(String name, List<Service> instances) {
+        this.name = name;
+        this.instances = instances;
+    }
 
+    public String getName() {
+        return name;
+    }
+
+    public List<Service> getInstances() {
+        return instances;
+    }
 
 }

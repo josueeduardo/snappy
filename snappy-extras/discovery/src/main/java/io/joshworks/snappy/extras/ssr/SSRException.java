@@ -17,28 +17,25 @@
 
 package io.joshworks.snappy.extras.ssr;
 
-import io.joshworks.snappy.ext.ExtensionMeta;
-import io.joshworks.snappy.ext.ServerData;
-import io.joshworks.snappy.ext.SnappyExtension;
-
 /**
- * Created by Josh Gontijo on 3/29/17.
+ * Created by Josue on 16/06/2016.
  */
-public class SSRExtension implements SnappyExtension {
+public class SSRException extends Exception {
 
+    private final String code;
+    private final int status;
 
-    @Override
-    public void onStart(ServerData config) {
-
+    public SSRException(String message, String code, int status) {
+        super(message);
+        this.code = code;
+        this.status = status;
     }
 
-    @Override
-    public void onShutdown() {
-
+    public String getCode() {
+        return code;
     }
 
-    @Override
-    public ExtensionMeta details() {
-        return null;
+    public int getStatus() {
+        return status;
     }
 }

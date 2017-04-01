@@ -15,20 +15,24 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr.locator;
+package io.joshworks.snappy.extras.ssr.client.locator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
-import java.util.logging.Logger;
+
+import static io.joshworks.snappy.extras.ssr.SSRKeys.LOGGER_NAME;
 
 /**
  * Created by Josue on 26/08/2016.
  */
 public class LocalDiscovery implements Discovery {
 
-    private static final Logger logger = Logger.getLogger(LocalDiscovery.class.getName());
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private final InetAddress address;
 
@@ -47,7 +51,7 @@ public class LocalDiscovery implements Discovery {
                     InetAddress inetAddress = inetAddresses.nextElement();
                     String nicName = nic.getName();
 
-                    logger.info("NIC: " + nicName + " -> Address: " + inetAddress + " -> Hostname: " + inetAddress.getHostName() + " -> IPV4: " + (inetAddress instanceof Inet4Address));
+                    logger.info("NIC: {} - Address: {} - Hostname: {} - IPV4: {}", nicName, inetAddress, inetAddress.getHostName(), (inetAddress instanceof Inet4Address));
 
                     if (nicName.startsWith("eth0") || nicName.startsWith("en0")) {
                         return inetAddress;
@@ -59,6 +63,7 @@ public class LocalDiscovery implements Discovery {
                 }
             }
 
+            logger.info("Using client host {}", candidateAddress);
             return candidateAddress;
         } catch (Exception e) {
             throw new RuntimeException("Cannot resolve local network address", e);

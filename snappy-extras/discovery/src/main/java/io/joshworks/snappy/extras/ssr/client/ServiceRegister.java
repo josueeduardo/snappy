@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr;
+package io.joshworks.snappy.extras.ssr.client;
 
 
-import io.joshworks.snappy.extras.ssr.config.Configurator;
+import io.joshworks.snappy.extras.ssr.Instance;
 import io.undertow.server.DefaultByteBufferPool;
 import io.undertow.websockets.client.WebSocketClient;
 import io.undertow.websockets.core.WebSocketChannel;
@@ -32,6 +32,7 @@ import org.xnio.XnioWorker;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,32 +44,42 @@ import static io.joshworks.snappy.SnappyServer.*;
  */
 public class ServiceRegister implements Runnable {
 
-    public static final String SSR_ENDPOINT = "/ssr";
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+
+    public static final String SSR_ENDPOINT = "/ssr";
     private static final Object LOCK = new Object();
     private static final AtomicInteger retryCounter = new AtomicInteger();
     private static final int RETRY_INTERVAL = 10;//in seconds
     static boolean shutdownSignal = false;
     private WebSocketChannel webSocketChannel;
-    private ServiceStore store;
-    private ScheduledExecutorService executorService;
+    private final ServiceStore store;
+    private final Instance instance;
+    private final String serverUrl;
+    private final ScheduledExecutorService executorService;
 
-
-    public ServiceRegister(ServiceStore store, ScheduledExecutorService executorService) {
+    public ServiceRegister(ServiceStore store, Instance instance, String serverUrl) {
         this.store = store;
+        this.instance = instance;
+        this.serverUrl = serverUrl;
+        this.executorService = Executors.newSingleThreadScheduledExecutor();
+    }
+
+    public ServiceRegister(ServiceStore store, Instance instance, String serverUrl, ScheduledExecutorService executorService) {
+        this.store = store;
+        this.instance = instance;
+        this.serverUrl = serverUrl;
         this.executorService = executorService;
     }
 
-    public void init() {
+    void init() {
         synchronized (LOCK) {
             logger.info("##############################################");
             logger.info("##### BOOTSTRAPING SSR SERVICE DISCOVERY #####");
             logger.info("##############################################");
-            if (Configurator.isInitialised()) {
-                register();
-            } else {
-                logger.info("SSR: No services found");
-            }
+            logger.info("Application name: {}", instance.getName());
+            logger.info("Registry URL: {}", serverUrl);
+
+            register();
         }
     }
 
@@ -113,12 +124,10 @@ public class ServiceRegister implements Runnable {
             try {
                 //TODO change to connect - send data
                 //TODO remove path parameter,it should be sent after connect
-                String registryUrl =
-                        "ws://" +
-                                Configurator.getRegistryUrl() + SSR_ENDPOINT +
-                                "/" + Configurator.getCurrentInstance().getName();
+                String registryUrl = "ws://" + serverUrl + SSR_ENDPOINT + "/" + instance.getName();
 
-                //TODO implement undertow client websocket
+                //TODO implement undertow client websocket (DONE?)
+                //TODO implement rotating servers (multiple servers)
 
                 logger.info("SSR: Trying to connect to {}", registryUrl);
                 //TODO move to constructor
@@ -140,13 +149,13 @@ public class ServiceRegister implements Runnable {
 
                 //block until connects
                 webSocketChannel = connectionFuture.get();
-                webSocketChannel.getReceiveSetter().set(new ServiceClientEndpoint(this, store));
+                webSocketChannel.getReceiveSetter().set(new ServiceClientEndpoint(this, store, instance));
 
 
-                logger.info("SSR: Connected !");
+                logger.info("Connected to {}", registryUrl);
 
             } catch (Exception e) {
-                logger.error("SSR: Could not connect to the registry, retrying in {0}s ::", RETRY_INTERVAL);
+                logger.error("Could not connect to the registry, retrying in {}s", RETRY_INTERVAL);
                 executorService.schedule(this, RETRY_INTERVAL, TimeUnit.SECONDS);
             }
         }
@@ -159,8 +168,8 @@ public class ServiceRegister implements Runnable {
 //            try {
 //                String registryUrl =
 //                        "ws://" +
-//                                Configurator.getRegistryUrl() + SSR_ENDPOINT +
-//                                "/" + Configurator.getCurrentInstance().getName();
+//                                Configuration.getRegistryUrl() + SSR_ENDPOINT +
+//                                "/" + Configuration.getCurrentInstance().getName();
 //
 //                //TODO implement undertow client websocket
 //

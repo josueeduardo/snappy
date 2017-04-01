@@ -15,27 +15,14 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr;
+package io.joshworks.snappy.extras.ssr.client.locator;
 
 /**
- * Created by Josue on 16/06/2016.
+ * Created by Josue on 26/08/2016.
  */
-public class RegistryException extends Exception {
+public interface Discovery {
 
-    private final String code;
-    private final int status;
+    String resolveHost(boolean useHostname);
 
-    public RegistryException(String message, String code, int status) {
-        super(message);
-        this.code = code;
-        this.status = status;
-    }
 
-    public String getCode() {
-        return code;
-    }
-
-    public int getStatus() {
-        return status;
-    }
 }

@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr.locator;
+package io.joshworks.snappy.extras.ssr.client.locator;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -15,10 +15,9 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr;
+package io.joshworks.snappy.extras.ssr.client;
 
-import io.joshworks.snappy.extras.ssr.common.Instance;
-import io.joshworks.snappy.extras.ssr.config.Configurator;
+import io.joshworks.snappy.extras.ssr.Instance;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
@@ -43,11 +42,13 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
 
     private final ServiceRegister register;
     private final ServiceStore store;
+    private final Instance currentInstance;
     private final Parser parser = new JsonParser();
 
-    public ServiceClientEndpoint(ServiceRegister register, ServiceStore store) {
+    public ServiceClientEndpoint(ServiceRegister register, ServiceStore store, Instance currentInstance) {
         this.register = register;
         this.store = store;
+        this.currentInstance = currentInstance;
     }
 
     @Override
@@ -55,7 +56,6 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
         try {
             logger.info("SSR: Sending connection event");
             store.newSession(); //TODO WS is application scoped bean now
-            Instance currentInstance = Configurator.getCurrentInstance();
             WebSockets.sendText(parser.writeValue(currentInstance), channel, null);
         } catch (Exception e) {
             //TODO

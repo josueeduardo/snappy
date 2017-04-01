@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr.common;
+package io.joshworks.snappy.extras.ssr;
 
 
 import java.util.Date;
@@ -26,14 +26,15 @@ import java.util.Date;
 public class Instance {
 
     private String id;
-    private String address;
+    private String host;
+    private int port;
     private long lastUpdate;
     private Date since;
     private Date downSince;
     private String name;
     private State state = State.DOWN;
     private boolean discoverable;
-    private boolean client;
+    private boolean fetchServices;
 
     public String getId() {
         return id;
@@ -43,12 +44,24 @@ public class Instance {
         this.id = id;
     }
 
-    public String getAddress() {
-        return address;
+    public String getHost() {
+        return host;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getAddress() {
+        return host + ":" + port;
     }
 
     public Date getSince() {
@@ -91,12 +104,12 @@ public class Instance {
         this.discoverable = discoverable;
     }
 
-    public boolean isClient() {
-        return client;
+    public boolean isFetchServices() {
+        return fetchServices;
     }
 
-    public void setClient(boolean client) {
-        this.client = client;
+    public void setFetchServices(boolean fetchServices) {
+        this.fetchServices = fetchServices;
     }
 
     public long getLastUpdate() {
@@ -117,30 +130,33 @@ public class Instance {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Instance)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        Instance that = (Instance) o;
+        Instance instance = (Instance) o;
 
-        return address != null ? address.equals(that.address) : that.address == null;
+        if (port != instance.port) return false;
+        return host != null ? host.equals(instance.host) : instance.host == null;
     }
 
     @Override
     public int hashCode() {
-        return address != null ? address.hashCode() : 0;
+        int result = host != null ? host.hashCode() : 0;
+        result = 31 * result + port;
+        return result;
     }
 
     @Override
     public String toString() {
         return "Instance{" +
                 "id='" + id + '\'' +
-                ", address='" + address + '\'' +
+                ", address='" + getAddress() + '\'' +
                 ", lastUpdate=" + lastUpdate +
                 ", since=" + since +
                 ", downSince=" + downSince +
                 ", name='" + name + '\'' +
                 ", state=" + state +
                 ", discoverable=" + discoverable +
-                ", client=" + client +
+                ", fetchServices=" + fetchServices +
                 '}';
     }
 

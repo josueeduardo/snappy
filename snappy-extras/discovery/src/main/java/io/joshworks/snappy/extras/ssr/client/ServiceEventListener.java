@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr;
+package io.joshworks.snappy.extras.ssr.client;
 
 
-import io.joshworks.snappy.extras.ssr.common.Instance;
+import io.joshworks.snappy.extras.ssr.Instance;
 
 /**
  * Created by Josue on 10/07/2016.
