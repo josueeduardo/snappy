@@ -39,7 +39,7 @@ public class AppExecutors {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-   private static ExecutorContainer container;
+    private static ExecutorContainer container;
 
     AppExecutors() {
 
@@ -81,6 +81,15 @@ public class AppExecutors {
     public static <T> Future<T> submit(String poolName, Runnable runnable, T result) {
         ExecutorService executor = executor(poolName);
         return executor.submit(runnable, result);
+    }
+
+    public static ScheduledFuture<?> schedule(Runnable runnable, long delay, TimeUnit timeUnit) {
+        return schedule(container.defaultScheduler, runnable, delay, timeUnit);
+    }
+
+    public static ScheduledFuture<?> schedule(String poolName, Runnable runnable, long delay, TimeUnit timeUnit) {
+        ScheduledThreadPoolExecutor scheduler = scheduler(poolName);
+        return scheduler.schedule(runnable, delay, timeUnit);
     }
 
     public static <T> ScheduledFuture<T> schedule(Callable<T> callable, long delay, TimeUnit timeUnit) {
