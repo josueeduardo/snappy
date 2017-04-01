@@ -32,6 +32,8 @@ import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.form.EagerFormParsingHandler;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
+import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;
+import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
@@ -119,13 +121,19 @@ public class HandlerUtil {
         return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
     }
 
-    public static MappedEndpoint sse(String url, List<Interceptor> interceptors) {
+    public static MappedEndpoint sse(String url, List<Interceptor> interceptors, ServerSentEventConnectionCallback connectionCallback) {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         url = resolveUrl(url);
 
 
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-        interceptorHandler.setNext(Handlers.serverSentEvents());
+
+        if (connectionCallback != null) {
+            ServerSentEventHandler serverSentEventHandler = Handlers.serverSentEvents(connectionCallback);
+            interceptorHandler.setNext(serverSentEventHandler);
+        } else {
+            interceptorHandler.setNext(Handlers.serverSentEvents());
+        }
 
         return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE, interceptorHandler);
     }
