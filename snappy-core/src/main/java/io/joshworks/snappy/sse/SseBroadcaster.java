@@ -17,6 +17,9 @@
 
 package io.joshworks.snappy.sse;
 
+import io.joshworks.snappy.parser.Parser;
+import io.joshworks.snappy.parser.Parsers;
+import io.joshworks.snappy.rest.MediaType;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.server.handlers.sse.ServerSentEventHandler;
 
@@ -27,22 +30,31 @@ import java.util.function.Predicate;
 /**
  * Created by josh on 3/9/17.
  */
-public class SSEBroadcaster {
+public class SseBroadcaster {
 
-    //TODO remove static
-    private static final List<ServerSentEventHandler> endpoints = new ArrayList<>();
+    static final List<ServerSentEventHandler> endpoints = new ArrayList<>();
 
-    private SSEBroadcaster() {
+    private SseBroadcaster() {
     }
 
     public static void broadcast(String data) {
         endpoints.stream().flatMap(sse -> sse.getConnections().stream()).forEach(sseConn -> sseConn.send(data));
     }
 
+    public static void broadcast(Object data, MediaType mediaType) {
+        Parser parser = Parsers.getParser(mediaType);
+        broadcast(parser.writeValue(data));
+    }
+
     public static void broadcast(String data, Predicate<ServerSentEventConnection> filter) {
         endpoints.stream().flatMap(endpoint -> endpoint.getConnections().stream())
                 .filter(filter)
                 .forEach(conn -> conn.send(data));
+    }
+
+    public static void broadcast(Object data, MediaType mediaType, Predicate<ServerSentEventConnection> filter) {
+        Parser parser = Parsers.getParser(mediaType);
+        broadcast(parser.writeValue(data), filter);
     }
 
     static void register(ServerSentEventHandler handler) {
