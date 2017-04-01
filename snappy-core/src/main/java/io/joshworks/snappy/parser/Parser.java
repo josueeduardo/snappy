@@ -24,7 +24,7 @@ import io.joshworks.snappy.rest.MediaType;
  */
 public interface Parser {
 
-    <T> T readValue(String value, Class<T> valueType) throws Exception;
+    <T> T readValue(String value, Class<T> valueType);
 
     String writeValue(Object value) throws Exception;
 

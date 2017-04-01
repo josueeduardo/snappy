@@ -20,9 +20,19 @@ package io.joshworks.snappy.client.sse;
 /**
  * Created by Josh Gontijo on 4/1/17.
  */
-public interface SSEClientCallback {
+public abstract class SSEClientCallback {
 
-    void onEvent(EventData data);
+    public abstract void onEvent(EventData event);
 
-    void onError(Exception e);
+    public void onOpen() {
+
+    }
+
+    public void onClose() {
+
+    }
+
+    public void onError(Exception e) {
+
+    }
 }

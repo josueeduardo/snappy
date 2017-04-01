@@ -44,11 +44,6 @@ public class SSEClient {
             public void onEvent(EventData data) {
                 callback.accept(data);
             }
-
-            @Override
-            public void onError(Exception e) {
-                logger.error("Error while receiving event", e);
-            }
         });
     }
 

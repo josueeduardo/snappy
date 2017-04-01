@@ -63,6 +63,11 @@ public class EventStreamChannelListenerTest {
         }
 
         @Override
+        public void onClose() {
+
+        }
+
+        @Override
         public void onError(Exception e) {
 
         }

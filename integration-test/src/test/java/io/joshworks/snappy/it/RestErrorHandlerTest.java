@@ -21,6 +21,7 @@ import com.mashape.unirest.http.HttpResponse;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.rest.ExceptionResponse;
 import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.rest.RestException;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -44,6 +45,9 @@ public class RestErrorHandlerTest {
         });
         get("/exception", (exchange) -> {
             throw new RuntimeException(EXCEPTION_MESSAGE);
+        });
+        get("/restException", (exchange) -> {
+            throw RestException.badRequest(EXCEPTION_MESSAGE);
         });
 
         start();
@@ -97,5 +101,17 @@ public class RestErrorHandlerTest {
         assertNotNull(body);
         assertEquals(EXCEPTION_MESSAGE, body.getMessage());
     }
+
+    @Test
+    public void fromRestExceptionUtility() throws Exception {
+        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:9000/restException").asObject(ExceptionResponse.class);
+
+        assertEquals(400, response.getStatus());
+
+        ExceptionResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals(EXCEPTION_MESSAGE, body.getMessage());
+    }
+
 
 }

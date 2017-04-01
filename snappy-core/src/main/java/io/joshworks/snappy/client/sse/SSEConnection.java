@@ -30,12 +30,14 @@ import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xnio.ChannelListener;
 import org.xnio.IoUtils;
 import org.xnio.OptionMap;
 import org.xnio.XnioWorker;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.channels.Channel;
 import java.util.concurrent.TimeUnit;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -98,8 +100,13 @@ public class SSEConnection {
         if (connection != null) {
             IoUtils.safeClose(connection);
             connection = null;
+            callback.onClose();
         }
         return lastEventId;
+    }
+
+    public boolean isOpen() {
+        return connection != null && connection.isOpen();
     }
 
     void retryAfter(long timeMilli) {
@@ -110,6 +117,7 @@ public class SSEConnection {
     private ClientCallback<ClientExchange> createClientCallback() {
         UTF8Output dataReader = new UTF8Output(new EventStreamParser(this));
         final EventStreamChannelListener listener = new EventStreamChannelListener(new DefaultByteBufferPool(false, 8192), dataReader);
+
         return new ClientCallback<ClientExchange>() {
             @Override
             public void completed(ClientExchange connectedExchange) {
@@ -122,7 +130,9 @@ public class SSEConnection {
                             String status = result.getResponse().getStatus();
                             callback.onError(new RestException(responseCode, "Server returned [" + responseCode + " - " + status + "] after connecting"));
                         }
+                        callback.onOpen();
 
+                        result.getResponseChannel().getCloseSetter().set((ChannelListener<Channel>) channel -> callback.onClose());
                         listener.setup(result.getResponseChannel());
 
                         result.getResponseChannel().resumeReads();
@@ -132,6 +142,7 @@ public class SSEConnection {
                     public void failed(IOException e) {
                         callback.onError(e);
                     }
+
                 });
             }
 

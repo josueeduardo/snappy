@@ -22,7 +22,6 @@ import io.undertow.websockets.client.WebSocketClient;
 import io.undertow.websockets.core.WebSocketChannel;
 import org.xnio.ChannelListener;
 
-import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -34,17 +33,22 @@ public class WsClient {
 
     }
 
-    public static WebSocketChannel connect(URI uri, ChannelListener<? super WebSocketChannel> clientEndpoint) throws IOException {
-        WebSocketChannel webSocketChannel = new WebSocketClient.ConnectionBuilder(
-                ClientWorker.getWorker(),
-                new DefaultByteBufferPool(false, 2048),
-                uri)
-                .connect().get();
+    public static WebSocketChannel connect(URI uri, ChannelListener<? super WebSocketChannel> clientEndpoint) {
+        try {
+            WebSocketChannel webSocketChannel = new WebSocketClient.ConnectionBuilder(
+                    ClientWorker.getWorker(),
+                    new DefaultByteBufferPool(false, 2048),
+                    uri)
+                    .connect().get();
 
 
-        webSocketChannel.getReceiveSetter().set(clientEndpoint);
-        webSocketChannel.resumeReceives();
-        return webSocketChannel;
+            webSocketChannel.getReceiveSetter().set(clientEndpoint);
+            webSocketChannel.resumeReceives();
+            return webSocketChannel;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
