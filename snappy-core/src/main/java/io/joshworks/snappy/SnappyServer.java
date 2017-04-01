@@ -18,6 +18,7 @@
 package io.joshworks.snappy;
 
 import io.joshworks.snappy.admin.AdminManager;
+import io.joshworks.snappy.client.ClientWorker;
 import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.executor.ExecutorBootstrap;
@@ -44,6 +45,7 @@ import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
+import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.websockets.WebSocketConnectionCallback;
@@ -327,7 +329,13 @@ public class SnappyServer {
     public static synchronized void sse(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors));
+        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors, null));
+    }
+
+    public static synchronized void sse(String url, ServerSentEventConnectionCallback connectionCallback) {
+        checkStarted();
+        Objects.requireNonNull(url, Messages.INVALID_URL);
+        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors, connectionCallback));
     }
 
     public static synchronized void staticFiles(String url, String docPath) {
@@ -386,6 +394,7 @@ public class SnappyServer {
             Parsers.register(new PlainTextParser());
 
             RestClient.init();
+            ClientWorker.configure(optionBuilder);
 
             Undertow.Builder serverBuilder = Undertow.builder();
 
