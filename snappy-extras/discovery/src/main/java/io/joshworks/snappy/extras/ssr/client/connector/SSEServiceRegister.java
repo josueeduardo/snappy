@@ -49,15 +49,15 @@ public class SSEServiceRegister extends ServiceRegister {
 
     private final Parser parser = new JsonParser();
 
-    public SSEServiceRegister(ServiceStore store, Instance instance, String serverUrl, ScheduledExecutorService executorService) {
-        super(store, instance, serverUrl, executorService);
+    public SSEServiceRegister(ServiceStore store, Instance instance, String registryUrl, ScheduledExecutorService executorService) {
+        super(store, instance, registryUrl, executorService);
     }
 
     @Override
     protected void connect() throws Exception {
-        String instancesUrl = PROTOCOL + serverUrl + SSRServerExtension.INSTANCES_URL;
+        String instancesUrl = PROTOCOL + registryUrl + SSRServerExtension.INSTANCES_URL;
 
-        logger.info("Trying to register service to " + serverUrl);
+        logger.info("Trying to register service to " + registryUrl);
         HttpResponse<Instance> response = RestClient.post(instancesUrl)
                 .header(Headers.CONTENT_TYPE_STRING, "application/json")
                 .body(parser.writeValue(instance))
@@ -68,7 +68,7 @@ public class SSEServiceRegister extends ServiceRegister {
         }
         Instance registered = response.getBody();
 
-        String registryUrl = PROTOCOL + serverUrl + SSRServerExtension.MONITOR_URL + "/" + registered.getId();
+        String registryUrl = PROTOCOL + this.registryUrl + SSRServerExtension.MONITOR_URL + "/" + registered.getId();
         connect = SseClient.connect(registryUrl, new SSERegistryClient(this, store));
 
     }

@@ -48,7 +48,7 @@ public class WSServiceRegister extends ServiceRegister {
 
     @Override
     protected void connect() {
-        String registryUrl = PROTOCOL + serverUrl + SSR_ENDPOINT + "/" + instance.getName();
+        String registryUrl = PROTOCOL + this.registryUrl + SSR_ENDPOINT + "/" + instance.getName();
         webSocketChannel = WsClient.connect(registryUrl, new WSRegistryClient(this, store, instance));
     }
 

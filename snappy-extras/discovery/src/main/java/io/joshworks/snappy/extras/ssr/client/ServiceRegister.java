@@ -44,12 +44,12 @@ public abstract class ServiceRegister implements Runnable {
 
     protected final ServiceStore store;
     protected final Instance instance;
-    protected final String serverUrl;
+    protected final String registryUrl;
 
-    public ServiceRegister(ServiceStore store, Instance instance, String serverUrl, ScheduledExecutorService executorService) {
+    public ServiceRegister(ServiceStore store, Instance instance, String registryUrl, ScheduledExecutorService executorService) {
         this.store = store;
         this.instance = instance;
-        this.serverUrl = serverUrl;
+        this.registryUrl = registryUrl;
         this.executorService = executorService;
     }
 
@@ -61,7 +61,7 @@ public abstract class ServiceRegister implements Runnable {
         synchronized (LOCK) {
             logger.info("Bootstrap service discovery");
             logger.info("Application name: {}", instance.getName());
-            logger.info("Registry URL: {}", serverUrl);
+            logger.info("Registry URL: {}", registryUrl);
 
             register();
         }
@@ -99,10 +99,10 @@ public abstract class ServiceRegister implements Runnable {
                     connect();
                 }
 
-                logger.info("Connected to {}", serverUrl);
+                logger.info("Connected to {}", registryUrl);
 
             } catch (Exception e) {
-                logger.error("Could not connect to the registry [{}], retrying in {}s, error message: {}", serverUrl, RETRY_INTERVAL, e.getMessage());
+                logger.error("Could not connect to the registry [{}], retrying in {}s, error message: {}", registryUrl, RETRY_INTERVAL, e.getMessage());
                 executorService.schedule(this, RETRY_INTERVAL, TimeUnit.SECONDS);
             }
         }

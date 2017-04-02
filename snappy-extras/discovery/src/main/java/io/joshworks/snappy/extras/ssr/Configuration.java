@@ -38,7 +38,6 @@ public class Configuration {
 
     private static final String DEFAULT_REGISTRY_PORT = "9999";
     private static final String DEFAULT_REGISTRY_HOST = "localhost";
-    private static final String DEFAULT_USE_HOST = "true";
 
     private final Discovery discovery;
     private final Properties properties;
@@ -127,8 +126,7 @@ public class Configuration {
 
     private boolean useHostname() {
         String useHost = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_USE_HOSTNAME);
-        useHost = isEmpty(useHost) ? DEFAULT_USE_HOST : useHost;
-        return Boolean.parseBoolean(useHost);
+        return isEmpty(useHost) || Boolean.parseBoolean(useHost);
     }
 
     //String name, boolean clientEnabled, boolean enableDiscovery
