@@ -19,6 +19,7 @@
         <module>integration-test</module>
         <module>snappy-plugin-parent</module>
         <module>snappy-extras</module>
+        <module>examples</module>
     </modules>
 
     <name>Snappy</name>

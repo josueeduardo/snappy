@@ -23,7 +23,9 @@ import io.joshworks.snappy.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Interceptor;
+import io.joshworks.snappy.rest.RestDispatcher;
 import io.joshworks.snappy.rest.RestExchange;
+import io.joshworks.snappy.sse.BroadcasterSetup;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
@@ -125,16 +127,12 @@ public class HandlerUtil {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         url = resolveUrl(url);
 
-
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
 
-        if (connectionCallback != null) {
-            ServerSentEventHandler serverSentEventHandler = Handlers.serverSentEvents(connectionCallback);
-            interceptorHandler.setNext(serverSentEventHandler);
-        } else {
-            interceptorHandler.setNext(Handlers.serverSentEvents());
-        }
+        ServerSentEventHandler serverSentEventHandler = Handlers.serverSentEvents(connectionCallback);
+        interceptorHandler.setNext(serverSentEventHandler);
 
+        BroadcasterSetup.register(serverSentEventHandler);
         return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE, interceptorHandler);
     }
 

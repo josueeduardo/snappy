@@ -22,7 +22,7 @@ package io.joshworks.snappy.extras.ssr;
  */
 public class SSRKeys {
 
-    public static final String LOGGER_NAME = "SSR";
+    public static final String SSR_LOGGER = "SSR";
 
     public static final String PROPERTY_PREFIX = "ssr.";
     public static final String CLIENT_PREFIX = PROPERTY_PREFIX + "client.";

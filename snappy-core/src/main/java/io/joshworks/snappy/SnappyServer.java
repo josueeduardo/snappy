@@ -94,7 +94,7 @@ public class SnappyServer {
     private String bindAddress = "0.0.0.0";
     private boolean httpTracer;
     private boolean httpMetrics;
-    private int adminPort = 9001;
+    private int adminPort = 9100;
     private String adminBindAddress = "127.0.0.1";
     private List<Interceptor> interceptors = new LinkedList<>();
     private List<Interceptor> rootInterceptors = new LinkedList<>();
@@ -153,6 +153,12 @@ public class SnappyServer {
     public static synchronized void port(int port) {
         checkStarted();
         instance().port = port;
+    }
+
+    public static synchronized void portOffset(int offset) {
+        checkStarted();
+        instance().port += offset;
+        instance().adminPort += offset;
     }
 
     public static synchronized void address(String address) {

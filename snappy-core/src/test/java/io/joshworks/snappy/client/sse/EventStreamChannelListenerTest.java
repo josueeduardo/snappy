@@ -54,7 +54,7 @@ public class EventStreamChannelListenerTest {
 
     }
 
-    public static class TestListener implements SSEClientCallback {
+    public static class TestListener extends SseClientCallback {
 
         @Override
         public void onEvent(EventData data) {

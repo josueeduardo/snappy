@@ -15,13 +15,12 @@
  *
  */
 
-package io.joshworks.snappy.handler;
+package io.joshworks.snappy.rest;
 
+import io.joshworks.snappy.handler.HandlerUtil;
+import io.joshworks.snappy.handler.InterceptorHandler;
+import io.joshworks.snappy.handler.UnsupportedMediaType;
 import io.joshworks.snappy.parser.MediaTypes;
-import io.joshworks.snappy.rest.ErrorHandler;
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.ExceptionWrapper;
-import io.joshworks.snappy.rest.RestExchange;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
@@ -44,7 +43,7 @@ public class RestDispatcher implements HttpHandler {
     private final ConnegHandler connegHandler;
     private final ExceptionMapper exceptionMapper;
 
-    RestDispatcher(Consumer<RestExchange> endpoint, InterceptorHandler interceptorHandler, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
+    public RestDispatcher(Consumer<RestExchange> endpoint, InterceptorHandler interceptorHandler, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
         this.exceptionMapper = exceptionMapper;
         interceptorHandler.setNext(new RestEntrypoint(endpoint, exceptionMapper));
         this.connegHandler = new ConnegHandler(interceptorHandler, exceptionMapper, mimeTypes);

@@ -15,24 +15,20 @@
  *
  */
 
-package io.joshworks.snappy.client.sse;
+package io.joshworks.snappy.parser;
+
+import java.util.Arrays;
 
 /**
- * Created by Josh Gontijo on 4/1/17.
+ * Created by josh on 3/6/17.
  */
-public abstract class SSEClientCallback {
+public class ParserNotFoundException extends RuntimeException {
 
-    public abstract void onEvent(EventData event);
-
-    public void onOpen() {
-
+    public ParserNotFoundException(String mediaType) {
+        super("Parser not found for media type '" + mediaType + "'");
     }
 
-    public void onClose() {
-
-    }
-
-    public void onError(Exception e) {
-
+    public ParserNotFoundException(String[] mediaTypes) {
+        super("Parser not found for media types '" + Arrays.toString(mediaTypes) + "'");
     }
 }

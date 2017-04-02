@@ -18,8 +18,6 @@
 package io.joshworks.snappy.extras.ssr;
 
 
-import java.util.Date;
-
 /**
  * Created by Josue on 12/07/2016.
  */
@@ -29,8 +27,8 @@ public class Instance {
     private String host;
     private int port;
     private long lastUpdate;
-    private Date since;
-    private Date downSince;
+    private long since;
+    private long downSince;
     private String name;
     private State state = State.DOWN;
     private boolean discoverable;
@@ -64,11 +62,11 @@ public class Instance {
         return host + ":" + port;
     }
 
-    public Date getSince() {
+    public long getSince() {
         return since;
     }
 
-    public void setSince(Date since) {
+    public void setSince(long since) {
         this.since = since;
     }
 
@@ -80,11 +78,11 @@ public class Instance {
         this.state = state;
     }
 
-    public Date getDownSince() {
+    public long getDownSince() {
         return downSince;
     }
 
-    public void setDownSince(Date downSince) {
+    public void setDownSince(long downSince) {
         this.downSince = downSince;
     }
 
@@ -123,7 +121,7 @@ public class Instance {
     public void updateInstanceState(Instance.State newState) {
         state = newState;
         if (Instance.State.DOWN.equals(newState)) {
-            downSince = new Date();
+            downSince = System.currentTimeMillis();
         }
     }
 

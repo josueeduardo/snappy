@@ -12,7 +12,7 @@ Features:
 - No magic, plain and simple
 - Small memory footprint
 - Static files
-- Rest client using [Unirest](https://github.com/Mashape/unirest-java)
+- Rest fetchServices using [Unirest](https://github.com/Mashape/unirest-java)
 - Multipart support
 - Executors and schedulers managed by the server
 - Metrics: total requests, responses codes per endpoint, thread and memory usage, and user provided metrics.
@@ -148,7 +148,7 @@ public class App {
 }
 ```
 
-#### Rest client ####
+#### Rest fetchServices ####
 ```java
 public class App {
 

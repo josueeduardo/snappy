@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy;
 
-import io.joshworks.snappy.handler.ConnegHandler;
+import io.joshworks.snappy.rest.ConnegHandler;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.rest.MediaType;

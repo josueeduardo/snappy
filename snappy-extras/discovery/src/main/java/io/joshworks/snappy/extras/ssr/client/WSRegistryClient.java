@@ -36,7 +36,7 @@ import static io.joshworks.snappy.SnappyServer.*;
 /**
  * Created by Josue on 16/06/2016.
  */
-public class ServiceClientEndpoint extends WebsocketEndpoint {
+public class WSRegistryClient extends WebsocketEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
@@ -45,7 +45,7 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
     private final Instance currentInstance;
     private final Parser parser = new JsonParser();
 
-    public ServiceClientEndpoint(ServiceRegister register, ServiceStore store, Instance currentInstance) {
+    public WSRegistryClient(ServiceRegister register, ServiceStore store, Instance currentInstance) {
         this.register = register;
         this.store = store;
         this.currentInstance = currentInstance;
@@ -54,21 +54,21 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
     @Override
     public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
         try {
-            logger.info("SSR: Sending connection event");
+            logger.info("Sending connection event");
             store.newSession(); //TODO WS is application scoped bean now
             WebSockets.sendText(parser.writeValue(currentInstance), channel, null);
         } catch (Exception e) {
-            //TODO
+            logger.error("Error sending Instance information on connect", e);
         }
     }
 
     @Override
     protected void onClose(WebSocketChannel webSocketChannel, StreamSourceFrameChannel channel) throws IOException {
-        if (!ServiceRegister.shutdownSignal) {
-            logger.error("SSR: Connection closed, reason: {} ::", webSocketChannel.getCloseReason());
+        if (!register.shutdownRequested()) {
+            logger.error("Connection closed, reason: {}", webSocketChannel.getCloseReason());
             register.register(); //reconnect
         } else {
-            logger.info("SSR: Client initiated shutdown process, not reconnecting", webSocketChannel.getCloseReason());
+            logger.info("Client initiated shutdown process, not reconnecting", webSocketChannel.getCloseReason());
         }
         super.onClose(webSocketChannel, channel);
     }
@@ -77,9 +77,9 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
     protected void onError(WebSocketChannel channel, Throwable error) {
         String message;
         if (error instanceof IOException) {
-            message = "SSR: The server may have shutdown unexpectedly, error message: {}";
+            message = "The server may have shutdown unexpectedly, error message: {}";
         } else {
-            message = "SSR: Error handling event, error message {}";
+            message = "Error handling event, error message {}";
         }
         logger.error(message, error.getMessage());
         super.onError(channel, error);
@@ -89,22 +89,10 @@ public class ServiceClientEndpoint extends WebsocketEndpoint {
     protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
         try {
             Instance instance = parser.readValue(message.getData(), Instance.class);
-            logger.info("SSR: New Event: {}", instance);
+            store.proccessInstance(instance);
 
-            if (instance == null || instance.getState() == null) {
-                logger.warn("SSR: Invalid instance state");
-                return;
-            }
-
-            if (Instance.State.UP.equals(instance.getState())) {
-                store.onConnect(instance);
-            }
-            if (Instance.State.DOWN.equals(instance.getState())
-                    || Instance.State.OUT_OF_SERVICE.equals(instance.getState())) {
-                store.onDisconnect(instance);
-            }
         } catch (Exception e) {
-            //TODO
+            logger.error("Error receiving Instance event", e);
         }
     }
 }

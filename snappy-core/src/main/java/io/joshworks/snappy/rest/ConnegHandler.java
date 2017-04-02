@@ -15,11 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.handler;
+package io.joshworks.snappy.rest;
 
+import io.joshworks.snappy.handler.UnsupportedMediaType;
 import io.joshworks.snappy.parser.MediaTypes;
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.MediaType;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.AttachmentKey;

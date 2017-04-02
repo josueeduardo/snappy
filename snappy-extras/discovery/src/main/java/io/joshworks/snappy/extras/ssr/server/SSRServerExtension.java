@@ -17,21 +17,21 @@
 
 package io.joshworks.snappy.extras.ssr.server;
 
+import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
-import io.joshworks.snappy.extras.ssr.client.ServiceRegister;
-import io.joshworks.snappy.extras.ssr.client.ServiceStore;
 import io.joshworks.snappy.extras.ssr.server.service.InstancesResource;
+import io.joshworks.snappy.extras.ssr.server.service.ServiceControl;
 import io.joshworks.snappy.extras.ssr.server.service.ServiceResource;
+import io.joshworks.snappy.extras.ssr.server.sse.Hearbeat;
+import io.joshworks.snappy.extras.ssr.server.sse.ServiceMonitor;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.undertow.util.Methods;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static io.joshworks.snappy.extras.ssr.SSRKeys.PROPERTY_PREFIX;
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
@@ -44,25 +44,33 @@ public class SSRServerExtension implements SnappyExtension {
 
     private static final String EXTENSION_NAME = "SSR_SERVER";
 
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private Hearbeat hearbeat;
+    private int ackPeriod = 5;//TODO move to properties
 
-    private ServiceRegister register;
-    private final ServiceStore serviceStore = new ServiceStore();
+    private final ServiceControl serviceControl = new ServiceControl();
 
-    private static final String INSTANCES_URL = "/instances/{instanceId}";
-    private static final String SERVICES_URL = "/services";
-    private static final String SERVICES_NAME_URL = SERVICES_URL + "/{name}";
+
+    //TODO move to common
+    public static final String INSTANCES_URL = "/instances";
+    public static final String MONITOR_URL = "/monitor";
+    public static final String SERVICES_URL = "/services";
+    public static final String SERVICES_NAME_URL = SERVICES_URL + "/{name}";
 
     @Override
     public void onStart(ServerData config) {
+        config.mappedEndpoints.addAll(instanceResource(config));
+        config.mappedEndpoints.addAll(serviceEndpoint(config));
 
+        config.mappedEndpoints.add(serviceMonitor(config));
 
+        hearbeat = new Hearbeat(AppExecutors.scheduler(), ackPeriod);
+        hearbeat.start();
 
     }
 
     @Override
     public void onShutdown() {
-        scheduler.shutdownNow();
+        hearbeat.stop();
     }
 
     @Override
@@ -70,19 +78,37 @@ public class SSRServerExtension implements SnappyExtension {
         return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PROPERTY_PREFIX);
     }
 
-    private MappedEndpoint createInstancesResource(ServerData config) {
-        InstancesResource instancesResource = new InstancesResource(null, null);
-        return HandlerUtil.rest(Methods.PUT,
-                INSTANCES_URL,
-                instancesResource::updateServiceState,
+    private MappedEndpoint serviceMonitor(ServerData config) {
+        final ServiceMonitor monitor = new ServiceMonitor(serviceControl);
+        return HandlerUtil.sse(MONITOR_URL + "/{instanceId}", config.interceptors, monitor);
+    }
+
+    private List<MappedEndpoint> instanceResource(ServerData config) {
+        final InstancesResource instanceResource = new InstancesResource(serviceControl);
+
+        MappedEndpoint updateInstance = HandlerUtil.rest(Methods.PUT,
+                INSTANCES_URL + "/{instanceId}",
+                instanceResource::updateServiceState,
                 config.exceptionMapper,
                 config.interceptors,
                 consumes("json"),
                 produces("json"));
+
+
+        MappedEndpoint register = HandlerUtil.rest(Methods.POST,
+                INSTANCES_URL,
+                instanceResource::register,
+                config.exceptionMapper,
+                config.interceptors,
+                consumes("json"),
+                produces("json"));
+
+        return Arrays.asList(register, updateInstance);
+
     }
 
-    private List<MappedEndpoint> createServicesEndpoint(ServerData config) {
-        ServiceResource serviceResource = new ServiceResource(null);
+    private List<MappedEndpoint> serviceEndpoint(ServerData config) {
+        final ServiceResource serviceResource = new ServiceResource(serviceControl);
 
 
         MappedEndpoint getServices = HandlerUtil.rest(Methods.GET, SERVICES_URL, serviceResource::getServices,
@@ -97,7 +123,6 @@ public class SSRServerExtension implements SnappyExtension {
                 config.interceptors,
                 consumes("json"),
                 produces("json"));
-
 
         MappedEndpoint addLink = HandlerUtil.rest(Methods.PUT, SERVICES_NAME_URL, serviceResource::addLink,
                 config.exceptionMapper,

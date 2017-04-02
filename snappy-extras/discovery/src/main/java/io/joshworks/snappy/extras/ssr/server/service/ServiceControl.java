@@ -3,23 +3,25 @@ package io.joshworks.snappy.extras.ssr.server.service;
 
 import io.joshworks.snappy.extras.ssr.Instance;
 import io.joshworks.snappy.rest.RestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import static io.joshworks.snappy.extras.ssr.SSRKeys.SSR_LOGGER;
 
 /**
  * Created by Josue on 15/06/2016.
  */
 public class ServiceControl {
 
-    static final Map<String, Service> store = new ConcurrentHashMap<>();
-    private static final Logger logger = Logger.getLogger(ServiceControl.class.getName());
+    private static final Map<String, Service> store = new ConcurrentHashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(SSR_LOGGER);
 //    private static final Map<String, ServiceConfig> store = new ConcurrentHashMap<>();
 
     //returns a copy of all the services, including the disabled ones
@@ -35,21 +37,23 @@ public class ServiceControl {
         return new HashSet<>(store.values());
     }
 
-    public Instance register(String service, Instance instance) {
+    public Instance register(Instance instance) {
         if (instance == null) {
             throw RestException.badRequest("Invalid instance");
         }
         if (instance.getAddress() == null || instance.getAddress().trim().isEmpty()) {
             throw RestException.badRequest("'address' must be provided");
         }
-        if (instance.getId() == null || instance.getId().trim().isEmpty()) {
-            throw RestException.badRequest("'id' must be provided");
+//        if (instance.getId() == null || instance.getId().trim().isEmpty()) {
+//            throw RestException.badRequest("'id' must be provided");
+//        }
+        if (instance.getSince() == 0) {
+            instance.setSince(System.currentTimeMillis());
         }
-        if (instance.getSince() == null) {
-            instance.setSince(new Date());
-        }
-        instance.setName(service);
-        instance.setState(Instance.State.UP);
+        instance.setId(UUID.randomUUID().toString().substring(0,8));
+        instance.setState(Instance.State.DOWN);
+
+        String service = instance.getName();
 
         if (!store.containsKey(service)) {
             store.put(service, new Service(service));
@@ -57,7 +61,7 @@ public class ServiceControl {
         Service serviceConfig = store.get(service);
 
         serviceConfig.addInstance(instance);
-        logger.log(Level.INFO, ":: New service registered {0} ::", instance);
+        logger.info("New service registered {} ", instance);
 
         return instance;
     }

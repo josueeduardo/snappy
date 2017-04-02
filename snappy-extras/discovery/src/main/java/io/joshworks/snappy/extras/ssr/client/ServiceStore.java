@@ -19,6 +19,8 @@ package io.joshworks.snappy.extras.ssr.client;
 
 
 import io.joshworks.snappy.extras.ssr.Instance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,10 +30,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.joshworks.snappy.extras.ssr.SSRKeys.SSR_LOGGER;
+
 /**
  * Created by Josue on 19/06/2016.
  */
 public class ServiceStore {
+
+    private static final Logger logger = LoggerFactory.getLogger(SSR_LOGGER);
 
     private static final Object LOCK = new Object();
 
@@ -130,15 +136,23 @@ public class ServiceStore {
 //        }
 //    }
 
-    void onConnect(Instance instance) {
-        addService(instance);
-        listeners.forEach(l -> l.onConnect(instance));
+    void proccessInstance(Instance instance) {
+        if (instance == null || instance.getState() == null) {
+            logger.warn("Invalid instance state");
+            return;
+        }
+
+        if (Instance.State.UP.equals(instance.getState())) {
+            addService(instance);
+            listeners.forEach(l -> l.onConnect(instance));
+        }
+        if (Instance.State.DOWN.equals(instance.getState())
+                || Instance.State.OUT_OF_SERVICE.equals(instance.getState())) {
+            removeService(instance);
+            listeners.forEach(l -> l.onDisconnect(instance));
+        }
     }
 
-    void onDisconnect(Instance instance) {
-        removeService(instance);
-        listeners.forEach(l -> l.onDisconnect(instance));
-    }
 
     void newSession() {
         synchronized (LOCK) {

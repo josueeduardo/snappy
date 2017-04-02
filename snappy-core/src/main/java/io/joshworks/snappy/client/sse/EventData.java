@@ -19,15 +19,19 @@ package io.joshworks.snappy.client.sse;
 
 public class EventData {
     public final String data;
-    public final String lastEventId;
+    public final String id;
     public final String origin;
     public final String event;
 
-    EventData(String data, String lastEventId, String origin, String event) {
+    public EventData(String data, String id, String event, String origin) {
         this.data = data;
-        this.lastEventId = lastEventId;
+        this.id = id;
         this.origin = origin;
         this.event = event;
+    }
+
+    public EventData(String data, String id, String event) {
+        this(data, id, event, null);
     }
 
     EventData(String data) {
@@ -42,7 +46,7 @@ public class EventData {
         EventData eventData = (EventData) o;
 
         if (data != null ? !data.equals(eventData.data) : eventData.data != null) return false;
-        if (lastEventId != null ? !lastEventId.equals(eventData.lastEventId) : eventData.lastEventId != null)
+        if (id != null ? !id.equals(eventData.id) : eventData.id != null)
             return false;
         return origin != null ? origin.equals(eventData.origin) : eventData.origin == null;
     }
@@ -50,7 +54,7 @@ public class EventData {
     @Override
     public int hashCode() {
         int result = data != null ? data.hashCode() : 0;
-        result = 31 * result + (lastEventId != null ? lastEventId.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + (origin != null ? origin.hashCode() : 0);
         return result;
     }
@@ -59,7 +63,7 @@ public class EventData {
     public String toString() {
         return "EventData{" +
                 "data='" + data + '\'' +
-                ", lastEventId='" + lastEventId + '\'' +
+                ", id='" + id + '\'' +
                 ", origin='" + origin + '\'' +
                 '}';
     }

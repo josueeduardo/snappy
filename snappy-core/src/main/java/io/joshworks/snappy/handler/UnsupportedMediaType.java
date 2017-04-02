@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
 public class UnsupportedMediaType extends Exception {
 
     private static final String MESSAGE_PREFIX = "Unsupported media type: ";
-    final HeaderValues headerValues;
-    final MediaTypes types;
+    public final HeaderValues headerValues;
+    public final MediaTypes types;
 
     private UnsupportedMediaType(String message, HeaderValues headerValues, MediaTypes mediaTypes) {
         super(message);

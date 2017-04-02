@@ -50,12 +50,12 @@ public class SSEConnection {
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     final String url;
-    final SSEClientCallback callback;
+    final SseClientCallback callback;
     private XnioWorker worker;
     private ClientConnection connection;
     String lastEventId;
 
-    public SSEConnection(String url, SSEClientCallback callback, XnioWorker worker) {
+    public SSEConnection(String url, SseClientCallback callback, XnioWorker worker) {
         this.url = url;
         this.callback = callback;
         this.worker = worker;
@@ -86,8 +86,7 @@ public class SSEConnection {
             connection.sendRequest(request, createClientCallback());
 
         } catch (Exception e) {
-            close();
-            callback.onError(e);
+            throw new RuntimeException(e);
         }
     }
 

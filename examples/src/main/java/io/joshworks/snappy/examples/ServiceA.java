@@ -15,20 +15,21 @@
  *
  */
 
-package io.joshworks.snappy.parser;
+package io.joshworks.snappy.examples;
 
-import java.util.Arrays;
+
+import io.joshworks.snappy.extras.ssr.client.SSRClientExtension;
+
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
- * Created by josh on 3/6/17.
+ * Created by Josh Gontijo on 4/1/17.
  */
-public class ParseNotFoundException extends RuntimeException {
+public class ServiceA {
 
-    public ParseNotFoundException(String mediaType) {
-        super("Parser not found for media type '" + mediaType + "'");
-    }
-
-    public ParseNotFoundException(String[] mediaTypes) {
-        super("Parser not found for media types '" + Arrays.toString(mediaTypes) + "'");
+    public static void main(String[] args) {
+        portOffset(1);
+        register(new SSRClientExtension());
+        start();
     }
 }

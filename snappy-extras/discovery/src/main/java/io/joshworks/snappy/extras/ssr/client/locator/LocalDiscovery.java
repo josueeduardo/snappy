@@ -25,14 +25,14 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Enumeration;
 
-import static io.joshworks.snappy.extras.ssr.SSRKeys.LOGGER_NAME;
+import static io.joshworks.snappy.extras.ssr.SSRKeys.SSR_LOGGER;
 
 /**
  * Created by Josue on 26/08/2016.
  */
 public class LocalDiscovery implements Discovery {
 
-    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+    private static final Logger logger = LoggerFactory.getLogger(SSR_LOGGER);
 
     private final InetAddress address;
 

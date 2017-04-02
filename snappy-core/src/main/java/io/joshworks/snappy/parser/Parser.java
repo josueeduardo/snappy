@@ -26,7 +26,7 @@ public interface Parser {
 
     <T> T readValue(String value, Class<T> valueType);
 
-    String writeValue(Object value) throws Exception;
+    String writeValue(Object value);
 
     MediaType mediaType();
 }

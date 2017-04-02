@@ -15,21 +15,22 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr;
+package io.joshworks.snappy.examples;
+
+
+import io.joshworks.snappy.extras.ssr.server.SSRServerExtension;
+
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
- * Created by Josue on 16/06/2016.
+ * Created by Josh Gontijo on 4/1/17.
  */
-public class SSRException extends RuntimeException {
+public class DiscoveryServer {
 
-    private final int status;
-
-    public SSRException(String message, int status) {
-        super(message);
-        this.status = status;
-    }
-
-    public int getStatus() {
-        return status;
+    public static void main(String[] args) {
+        port(9999);
+        adminPort(9998);
+        register(new SSRServerExtension());
+        start();
     }
 }

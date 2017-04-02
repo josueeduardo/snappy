@@ -18,7 +18,6 @@
 package io.joshworks.snappy.extras.ssr.server.service;
 
 import io.joshworks.snappy.extras.ssr.Instance;
-import io.joshworks.snappy.extras.ssr.server.ws.SessionStore;
 import io.joshworks.snappy.rest.RestException;
 import io.joshworks.snappy.rest.RestExchange;
 
@@ -30,11 +29,24 @@ public class InstancesResource {
 
     private final ServiceControl control;
 
-    private final SessionStore sessionStore;
+//    private final SessionStore sessionStore;
 
-    public InstancesResource(ServiceControl control, SessionStore sessionStore) {
+    public InstancesResource(ServiceControl control) {
         this.control = control;
-        this.sessionStore = sessionStore;
+//        this.sessionStore = sessionStore;
+    }
+
+    public void register(RestExchange exchange) {
+        Instance instance = exchange.body().asObject(Instance.class);
+
+        if (instance == null || instance.getState() == null) { //it only supports state update as for now
+            throw RestException.badRequest("Invalid instance");
+        }
+
+        Instance registered = control.register(instance);
+//        sessionStore.pushInstanceState(registered);
+
+        exchange.status(201).send(registered);
     }
 
     public void updateServiceState(RestExchange exchange) {
@@ -46,7 +58,7 @@ public class InstancesResource {
         }
 
         Instance updated = control.updateInstanceState(instanceId, instance.getState());
-        sessionStore.pushInstanceState(updated);
+//        sessionStore.pushInstanceState(updated);
 
         exchange.status(204);
     }

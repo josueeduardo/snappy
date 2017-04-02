@@ -15,21 +15,14 @@
  *
  */
 
-package io.joshworks.snappy.extras.ssr;
+package io.joshworks.snappy.extras.ssr.server.sse;
 
 /**
- * Created by Josue on 16/06/2016.
+ * Created by Josh Gontijo on 4/2/17.
  */
-public class SSRException extends RuntimeException {
+public enum EventType {
 
-    private final int status;
+    ACK, //Heartbeat
+    INSTANCE //Instance related event, may be UP / DOWN / OUT_OF_SERVICE
 
-    public SSRException(String message, int status) {
-        super(message);
-        this.status = status;
-    }
-
-    public int getStatus() {
-        return status;
-    }
 }

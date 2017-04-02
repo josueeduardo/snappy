@@ -21,8 +21,9 @@ package io.joshworks.snappy.extras.ssr.server.service;
 import io.joshworks.snappy.extras.ssr.Instance;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ import java.util.Set;
 public class Service implements Serializable {
 
     private String name;
-    private final Set<Instance> instances = new HashSet<>();
+    private final Map<String, Instance> instances = new HashMap<>();
     private final Set<String> links = new HashSet<>();
 
     public Service() {
@@ -46,41 +47,20 @@ public class Service implements Serializable {
     }
 
     public Set<Instance> getInstances() {
-        return new HashSet<>(instances);
+        return new HashSet<>(instances.values());
     }
 
     public boolean containsInstance(String instanceId) {
-        for (Instance instance : instances) {
-            if (instance.getId().equals(instanceId)) {
-                return true;
-            }
-        }
-        return false;
+        return instanceId != null && instances.values().stream().anyMatch(i -> i.getId().equals(instanceId));
     }
 
     public Instance addInstance(Instance newInstance) {
-        Instance existent = null;
-        for (Instance instance : instances) {
-            if (instance.equals(newInstance)) {
-                existent = instance;
-            }
-        }
-
-        //already exists and is not UP, remove it
-        if (existent != null && !Instance.State.UP.equals(existent.getState())) {
-            instances.remove(existent);
-        }
-        instances.add(newInstance);
+        instances.put(newInstance.getAddress(), newInstance);
         return newInstance;
     }
 
     public synchronized void removeInstance(String instanceId) {
-        Iterator<Instance> it = instances.iterator();
-        while (it.hasNext()) {
-            if (it.next().getId().equals(instanceId)) {
-                it.remove();
-            }
-        }
+        instances.values().removeIf(instance -> instance.getId().equals(instanceId));
     }
 
     public String getName() {

@@ -92,8 +92,8 @@ public class EventStreamParser {
         EventData message = new EventData(
                 removeLineBreak(data.toString()),
                 removeLineBreak(lastEventId),
-                removeLineBreak(origin),
-                removeLineBreak(eventName));
+                removeLineBreak(eventName),
+                removeLineBreak(origin));
 
         connection.lastEventId = removeLineBreak(lastEventId);
         try {

@@ -17,6 +17,7 @@
 
 package io.joshworks.snappy.sse;
 
+import io.joshworks.snappy.client.sse.EventData;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.rest.MediaType;
@@ -26,6 +27,7 @@ import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 /**
  * Created by josh on 3/9/17.
@@ -38,7 +40,7 @@ public class SseBroadcaster {
     }
 
     public static void broadcast(String data) {
-        endpoints.stream().flatMap(sse -> sse.getConnections().stream()).forEach(sseConn -> sseConn.send(data));
+        all().forEach(sseConn -> sseConn.send(data));
     }
 
     public static void broadcast(Object data, MediaType mediaType) {
@@ -47,14 +49,25 @@ public class SseBroadcaster {
     }
 
     public static void broadcast(String data, Predicate<ServerSentEventConnection> filter) {
-        endpoints.stream().flatMap(endpoint -> endpoint.getConnections().stream())
-                .filter(filter)
+        all().filter(filter)
                 .forEach(conn -> conn.send(data));
     }
 
     public static void broadcast(Object data, MediaType mediaType, Predicate<ServerSentEventConnection> filter) {
         Parser parser = Parsers.getParser(mediaType);
         broadcast(parser.writeValue(data), filter);
+    }
+
+    public static void broadcast(EventData eventData) {
+        all().forEach(sseConn -> sseConn.send(eventData.data, eventData.event, eventData.id, null));
+    }
+
+    public static void broadcast(EventData eventData, Predicate<ServerSentEventConnection> filter) {
+        all().filter(filter).forEach(sseConn -> sseConn.send(eventData.data, eventData.event, eventData.id, null));
+    }
+
+    private static Stream<ServerSentEventConnection> all() {
+        return endpoints.stream().flatMap(sse -> sse.getConnections().stream());
     }
 
     static void register(ServerSentEventHandler handler) {

@@ -25,17 +25,16 @@ import io.joshworks.snappy.property.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.Properties;
 
-import static io.joshworks.snappy.extras.ssr.SSRKeys.LOGGER_NAME;
+import static io.joshworks.snappy.extras.ssr.SSRKeys.SSR_LOGGER;
 
 /**
  * Created by Josue on 26/08/2016.
  */
 public class Configuration {
 
-    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+    private static final Logger logger = LoggerFactory.getLogger(SSR_LOGGER);
 
     private static final String DEFAULT_REGISTRY_PORT = "9999";
     private static final String DEFAULT_REGISTRY_HOST = "localhost";
@@ -61,14 +60,12 @@ public class Configuration {
         }
         name = name.replaceAll(" ", "-");
 
-        String serviceAddress = getClientUrl();
-
         Instance instance = new Instance();
         instance.setHost(getClientHost());
         instance.setPort(getClientPort());
         instance.setFetchServices(clientEnabled);
         instance.setDiscoverable(enableDiscovery);
-        instance.setSince(new Date());
+        instance.setSince(System.currentTimeMillis());
         instance.setName(name);
         instance.setState(Instance.State.UP);
 
@@ -91,7 +88,7 @@ public class Configuration {
 
     //String name, boolean clientEnabled, boolean enableDiscovery
     private String getAppName() {
-        return String.valueOf(AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_APP_NAME));
+        return AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_APP_NAME);
     }
 
     private boolean isClientEnabled() {

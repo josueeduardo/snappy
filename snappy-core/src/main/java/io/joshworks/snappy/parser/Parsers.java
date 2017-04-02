@@ -39,7 +39,6 @@ public class Parsers {
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private static final Map<MediaType, Parser> available = new HashMap<>();
-    private static final Parser defaultParser = new JsonParser();
 
     private Parsers() {
 
@@ -60,8 +59,9 @@ public class Parsers {
     /**
      * @param contentTypes The accept types by the client
      * @return The {@link Parser} for the first match, if no media type is provided, the default {@link JsonParser}
+     * @throws ParserNotFoundException If parser is not found
      */
-    public static Parser find(List<String> contentTypes) throws ParseNotFoundException {
+    public static Parser find(List<String> contentTypes) throws ParserNotFoundException {
         List<MediaType> types = new ArrayList<>();
         for (String ct : contentTypes) {
             types.add(MediaType.valueOf(ct));
@@ -69,30 +69,31 @@ public class Parsers {
         return findByType(new HashSet<>(types));
     }
 
-    public static Parser findByType(Set<MediaType> contentTypes) throws ParseNotFoundException {
-        if (contentTypes == null || contentTypes.isEmpty()) {
-            return defaultParser;
-        }
-        for (Map.Entry<MediaType, Parser> parser : available.entrySet()) {
-            for (MediaType acceptType : contentTypes) {
-                if (parser.getKey().isCompatible(acceptType)) {
-                    return parser.getValue();
-                }
-            }
-        }
-        throw new ParseNotFoundException(contentTypes.stream().map(MediaType::toString).toArray(String[]::new));
-    }
-
     /**
-     * @param contentType The accept types by the client
-     * @return The {@link Parser} for the first match, if no media type is provided, the default {@link JsonParser}
+     * @param contentType The accepted types
+     * @return The {@link Parser} for the first match.
+     * @throws ParserNotFoundException If parser is not found
      */
-    public static Parser getParser(MediaType contentType) {
+    public static Parser getParser(MediaType contentType)  throws ParserNotFoundException {
         return findByType(new HashSet<>(Collections.singletonList(contentType)));
     }
 
     public static Parser getParser(String contentType) {
         return getParser(MediaType.valueOf(contentType));
+    }
+
+    private static Parser findByType(Set<MediaType> contentTypes) throws ParserNotFoundException {
+        if (contentTypes != null && !contentTypes.isEmpty()) {
+            for (Map.Entry<MediaType, Parser> parser : available.entrySet()) {
+                for (MediaType acceptType : contentTypes) {
+                    if (parser.getKey().isCompatible(acceptType)) {
+                        return parser.getValue();
+                    }
+                }
+            }
+        }
+
+        throw new ParserNotFoundException(contentTypes.stream().map(MediaType::toString).toArray(String[]::new));
     }
 
 }

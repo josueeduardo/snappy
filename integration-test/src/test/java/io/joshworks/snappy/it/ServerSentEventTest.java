@@ -17,9 +17,9 @@
 
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.client.SSEClient;
+import io.joshworks.snappy.client.SseClient;
 import io.joshworks.snappy.client.sse.EventData;
-import io.joshworks.snappy.client.sse.SSEClientCallback;
+import io.joshworks.snappy.client.sse.SseClientCallback;
 import io.joshworks.snappy.client.sse.SSEConnection;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -52,7 +52,7 @@ public class ServerSentEventTest {
         });
 
 
-        sse("/lastEventId", (connection, lastEventId) -> {
+        sse("/id", (connection, lastEventId) -> {
 
             int eventId = lastEventId == null ? 0 : Integer.parseInt(lastEventId);
             connection.addCloseTask(channel -> System.out.println("Disconnected"));
@@ -84,7 +84,7 @@ public class ServerSentEventTest {
     public void messageReceived() throws Exception {
         final CountDownLatch latch = new CountDownLatch(3);
 
-        SSEClient.connect("http://localhost:9000/simple", (data) -> {
+        SseClient.connect("http://localhost:9000/simple", (data) -> {
             assertNotNull(data);
             latch.countDown();
         });
@@ -99,7 +99,7 @@ public class ServerSentEventTest {
         CountDownLatch firstConenction = new CountDownLatch(3);
         CountDownLatch secondConnection = new CountDownLatch(6);
 
-        SSEConnection connect = SSEClient.connect("http://localhost:9000/lastEventId", new SSEClientCallback() {
+        SSEConnection connect = SseClient.connect("http://localhost:9000/id", new SseClientCallback() {
             @Override
             public void onEvent(EventData data) {
                 System.out.println(data);
@@ -138,7 +138,7 @@ public class ServerSentEventTest {
     public void closedByTheServer() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
 
-        SSEConnection sseConnection = SSEClient.connect("http://localhost:9000/serverClose", new SSEClientCallback() {
+        SSEConnection sseConnection = SseClient.connect("http://localhost:9000/serverClose", new SseClientCallback() {
             @Override
             public void onEvent(EventData event) {
             }
@@ -163,7 +163,7 @@ public class ServerSentEventTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final CountDownLatch messageLatch = new CountDownLatch(3);
 
-        SSEConnection sseConnection = SSEClient.connect("http://localhost:9000/simple", new SSEClientCallback() {
+        SSEConnection sseConnection = SseClient.connect("http://localhost:9000/simple", new SseClientCallback() {
             @Override
             public void onEvent(EventData event) {
                 messageLatch.countDown();

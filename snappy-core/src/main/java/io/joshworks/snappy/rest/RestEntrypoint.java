@@ -15,11 +15,9 @@
  *
  */
 
-package io.joshworks.snappy.handler;
+package io.joshworks.snappy.rest;
 
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.ExceptionWrapper;
-import io.joshworks.snappy.rest.RestExchange;
+import io.joshworks.snappy.handler.HandlerUtil;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
