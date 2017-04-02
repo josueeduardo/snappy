@@ -74,7 +74,7 @@ public class ServiceControl {
                 .findFirst();
 
         if (!first.isPresent()) {
-            throw RestException.badRequest("Service not foundSource for session '" + instanceId + "'");
+            throw RestException.badRequest("Instance not found for id '" + instanceId + "'");
         }
 
         Instance instance = first.get();

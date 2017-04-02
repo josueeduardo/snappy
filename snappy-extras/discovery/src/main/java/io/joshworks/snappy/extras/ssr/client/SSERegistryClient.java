@@ -59,7 +59,7 @@ public class SSERegistryClient extends SseClientCallback {
     public void onEvent(EventData data) {
         try {
             if (EventType.valueOf(data.event).equals(EventType.INSTANCE)) {
-                logger.warn("New Instance event: {}", data.data);
+                logger.info("New Instance event: {}", data.data);
                 Instance instanceEvent = parser.readValue(data.data, Instance.class);
                 store.proccessInstance(instanceEvent);
             } else if (EventType.valueOf(data.event).equals(EventType.ACK)) {
@@ -70,7 +70,7 @@ public class SSERegistryClient extends SseClientCallback {
             }
 
         } catch (Exception e) {
-            logger.error("Error while deserialize EventData", e);
+            logger.error("Error while receiving EventData", e);
         }
     }
 

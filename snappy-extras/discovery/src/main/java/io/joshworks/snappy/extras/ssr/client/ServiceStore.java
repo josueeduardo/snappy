@@ -95,10 +95,12 @@ public class ServiceStore {
         synchronized (LOCK) {
             if (store.containsKey(instance.getName())) {
                 store.get(instance.getName()).remove(instance);
+
+                if (store.get(instance.getName()).isEmpty()) {
+                    store.remove(instance.getName());
+                }
             }
-            if (store.get(instance.getName()).isEmpty()) {
-                store.remove(instance.getName());
-            }
+
         }
     }
 

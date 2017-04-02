@@ -57,7 +57,6 @@ public class InstanceNameUrlLookupTest {
 
         String url = lookup.getUrl(protocol + serviceA);
         assertEquals(protocol + DUMMY_ADDRESS, url);
-
     }
 
     @Test
@@ -69,6 +68,43 @@ public class InstanceNameUrlLookupTest {
         assertEquals(serviceA, url);
 
     }
+
+    @Test
+    public void path() throws Exception {
+        String protocol = "http://";
+        String serviceA = "service-name";
+        String resourcePath = "/a";
+
+        lookup = new InstanceNameUrlLookup(new MockServiceStore(serviceA));
+
+        String url = lookup.getUrl(protocol + serviceA + resourcePath);
+        assertEquals(protocol + DUMMY_ADDRESS + resourcePath, url);
+    }
+
+    @Test
+    public void multiplePath() throws Exception {
+        String protocol = "http://";
+        String serviceA = "service-name";
+        String resourcePath = "/a/b/c";
+
+        lookup = new InstanceNameUrlLookup(new MockServiceStore(serviceA));
+
+        String url = lookup.getUrl(protocol + serviceA + resourcePath);
+        assertEquals(protocol + DUMMY_ADDRESS + resourcePath, url);
+    }
+
+    @Test
+    public void emptPath() throws Exception {
+        String protocol = "http://";
+        String serviceA = "service-name";
+        String resourcePath = "/";
+
+        lookup = new InstanceNameUrlLookup(new MockServiceStore(serviceA));
+
+        String url = lookup.getUrl(protocol + serviceA + resourcePath);
+        assertEquals(protocol + DUMMY_ADDRESS + resourcePath, url);
+    }
+
 
     public static class MockServiceStore extends ServiceStore {
 

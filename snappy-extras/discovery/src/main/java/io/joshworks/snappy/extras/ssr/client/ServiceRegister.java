@@ -57,7 +57,7 @@ public abstract class ServiceRegister implements Runnable {
 
     protected abstract void disconnect();
 
-    void init() {
+    void bootstrap() {
         synchronized (LOCK) {
             logger.info("Bootstrap service discovery");
             logger.info("Application name: {}", instance.getName());

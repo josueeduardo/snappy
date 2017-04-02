@@ -52,10 +52,10 @@ public class SSRClientExtension implements SnappyExtension {
         Instance instance = configuration.configureInstance();
 
         ScheduledExecutorService scheduler = AppExecutors.scheduler();
-        register = new SSEServiceRegister(serviceStore, instance, configuration.getRegistryUrl(), scheduler);
-        register.init();
-
         ClientManager.configureClientUrlLookup(new InstanceNameUrlLookup(serviceStore));
+
+        register = new SSEServiceRegister(serviceStore, instance, configuration.getRegistryUrl(), scheduler);
+        register.bootstrap();
     }
 
     @Override
