@@ -15,20 +15,14 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.client;
 
 /**
- * Created by Josh Gontijo on 3/27/17.
+ * Created by Josh Gontijo on 4/2/17.
  */
-public class ExceptionWrapper<T extends Exception> {
+public class UrlLookup {
 
-    public final long timestamp;
-    public final T exception;
-    public final int assignedStatusCode;
-
-    public ExceptionWrapper(T exception) {
-        assignedStatusCode = exception instanceof RestException ? ((RestException) exception).status : -1;
-        this.timestamp = System.currentTimeMillis();
-        this.exception = exception;
+    public String getUrl(String original) {
+        return original;
     }
 }

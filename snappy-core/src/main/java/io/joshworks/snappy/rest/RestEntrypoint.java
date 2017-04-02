@@ -50,11 +50,15 @@ public class RestEntrypoint implements HttpHandler {
                 endpoint.accept(restExchange);
             }
         }  catch (Exception e) {
-            ExceptionWrapper<Exception> wrapper = new ExceptionWrapper<>(e);
+            //unwraps the exception caught from RestConsumer
+            if(e instanceof ExceptionCaught) {
+                e = ((ExceptionCaught)e).exception;
+            }
+
+            ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(e);
             logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Application error"), e);
             exceptionMapper.getOrFallback(e).onException(wrapper, restExchange);
             exchange.endExchange();
-
         }
     }
 

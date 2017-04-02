@@ -15,21 +15,20 @@
  *
  */
 
-package io.joshworks.snappy.examples;
-
-
-import io.joshworks.snappy.extras.ssr.client.SSRClientExtension;
-
-import static io.joshworks.snappy.SnappyServer.*;
+package io.joshworks.snappy.rest;
 
 /**
- * Created by Josh Gontijo on 4/1/17.
+ * Created by Josh Gontijo on 3/27/17.
  */
-public class ServiceA {
+public class ExceptionDetails<T extends Exception> {
 
-    public static void main(String[] args) {
-        portOffset(1);
-        register(new SSRClientExtension());
-        start();
+    public final long timestamp;
+    public final T exception;
+    public final int assignedStatusCode;
+
+    public ExceptionDetails(T exception) {
+        assignedStatusCode = exception instanceof RestException ? ((RestException) exception).status : 500;
+        this.timestamp = System.currentTimeMillis();
+        this.exception = exception;
     }
 }

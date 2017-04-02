@@ -33,12 +33,12 @@ public class WsClient {
 
     }
 
-    public static WebSocketChannel connect(URI uri, ChannelListener<? super WebSocketChannel> clientEndpoint) {
+    public static WebSocketChannel connect(String url, ChannelListener<? super WebSocketChannel> clientEndpoint) {
         try {
             WebSocketChannel webSocketChannel = new WebSocketClient.ConnectionBuilder(
-                    ClientWorker.getWorker(),
+                    ClientManager.getWorker(),
                     new DefaultByteBufferPool(false, 2048),
-                    uri)
+                    URI.create(ClientManager.lookup(url)))
                     .connect().get();
 
 

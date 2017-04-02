@@ -39,12 +39,10 @@ public class ConnegHandler implements HttpHandler {
     public static final AttachmentKey<NegotiatedMediaType> NEGOTIATED_MEDIA_TYPE = AttachmentKey.create(NegotiatedMediaType.class);
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     private final HttpHandler next;
-    private final ExceptionMapper exceptionMapper;
     private MediaTypes consumes;
     private MediaTypes produces;
 
-    public ConnegHandler(HttpHandler next, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
-        this.exceptionMapper = exceptionMapper;
+    public ConnegHandler(HttpHandler next, MediaTypes... mimeTypes) {
         initTypes(mimeTypes);
         consumes = consumes == null ? MediaTypes.DEFAULT_CONSUMES : consumes;
         produces = produces == null ? MediaTypes.DEFAULT_PRODUCES : produces;
@@ -109,8 +107,8 @@ public class ConnegHandler implements HttpHandler {
         if (hasContentType) {
             return consumes.match(bodyContentType);
         }
-        //If no content type is specified, text/plain is used
-        return MediaType.TEXT_PLAIN_TYPE;
+        //If no content type is specified, json is used
+        return consumes.getDefaultType();
     }
 
     public static class NegotiatedMediaType {

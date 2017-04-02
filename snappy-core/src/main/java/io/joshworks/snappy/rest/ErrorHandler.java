@@ -24,5 +24,5 @@ import io.joshworks.snappy.Exchange;
  */
 public interface ErrorHandler<T extends Exception> {
 
-    void onException(ExceptionWrapper<T> e, Exchange exchange);
+    void onException(ExceptionDetails<T> e, Exchange exchange);
 }

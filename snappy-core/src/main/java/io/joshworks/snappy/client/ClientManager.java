@@ -25,10 +25,11 @@ import org.xnio.XnioWorker;
 import java.io.IOException;
 
 /**
- * Created by Josh Gontijo on 4/1/17.
- * Manages XnioWorker for SSE and Websockers
+ * Created by Josh Gontijo on 4/2/17.
  */
-public class ClientWorker {
+public class ClientManager {
+
+    private static final String CLIENT_WORKER_NAME = "client-worker";
 
     private static final OptionMap.Builder DEFAULT = OptionMap.builder()
             .set(Options.WORKER_IO_THREADS, 5)
@@ -37,12 +38,22 @@ public class ClientWorker {
 
     private static XnioWorker worker;
 
-    public synchronized static void configure(OptionMap.Builder builder) throws IOException {
+    private static UrlLookup lookup = new UrlLookup();
+
+    public static void init() {
+        RestClient.init();
+    }
+
+    public synchronized static void configureWorker(OptionMap.Builder builder) throws IOException {
         if(builder == null) {
             builder = DEFAULT;
         }
-        builder.set(Options.WORKER_NAME, "CLIENT-WORKER");
+        builder.set(Options.WORKER_NAME, CLIENT_WORKER_NAME);
         worker = Xnio.getInstance().createWorker(builder.getMap());
+    }
+
+    public static void configureClientUrlLookup(UrlLookup lookup) {
+        ClientManager.lookup = lookup;
     }
 
     static XnioWorker getWorker() {
@@ -52,4 +63,12 @@ public class ClientWorker {
         return worker;
     }
 
+    static String lookup(String original) {
+        return lookup.getUrl(original);
+    }
+
+    public static void shutdown() {
+        RestClient.shutdown();
+        worker.shutdown();
+    }
 }

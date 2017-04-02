@@ -35,8 +35,7 @@ public class RestClient {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-
-    public static void init() {
+    static void init() {
         Options.refresh();
         JsonParser jsonParser = new JsonParser();
         Unirest.setObjectMapper(new ObjectMapper() {
@@ -80,7 +79,7 @@ public class RestClient {
         return Unirest.patch(url);
     }
 
-    public static void shutdown() {
+    static void shutdown() {
         try {
             Unirest.shutdown();
         } catch (Exception e) {

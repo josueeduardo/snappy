@@ -46,7 +46,7 @@ public class RestDispatcher implements HttpHandler {
     public RestDispatcher(Consumer<RestExchange> endpoint, InterceptorHandler interceptorHandler, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
         this.exceptionMapper = exceptionMapper;
         interceptorHandler.setNext(new RestEntrypoint(endpoint, exceptionMapper));
-        this.connegHandler = new ConnegHandler(interceptorHandler, exceptionMapper, mimeTypes);
+        this.connegHandler = new ConnegHandler(interceptorHandler, mimeTypes);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class RestDispatcher implements HttpHandler {
             this.connegHandler.handleRequest(exchange);
         } catch (UnsupportedMediaType connex) {
 
-            ExceptionWrapper<UnsupportedMediaType> wrapper = new ExceptionWrapper<>(connex);
+            ExceptionDetails<UnsupportedMediaType> wrapper = new ExceptionDetails<>(connex);
             String description = "Unsupported media type " + connex.headerValues + " supported types: " + connex.types;
             logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, description));
 
@@ -63,7 +63,7 @@ public class RestDispatcher implements HttpHandler {
             exchange.endExchange();
 
         } catch (Exception e) { //Should not happen (server error)
-            ExceptionWrapper<Exception> wrapper = new ExceptionWrapper<>(e);
+            ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(e);
 
             logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Server error"), e);
             sendErrorResponse(exchange, wrapper);
@@ -72,7 +72,7 @@ public class RestDispatcher implements HttpHandler {
         }
     }
 
-    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, ExceptionWrapper<T> wrapper) {
+    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, ExceptionDetails<T> wrapper) {
         ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(wrapper.exception);
         try {
             errorHandler.onException(wrapper, new RestExchange(exchange));

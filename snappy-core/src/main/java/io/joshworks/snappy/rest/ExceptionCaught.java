@@ -17,26 +17,14 @@
 
 package io.joshworks.snappy.rest;
 
-import io.joshworks.snappy.Exchange;
-import io.undertow.server.HttpServerExchange;
-
 /**
- * Created by josh on 3/5/17.
+ * Created by Josh Gontijo on 4/2/17.
  */
-public class RestExchange extends Exchange {
+class ExceptionCaught extends RuntimeException {
 
-    private Body body;
+    public final Exception exception;
 
-    public RestExchange(HttpServerExchange exchange) {
-        super(exchange);
-
+    ExceptionCaught(Exception e) {
+        this.exception = e;
     }
-
-    public Body body() {
-        if(body == null) {
-            this.body = new Body(exchange);
-        }
-        return body;
-    }
-
 }

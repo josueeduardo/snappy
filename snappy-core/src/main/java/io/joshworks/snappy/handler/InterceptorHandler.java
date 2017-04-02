@@ -20,7 +20,7 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.Exchange;
 import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.ExceptionWrapper;
+import io.joshworks.snappy.rest.ExceptionDetails;
 import io.joshworks.snappy.rest.Interceptor;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
@@ -76,7 +76,7 @@ public class InterceptorHandler implements HttpHandler {
             try {
                 interceptor.intercept(requestExchange);
             } catch (Exception ex) {
-                ExceptionWrapper<Exception> wrapper = new ExceptionWrapper<>(ex);
+                ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(ex);
                 String message = "Error handling " + type.name() + " interceptor, next interceptor will not proceed";
                 logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, message), ex);
                 if (Interceptor.Type.BEFORE.equals(type)) {

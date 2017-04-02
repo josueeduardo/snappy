@@ -48,9 +48,11 @@ public class Body {
 
     public Body(HttpServerExchange exchange) {
         this.is = exchange.getInputStream();
-        ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
-        this.negotiatedConsumeType = negotiatedMediaType.consumes;
         this.requestHeaders = exchange.getRequestHeaders();
+
+        ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
+        this.negotiatedConsumeType = negotiatedMediaType == null ? MediaType.APPLICATION_JSON_TYPE : negotiatedMediaType.consumes;
+
     }
 
     public InputStream asBinary() {

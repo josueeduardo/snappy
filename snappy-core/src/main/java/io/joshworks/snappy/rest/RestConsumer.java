@@ -17,26 +17,25 @@
 
 package io.joshworks.snappy.rest;
 
-import io.joshworks.snappy.Exchange;
-import io.undertow.server.HttpServerExchange;
+import java.util.function.Consumer;
 
 /**
- * Created by josh on 3/5/17.
+ * Created by Josh Gontijo on 4/2/17.
+ * Wraps checked exceptions into unchecked exception
+ * When used with exception handlers it will unwrap the real cause and pass it in
  */
-public class RestExchange extends Exchange {
+@FunctionalInterface
+public interface RestConsumer<T> extends Consumer<T> {
 
-    private Body body;
-
-    public RestExchange(HttpServerExchange exchange) {
-        super(exchange);
-
-    }
-
-    public Body body() {
-        if(body == null) {
-            this.body = new Body(exchange);
+    @Override
+    default void accept(final T elem) {
+        try {
+            acceptThrows(elem);
+        } catch (final Exception e) {
+            throw new ExceptionCaught(e);
         }
-        return body;
     }
+
+    void acceptThrows(T elem) throws Exception;
 
 }

@@ -29,12 +29,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+
 /**
  * Created by Josh Gontijo on 3/22/17.
  */
 public final class Part {
 
-    private static final Logger logger = LoggerFactory.getLogger(Part.class);
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private String name;
     private PartFile partFile;

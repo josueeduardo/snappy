@@ -39,7 +39,7 @@ public class SseClient {
     }
 
     public static SSEConnection connect(String url, Consumer<EventData> callback) {
-        return connect(url, new SseClientCallback() {
+        return connect(ClientManager.lookup(url), new SseClientCallback() {
             @Override
             public void onEvent(EventData data) {
                 callback.accept(data);
@@ -48,7 +48,7 @@ public class SseClient {
     }
 
     public static SSEConnection connect(String url, SseClientCallback callback) {
-        SSEConnection connection = new SSEConnection(url, callback, ClientWorker.getWorker());
+        SSEConnection connection = new SSEConnection(ClientManager.lookup(url), callback, ClientManager.getWorker());
         connection.connect();
         return connection;
     }
