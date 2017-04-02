@@ -27,7 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -66,7 +65,7 @@ public class WebsocketTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<String> result = new AtomicReference<>();
 
-        WebSocketChannel webSocketChannel = WsClient.connect(URI.create(WS_ENDPOINT), new AbstractReceiveListener() {
+        WebSocketChannel webSocketChannel = WsClient.connect(WS_ENDPOINT, new AbstractReceiveListener() {
             @Override
             protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
                 result.set(message.getData());

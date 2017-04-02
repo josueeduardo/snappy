@@ -68,7 +68,11 @@ public class RestTest {
 
     @Test
     public void postRequest() throws Exception {
-        HttpResponse<SampleData> response = RestClient.post(RESOURCE_PATH).body(payload).asObject(SampleData.class);
+        HttpResponse<SampleData> response = RestClient.post(RESOURCE_PATH)
+                .header("Content-Type", "application/json")
+                .body(payload)
+                .asObject(SampleData.class);
+
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
         assertNotNull(responseBody);
@@ -77,7 +81,11 @@ public class RestTest {
 
     @Test
     public void putRequest() throws Exception {
-        HttpResponse<SampleData> response = RestClient.put(RESOURCE_PATH).body(payload).asObject(SampleData.class);
+        HttpResponse<SampleData> response = RestClient.put(RESOURCE_PATH)
+                .header("Content-Type", "application/json")
+                .body(payload)
+                .asObject(SampleData.class);
+
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
         assertNotNull(responseBody);
@@ -86,7 +94,11 @@ public class RestTest {
 
     @Test
     public void deleteRequest() throws Exception {
-        HttpResponse<SampleData> response = RestClient.delete(RESOURCE_PATH).body(payload).asObject(SampleData.class);
+        HttpResponse<SampleData> response = RestClient.delete(RESOURCE_PATH)
+                .header("Content-Type", "application/json")
+                .body(payload)
+                .asObject(SampleData.class);
+
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
         assertNotNull(responseBody);
