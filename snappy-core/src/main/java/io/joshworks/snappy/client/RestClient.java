@@ -52,31 +52,31 @@ public class RestClient {
     }
 
     public static GetRequest get(String url) {
-        return Unirest.get(url);
+        return Unirest.get(ClientManager.lookup(url));
     }
 
     public static HttpRequestWithBody post(String url) {
-        return Unirest.post(url);
+        return Unirest.post(ClientManager.lookup(url));
     }
 
     public static HttpRequestWithBody put(String url) {
-        return Unirest.put(url);
+        return Unirest.put(ClientManager.lookup(url));
     }
 
     public static HttpRequestWithBody delete(String url) {
-        return Unirest.delete(url);
+        return Unirest.delete(ClientManager.lookup(url));
     }
 
     public static HttpRequestWithBody options(String url) {
-        return Unirest.options(url);
+        return Unirest.options(ClientManager.lookup(url));
     }
 
     public static GetRequest head(String url) {
-        return Unirest.head(url);
+        return Unirest.head(ClientManager.lookup(url));
     }
 
     public static HttpRequestWithBody patch(String url) {
-        return Unirest.patch(url);
+        return Unirest.patch(ClientManager.lookup(url));
     }
 
     static void shutdown() {
