@@ -72,6 +72,9 @@ public class Configuration {
         return instance;
     }
 
+
+    //--------------------- REGISTRY PROPERTIES -----------------
+
     public String getRegistryUrl() {
         String host = getRegistryHost();
         int port = getRegistryPort();
@@ -86,25 +89,30 @@ public class Configuration {
         return host + ":" + port;
     }
 
-    //String name, boolean clientEnabled, boolean enableDiscovery
-    private String getAppName() {
-        return AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_APP_NAME);
-    }
-
-    private boolean isClientEnabled() {
-        String isClientEnabled = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_ENABLED);
-        return isClientEnabled == null || Boolean.parseBoolean(isClientEnabled);
-    }
-
-    private boolean isDiscoverable() {
-        String isDiscoverable = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_DISCOVERABLE);
-        return isDiscoverable == null || Boolean.parseBoolean(isDiscoverable);
+    private String getRegistryHost() {
+        String registryUrl = AppProperties.resolveProperties(properties, SSRKeys.SSR_REGISTRY_HOST);
+        return registryUrl == null ? DEFAULT_REGISTRY_HOST : registryUrl;
     }
 
     private int getRegistryPort() {
         String port = AppProperties.resolveProperties(properties, SSRKeys.SSR_REGISTRY_PORT);
         port = isEmpty(port) ? DEFAULT_REGISTRY_PORT : port;
         return Integer.parseInt(port);
+    }
+
+
+    //--------------------- CLIENT PROPERTIES -----------------
+
+    private String getClientHost() {
+        String key = SSRKeys.SSR_CLIENT_HOST;
+        String host = AppProperties.resolveProperties(properties, key);
+        if (isEmpty(host)) {
+            boolean useHost = useHostname();
+            String defaultHost = discovery.resolveHost(useHost);
+            properties.put(key, defaultHost);
+        }
+        return AppProperties.resolveProperties(properties, key);
+
     }
 
     /**
@@ -123,21 +131,19 @@ public class Configuration {
         return Boolean.parseBoolean(useHost);
     }
 
-    private String getRegistryHost() {
-        String registryUrl = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_HOST);
-        return registryUrl == null ? DEFAULT_REGISTRY_HOST : registryUrl;
+    //String name, boolean clientEnabled, boolean enableDiscovery
+    private String getAppName() {
+        return AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_APP_NAME);
     }
 
-    private String getClientHost() {
-        String key = SSRKeys.SSR_CLIENT_HOST;
-        String host = AppProperties.resolveProperties(properties, key);
-        if (isEmpty(host)) {
-            boolean useHost = useHostname();
-            String defaultHost = discovery.resolveHost(useHost);
-            properties.put(key, defaultHost);
-        }
-        return AppProperties.resolveProperties(properties, key);
+    private boolean isClientEnabled() {
+        String isClientEnabled = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_ENABLED);
+        return isClientEnabled == null || Boolean.parseBoolean(isClientEnabled);
+    }
 
+    private boolean isDiscoverable() {
+        String isDiscoverable = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_DISCOVERABLE);
+        return isDiscoverable == null || Boolean.parseBoolean(isDiscoverable);
     }
 
     private boolean isAws() {
@@ -175,24 +181,5 @@ public class Configuration {
     private boolean isEmpty(String value) {
         return value == null || value.isEmpty();
     }
-
-//    private String getProperty(String key) {
-//        String fromFile = AppProperties.getProperty(key);
-//        String fromEnv = fromSystemProperties(key);
-//        return (fromEnv == null || fromEnv.isEmpty()) ? fromFile : fromEnv;
-//    }
-//
-//    private String fromSystemProperties(String key) {
-//        String value = System.getProperty(key);
-//
-//        if (value == null || value.isEmpty()) {
-//            //replaces dot by underscore and to uppercase
-//            //ex: service.port -> SSR_CLIENT_PORT
-//            //so it can be used as System env
-//            String convertedKeyFormat = key.replace(".", "_").toUpperCase();
-//            value = System.getenv(convertedKeyFormat);
-//        }
-//        return value;
-//    }
 
 }
