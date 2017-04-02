@@ -28,7 +28,7 @@
         <dependency>
             <groupId>io.joshworks</groupId>
             <artifactId>snappy-core</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
