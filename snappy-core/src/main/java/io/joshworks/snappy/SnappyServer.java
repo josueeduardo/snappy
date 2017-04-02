@@ -432,7 +432,8 @@ public class SnappyServer {
         } catch (Exception e) {
             started = false;
             logger.error("Error while starting the server", e);
-            throw new RuntimeException(e);
+            stop();
+            System.exit(1);
         }
     }
 
