@@ -93,12 +93,12 @@ public class Configuration {
 
     private boolean isClientEnabled() {
         String isClientEnabled = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_ENABLED);
-        return Boolean.parseBoolean(isClientEnabled);
+        return isClientEnabled == null || Boolean.parseBoolean(isClientEnabled);
     }
 
     private boolean isDiscoverable() {
         String isDiscoverable = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_DISCOVERABLE);
-        return Boolean.parseBoolean(isDiscoverable);
+        return isDiscoverable == null || Boolean.parseBoolean(isDiscoverable);
     }
 
     private int getRegistryPort() {
