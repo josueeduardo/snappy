@@ -62,38 +62,43 @@ public class Info {
         }
     }
 
-    public static void deploymentInfo(boolean bindAddress,
-                                      boolean httpTracer,
-                                      int port,
-                                      boolean httpMetrics,
-                                      List<ExecutorConfig> executorConfig,
-                                      List<SchedulerConfig> schedulerConfig,
-                                      OptionMap.Builder options,
-                                      List<MappedEndpoint> endpoints, String basePath) {
+    public static void httpConfig(String bindAddress,
+                                  int port,
+                                  String adminBindAddress,
+                                  int adminPort,
+                                  boolean httpTracer,
+                                  boolean httpMetrics) {
 
         System.err.println("---------------- HTTP CONFIG ----------------");
         System.err.println(String.format("Bind address: %s", bindAddress));
         System.err.println(String.format("Port: %d", port));
+        System.err.println(String.format("Admin Bind address: %s", adminBindAddress));
+        System.err.println(String.format("Admin Port: %d", adminPort));
         System.err.println(String.format("Http tracer : %b", httpTracer));
         System.err.println(String.format("Http metrics: %b", httpMetrics));
 
         System.err.println();
+    }
 
-        System.err.println("--------------- SERVER CONFIG ---------------");
-        options.getMap().forEach(option -> {
-            System.err.println(String.format("%s: %s", option.getName().replaceAll("_", " ").toLowerCase(), options.getMap().get(option)));
-        });
-
-        System.err.println();
-
+    public static void threadConfig(List<ExecutorConfig> executorConfig, List<SchedulerConfig> schedulerConfig) {
         System.err.println("------------- APP THREAD CONFIG -------------");
         if (executorConfig.isEmpty() && schedulerConfig.isEmpty()) {
             System.err.println("No executors configured (default will be used)");
         }
         executorConfig.forEach(exec -> logExecutors(exec.getName(), exec.getExecutor()));
         schedulerConfig.forEach(entry -> logExecutors(entry.getName(), entry.getScheduler()));
-
         System.err.println();
+    }
+
+    public static void serverConfig(OptionMap.Builder options) {
+        System.err.println("--------------- SERVER CONFIG ---------------");
+        options.getMap().forEach(option -> {
+            System.err.println(String.format("%s: %s", option.getName().replaceAll("_", " ").toLowerCase(), options.getMap().get(option)));
+        });
+        System.err.println();
+    }
+
+    public static void endpoints(List<MappedEndpoint> endpoints, String basePath) {
         System.err.println("----------------- ENDPOINTS -----------------");
         logEndpoints(endpoints, basePath);
         System.err.println();

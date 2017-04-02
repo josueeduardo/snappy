@@ -393,7 +393,7 @@ public class SnappyServer {
             logger.info("Starting server...");
 
             AppProperties.load();
-            Info.deploymentInfo(httpMetrics, httpTracer, port, httpMetrics, executors, schedulers, optionBuilder, endpoints, basePath);
+
             ExecutorBootstrap.init(schedulers, executors);
 
             Parsers.register(new JsonParser());
@@ -410,6 +410,12 @@ public class SnappyServer {
             //Extension are capable of adding / removing mapped endpoints,
             // therefore they must execute before the handler resolution
             executeExtensions();
+
+            Info.httpConfig(bindAddress, port, adminBindAddress, adminPort, httpTracer, httpMetrics);
+            Info.serverConfig(optionBuilder);
+            Info.threadConfig(executors, schedulers);
+            Info.endpoints(endpoints, basePath);
+
 
             HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, adminManager, basePath, httpMetrics, httpTracer);
             server = serverBuilder
