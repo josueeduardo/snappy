@@ -15,21 +15,34 @@
  *
  */
 
-package io.joshworks.snappy.examples;
+package io.joshworks.examples.discovery.hello;
 
-
+import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.extras.ssr.client.SSRClientExtension;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.portOffset;
+import static io.joshworks.snappy.SnappyServer.register;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.parser.MediaTypes.consumes;
 
 /**
- * Created by Josh Gontijo on 4/1/17.
+ * Created by Josh Gontijo on 4/2/17.
  */
-public class ServiceB {
+public class HelloApp {
 
     public static void main(String[] args) {
-        portOffset(2);
+        portOffset(1);
         register(new SSRClientExtension());
+
+        get("/hello", exchange -> {
+
+            String message = "Hello";
+            String fromWorldService = RestClient.get("http://world-service/world").asString().getBody();
+            exchange.send(message + " " + fromWorldService, "txt");
+
+        }, consumes("txt"));
+
         start();
     }
 }
