@@ -7,11 +7,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static io.joshworks.snappy.extras.ssr.SSRKeys.SSR_LOGGER;
 
@@ -67,8 +69,7 @@ public class ServiceControl {
     }
 
     public Instance updateInstanceState(String instanceId, Instance.State newState) {
-        Optional<Instance> first = store.values().stream()
-                .flatMap(l -> l.getInstances().stream())
+        Optional<Instance> first = instances().stream()
                 .filter(i -> i.getId().equals(instanceId))
                 .findFirst();
 
@@ -79,6 +80,11 @@ public class ServiceControl {
         Instance instance = first.get();
         instance.updateInstanceState(newState);
         return instance;
+    }
+
+    public List<Instance> instances() {
+        return store.values().stream()
+                .flatMap(l -> l.getInstances().stream()).collect(Collectors.toList());
     }
 
     public void addLink(String client, String target) {

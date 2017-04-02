@@ -17,6 +17,7 @@
 
 package io.joshworks.snappy.extras.ssr.client;
 
+import io.joshworks.snappy.client.ClientManager;
 import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
@@ -49,11 +50,12 @@ public class SSRClientExtension implements SnappyExtension {
 
         Configuration configuration = new Configuration(config.properties);
         Instance instance = configuration.configureInstance();
-//        register = new ServiceRegister(serviceStore, instance, configuration.getRegistryUrl());
 
         ScheduledExecutorService scheduler = AppExecutors.scheduler();
         register = new SSEServiceRegister(serviceStore, instance, configuration.getRegistryUrl(), scheduler);
         register.init();
+
+        ClientManager.configureClientUrlLookup(new InstanceNameUrlLookup(serviceStore));
     }
 
     @Override

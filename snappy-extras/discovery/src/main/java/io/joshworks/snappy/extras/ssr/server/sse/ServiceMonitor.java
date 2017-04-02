@@ -50,11 +50,12 @@ public class ServiceMonitor implements ServerSentEventConnectionCallback {
     public void connected(ServerSentEventConnection connection, String lastEventId) {
 
         String instanceId = connection.getParameter(INSTANCE_ID_PARAM);
-        if(instanceId != null) {
+        if (instanceId != null) {
             connection.addCloseTask(this::onClose);
             Instance connected = control.updateInstanceState(instanceId, Instance.State.UP);
             logger.info("New service registered instance ID: {}", instanceId);
-            broadcastInstanceEvent(connected);
+            broadcastInstanceUpdate(connected, connection);
+            broadcastInstancesTo(connection);
         }
     }
 
@@ -63,13 +64,21 @@ public class ServiceMonitor implements ServerSentEventConnectionCallback {
         logger.info("Service instance disconnected: {}", instanceId);
 
         Instance updated = control.updateInstanceState(instanceId, Instance.State.DOWN);
-        broadcastInstanceEvent(updated);
+        broadcastInstanceUpdate(updated, connection);
     }
 
-    private void broadcastInstanceEvent(Instance instance) {
+    private void broadcastInstanceUpdate(Instance instance, ServerSentEventConnection conn) {
         String data = parser.writeValue(instance);
         String id = String.valueOf(System.currentTimeMillis());
-        SseBroadcaster.broadcast(new EventData(data, id, EventType.INSTANCE.name()));
+        SseBroadcaster.broadcast(new EventData(data, id, EventType.INSTANCE.name()), connection -> !connection.equals(conn));
+    }
+
+    private void broadcastInstancesTo(ServerSentEventConnection conn) {
+        for (Instance instance : control.instances()) {
+            String data = parser.writeValue(instance);
+            String id = String.valueOf(System.currentTimeMillis());
+            SseBroadcaster.broadcast(new EventData(data, id, EventType.INSTANCE.name()), connection -> connection.equals(conn));
+        }
     }
 
 }

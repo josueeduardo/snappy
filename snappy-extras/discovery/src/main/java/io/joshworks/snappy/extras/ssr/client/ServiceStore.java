@@ -51,6 +51,9 @@ public class ServiceStore {
 //    private static final int eventBufferSize = 1; //TODO configurable
 
     public Instance get(String serviceName) {
+        if (serviceName == null) {
+            return null;
+        }
         return get(serviceName, Strategy.roundRobin());
     }
 
@@ -59,7 +62,7 @@ public class ServiceStore {
     }
 
     public Instance get(String serviceName, Strategy strategy) {
-        if (!store.containsKey(serviceName)) {
+        if (serviceName == null || !store.containsKey(serviceName)) {
             return null;
         }
         Set<Instance> instances = store.get(serviceName);

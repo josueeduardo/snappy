@@ -29,11 +29,8 @@ public class InstancesResource {
 
     private final ServiceControl control;
 
-//    private final SessionStore sessionStore;
-
     public InstancesResource(ServiceControl control) {
         this.control = control;
-//        this.sessionStore = sessionStore;
     }
 
     public void register(RestExchange exchange) {

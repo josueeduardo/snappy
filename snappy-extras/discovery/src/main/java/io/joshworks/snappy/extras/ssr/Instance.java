@@ -25,7 +25,7 @@ public class Instance {
 
     private String id;
     private String host;
-    private int port;
+    private int port = 80;
     private long lastUpdate;
     private long since;
     private long downSince;

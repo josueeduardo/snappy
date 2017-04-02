@@ -19,15 +19,14 @@ package io.joshworks.snappy.extras.ssr.client.connector;
 
 import io.joshworks.snappy.client.WsClient;
 import io.joshworks.snappy.extras.ssr.Instance;
-import io.joshworks.snappy.extras.ssr.client.WSRegistryClient;
 import io.joshworks.snappy.extras.ssr.client.ServiceRegister;
 import io.joshworks.snappy.extras.ssr.client.ServiceStore;
+import io.joshworks.snappy.extras.ssr.client.WSRegistryClient;
 import io.undertow.websockets.core.WebSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static io.joshworks.snappy.extras.ssr.SSRKeys.SSR_LOGGER;
@@ -50,7 +49,7 @@ public class WSServiceRegister extends ServiceRegister {
     @Override
     protected void connect() {
         String registryUrl = PROTOCOL + serverUrl + SSR_ENDPOINT + "/" + instance.getName();
-        webSocketChannel = WsClient.connect(URI.create(registryUrl), new WSRegistryClient(this, store, instance));
+        webSocketChannel = WsClient.connect(registryUrl, new WSRegistryClient(this, store, instance));
     }
 
     @Override
