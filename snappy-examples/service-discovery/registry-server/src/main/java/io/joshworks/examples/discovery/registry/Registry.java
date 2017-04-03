@@ -15,22 +15,25 @@
  *
  */
 
-package io.joshworks.snappy.examples;
-
+package io.joshworks.examples.discovery.registry;
 
 import io.joshworks.snappy.extras.ssr.server.SSRServerExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static io.joshworks.snappy.SnappyServer.*;
 
 /**
- * Created by Josh Gontijo on 4/1/17.
+ * Created by Josh Gontijo on 4/2/17.
  */
-public class DiscoveryServer {
+public class Registry {
+
+    private static final Logger logger = LoggerFactory.getLogger(Registry.class);
 
     public static void main(String[] args) {
         port(9999);
-        adminPort(9998);
         register(new SSRServerExtension());
         start();
     }
+
 }

@@ -26,7 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>world-service</artifactId>
+    <artifactId>registry-server</artifactId>
 
     <build>
         <finalName>${project.artifactId}</finalName>

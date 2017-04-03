@@ -49,8 +49,7 @@ public class SseBroadcaster {
     }
 
     public static void broadcast(String data, Predicate<ServerSentEventConnection> filter) {
-        all().filter(filter)
-                .forEach(conn -> conn.send(data));
+        all().filter(filter).forEach(conn -> conn.send(data));
     }
 
     public static void broadcast(Object data, MediaType mediaType, Predicate<ServerSentEventConnection> filter) {

@@ -62,7 +62,6 @@ public abstract class ServiceRegister implements Runnable {
             logger.info("Bootstrap service discovery");
             logger.info("Application name: {}", instance.getName());
             logger.info("Registry URL: {}", registryUrl);
-
             register();
         }
     }

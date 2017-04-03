@@ -28,5 +28,22 @@
 
     <artifactId>hello-service</artifactId>
 
+    <build>
+        <finalName>${project.artifactId}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>io.joshworks</groupId>
+                <artifactId>snappy-maven-plugin</artifactId>
+                <version>0.2-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

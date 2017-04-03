@@ -30,6 +30,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>service-discovery</module>
+        <module>runnable-jar</module>
     </modules>
 
     <dependencies>
