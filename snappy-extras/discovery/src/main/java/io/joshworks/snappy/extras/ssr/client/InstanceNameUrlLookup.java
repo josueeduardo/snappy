@@ -49,7 +49,7 @@ public class InstanceNameUrlLookup extends UrlLookup {
             logger.debug("Service not found for name '{}', using URL as literal", original);
             return super.getUrl(original);
         }
-        return uri.getScheme() + SCHEMA_SEPARATOR + instance.getAddress() + uri.getPath();
+        return uri.getScheme() + SCHEMA_SEPARATOR + instance.resolveAddress() + uri.getPath();
     }
 
 }

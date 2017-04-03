@@ -20,12 +20,16 @@ package io.joshworks.snappy.extras.ssr;
 
 import io.joshworks.snappy.extras.ssr.client.locator.Discovery;
 import io.joshworks.snappy.extras.ssr.client.locator.EC2Discovery;
+import io.joshworks.snappy.extras.ssr.client.locator.HostInfo;
 import io.joshworks.snappy.extras.ssr.client.locator.LocalDiscovery;
 import io.joshworks.snappy.property.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import static io.joshworks.snappy.extras.ssr.SSRKeys.SSR_LOGGER;
 
@@ -59,9 +63,12 @@ public class Configuration {
         }
         name = name.replaceAll(" ", "-");
 
+        HostInfo clientHost = getClientHost();
         Instance instance = new Instance();
-        instance.setHost(getClientHost());
+        instance.setHostname(clientHost.name);
+        instance.setAddress(clientHost.address);
         instance.setPort(getClientPort());
+        instance.setUseHostname(useHostname());
         instance.setFetchServices(clientEnabled);
         instance.setDiscoverable(enableDiscovery);
         instance.setSince(System.currentTimeMillis());
@@ -102,17 +109,22 @@ public class Configuration {
 
     //--------------------- CLIENT PROPERTIES -----------------
 
-    private String getClientHost() {
+    private HostInfo getClientHost() {
         String key = SSRKeys.SSR_CLIENT_HOST;
         String host = AppProperties.resolveProperties(properties, key);
         if (isEmpty(host)) {
-            boolean useHost = useHostname();
-            String defaultHost = discovery.resolveHost(useHost);
-            properties.put(key, defaultHost);
+            logger.info("Client host not provided using '{}' to discover host address", discovery.getClass().getSimpleName());
+            return discovery.resolveHost();
+        } else {
+            logger.info("Client host provided: {}", host);
+            InetAddress address = tryParse(host);
+            if (address != null) {
+                return new HostInfo(address.getHostAddress(), address.getHostName());
+            }
+            return new HostInfo(host, host);
         }
-        return AppProperties.resolveProperties(properties, key);
-
     }
+
 
     /**
      * @return Snappy port if no ssr.service.port is found, in Docker container, this property must be used
@@ -148,23 +160,6 @@ public class Configuration {
         return Boolean.parseBoolean(AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_ON_AWS));
     }
 
-    private String getClientUrl() {
-        String serviceHost = getClientHost();
-        int servicePort = getClientPort();
-
-        if (serviceHost == null || serviceHost.isEmpty()) {
-            throw new IllegalArgumentException("Service address cannot be null or empty");
-        }
-
-        String serviceUrl = serviceHost + ":" + servicePort;
-
-        serviceUrl = serviceUrl.endsWith("/") ?
-                serviceUrl.substring(0, serviceUrl.length() - 1) :
-                serviceUrl;
-
-        return getProtocol(serviceUrl);
-    }
-
 
     private String getProtocol(String address) {
         if (!address.startsWith("http://")
@@ -179,5 +174,27 @@ public class Configuration {
     private boolean isEmpty(String value) {
         return value == null || value.isEmpty();
     }
+
+    private InetAddress tryParse(String address) {
+        try {
+            return InetAddress.getByName(address);
+        } catch (UnknownHostException e) {
+            logger.warn("Could not resolve address " + address, e);
+            return null;
+        }
+    }
+
+    private static final String IPADDRESS_PATTERN =
+            "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                    "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                    "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
+                    "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
+
+    private static Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
+
+    private boolean validIP(String address) {
+        return pattern.matcher(address).matches();
+    }
+
 
 }

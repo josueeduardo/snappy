@@ -55,7 +55,7 @@ public class Service implements Serializable {
     }
 
     public Instance addInstance(Instance newInstance) {
-        instances.put(newInstance.getAddress(), newInstance);
+        instances.put(newInstance.resolveAddress(), newInstance);
         return newInstance;
     }
 

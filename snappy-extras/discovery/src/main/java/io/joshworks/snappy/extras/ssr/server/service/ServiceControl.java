@@ -43,7 +43,7 @@ public class ServiceControl {
         if (instance == null) {
             throw RestException.badRequest("Invalid instance");
         }
-        if (instance.getAddress() == null || instance.getAddress().trim().isEmpty()) {
+        if (instance.resolveAddress() == null || instance.resolveAddress().trim().isEmpty()) {
             throw RestException.badRequest("'address' must be provided");
         }
 //        if (instance.getId() == null || instance.getId().trim().isEmpty()) {

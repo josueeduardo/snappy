@@ -119,7 +119,7 @@ public class InstanceNameUrlLookupTest {
         public Instance get(String serviceName) {
             if(availableNames.contains(serviceName)) {
                 Instance instance = new Instance();
-                instance.setHost(DUMMY_VALID_URL);
+                instance.setAddress(DUMMY_VALID_URL);
                 instance.setPort(DUMMY_PORT);
                 return instance;
             }

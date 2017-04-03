@@ -18,11 +18,15 @@
 package io.joshworks.snappy.extras.ssr.client.locator;
 
 /**
- * Created by Josue on 26/08/2016.
+ * Created by Josh Gontijo on 4/3/17.
  */
-public interface Discovery {
+public class HostInfo {
 
-    HostInfo resolveHost();
+    public final String address;
+    public final String name;
 
-
+    public HostInfo(String address, String name) {
+        this.address = address;
+        this.name = name;
+    }
 }

@@ -8,10 +8,10 @@ services:
     ports:
       - 7001:9001
     environment:
-         - SSR_CLIENT_PORT=9001
-         - SSR_CLIENT_HOST=hello
-         - SSR_REGISTRY_PORT=9999
-         - SSR_REGISTRY_HOST=registry
+         - SSR_CLIENT_PORT=9001 # what's my port (internal container)
+         - SSR_CLIENT_HOST=hello # what's my address (using docker hostname)
+         - SSR_REGISTRY_PORT=9999 # What's the registry port
+         - SSR_REGISTRY_HOST=registry  # Where the registry is
     networks:
       - example-network
 
@@ -21,10 +21,10 @@ services:
      ports:
        - 7002:9002
      environment:
-          - SSR_CLIENT_PORT=9002
-          - SSR_CLIENT_HOST=world
-          - SSR_REGISTRY_PORT=9999
-          - SSR_REGISTRY_HOST=registry
+          - SSR_CLIENT_PORT=9002 # what's my port (internal container)
+          - SSR_CLIENT_HOST=world # what's my address (using docker hostname)
+          - SSR_REGISTRY_PORT=9999 # What's the registry port
+          - SSR_REGISTRY_HOST=registry  # Where the registry is
      networks:
        - example-network
 

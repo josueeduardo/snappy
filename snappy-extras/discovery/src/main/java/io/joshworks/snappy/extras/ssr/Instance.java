@@ -24,13 +24,15 @@ package io.joshworks.snappy.extras.ssr;
 public class Instance {
 
     private String id;
-    private String host;
+    private String address;
+    private String hostname;
     private int port = 80;
     private long lastUpdate;
     private long since;
     private long downSince;
     private String name;
     private State state = State.DOWN;
+    private boolean useHostname;
     private boolean discoverable;
     private boolean fetchServices;
 
@@ -38,16 +40,24 @@ public class Instance {
         return id;
     }
 
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
+    }
+
     public void setId(String id) {
         this.id = id;
     }
 
-    public String getHost() {
-        return host;
+    public String getAddress() {
+        return address;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public int getPort() {
@@ -58,8 +68,8 @@ public class Instance {
         this.port = port;
     }
 
-    public String getAddress() {
-        return host + ":" + port;
+    public String resolveAddress() {
+        return (useHostname ? hostname : address) + ":" + port;
     }
 
     public long getSince() {
@@ -118,6 +128,14 @@ public class Instance {
         this.lastUpdate = lastUpdate;
     }
 
+    public boolean isUseHostname() {
+        return useHostname;
+    }
+
+    public void setUseHostname(boolean useHostname) {
+        this.useHostname = useHostname;
+    }
+
     public void updateInstanceState(Instance.State newState) {
         state = newState;
         if (Instance.State.DOWN.equals(newState)) {
@@ -133,12 +151,12 @@ public class Instance {
         Instance instance = (Instance) o;
 
         if (port != instance.port) return false;
-        return host != null ? host.equals(instance.host) : instance.host == null;
+        return address != null ? address.equals(instance.address) : instance.address == null;
     }
 
     @Override
     public int hashCode() {
-        int result = host != null ? host.hashCode() : 0;
+        int result = address != null ? address.hashCode() : 0;
         result = 31 * result + port;
         return result;
     }
@@ -147,7 +165,7 @@ public class Instance {
     public String toString() {
         return "Instance{" +
                 "id='" + id + '\'' +
-                ", address='" + getAddress() + '\'' +
+                ", address='" + resolveAddress() + '\'' +
                 ", lastUpdate=" + lastUpdate +
                 ", since=" + since +
                 ", downSince=" + downSince +

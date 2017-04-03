@@ -34,13 +34,18 @@ public class LocalDiscovery implements Discovery {
 
     private static final Logger logger = LoggerFactory.getLogger(SSR_LOGGER);
 
-    private final InetAddress address;
-
     public LocalDiscovery() {
-        address = initialiseHosts();
+
     }
 
-    private InetAddress initialiseHosts() {
+
+    @Override
+    public HostInfo resolveHost() {
+        InetAddress resolved = findHost();
+        return new HostInfo(resolved.getHostAddress(), resolved.getHostName());
+    }
+
+    private InetAddress findHost() {
         InetAddress candidateAddress = null;
         try {
             Enumeration<NetworkInterface> nics = NetworkInterface.getNetworkInterfaces();
@@ -63,28 +68,14 @@ public class LocalDiscovery implements Discovery {
                 }
             }
 
+            if (candidateAddress == null) {
+                logger.info("Could not find nay suitable address, trying to use 'localhost'");
+                candidateAddress = InetAddress.getLocalHost();
+            }
             logger.info("Using client host {}", candidateAddress);
             return candidateAddress;
         } catch (Exception e) {
             throw new RuntimeException("Cannot resolve local network address", e);
         }
     }
-
-    @Override
-    public String resolveHost(boolean useHostname) {
-        return resolve(address, useHostname);
-    }
-
-    private String resolve(InetAddress candidate, boolean useHost) {
-        try {
-            InetAddress localhost = InetAddress.getLocalHost();
-            InetAddress resolved = candidate == null ? localhost : candidate;
-            return useHost ? resolved.getHostName() : resolved.getHostAddress();
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error resolving host", e);
-        }
-    }
-
-
 }
