@@ -17,9 +17,8 @@
 
 package io.joshworks.examples.discovery.hello;
 
+import io.joshworks.snappy.client.RestClient;
 import io.joshworks.snappy.extras.ssr.client.SSRClientExtension;
-
-import java.net.InetAddress;
 
 import static io.joshworks.snappy.SnappyServer.*;
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
@@ -35,14 +34,9 @@ public class HelloApp {
 
         get("/hello", exchange -> {
 
-            InetAddress reg = InetAddress.getByName(System.getenv("SSR_REGISTRY_HOST"));
-            InetAddress client = InetAddress.getByName(System.getenv("SSR_CLIENT_HOST"));
-
-            exchange.send(reg.getHostAddress() + " -> " + reg.getHostName() + " -> " + reg.getCanonicalHostName(), "txt");
-
-//            String message = "Hello";
-//            String fromWorldService = RestClient.get("http://world-service/world").asString().getBody();
-//            exchange.send(message + " " + fromWorldService, "txt");
+            String message = "Hello";
+            String fromWorldService = RestClient.get("http://world-service/world").asString().getBody();
+            exchange.send(message + " " + fromWorldService, "txt");
 
         }, consumes("txt"));
 
