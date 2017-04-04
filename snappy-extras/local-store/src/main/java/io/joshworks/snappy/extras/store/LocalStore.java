@@ -28,24 +28,18 @@ import com.couchbase.lite.SavedRevision;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
  * Created by Josh Gontijo on 3/28/17.
  */
-public class LocalStore {
-
-    private static final Logger logger = LoggerFactory.getLogger(LocalStore.class);
+public class LocalStore<T> {
 
     private static Manager manager;
     private static DatabaseOptions options;
-
     private static final Gson gson = new Gson();
 
     static void init(Manager manager, DatabaseOptions options) {
@@ -53,7 +47,19 @@ public class LocalStore {
         LocalStore.options = options;
     }
 
-    public static Database getDatabase(String name) {
+    private final Class<T> type;
+    private final String databaseName;
+
+    private LocalStore(String databaseName, Class<T> type) {
+        this.databaseName = databaseName;
+        this.type = type;
+    }
+
+    public static <T> LocalStore<T> of(String name, Class<T> type) {
+        return new LocalStore<>(name, type);
+    }
+
+    public Database getDatabase(String name) {
         try {
             return manager.openDatabase(name, options);
         } catch (Exception e) {
@@ -61,11 +67,11 @@ public class LocalStore {
         }
     }
 
-    public static Manager getManager() {
+    public Manager getManager() {
         return manager;
     }
 
-    public static void create(String databaseName, String id, Object object) {
+    public void create(String id, T object) {
         try {
             Map<String, Object> objectMap = toJsonMap(object);
             Database database = getDatabase(databaseName);
@@ -76,7 +82,7 @@ public class LocalStore {
         }
     }
 
-    public static void update(String databaseName, String id, Object object) {
+    public void update(String id, T object) {
         try {
             Database database = getDatabase(databaseName);
             Document document = database.getDocument(id);
@@ -91,14 +97,14 @@ public class LocalStore {
         }
     }
 
-    public static <T> Map<String, T> getAll(String databaseName, Class<T> type) {
+    public Map<String, T> getAll() {
         try {
             Map<String, T> results = new HashMap<>();
             Query query = getDatabase(databaseName).createAllDocumentsQuery();
             QueryEnumerator result = query.run();
-            for (Iterator<QueryRow> it = result; it.hasNext(); ) {
-                QueryRow row = it.next();
-                results.put(row.getDocumentId(), fromJson(row.getDocument(), type));
+            while (result.hasNext()) {
+                QueryRow row = result.next();
+                results.put(row.getDocumentId(), fromJson(row.getDocument()));
             }
             return results;
         } catch (Exception e) {
@@ -106,12 +112,12 @@ public class LocalStore {
         }
     }
 
-    public static <T> T get(String databaseName, String id, Class<T> type) {
+    public T get(String id) {
         Document doc = getDatabase(databaseName).getDocument(id);
-        return fromJson(doc, type);
+        return fromJson(doc);
     }
 
-    public static SavedRevision merge(String databaseName, String id, Map<String, Object> newValues) {
+    public SavedRevision merge(String id, Map<String, Object> newValues) {
         try {
             Document doc = getDatabase(databaseName).getDocument(id);
             return doc.update(newRevision -> {
@@ -125,7 +131,7 @@ public class LocalStore {
         }
     }
 
-    public static boolean delete(String databaseName, String id) {
+    public boolean delete(String id) {
         try {
             Document doc = getDatabase(databaseName).getDocument(id);
             return doc.delete();
@@ -134,13 +140,13 @@ public class LocalStore {
         }
     }
 
-    private static <T> T fromJson(Document doc, Class<T> type) {
+    private T fromJson(Document doc) {
         Map<String, Object> properties = doc.getProperties();
         JsonElement jsonElement = gson.toJsonTree(properties);
         return gson.fromJson(jsonElement, type);
     }
 
-    private static Map<String, Object> toJsonMap(Object data) {
+    private Map<String, Object> toJsonMap(T data) {
         Type type = new TypeToken<Map<String, Object>>() {
         }.getType();
         return gson.fromJson(gson.toJson(data), type);
