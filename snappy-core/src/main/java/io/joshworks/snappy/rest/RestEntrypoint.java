@@ -37,7 +37,7 @@ public class RestEntrypoint implements HttpHandler {
     private final Consumer<RestExchange> endpoint;
     private final ExceptionMapper exceptionMapper;
 
-    public RestEntrypoint(Consumer<RestExchange> endpoint, ExceptionMapper exceptionMapper) {
+    RestEntrypoint(Consumer<RestExchange> endpoint, ExceptionMapper exceptionMapper) {
         this.endpoint = endpoint;
         this.exceptionMapper = exceptionMapper;
     }

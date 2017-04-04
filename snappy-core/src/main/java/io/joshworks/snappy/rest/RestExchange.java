@@ -27,7 +27,7 @@ public class RestExchange extends Exchange {
 
     private Body body;
 
-    public RestExchange(HttpServerExchange exchange) {
+    RestExchange(HttpServerExchange exchange) {
         super(exchange);
 
     }

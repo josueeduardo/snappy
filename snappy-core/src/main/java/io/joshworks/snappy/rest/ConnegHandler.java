@@ -42,7 +42,7 @@ public class ConnegHandler implements HttpHandler {
     private MediaTypes consumes;
     private MediaTypes produces;
 
-    public ConnegHandler(HttpHandler next, MediaTypes... mimeTypes) {
+    ConnegHandler(HttpHandler next, MediaTypes... mimeTypes) {
         initTypes(mimeTypes);
         consumes = consumes == null ? MediaTypes.DEFAULT_CONSUMES : consumes;
         produces = produces == null ? MediaTypes.DEFAULT_PRODUCES : produces;
