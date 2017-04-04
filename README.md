@@ -40,7 +40,7 @@ import static io.joshworks.snappy.SnappyServer.*;
 public class App {
 
     public static void main(final String[] args) {
-       get("/hello", (exchange) -> exchange.send("Hello !", "txt")); //or text/plain
+       get("/hello", exchange -> exchange.send("Hello !", "txt")); //or text/plain
        start(); //9000
     }
 }
@@ -51,7 +51,7 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-       get("/hello/{name}", (exchange) -> {
+       get("/hello/{name}", exchange -> {
            String name = exchange.pathParameter("name");
            exchange.send("Hello " + name, "txt");
        });
@@ -66,7 +66,7 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-       post("/users", (exchange) -> {
+       post("/users", exchange -> {
 
            User user = exchange.body().asObject(User.class);
 
@@ -82,7 +82,7 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-       get("/users", (exchange) -> exchange.send(new User("Yolo")));
+       get("/users", exchange -> exchange.send(new User("Yolo")));
        start();
     }
 }
@@ -94,10 +94,10 @@ public class App {
 
     public static void main(final String[] args) {
        
-       before("/*", (exchange) -> {/*...*/}); 
-       after("/users", (exchange) -> {/*...*/}); 
+       before("/*", exchange -> {/*...*/}); 
+       after("/users", exchange -> {/*...*/}); 
        
-       get("/users", (exchange) -> {/*...*/});
+       get("/users", exchange -> {/*...*/});
 
        
        start();
@@ -113,7 +113,7 @@ public class App {
        
        exception(Exception.class, (e, exchange) -> exchange.status(500).send(e.getMessage()));
        
-       get("/users", (exchange) -> {/*...*/});
+       get("/users", exchange -> {/*...*/});
 
        
        start();
@@ -140,7 +140,7 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-        multipart("/fileUpload", (exchange) -> {
+        multipart("/fileUpload", exchange -> {
             Path theFile = exchange.part("theFile").file().path();
             Files.copy(theFile, someOutputStrem);
         });
@@ -180,7 +180,7 @@ public class App {
     public static void main(final String[] args) {
        Parsers.register(myXmlParser);
        
-       get("/xml", (exchange) -> exchange.send("some-xml"), produces("xml"));
+       get("/xml", exchange -> exchange.send("some-xml"), produces("xml"));
        
     }
 }
@@ -191,16 +191,16 @@ public class App {
 
      public static void main(String[] args) {
             group("/groupA", () -> {
-                get("/a", (exchange) -> {/* ... */});
-                put("/b", (exchange) -> {/* ... */});
+                get("/a", exchange -> {/* ... */});
+                put("/b", exchange -> {/* ... */});
     
                 group("/subgroup", () -> {
-                    get("/c", (exchange) -> {/* ... */});
+                    get("/c", exchange -> {/* ... */});
                 });
             });
     
             group("/groupB", () -> {
-                get("/d", (exchange) -> {/* ... */});
+                get("/d", exchange -> {/* ... */});
             });
             
         }
