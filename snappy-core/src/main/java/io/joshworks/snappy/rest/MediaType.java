@@ -266,6 +266,21 @@ public class MediaType {
         return parameters;
     }
 
+    public static MediaType getMimeForFile(String fileExtension) {
+        if (fileExtension == null || fileExtension.isEmpty()) {
+            return MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        }
+        String mimeType = mimeMappings.getMimeType(fileExtension);
+        if (mimeType == null || mimeType.isEmpty()) {
+            return MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        }
+        try {
+            return valueOf(mimeType);
+        } catch (Exception e) {
+            return MediaType.APPLICATION_OCTET_STREAM_TYPE;
+        }
+    }
+
     /**
      * Getter for primary type.
      *

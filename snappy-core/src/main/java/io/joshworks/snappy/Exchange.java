@@ -17,11 +17,13 @@
 
 package io.joshworks.snappy;
 
-import io.joshworks.snappy.rest.ConnegHandler;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
+import io.joshworks.snappy.rest.ConnegHandler;
+import io.joshworks.snappy.rest.DefaultIoCallback;
 import io.joshworks.snappy.rest.MediaType;
 import io.joshworks.snappy.rest.Property;
+import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
 import io.undertow.util.HeaderMap;
@@ -30,7 +32,12 @@ import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.PathTemplateMatch;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.channels.FileChannel;
 import java.util.Deque;
 import java.util.Map;
 
@@ -157,6 +164,12 @@ public class Exchange {
         return this;
     }
 
+    /**
+     * Overrides any previous set Content-Type header value
+     *
+     * @param mediaType to be used in the response
+     * @return The exchange
+     */
     public Exchange type(MediaType mediaType) {
         return setResponseMediaType(mediaType);
     }
@@ -183,8 +196,57 @@ public class Exchange {
         this.response(response);
     }
 
+    public void sendFile(File file) {
+        sendFile(file, new DefaultIoCallback());
+    }
+
+    public void sendFile(File file, IoCallback callback) {
+        if (file == null || !file.exists()) {
+            throw new RuntimeException("Invalid file");
+        }
+        try {
+            String fileExtension = getFileExtension(file.getName());
+            MediaType mimeForFile = MediaType.getMimeForFile(fileExtension);
+            setResponseMediaType(mimeForFile);
+            exchange.getResponseHeaders().add(Headers.CONTENT_DISPOSITION, "filename=" + file.getName());
+            exchange.getResponseHeaders().add(Headers.CONTENT_LENGTH, file.length());
+
+            exchange.getResponseSender().transferFrom(FileChannel.open(file.toPath()), callback);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Transfers blocking the bytes from a given inputstream to this response
+     * @param inputStream The data to be sent
+     */
+    public void stream(InputStream inputStream) {
+        try {
+            OutputStream outputStream = exchange.getOutputStream();
+
+            byte[] buffer = new byte[10240];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, len);
+            }
+        } catch (Exception ex) {
+            throw new RuntimeException("Error transferring data", ex);
+        }
+    }
+
     public void end() {
         exchange.endExchange();
+    }
+
+    private String getFileExtension(String fileName) {
+        String extension = "";
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i + 1);
+        }
+        return extension;
+
     }
 
     private Exchange setResponseMediaType(MediaType mediaType) {
