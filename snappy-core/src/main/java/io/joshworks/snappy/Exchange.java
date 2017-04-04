@@ -208,7 +208,11 @@ public class Exchange {
             String fileExtension = getFileExtension(file.getName());
             MediaType mimeForFile = MediaType.getMimeForFile(fileExtension);
             setResponseMediaType(mimeForFile);
-            exchange.getResponseHeaders().add(Headers.CONTENT_DISPOSITION, "filename=" + file.getName());
+
+            HeaderValues contentDisposition = exchange.getResponseHeaders().get(Headers.CONTENT_DISPOSITION);
+            if (contentDisposition == null || contentDisposition.isEmpty()) {
+                exchange.getResponseHeaders().add(Headers.CONTENT_DISPOSITION, "filename=" + file.getName());
+            }
             exchange.getResponseHeaders().add(Headers.CONTENT_LENGTH, file.length());
 
             exchange.getResponseSender().transferFrom(FileChannel.open(file.toPath()), callback);
