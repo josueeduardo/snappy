@@ -28,11 +28,9 @@ import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Created by Josh Gontijo on 3/28/17.
@@ -123,61 +121,6 @@ public class LocalStore {
             return doc.delete();
         } catch (Exception e) {
             throw new RuntimeException(e);
-        }
-    }
-
-//    private static void mergeMap(Map<Object, Object> original, Map<Object, Object> newVersion) {
-//        for (Object key : original.keySet()) {
-//            Object newVal = newVersion.get(key);
-//            Object originalVal = original.get(key);
-//
-//            if(newVal instanceof Map && originalVal instanceof Map) {
-//                merge((Map<Object, Object>) key, (Map<Object, Object>) newVersion.get(key));
-//            }
-//            if(newVal instanceof Collection && originalVal instanceof Collection) {
-//
-//            }
-//
-//            Object found = newVersion.get(key);
-//        }
-//    }
-//
-//    private static void mergeList(List<Object> original, List<Object> newList) {
-//
-//    }
-
-    public static void main(String[] args) throws IOException {
-        String location = System.getProperty("user.home") + "/localstore";
-        LocalStore.init(new Manager(new SnappyStoreContext(location), Manager.DEFAULT_OPTIONS), new DatabaseOptions());
-
-        User user = new User(10, "asd");
-        LocalStore.create("test", user.id, user);
-
-        User found = LocalStore.get("test", user.id, User.class);
-        found.name = "josh";
-        LocalStore.update("test", user.id, found);
-
-        found = LocalStore.get("test", user.id, User.class);
-
-        Map<String, Object> merge = new HashMap<>();
-        merge.put("age", 999);
-
-        LocalStore.merge("test", user.id, merge);
-
-        System.out.println(found);
-
-
-    }
-
-    public static class User {
-        public int age;
-        public String id;
-        public String name;
-
-        public User(int age, String name) {
-            this.id = UUID.randomUUID().toString().substring(0, 8);
-            this.age = age;
-            this.name = name;
         }
     }
 
