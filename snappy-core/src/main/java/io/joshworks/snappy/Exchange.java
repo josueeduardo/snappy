@@ -218,12 +218,24 @@ public class Exchange {
     }
 
     /**
-     * Transfers blocking the bytes from a given inputstream to this response
+     * Transfers blocking the bytes from a given InputStream to this response. Using application/octet-stream
+     *
      * @param inputStream The data to be sent
      */
     public void stream(InputStream inputStream) {
+        stream(inputStream, MediaType.APPLICATION_OCTET_STREAM_TYPE);
+    }
+
+    /**
+     * Transfers blocking the bytes from a given InputStream to this response
+     *
+     * @param inputStream The data to be sent
+     * @param mediaType   The stream Content-Type
+     */
+    public void stream(InputStream inputStream, MediaType mediaType) {
         try {
             OutputStream outputStream = exchange.getOutputStream();
+            setResponseMediaType(mediaType);
 
             byte[] buffer = new byte[10240];
             int len;
