@@ -45,7 +45,7 @@ public class ClientManager {
     }
 
     public synchronized static void configureWorker(OptionMap.Builder builder) throws IOException {
-        if(builder == null) {
+        if (builder == null) {
             builder = DEFAULT;
         }
         builder.set(Options.WORKER_NAME, CLIENT_WORKER_NAME);
@@ -57,8 +57,12 @@ public class ClientManager {
     }
 
     static XnioWorker getWorker() {
-        if(worker == null) {
-            throw new IllegalStateException("Client worker not configured");
+        if (worker == null) {
+            try {
+                worker = Xnio.getInstance().createWorker(DEFAULT.getMap());
+            } catch (Exception e) {
+                throw new RuntimeException("Could not build client worker", e);
+            }
         }
         return worker;
     }

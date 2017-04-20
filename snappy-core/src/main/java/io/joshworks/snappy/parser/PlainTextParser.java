@@ -19,6 +19,8 @@ package io.joshworks.snappy.parser;
 
 import io.joshworks.snappy.rest.MediaType;
 
+import java.lang.reflect.Type;
+
 /**
  * Created by josh on 3/6/17.
  */
@@ -26,6 +28,11 @@ public class PlainTextParser implements Parser {
 
     @Override
     public <T> T readValue(String value, Class<T> valueType) {
+        throw new UnsupportedOperationException("Cannot convert " + valueType + " to " + mediaType());
+    }
+
+    @Override
+    public <T> T readValue(String value, Type valueType) {
         throw new UnsupportedOperationException("Cannot convert " + valueType + " to " + mediaType());
     }
 

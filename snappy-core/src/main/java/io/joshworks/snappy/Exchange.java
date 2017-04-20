@@ -90,7 +90,7 @@ public class Exchange {
 
     public String queryParameter(String key) {
         Deque<String> params = exchange.getQueryParameters().get(key);
-        return params.isEmpty() ? null : params.getFirst();
+        return params == null || params.isEmpty() ? null : params.getFirst();
     }
 
     public Property queryParameterVal(String key) {

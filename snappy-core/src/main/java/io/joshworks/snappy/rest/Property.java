@@ -37,24 +37,24 @@ public class Property {
         return new Property(v);
     }
 
-    public int asInt() {
-        return Integer.parseInt(value);
+    public Integer asInt() {
+        return isPresent() ? Integer.parseInt(value) : null;
     }
 
-    public double asDouble() {
-        return Double.parseDouble(value);
+    public Double asDouble() {
+        return isPresent() ? Double.parseDouble(value) : null;
     }
 
-    public float asFloat() {
-        return Float.parseFloat(value);
+    public Float asFloat() {
+        return isPresent() ? Float.parseFloat(value) : null;
     }
 
-    public boolean asBoolean() {
-        return Boolean.parseBoolean(value);
+    public Boolean asBoolean() {
+        return isPresent() ? Boolean.parseBoolean(value) : null;
     }
 
-    public long asLong() {
-        return Long.parseLong(value);
+    public Long asLong() {
+        return isPresent() ? Long.parseLong(value) : null;
     }
 
     public String asString() {

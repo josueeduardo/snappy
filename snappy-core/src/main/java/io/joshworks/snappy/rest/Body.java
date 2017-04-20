@@ -33,6 +33,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.zip.GZIPInputStream;
@@ -97,10 +98,21 @@ public class Body {
     public <T> T asObject(Class<T> type) {
         Parser parser = Parsers.getParser(negotiatedConsumeType);
 
+        String data = readData();
+        return parser.readValue(data, type);
+    }
+
+    public <T> List<T> asObject(TypeToken typeToken) {
+        Parser parser = Parsers.getParser(negotiatedConsumeType);
+
+        String data = readData();
+        return parser.readValue(data, typeToken.getType());
+    }
+
+    private String readData() {
         //ref: http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
         Scanner s = new Scanner(is, getCharset()).useDelimiter("\\A");
-        String data = s.hasNext() ? s.next() : "";
-        return parser.readValue(data, type);
+        return s.hasNext() ? s.next() : "";
     }
 
     private String getCharset() {

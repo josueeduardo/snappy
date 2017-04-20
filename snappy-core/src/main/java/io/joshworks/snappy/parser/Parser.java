@@ -19,12 +19,16 @@ package io.joshworks.snappy.parser;
 
 import io.joshworks.snappy.rest.MediaType;
 
+import java.lang.reflect.Type;
+
 /**
  * Created by josh on 3/6/17.
  */
 public interface Parser {
 
     <T> T readValue(String value, Class<T> valueType);
+
+    <T> T readValue(String value, Type valueType);
 
     String writeValue(Object value);
 

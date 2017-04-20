@@ -21,6 +21,8 @@ import com.google.gson.Gson;
 import io.joshworks.snappy.rest.MediaType;
 import org.json.JSONObject;
 
+import java.lang.reflect.Type;
+
 /**
  * Created by josh on 3/6/17.
  */
@@ -31,6 +33,11 @@ public class JsonParser implements Parser {
 
     @Override
     public <T> T readValue(String value, Class<T> valueType) {
+        return gson.fromJson(value, valueType);
+    }
+
+    @Override
+    public <T> T readValue(String value, Type valueType) {
         return gson.fromJson(value, valueType);
     }
 
