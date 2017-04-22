@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.extras.store;
+package io.joshworks.snappy.extensions.cblite;
 
 import com.couchbase.lite.DatabaseOptions;
 import com.couchbase.lite.Manager;
@@ -25,34 +25,50 @@ import io.joshworks.snappy.ext.SnappyExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * Created by Josue on 07/02/2017.
  */
-public class LocalStoreExtension implements SnappyExtension {
+public class CouchbaseLiteExtension implements SnappyExtension {
 
-    private static final Logger logger = LoggerFactory.getLogger(LocalStoreExtension.class);
+    private static final Logger logger = LoggerFactory.getLogger(CouchbaseLiteExtension.class);
 
-    private static final String EXTENSION_NAME = "LOCALSTORE";
-    private static final String PREFIX = "localstore.";
+    private static final String EXTENSION_NAME = "COUCHBASE_LITE";
+    private static final String PREFIX = "cblite.";
 
     private static final String PASSWORD = PREFIX + "password";
     private static final String LOCATION = PREFIX + "location";
 
-    private static final String DEFAULT_LOCATION = System.getProperty("user.home") + "/localstore";
+    private static final String DEFAULT_LOCATION = System.getProperty("user.home") + "/snappy/cblite";
     private static final String DEFAULT_KEY = "snappy";
 
-
     private Manager manager;
+    private DatabaseOptions options;
+
+    public CouchbaseLiteExtension() {
+    }
+
+    public CouchbaseLiteExtension(Manager manager, DatabaseOptions options) {
+        Objects.requireNonNull(manager, "Manager cannot be null");
+        Objects.requireNonNull(options, "DatabaseOptions cannot be null");
+        this.manager = manager;
+        this.options = options;
+    }
 
     @Override
     public void onStart(ServerData config) {
         try {
+            if (manager != null && options != null) {
+                LocalStore.init(manager, options);
+                return;
+            }
             String location = String.valueOf(config.properties.getOrDefault(LOCATION, DEFAULT_LOCATION));
             String key = String.valueOf(config.properties.getOrDefault(PASSWORD, DEFAULT_KEY));
 
             manager = new Manager(new SnappyStoreContext(location), Manager.DEFAULT_OPTIONS);
 
-            DatabaseOptions options = new DatabaseOptions();
+            options = new DatabaseOptions();
             options.setCreate(true);
             options.setEncryptionKey(key);
 
