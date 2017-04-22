@@ -18,6 +18,7 @@
 package io.joshworks.examples.runnablejar;
 
 import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
 
 /**
  * Created by Josh Gontijo on 4/2/17.
@@ -26,5 +27,6 @@ public class Main {
 
     public static void main(String[] args) {
         get("/hello/{name}", exchange -> exchange.send("Hello " + exchange.pathParameter("name"), "txt"));
+        start();
     }
 }
