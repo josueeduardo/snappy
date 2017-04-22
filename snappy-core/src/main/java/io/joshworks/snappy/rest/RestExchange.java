@@ -29,7 +29,14 @@ public class RestExchange extends Exchange {
 
     RestExchange(HttpServerExchange exchange) {
         super(exchange);
+        setNegotiatedContentType();
+    }
 
+    //If client accepts anything, json will be used
+    private void setNegotiatedContentType() {
+        ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
+        MediaType negotiated = negotiatedMediaType == null ? responseContentType : negotiatedMediaType.produces;
+        setResponseMediaType(negotiated);
     }
 
     public Body body() {

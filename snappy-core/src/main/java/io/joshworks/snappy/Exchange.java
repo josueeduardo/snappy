@@ -19,7 +19,6 @@ package io.joshworks.snappy;
 
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
-import io.joshworks.snappy.rest.ConnegHandler;
 import io.joshworks.snappy.rest.DefaultIoCallback;
 import io.joshworks.snappy.rest.MediaType;
 import io.joshworks.snappy.rest.Property;
@@ -52,16 +51,7 @@ public class Exchange {
 
     public Exchange(HttpServerExchange exchange) {
         this.exchange = exchange;
-        setNegotiatedContentType();
     }
-
-    //If client accepts anything, json will be used
-    private void setNegotiatedContentType() {
-        ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
-        MediaType negotiated = negotiatedMediaType == null ? responseContentType : negotiatedMediaType.produces;
-        setResponseMediaType(negotiated);
-    }
-
 
     public HeaderMap headers() {
         return exchange.getRequestHeaders();
@@ -265,7 +255,7 @@ public class Exchange {
 
     }
 
-    private Exchange setResponseMediaType(MediaType mediaType) {
+    protected Exchange setResponseMediaType(MediaType mediaType) {
         responseContentType = mediaType;
         exchange.getResponseHeaders().put(Headers.CONTENT_TYPE, mediaType.toString());
         return this;

@@ -73,7 +73,7 @@ public class AdminManager {
     }
 
     public HttpHandler resolveHandlers() {
-        String[] mappedServices = HandlerUtil.removedPathTemplate(adminEndpoints);
+        String[] mappedServices = HandlerUtil.removePathTemplate(adminEndpoints);
         Predicate mappedPredicate = Predicates.prefixes(mappedServices);
         return Handlers.predicate(mappedPredicate, routingAdminHandler, controlPanel);
     }

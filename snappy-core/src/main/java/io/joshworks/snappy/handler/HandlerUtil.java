@@ -208,7 +208,7 @@ public class HandlerUtil {
     }
 
     //best effort to resolve url that may be unique
-    public static String[] removedPathTemplate(List<MappedEndpoint> mappedEndpoints) {
+    public static String[] removePathTemplate(List<MappedEndpoint> mappedEndpoints) {
 
         return mappedEndpoints.stream()
                 .filter(me -> !me.type.equals(MappedEndpoint.Type.STATIC))

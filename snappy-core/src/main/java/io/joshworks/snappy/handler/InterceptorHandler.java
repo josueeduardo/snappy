@@ -70,9 +70,9 @@ public class InterceptorHandler implements HttpHandler {
     }
 
     private boolean intercept(Interceptor.Type type, HttpServerExchange exchange, String url) {
-        Exchange requestExchange = new Exchange(exchange);
         List<Interceptor> matches = interceptors.stream().filter(i -> i.match(type, url)).collect(Collectors.toList());
         for (Interceptor interceptor : matches) {
+            Exchange requestExchange = new Exchange(exchange);
             try {
                 interceptor.intercept(requestExchange);
             } catch (Exception ex) {

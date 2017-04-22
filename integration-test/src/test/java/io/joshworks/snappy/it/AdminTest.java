@@ -78,9 +78,15 @@ public class AdminTest {
     }
 
     @Test
-    public void panel() throws Exception {
-        int status = RestClient.get("http://localhost:9100/").asString().getStatus();
-        assertEquals(200, status);
+    public void pageExists() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:9100/").asString();
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void contentType() throws Exception {
+        HttpResponse<String> response = RestClient.get("http://localhost:9100/").asString();
+        assertEquals("text/html", response.getHeaders().getFirst(io.undertow.util.Headers.CONTENT_TYPE_STRING));
     }
 
 }

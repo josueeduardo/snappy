@@ -103,7 +103,7 @@ public class HandlerManager {
         }, ws, rest);
 
         if (file != null) {
-            String[] mappedServices = HandlerUtil.removedPathTemplate(mappedEndpoints);
+            String[] mappedServices = HandlerUtil.removePathTemplate(mappedEndpoints);
             Predicate mappedPredicate = Predicates.prefixes(mappedServices);
             return Handlers.predicate(mappedPredicate, websocketRestResolved, file);
         }

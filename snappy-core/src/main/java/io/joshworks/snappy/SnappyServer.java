@@ -472,4 +472,8 @@ public class SnappyServer {
         }
     }
 
+    public static void main(String[] args) {
+        start();
+    }
+
 }

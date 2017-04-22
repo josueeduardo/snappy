@@ -35,8 +35,8 @@ public class MetricData {
     private final long freeMemory;
     private final long usedMemory;
     private final List<RestMetricHandler.RestMetrics> resources;
-    private final List<PoolMetric> threads = new ArrayList<>();
-    private final Map<String, Object> custom = new HashMap<>();
+    private final List<PoolMetric> threadPools = new ArrayList<>();
+    private final Map<String, Object> appMetrics = new HashMap<>();
 
     public MetricData(List<RestMetricHandler> metricsHandlers) {
         Runtime runtime = Runtime.getRuntime();
@@ -45,11 +45,11 @@ public class MetricData {
         this.freeMemory = runtime.freeMemory();
         this.usedMemory = (totalMemory - freeMemory);
 
-        threads.addAll(ExecutorBootstrap.executorMetrics());
-        threads.addAll(ExecutorBootstrap.schedulerMetrics());
+        threadPools.addAll(ExecutorBootstrap.executorMetrics());
+        threadPools.addAll(ExecutorBootstrap.schedulerMetrics());
 
         resources = metricsHandlers.stream().map(RestMetricHandler::getRestMetrics).collect(Collectors.toList());
-        custom.putAll(Metrics.getData());
+        appMetrics.putAll(Metrics.getData());
     }
 
     public long getMaxMemory() {
@@ -68,8 +68,8 @@ public class MetricData {
         return usedMemory;
     }
 
-    public List<PoolMetric> getThreads() {
-        return threads;
+    public List<PoolMetric> getThreadPools() {
+        return threadPools;
     }
 
     public List<RestMetricHandler.RestMetrics> getResources() {

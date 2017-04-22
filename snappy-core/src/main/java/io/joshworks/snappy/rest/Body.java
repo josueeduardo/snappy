@@ -48,8 +48,8 @@ public class Body {
     private final MediaType negotiatedConsumeType;
 
     public Body(HttpServerExchange exchange) {
-        this.is = exchange.getInputStream();
         this.requestHeaders = exchange.getRequestHeaders();
+        this.is = getRequestInputStream(exchange);
 
         ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
         this.negotiatedConsumeType = negotiatedMediaType == null ? MediaType.APPLICATION_JSON_TYPE : negotiatedMediaType.consumes;
@@ -68,11 +68,7 @@ public class Body {
     public String asString() {
         byte[] rawBody;
         try {
-            InputStream inputStream = is;
-            if (ParserUtil.isGzipped(requestHeaders.get(Headers.CONTENT_ENCODING))) {
-                inputStream = new GZIPInputStream(is);
-            }
-            rawBody = ResponseUtils.getBytes(inputStream);
+            rawBody = ResponseUtils.getBytes(is);
             return new String(rawBody);
         } catch (IOException e2) {
             throw new RuntimeException(e2);
@@ -122,5 +118,16 @@ public class Body {
             charset = encodings.getFirst();
         }
         return charset;
+    }
+
+    private InputStream getRequestInputStream(HttpServerExchange exchange) {
+        try {
+            if (ParserUtil.isGzipped(exchange.getResponseHeaders().get(Headers.CONTENT_ENCODING))) {
+                return new GZIPInputStream(exchange.getInputStream());
+            }
+            return exchange.getInputStream();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get request InputStream", e);
+        }
     }
 }
