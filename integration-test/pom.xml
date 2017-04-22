@@ -4,7 +4,7 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.joshworks</groupId>
+        <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
         <version>0.2-SNAPSHOT</version>
     </parent>
@@ -35,7 +35,7 @@
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>snappy-core</artifactId>
+            <artifactId>snappy</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>

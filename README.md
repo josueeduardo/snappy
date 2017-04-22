@@ -25,8 +25,8 @@ Features:
 
 ```xml
     <dependency>
-        <groupId>io.joshworks</groupId>
-        <artifactId>snappy-core</artifactId>
+        <groupId>io.joshworks.snappy</groupId>
+        <artifactId>snappy</artifactId>
         <version>0.2</version>
     </dependency>
     <dependency>
@@ -266,7 +266,7 @@ public class App {
 <build>
     <plugins>
         <plugin>
-            <groupId>io.joshworks</groupId>
+            <groupId>io.joshworks.snappy</groupId>
             <artifactId>snappy-maven-plugin</artifactId>
             <version>0.2-SNAPSHOT</version>
             <executions>
