@@ -21,7 +21,7 @@ import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.rest.DefaultIoCallback;
 import io.joshworks.snappy.rest.MediaType;
-import io.joshworks.snappy.rest.Property;
+import io.joshworks.snappy.rest.Parameter;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
@@ -70,8 +70,8 @@ public class Exchange {
         return pathMatch.getParameters().get(key);
     }
 
-    public Property pathParameterVal(String key) {
-        return new Property(pathParameter(key));
+    public Parameter pathParameterVal(String key) {
+        return new Parameter(pathParameter(key));
     }
 
     public Map<String, Deque<String>> queryParameters() {
@@ -83,8 +83,8 @@ public class Exchange {
         return params == null || params.isEmpty() ? null : params.getFirst();
     }
 
-    public Property queryParameterVal(String key) {
-        return new Property(queryParameter(key));
+    public Parameter queryParameterVal(String key) {
+        return new Parameter(queryParameter(key));
     }
 
     public Deque<String> queryParameters(String key) {
