@@ -213,6 +213,7 @@ public class SnappyServer {
         validateThreadPool(name, corePoolSize, corePoolSize, keepAliveMillis);
         SchedulerConfig schedulerConfig = SchedulerConfig.withDefaults(name);
         schedulerConfig.getScheduler().setCorePoolSize(corePoolSize);
+        schedulerConfig.getScheduler().setMaximumPoolSize(corePoolSize);
         schedulerConfig.getScheduler().setKeepAliveTime(keepAliveMillis, TimeUnit.MILLISECONDS);
         instance().schedulers.add(schedulerConfig);
     }

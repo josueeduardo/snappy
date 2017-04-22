@@ -18,6 +18,7 @@
 package io.joshworks.snappy.executor;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by josh on 3/14/17.
@@ -32,7 +33,10 @@ public class SchedulerConfig extends ExecutorConfigBase {
 
     public static SchedulerConfig withDefaults(String name) {
         SchedulerConfig defaultConfig = new SchedulerConfig(name);
-        defaultConfig.scheduler = new ScheduledThreadPoolExecutor(2);
+        defaultConfig.scheduler = new ScheduledThreadPoolExecutor(DEFAULT_CORE_POOL_SIZE);
+        defaultConfig.scheduler.setMaximumPoolSize(DEFAULT_MAX_POOL_SIZE);
+        defaultConfig.scheduler.setKeepAliveTime(DEFAULT_KEEP_ALIVE, TimeUnit.MINUTES);
+
         return defaultConfig;
     }
 

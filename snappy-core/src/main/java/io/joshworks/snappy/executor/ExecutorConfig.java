@@ -34,7 +34,7 @@ public class ExecutorConfig extends ExecutorConfigBase {
 
     public static ExecutorConfig withDefaults(String name) {
         ExecutorConfig defaultConfig = new ExecutorConfig(name);
-        defaultConfig.executor = new ThreadPoolExecutor(0, 5, 1, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
+        defaultConfig.executor = new ThreadPoolExecutor(DEFAULT_CORE_POOL_SIZE, DEFAULT_MAX_POOL_SIZE, DEFAULT_KEEP_ALIVE, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
         return defaultConfig;
     }
 
