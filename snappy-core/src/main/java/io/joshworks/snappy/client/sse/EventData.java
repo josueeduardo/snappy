@@ -65,6 +65,7 @@ public class EventData {
                 "data='" + data + '\'' +
                 ", id='" + id + '\'' +
                 ", origin='" + origin + '\'' +
+                ", event='" + event + '\'' +
                 '}';
     }
 }
