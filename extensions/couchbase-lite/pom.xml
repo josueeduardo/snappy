@@ -26,7 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>local-store</artifactId>
+    <artifactId>couchbase-lite</artifactId>
 
     <dependencies>
         <dependency>

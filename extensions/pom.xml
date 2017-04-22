@@ -15,7 +15,7 @@
 
     <modules>
         <module>jdbc</module>
-        <module>local-store</module>
+        <module>couchbase-lite</module>
         <module>hazelcast</module>
         <module>discovery</module>
     </modules>
