@@ -6,13 +6,15 @@ Features:
 - Based on [Undertow](http://undertow.io) handlers
 - Rest with content negotiation (media type only)
 - Server sent events
+- Server sent events client
 - Websockets
+- Websocket client
 - Built in service discovery (in progress)
-- Small. Less than 6mb
+- Small. ~6mb
 - No magic, plain and simple
 - Small memory footprint
 - Static files
-- Rest fetchServices using [Unirest](https://github.com/Mashape/unirest-java)
+- Rest client using [Unirest](https://github.com/Mashape/unirest-java)
 - Multipart support
 - Executors and schedulers managed by the server
 - Metrics: total requests, responses codes per endpoint, thread and memory usage, and user provided metrics.
@@ -25,7 +27,7 @@ Features:
     <dependency>
         <groupId>io.joshworks</groupId>
         <artifactId>snappy-core</artifactId>
-        <version>0.1</version>
+        <version>0.2</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>
@@ -127,7 +129,7 @@ public class App {
 }
 ```
 
-#### Static files ####
+#### Serving static files ####
 ```java
 public class App {
 
@@ -173,8 +175,34 @@ public class App {
        sse("/event-stream");
        start();
        
-       //.... somewhere else
+       //curl http://localhost:9000/event-stream
+       
+       //...then somewhere else
        SSEBroadcaster.broadcast("some data");
+    }
+}
+```
+
+#### SSE groups / topics ####
+```java
+public class BroadcastEndpoint implements ServerSentEventConnectionCallback {
+
+    @Override
+    public void connected(ServerSentEventConnection connection, String lastEventId) {
+        SseBroadcaster.addToGroup("my-group", connection);
+    }
+}
+
+public class App {
+
+    public static void main(final String[] args) {
+       sse("/event-stream", new BroadcastEndpoint());
+       start();
+       
+       //curl http://localhost:9000/event-stream
+       
+       //Send messages to all clients in 'my-group'
+       SSEBroadcaster.broadcast("some data", "my-group");
     }
 }
 ```
@@ -233,27 +261,49 @@ public class App {
 }
 ```
 
-```java
+#### Uber jar ####
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.joshworks</groupId>
+            <artifactId>snappy-maven-plugin</artifactId>
+            <version>0.2-SNAPSHOT</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>repackage</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
 
-    //Server core api
-    start();
-    stop();
+#### Server API ####
+```java
+ 
+    start()
+    stop()
     
-    port(int port);
-    address(String address);
-    tcpNoDeplay(boolean tcpNoDelay);
+    port(int port)
+    address(String address)
+    portOffset(int offset)
+    adminPort(int port)
+    adminAddress(String address)
+    tcpNoDeplay(boolean tcpNoDelay)
     
-    adminPort(int port);
-    adminAddress(String address);
+    ioThreads(int ioThreads)
+    workerThreads(int core, int max)
     
-    ioThreads(int ioThreads);
-    workerThreads(int core, int max);
+    enableTracer()
+    enableHttpMetrics()
     
-    enableTracer();
-    enableHttpMetrics();
+    cors()
     
-    executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis);
-    scheduler(String name, int corePoolSize, long keepAliveMillis);
+    executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis)
+    scheduler(String name, int corePoolSize, long keepAliveMillis)
     
     
     

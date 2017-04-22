@@ -70,7 +70,7 @@ public class Exchange {
         return pathMatch.getParameters().get(key);
     }
 
-    public Property pathParameterValue(String key) {
+    public Property pathParameterVal(String key) {
         return new Property(pathParameter(key));
     }
 

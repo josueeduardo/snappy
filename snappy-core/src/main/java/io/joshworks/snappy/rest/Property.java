@@ -17,6 +17,8 @@
 
 package io.joshworks.snappy.rest;
 
+import java.util.Optional;
+
 /**
  * Created by Josh Gontijo on 3/17/17.
  */
@@ -28,40 +30,27 @@ public class Property {
         this.value = value;
     }
 
-    public String orElse(String value) {
-        return isPresent() ? this.value : value;
+    public Optional<Integer> asInt() {
+        return Optional.of(Integer.parseInt(value));
     }
 
-    public Property orElseVal(String value) {
-        String v = isPresent() ? this.value : value;
-        return new Property(v);
+    public Optional<Double> asDouble() {
+        return Optional.of(Double.parseDouble(value));
     }
 
-    public Integer asInt() {
-        return isPresent() ? Integer.parseInt(value) : null;
+    public Optional<Float> asFloat() {
+        return Optional.of(Float.parseFloat(value));
     }
 
-    public Double asDouble() {
-        return isPresent() ? Double.parseDouble(value) : null;
+    public Optional<Boolean> asBoolean() {
+        return Optional.of(Boolean.parseBoolean(value));
     }
 
-    public Float asFloat() {
-        return isPresent() ? Float.parseFloat(value) : null;
+    public Optional<Long> asLong() {
+        return Optional.of(Long.parseLong(value));
     }
 
-    public Boolean asBoolean() {
-        return isPresent() ? Boolean.parseBoolean(value) : null;
-    }
-
-    public Long asLong() {
-        return isPresent() ? Long.parseLong(value) : null;
-    }
-
-    public String asString() {
-        return value;
-    }
-
-    public boolean isPresent() {
-        return value != null && !value.isEmpty();
+    public Optional<String> asString() {
+        return Optional.of(value);
     }
 }
