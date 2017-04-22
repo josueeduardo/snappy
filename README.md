@@ -27,6 +27,12 @@ Features:
         <artifactId>snappy-core</artifactId>
         <version>0.1</version>
     </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.25</version>
+    </dependency>
+
 ```
 
 
