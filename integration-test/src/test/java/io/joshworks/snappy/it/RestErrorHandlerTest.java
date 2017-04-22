@@ -41,12 +41,12 @@ public class RestErrorHandlerTest {
 
     @BeforeClass
     public static void setup() {
-        get("/error1", (exchange) -> {
+        get("/error1", exchange -> {
         });
-        get("/exception", (exchange) -> {
+        get("/exception", exchange -> {
             throw new RuntimeException(EXCEPTION_MESSAGE);
         });
-        get("/restException", (exchange) -> {
+        get("/restException", exchange -> {
             throw RestException.badRequest(EXCEPTION_MESSAGE);
         });
 

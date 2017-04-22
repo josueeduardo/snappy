@@ -45,23 +45,23 @@ public class FilterTest {
 
     @BeforeClass
     public static void setup() {
-        get("/a", (exchange) -> exchange.send("A", "txt"));
-        get("/b", (exchange) -> exchange.send("B", "txt"));
-        get("/b/c", (exchange) -> exchange.send("B", "txt"));
-        get("/a/c", (exchange) -> exchange.send("AC", "txt"));
-        get("/a/c/d", (exchange) -> exchange.send("ACD", "txt"));
+        get("/a", exchange -> exchange.send("A", "txt"));
+        get("/b", exchange -> exchange.send("B", "txt"));
+        get("/b/c", exchange -> exchange.send("B", "txt"));
+        get("/a/c", exchange -> exchange.send("AC", "txt"));
+        get("/a/c/d", exchange -> exchange.send("ACD", "txt"));
 
-        beforeAll("/b", (exchange) -> exchange.header("FILTER-BEFORE-ALL-B", "OK"));
-        beforeAll("/*", (exchange) -> exchange.header("FILTER-BEFORE-ALL", "OK"));
+        beforeAll("/b", exchange -> exchange.header("FILTER-BEFORE-ALL-B", "OK"));
+        beforeAll("/*", exchange -> exchange.header("FILTER-BEFORE-ALL", "OK"));
 
-        afterAll("/*", (exchange) -> filterAfterAllCalled.countDown());
+        afterAll("/*", exchange -> filterAfterAllCalled.countDown());
 
 
-        before("/a/*", (exchange) -> exchange.header("FILTER-1", "OK"));
-        before("/a/c/*", (exchange) -> exchange.header("FILTER-2", "OK"));
-        before("/b", (exchange) -> exchange.header("EXACT-FILTER", "OK"));
+        before("/a/*", exchange -> exchange.header("FILTER-1", "OK"));
+        before("/a/c/*", exchange -> exchange.header("FILTER-2", "OK"));
+        before("/b", exchange -> exchange.header("EXACT-FILTER", "OK"));
 
-        after("/b", (exchange) -> filterAfterCalled.countDown());
+        after("/b", exchange -> filterAfterCalled.countDown());
 
         start();
     }

@@ -41,7 +41,7 @@ public class AdminTest {
     public static void setup() {
         enableHttpMetrics();
 
-        get("/test", (exchange) -> {
+        get("/test", exchange -> {
         });
 
 

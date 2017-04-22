@@ -33,7 +33,7 @@ public class BasePathTest {
     @BeforeClass
     public static void setup() {
         basePath("/v1");
-        get("/test", (exchange) -> {
+        get("/test", exchange -> {
         });
         start();
     }

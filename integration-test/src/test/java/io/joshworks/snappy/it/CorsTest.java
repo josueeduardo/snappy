@@ -42,7 +42,7 @@ public class CorsTest {
 
     @BeforeClass
     public static void setup() {
-        get("/a", (exchange) -> exchange.send("A", "txt"));
+        get("/a", exchange -> exchange.send("A", "txt"));
         cors();
 
         start();
@@ -121,14 +121,5 @@ public class CorsTest {
         assertTrue(headerValues.contains("Access-Control-Request-Method"));
         assertTrue(headerValues.contains("Access-Control-Request-Headers"));
     }
-
-//        exchange.header("Access-Control-Allow-Origin", "*");
-//        exchange.header("Access-Control-Allow-Credentials", "true");
-//        exchange.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-//        exchange.header("Access-Control-Allow-Headers", "Origin, Accept, X-Requested-With, Content-Type, Authorization, Access-Control-Request-Method, Access-Control-Request-Headers");
-
-
-
-
 
 }

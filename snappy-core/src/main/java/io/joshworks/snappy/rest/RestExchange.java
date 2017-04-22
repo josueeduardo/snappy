@@ -40,7 +40,7 @@ public class RestExchange extends Exchange {
     }
 
     public Body body() {
-        if(body == null) {
+        if (body == null) {
             this.body = new Body(exchange);
         }
         return body;

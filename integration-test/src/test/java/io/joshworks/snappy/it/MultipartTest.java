@@ -51,7 +51,7 @@ public class MultipartTest {
         output = Files.createTempFile(Paths.get(tempDir), "testFile", "output");
 
 
-        multipart("/upload", (exchange) -> {
+        multipart("/upload", exchange -> {
             Part part = exchange.part(FILE_PART_NAME);
             if (!saveFileToTemp(part.file().path())) {
                 exchange.status(500);

@@ -36,18 +36,18 @@ public class GroupTest {
     @BeforeClass
     public static void setup() {
 
-        get("/a", (exchange) -> exchange.send(exchange.path(), "txt"));
+        get("/a", exchange -> exchange.send(exchange.path(), "txt"));
         group("/groupA", () -> {
-            get("/", (exchange) -> exchange.send(exchange.path(), "txt"));
-            get("/b", (exchange) -> exchange.send(exchange.path(), "txt"));
-            get("/c", (exchange) -> exchange.send(exchange.path(), "txt"));
+            get("/", exchange -> exchange.send(exchange.path(), "txt"));
+            get("/b", exchange -> exchange.send(exchange.path(), "txt"));
+            get("/c", exchange -> exchange.send(exchange.path(), "txt"));
 
             group("/groupB", () -> {
-                get("/d", (exchange) -> exchange.send(exchange.path(), "txt"));
+                get("/d", exchange -> exchange.send(exchange.path(), "txt"));
             });
 
             group("/{param}", () -> {
-                get("/e", (exchange) -> exchange.send(exchange.path(), "txt"));
+                get("/e", exchange -> exchange.send(exchange.path(), "txt"));
             });
         });
 

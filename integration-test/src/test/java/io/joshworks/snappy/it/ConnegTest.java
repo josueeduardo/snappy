@@ -42,23 +42,23 @@ public class ConnegTest {
     public static void setup() {
         basePath("/v1");
 
-        get("/json", (exchange) -> {
+        get("/json", exchange -> {
         });
 
-        get("/xml", (exchange) -> {
+        get("/xml", exchange -> {
         }, consumes("application/xml"));
 
-        get("/simple-mime", (exchange) -> {
+        get("/simple-mime", exchange -> {
         }, consumes("json"));
 
         //produces
-        get("/produces-json", (exchange) -> {
+        get("/produces-json", exchange -> {
         }, produces("application/json"));
 
-        get("/produces-text", (exchange) -> {
+        get("/produces-text", exchange -> {
         }, produces("text/plain"));
 
-        get("/overridden", (exchange) -> {
+        get("/overridden", exchange -> {
             exchange.send("{}", MediaType.APPLICATION_JSON_TYPE);
         }, produces("text/plain"));
 

@@ -42,12 +42,12 @@ public class RestTest {
     @BeforeClass
     public static void setup() {
 
-        get(TEST_RESOURCE, (exchange) -> exchange.send(payload));
-        post(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body().asObject(SampleData.class)));
-        put(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body().asObject(SampleData.class)));
-        delete(TEST_RESOURCE, (exchange) -> exchange.send(exchange.body().asObject(SampleData.class)));
+        get(TEST_RESOURCE, exchange -> exchange.send(payload));
+        post(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
+        put(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
+        delete(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
 
-        get("/statusOnly", (exchange) -> exchange.status(401));
+        get("/statusOnly", exchange -> exchange.status(401));
 
         start();
     }

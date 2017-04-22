@@ -48,15 +48,15 @@ public class CustomRestErrorHandlerTest {
         exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
         exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
 
-        get("/custom-handler-1", (exchange) -> {
+        get("/custom-handler-1", exchange -> {
             throw new RuntimeException("Some error");
         });
 
-        get("/custom-handler-2", (exchange) -> {
+        get("/custom-handler-2", exchange -> {
             throw new UnsupportedOperationException("Some other error");
         });
 
-        get("/custom-handler-3-mediaType", (exchange) -> {
+        get("/custom-handler-3-mediaType", exchange -> {
             throw new NumberFormatException("Some error with custom media type");
         });
 
