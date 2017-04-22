@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.extras.store;
+package io.joshworks.snappy.extensions.cblite;
 
 import com.couchbase.lite.JavaContext;
 
