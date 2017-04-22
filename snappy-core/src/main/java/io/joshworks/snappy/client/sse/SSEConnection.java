@@ -56,9 +56,14 @@ public class SSEConnection {
     String lastEventId;
 
     public SSEConnection(String url, SseClientCallback callback, XnioWorker worker) {
+        this(url, null, callback, worker);
+    }
+
+    public SSEConnection(String url, String lastEventId, SseClientCallback callback, XnioWorker worker) {
         this.url = url;
         this.callback = callback;
         this.worker = worker;
+        this.lastEventId = lastEventId;
     }
 
     public void connect() {

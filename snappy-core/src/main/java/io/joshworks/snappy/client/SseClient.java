@@ -18,24 +18,16 @@
 package io.joshworks.snappy.client;
 
 import io.joshworks.snappy.client.sse.EventData;
-import io.joshworks.snappy.client.sse.SseClientCallback;
 import io.joshworks.snappy.client.sse.SSEConnection;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.joshworks.snappy.client.sse.SseClientCallback;
 
 import java.util.function.Consumer;
-
-import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by Josh Gontijo on 3/31/17.
  */
 public class SseClient {
-
-    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
-
     private SseClient() {
-
     }
 
     public static SSEConnection connect(String url, Consumer<EventData> callback) {
@@ -44,17 +36,27 @@ public class SseClient {
             public void onEvent(EventData data) {
                 callback.accept(data);
             }
-        });
+        }, null);
+    }
+
+    public static SSEConnection connect(String url, Consumer<EventData> callback, String lastEventId) {
+        return connect(ClientManager.lookup(url), new SseClientCallback() {
+            @Override
+            public void onEvent(EventData data) {
+                callback.accept(data);
+            }
+        }, lastEventId);
     }
 
     public static SSEConnection connect(String url, SseClientCallback callback) {
-        SSEConnection connection = new SSEConnection(ClientManager.lookup(url), callback, ClientManager.getWorker());
+        return connect(url, callback, null);
+    }
+
+    public static SSEConnection connect(String url, SseClientCallback callback, String lastEventId) {
+        SSEConnection connection = new SSEConnection(ClientManager.lookup(url), lastEventId, callback, ClientManager.getWorker());
         connection.connect();
         return connection;
     }
-
-
-
 
 
 }
