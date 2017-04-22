@@ -27,11 +27,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * @author Josue Gontijo.
  */
-public abstract class Strategy {
+@FunctionalInterface
+public interface Strategy {
     AtomicInteger counter = new AtomicInteger();
 
 
-    public static Strategy random() {
+    static Strategy random() {
         return new Strategy() {
             @Override
             public Instance apply(List<Instance> configs) {
@@ -41,7 +42,7 @@ public abstract class Strategy {
         };
     }
 
-    public static Strategy roundRobin() {
+    static Strategy roundRobin() {
         return new Strategy() {
             @Override
             public Instance apply(List<Instance> configs) {
@@ -55,6 +56,6 @@ public abstract class Strategy {
         };
     }
 
-    abstract Instance apply(List<Instance> configs);
+    Instance apply(List<Instance> configs);
 
 }
