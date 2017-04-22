@@ -18,6 +18,7 @@
 package io.joshworks.snappy.property;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +29,7 @@ public final class PropertyKeys {
 
     public static final String PROPERTIES_NAME = "snappy.properties";
 
-    public static final Set<String> RESERVED_PREFIXES = new HashSet<>(Arrays.asList("http", "xnio", "executor", "scheduler"));
+    public static final Set<String> RESERVED_PREFIXES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("http", "xnio", "executor", "scheduler")));
 
     //http
     public static final String HTTP_PORT = "http.port";
