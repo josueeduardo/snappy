@@ -200,7 +200,6 @@ public class SnappyServer {
 
     public static synchronized void executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
         checkStarted();
-        validateThreadPool(name, corePoolSize, maxPoolSize, keepAliveMillis);
         ExecutorConfig config = ExecutorConfig.withDefaults(name);
         config.getExecutor().setCorePoolSize(corePoolSize);
         config.getExecutor().setMaximumPoolSize(maxPoolSize);
@@ -210,29 +209,11 @@ public class SnappyServer {
 
     public static synchronized void scheduler(String name, int corePoolSize, long keepAliveMillis) {
         checkStarted();
-        validateThreadPool(name, corePoolSize, corePoolSize, keepAliveMillis);
         SchedulerConfig schedulerConfig = SchedulerConfig.withDefaults(name);
         schedulerConfig.getScheduler().setCorePoolSize(corePoolSize);
         schedulerConfig.getScheduler().setMaximumPoolSize(corePoolSize);
         schedulerConfig.getScheduler().setKeepAliveTime(keepAliveMillis, TimeUnit.MILLISECONDS);
         instance().schedulers.add(schedulerConfig);
-    }
-
-    private static void validateThreadPool(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis) {
-        Objects.requireNonNull(name, Messages.INVALID_POOL_NAME);
-        if (corePoolSize < 1) {
-            throw new IllegalArgumentException("Core pool size must be greater than zero");
-        }
-        if (maxPoolSize < 1) {
-            throw new IllegalArgumentException("Max pool size must be greater than zero");
-        }
-        if (corePoolSize < maxPoolSize) {
-            throw new IllegalArgumentException("Max pool size must be greater than core pool size");
-        }
-        if (keepAliveMillis < 0) {
-            throw new IllegalArgumentException("Keep alive must be greater or equals zero");
-        }
-
     }
 
     public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler handler) {
