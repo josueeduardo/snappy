@@ -60,7 +60,7 @@ public class CouchbaseLiteExtension implements SnappyExtension {
     public void onStart(ServerData config) {
         try {
             if (manager != null && options != null) {
-                LocalStore.init(manager, options);
+                CouchbaseStore.init(manager, options);
                 return;
             }
             String location = String.valueOf(config.properties.getOrDefault(LOCATION, DEFAULT_LOCATION));
@@ -72,7 +72,7 @@ public class CouchbaseLiteExtension implements SnappyExtension {
             options.setCreate(true);
             options.setEncryptionKey(key);
 
-            LocalStore.init(manager, options);
+            CouchbaseStore.init(manager, options);
 
 
         } catch (Exception ex) {
