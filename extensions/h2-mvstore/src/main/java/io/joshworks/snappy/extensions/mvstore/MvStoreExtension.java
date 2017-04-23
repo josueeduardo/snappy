@@ -1,0 +1,104 @@
+/*
+ * Copyright 2017 Josue Gontijo
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package io.joshworks.snappy.extensions.mvstore;
+
+import io.joshworks.snappy.ext.ExtensionMeta;
+import io.joshworks.snappy.ext.ServerData;
+import io.joshworks.snappy.ext.SnappyExtension;
+import org.h2.mvstore.MVStore;
+import org.h2.mvstore.OffHeapStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Created by Josue on 07/02/2017.
+ */
+public class MvStoreExtension implements SnappyExtension {
+
+    private static final Logger logger = LoggerFactory.getLogger(MvStoreExtension.class);
+
+    private static final String EXTENSION_NAME = "H2_MV_STORE";
+    private static final String PREFIX = "mvstore.";
+
+    private static final String PASSWORD = PREFIX + "password";
+    private static final String LOCATION = PREFIX + "location";
+    private static final String AUTO_COMMIT = PREFIX + "autoCommit";
+    private static final String CACHE_SIZE = PREFIX + "cacheSize";
+
+    private static final String DEFAULT_LOCATION = System.getProperty("user.home") + "/snappy/mvstore";
+    private static final String DEFAULT_KEY = "snappy";
+    private static final String DEFAULT_AUTO_COMMIT = "true";
+    private static final String DEFAULT_CACHE_SIZE = "-1"; //not set
+    private static final String DATABASE_NAME = "/db.dat"; //not set
+
+    private MVStore store;
+
+    public MvStoreExtension() {
+    }
+
+    public MvStoreExtension(MVStore store) {
+        this.store = store;
+    }
+
+    @Override
+    public void onStart(ServerData config) {
+        try {
+            if (store != null) {
+                return;
+            }
+            String location = String.valueOf(config.properties.getOrDefault(LOCATION, DEFAULT_LOCATION));
+            String key = String.valueOf(config.properties.getOrDefault(PASSWORD, DEFAULT_KEY));
+            boolean autoCommit = Boolean.parseBoolean(String.valueOf(config.properties.getOrDefault(AUTO_COMMIT, DEFAULT_AUTO_COMMIT)));
+            int cacheSize = Integer.parseInt(String.valueOf(config.properties.getOrDefault(CACHE_SIZE, DEFAULT_CACHE_SIZE)));
+
+            location = location.endsWith("/") ? location.substring(0, location.length() - 1) : location;
+
+            MVStore.Builder builder = new MVStore.Builder()
+                    .fileName(location + DATABASE_NAME)
+                    .encryptionKey(key.toCharArray())
+                    .compress()
+                    .fileStore(new OffHeapStore());
+
+            if (!autoCommit) {
+                builder.autoCommitDisabled();
+            }
+            if (cacheSize >= 0) {
+                builder.cacheSize(cacheSize);
+            }
+            this.store = builder.open();
+
+            H2MvStore.init(store);
+
+
+        } catch (Exception ex) {
+            logger.error("Error loading extension " + details().name, ex);
+        }
+
+    }
+
+    @Override
+    public void onShutdown() {
+        store.close();
+    }
+
+    @Override
+    public ExtensionMeta details() {
+        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PREFIX);
+    }
+
+}
