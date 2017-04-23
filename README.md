@@ -156,7 +156,7 @@ public class App {
 }
 ```
 
-#### Rest fetchServices ####
+#### Rest client ####
 ```java
 public class App {
 
