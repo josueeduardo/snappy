@@ -30,7 +30,7 @@
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.joshworks.snappy</groupId>
+            <groupId>io.joshworks.snappy.extensions</groupId>
             <artifactId>discovery</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

@@ -18,7 +18,7 @@
 package io.joshworks.examples.discovery.hello;
 
 import io.joshworks.snappy.client.RestClient;
-import io.joshworks.snappy.extras.ssr.client.SSRClientExtension;
+import io.joshworks.snappy.extensions.ssr.client.SSRClientExtension;
 
 import static io.joshworks.snappy.SnappyServer.*;
 import static io.joshworks.snappy.parser.MediaTypes.consumes;

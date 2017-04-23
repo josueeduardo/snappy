@@ -17,7 +17,8 @@
 
 package io.joshworks.examples.discovery.world;
 
-import io.joshworks.snappy.extras.ssr.client.SSRClientExtension;
+
+import io.joshworks.snappy.extensions.ssr.client.SSRClientExtension;
 
 import static io.joshworks.snappy.SnappyServer.*;
 
