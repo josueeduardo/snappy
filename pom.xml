@@ -59,6 +59,13 @@
     <profiles>
         <profile>
             <id>release</id>
+
+            <modules>
+                <module>snappy</module>
+                <module>snappy-plugin-parent</module>
+                <module>extensions</module>
+            </modules>
+
             <build>
                 <plugins>
                     <plugin>

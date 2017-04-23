@@ -14,7 +14,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.joshworks.snappy.extensions</groupId>
+            <groupId>io.joshworks.extensions</groupId>
             <artifactId>h2-mvstore</artifactId>
             <version>0.2</version>
         </dependency>
