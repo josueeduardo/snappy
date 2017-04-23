@@ -134,7 +134,7 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-        //server files from src/main/resources/static
+        //from src/main/resources/static
         //available on /pages
         staticFiles("/pages");
         
