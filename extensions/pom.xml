@@ -18,6 +18,7 @@
         <module>couchbase-lite</module>
         <module>hazelcast</module>
         <module>discovery</module>
+        <module>h2-mvstore</module>
     </modules>
 
     <dependencies>

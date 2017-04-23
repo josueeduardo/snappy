@@ -18,7 +18,9 @@
 package io.joshworks.snappy.extras.ssr.client;
 
 import io.joshworks.snappy.client.UrlLookup;
-import io.joshworks.snappy.extras.ssr.Instance;
+import io.joshworks.snappy.extensions.ssr.Instance;
+import io.joshworks.snappy.extensions.ssr.client.InstanceNameUrlLookup;
+import io.joshworks.snappy.extensions.ssr.client.ServiceStore;
 import org.junit.Test;
 
 import java.util.Arrays;
