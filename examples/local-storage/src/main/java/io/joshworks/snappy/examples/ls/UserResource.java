@@ -23,12 +23,18 @@ import io.joshworks.snappy.rest.RestExchange;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.joshworks.snappy.SnappyServer.*;
+
 /**
  * Created by Josh Gontijo on 4/22/17.
  */
 public class UserResource {
 
-    private Map<String, User> users = H2MvStore.of("users", String.class, User.class);
+    private Map<String, User> users;
+
+    public UserResource() {
+        onStart(() -> users = H2MvStore.of("users", String.class, User.class));
+    }
 
     public void create(RestExchange exchange) {
         User user = exchange.body().asObject(User.class);

@@ -24,6 +24,8 @@ import org.xnio.XnioWorker;
 
 import java.io.IOException;
 
+import static io.joshworks.snappy.SnappyServer.onShutdown;
+
 /**
  * Created by Josh Gontijo on 4/2/17.
  */
@@ -42,6 +44,12 @@ public class ClientManager {
 
     public static void init() {
         RestClient.init();
+
+        onShutdown(() -> {
+            RestClient.shutdown();
+            worker.shutdown();
+        });
+
     }
 
     public synchronized static void configureWorker(OptionMap.Builder builder) throws IOException {
@@ -71,8 +79,4 @@ public class ClientManager {
         return lookup.getUrl(original);
     }
 
-    public static void shutdown() {
-        RestClient.shutdown();
-        worker.shutdown();
-    }
 }

@@ -19,7 +19,6 @@ package io.joshworks.snappy;
 
 import io.joshworks.snappy.admin.AdminManager;
 import io.joshworks.snappy.client.ClientManager;
-import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.executor.ExecutorBootstrap;
 import io.joshworks.snappy.executor.ExecutorConfig;
 import io.joshworks.snappy.executor.SchedulerConfig;
@@ -40,8 +39,8 @@ import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Group;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.Interceptors;
-import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.rest.RestConsumer;
+import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -80,6 +79,11 @@ public class SnappyServer {
     private final AdminManager adminManager = new AdminManager();
     private final ExtensionProxy extensions = new ExtensionProxy();
     private XnioWorker worker;
+
+    //--------------------------------------------
+    private final List<Runnable> startListeners = new ArrayList<>();
+    private final List<Runnable> shutdownListeners = new ArrayList<>();
+
     //--------------------------------------------
     private final OptionMap.Builder optionBuilder = OptionMap.builder();
     private final List<ExecutorConfig> executors = new ArrayList<>();
@@ -342,13 +346,22 @@ public class SnappyServer {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors));
-
     }
 
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors, maxSize));
+    }
+
+    public static synchronized void onStart(Runnable task) {
+        checkStarted();
+        instance().startListeners.add(task);
+    }
+
+    public static synchronized void onShutdown(Runnable task) {
+        checkStarted();
+        instance().shutdownListeners.add(task);
     }
 
     private static String resolvePath(String url) {
@@ -410,6 +423,7 @@ public class SnappyServer {
 
             logger.info("Server started in {}ms", System.currentTimeMillis() - start);
 
+            startListeners.forEach(Runnable::run);
 
         } catch (Exception e) {
             started = false;
@@ -441,16 +455,16 @@ public class SnappyServer {
 
                 extensions.onShutdown();
 
-                ClientManager.shutdown();
-                AppExecutors.shutdownAll();
-
                 server.stop();
                 worker.shutdownNow();
                 INSTANCE = null;
                 started = false;
+
+                shutdownListeners.forEach(Runnable::run);
+
             }
         } catch (Exception e) {
-            logger.error("Error when shutting down", e);
+            logger.error("Error while shutting down", e);
         }
     }
 

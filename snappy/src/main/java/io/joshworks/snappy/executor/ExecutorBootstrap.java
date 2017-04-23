@@ -18,6 +18,8 @@
 package io.joshworks.snappy.executor;
 
 import io.joshworks.snappy.metric.PoolMetric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,10 +28,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+import static io.joshworks.snappy.SnappyServer.onShutdown;
+
 /**
  * Created by josh on 3/14/17.
  */
 public class ExecutorBootstrap {
+
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     static final String DEFAULT_SCHEDULER = "default-scheduler";
     static final String DEFAULT_EXECUTOR = "default-executor";
@@ -70,7 +77,15 @@ public class ExecutorBootstrap {
                         .orElse(new SchedulerConfig(DEFAULT_SCHEDULER)))
                 .getName();
 
-        AppExecutors.init(new ExecutorContainer(defaultExecutor, defaultScheduler, executors, schedulers));
+        ExecutorContainer executorContainer = new ExecutorContainer(defaultExecutor, defaultScheduler, executors, schedulers);
+
+        onShutdown(() -> {
+            executorContainer.shutdownAll();
+            logger.info("Executors shutdown");
+        });
+
+        AppExecutors.init(executorContainer);
+
     }
 
     public static List<PoolMetric> executorMetrics() {

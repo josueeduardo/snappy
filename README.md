@@ -294,6 +294,9 @@ public class App {
     adminAddress(String address)
     tcpNoDeplay(boolean tcpNoDelay)
     
+    onStart(Runnable task)
+    onShutdown(Runnable task)
+    
     ioThreads(int ioThreads)
     workerThreads(int core, int max)
     

@@ -151,41 +151,4 @@ public class AppExecutors {
         return new HashMap<>(container.schedulers);
     }
 
-    public static void shutdown(String poolName) {
-        ThreadPoolExecutor executor = container.executors.get(poolName);
-        ScheduledThreadPoolExecutor scheduler = container.schedulers.get(poolName);
-        if (executor != null) {
-            shutdown(poolName, executor);
-        }
-        if (scheduler != null) {
-            shutdown(poolName, scheduler);
-        }
-    }
-
-    public synchronized static void shutdownAll() {
-        container.executors.forEach(AppExecutors::shutdown);
-        container.schedulers.forEach(AppExecutors::shutdown);
-        logger.info("Executors shutdown");
-    }
-
-    private synchronized static void shutdown(String name, ThreadPoolExecutor executorService) {
-        logger.info("Shutting down pool: {}", name);
-        shutdownExecutor(executorService);
-        container.executors.remove(name);
-        container.schedulers.remove(name);
-    }
-
-    private synchronized static void shutdownExecutor(ThreadPoolExecutor executorService) {
-        if (!executorService.isShutdown()) {
-            executorService.shutdown();
-            try {
-                executorService.awaitTermination(5, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                logger.warn("Failed to shutdown executor, halting tasks");
-                executorService.shutdownNow();
-            }
-        }
-    }
-
-
 }

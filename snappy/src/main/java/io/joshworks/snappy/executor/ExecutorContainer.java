@@ -17,22 +17,30 @@
 
 package io.joshworks.snappy.executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by Josh Gontijo on 3/24/17.
  */
 public class ExecutorContainer {
 
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+
     final Map<String, ThreadPoolExecutor> executors = new ConcurrentHashMap<>();
     final Map<String, ScheduledThreadPoolExecutor> schedulers = new ConcurrentHashMap<>();
     final String defaultExecutor;
     final String defaultScheduler;
 
-    public ExecutorContainer(String defaultExecutor,
+    ExecutorContainer(String defaultExecutor,
                              String defaultScheduler,
                              Map<String, ThreadPoolExecutor> execs,
                              Map<String, ScheduledThreadPoolExecutor> scheds) {
@@ -41,7 +49,24 @@ public class ExecutorContainer {
 
         executors.putAll(execs);
         schedulers.putAll(scheds);
+
     }
 
+    void shutdownAll() {
+        executors.values().forEach(this::shutdownExecutor);
+        schedulers.values().forEach(this::shutdownExecutor);
+    }
+
+    private void shutdownExecutor(ThreadPoolExecutor executorService) {
+        if (!executorService.isShutdown()) {
+            executorService.shutdown();
+            try {
+                executorService.awaitTermination(5, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                logger.warn("Failed to shutdown executor, halting tasks");
+                executorService.shutdownNow();
+            }
+        }
+    }
 
 }
