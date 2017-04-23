@@ -25,6 +25,7 @@ import io.joshworks.snappy.ext.SnappyExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Objects;
 
 /**
@@ -40,7 +41,8 @@ public class CouchbaseLiteExtension implements SnappyExtension {
     private static final String PASSWORD = PREFIX + "password";
     private static final String LOCATION = PREFIX + "location";
 
-    private static final String DEFAULT_LOCATION = System.getProperty("user.home") + "/snappy/cblite";
+    private static final String DEFAULT_LOCATION =
+            System.getProperty("user.home") + File.separator + "snappy" + File.separator + "cblite";
     private static final String DEFAULT_KEY = "snappy";
 
     private Manager manager;

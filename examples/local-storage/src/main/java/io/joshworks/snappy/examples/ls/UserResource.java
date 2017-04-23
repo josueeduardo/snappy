@@ -19,8 +19,10 @@ package io.joshworks.snappy.examples.ls;
 
 import io.joshworks.snappy.extensions.mvstore.H2MvStore;
 import io.joshworks.snappy.rest.RestExchange;
+import org.h2.mvstore.MVMap;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.UUID;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -30,7 +32,7 @@ import static io.joshworks.snappy.SnappyServer.*;
  */
 public class UserResource {
 
-    private Map<String, User> users;
+    private MVMap<String, User> users;
 
     public UserResource() {
         onStart(() -> users = H2MvStore.of("users", String.class, User.class));
@@ -39,13 +41,15 @@ public class UserResource {
     public void create(RestExchange exchange) {
         User user = exchange.body().asObject(User.class);
         if(user != null) {
-            user.setId(UUID.randomUUID().toString().substring(0,9));
+            user.setId(UUID.randomUUID().toString().substring(0,8));
             users.put(user.getId(), user);
         }
     }
 
     public void getAll(RestExchange exchange) {
-        exchange.send(users.values());
+        //MVMap returns an empty object
+        Collection<User> values = new ArrayList<>(users.values());
+        exchange.send(values);
     }
 
     public void getById(RestExchange exchange) {

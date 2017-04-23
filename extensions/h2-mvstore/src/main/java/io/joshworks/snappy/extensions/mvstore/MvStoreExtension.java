@@ -25,6 +25,8 @@ import org.h2.mvstore.OffHeapStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+
 /**
  * Created by Josue on 07/02/2017.
  */
@@ -39,12 +41,15 @@ public class MvStoreExtension implements SnappyExtension {
     private static final String LOCATION = PREFIX + "location";
     private static final String AUTO_COMMIT = PREFIX + "autoCommit";
     private static final String CACHE_SIZE = PREFIX + "cacheSize";
+    private static final String OFF_HEAP_MODE = PREFIX + "offHeapMode";
 
-    private static final String DEFAULT_LOCATION = System.getProperty("user.home") + "/snappy/mvstore";
+    private static final String DEFAULT_LOCATION =
+            System.getProperty("user.home") + File.separator + "snappy" + File.separator + "mvstore";
     private static final String DEFAULT_KEY = "snappy";
     private static final String DEFAULT_AUTO_COMMIT = "true";
+    private static final String DEFAULT_OFF_HEAP_MODE = "false"; //not set
     private static final String DEFAULT_CACHE_SIZE = "-1"; //not set
-    private static final String DATABASE_NAME = "/db.dat"; //not set
+    private static final String DATABASE_NAME = File.separator + "db.dat"; //not set
 
     private MVStore store;
 
@@ -64,16 +69,21 @@ public class MvStoreExtension implements SnappyExtension {
             String location = String.valueOf(config.properties.getOrDefault(LOCATION, DEFAULT_LOCATION));
             String key = String.valueOf(config.properties.getOrDefault(PASSWORD, DEFAULT_KEY));
             boolean autoCommit = Boolean.parseBoolean(String.valueOf(config.properties.getOrDefault(AUTO_COMMIT, DEFAULT_AUTO_COMMIT)));
+            boolean offHeap = Boolean.parseBoolean(String.valueOf(config.properties.getOrDefault(OFF_HEAP_MODE, DEFAULT_OFF_HEAP_MODE)));
             int cacheSize = Integer.parseInt(String.valueOf(config.properties.getOrDefault(CACHE_SIZE, DEFAULT_CACHE_SIZE)));
 
-            location = location.endsWith("/") ? location.substring(0, location.length() - 1) : location;
+            location = location.endsWith(File.separator) ? location.substring(0, location.length() - 1) : location;
+            createFolder(location);
 
             MVStore.Builder builder = new MVStore.Builder()
                     .fileName(location + DATABASE_NAME)
                     .encryptionKey(key.toCharArray())
-                    .compress()
-                    .fileStore(new OffHeapStore());
+                    .compress();
 
+
+            if (offHeap) {
+                builder.fileStore(new OffHeapStore());
+            }
             if (!autoCommit) {
                 builder.autoCommitDisabled();
             }
@@ -88,7 +98,15 @@ public class MvStoreExtension implements SnappyExtension {
         } catch (Exception ex) {
             logger.error("Error loading extension " + details().name, ex);
         }
+    }
 
+    private void createFolder(String dirPath) throws Exception {
+        File dataDir = new File(dirPath);
+        if (!dataDir.exists()) {
+            if (!dataDir.mkdirs()) {
+                throw new IllegalStateException("Could not create data directory '" + dirPath + "'");
+            }
+        }
     }
 
     @Override
