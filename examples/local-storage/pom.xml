@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy-examples</artifactId>
-        <version>0.2-SNAPSHOT</version>
+        <version>0.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>io.joshworks.snappy.extensions</groupId>
             <artifactId>h2-mvstore</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.2</version>
         </dependency>
     </dependencies>
 
