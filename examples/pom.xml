@@ -31,6 +31,7 @@
     <modules>
         <module>service-discovery</module>
         <module>runnable-jar</module>
+        <module>local-storage</module>
     </modules>
 
     <dependencies>
