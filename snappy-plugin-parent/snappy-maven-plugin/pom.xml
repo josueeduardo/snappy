@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>io.joshworks.snappy</groupId>
+        <groupId>io.joshworks</groupId>
         <artifactId>snappy-plugin-parent</artifactId>
         <version>0.2</version>
     </parent>
@@ -23,7 +23,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>io.joshworks.snappy</groupId>
+            <groupId>io.joshworks</groupId>
             <artifactId>snappy-loader</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -182,7 +182,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>io.joshworks.snappy</groupId>
+                                    <groupId>io.joshworks</groupId>
                                     <artifactId>snappy-loader</artifactId>
                                     <version>${project.parent.version}</version>
                                     <destFileName>snappy-loader.jar</destFileName>

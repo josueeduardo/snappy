@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.joshworks.snappy</groupId>
+        <groupId>io.joshworks</groupId>
         <artifactId>snappy-plugin-parent</artifactId>
         <version>0.2</version>
     </parent>

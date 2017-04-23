@@ -6,8 +6,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.joshworks.snappy</groupId>
-        <artifactId>parent</artifactId>
+        <groupId>io.joshworks</groupId>
+        <artifactId>snappy-parent</artifactId>
         <version>0.2</version>
     </parent>
     <artifactId>snappy</artifactId>
