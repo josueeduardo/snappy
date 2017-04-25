@@ -321,7 +321,7 @@ public class SnappyServer {
     public static synchronized void sse(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors, null));
+        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors));
     }
 
     public static synchronized void sse(String url, ServerSentEventConnectionCallback connectionCallback) {
