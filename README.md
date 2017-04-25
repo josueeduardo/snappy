@@ -21,7 +21,7 @@ Features:
 - Maven uber jar plugin using [Spring boot](https://projects.spring.io/spring-boot/)
 
 
-## Installing ##
+### Installing ###
 
 ```xml
     <dependency>
@@ -37,13 +37,12 @@ Features:
 
 ```
 
-
 ### Import ###
 ```java
 import static io.joshworks.snappy.SnappyServer.*;
 ```
 
-#### Hello ####
+### Hello ###
 ```java
 public class App {
 
@@ -54,7 +53,7 @@ public class App {
 }
 ```
 
-#### Path parameter ####
+### Path parameter ###
 ```java
 public class App {
 
@@ -69,7 +68,7 @@ public class App {
 }
 ```
 
-#### Receiving JSON ####
+### Receiving JSON ###
 ```java
 public class App {
 
@@ -85,7 +84,7 @@ public class App {
 }
 ```
 
-#### Sending JSON ####
+### Sending JSON ###
 ```java
 public class App {
 
@@ -96,7 +95,7 @@ public class App {
 }
 ```
 
-#### Filter ####
+### Filter ###
 ```java
 public class App {
 
@@ -115,7 +114,7 @@ public class App {
 }
 ```
 
-#### Error handling ####
+### Error handling ###
 ```java
 public class App {
 
@@ -133,7 +132,7 @@ public class App {
 }
 ```
 
-#### Serving static files ####
+### Serving static files ###
 ```java
 public class App {
 
@@ -147,7 +146,7 @@ public class App {
 }
 ```
 
-#### Uploading file ####
+### Uploading file ###
 ```java
 public class App {
 
@@ -160,7 +159,7 @@ public class App {
 }
 ```
 
-#### Rest client ####
+### Rest client ###
 ```java
 public class App {
 
@@ -171,7 +170,7 @@ public class App {
 }
 ```
 
-#### Broadcasting data with SSE ####
+### Broadcasting data with SSE ###
 ```java
 public class ClockServer {
 
@@ -186,7 +185,7 @@ public class ClockServer {
 }
 ```
 
-#### SSE groups / topics ####
+### SSE groups / topics ###
 ```java
 public class BroadcastEndpoint implements ServerSentEventConnectionCallback {
 
@@ -210,7 +209,7 @@ public class App {
 }
 ```
 
-#### Registering a parser ####
+### Registering a parser ###
 ```java
 public class App {
 
@@ -222,7 +221,7 @@ public class App {
     }
 }
 ```
-#### Resource group ####
+### Resource group ###
 ```java
 public class App {
 
@@ -249,7 +248,7 @@ public class App {
 }
 ```
 
-#### Executors ####
+### Executors ###
 ```java
 public class App {
 
@@ -269,7 +268,7 @@ public class App {
 }
 ```
 
-#### Uber jar ####
+### Uber jar ###
 ```xml
 <build>
     <plugins>
@@ -289,7 +288,7 @@ public class App {
 </build>
 ```
 
-#### Server API ####
+### Server API ###
 ```java
  
     start()
@@ -320,6 +319,82 @@ public class App {
     
 ```
 
+#### Metrics ###
 
-##### Metrics available at /metrics on port 9001 (default admin port) ####
+```json
+    //curl http://localhost:9100/metrics
+    {
+      "maxMemory": 3717201920,
+      "totalMemory": 251658240,
+      "freeMemory": 223553336,
+      "usedMemory": 28104904,
+      "resources": [ // enableHttpMetrics();
+          {
+            "url": "/users",
+            "method": "GET",
+            "metrics": {
+              "metricsStartDate": "Apr 25, 2017 11:41:59 PM",
+              "totalRequestTime": 91,
+              "maxRequestTime": 18,
+              "minRequestTime": 0,
+              "totalRequests": 46,
+              "responses": {
+                "200": 30,
+                "500": 16
+              }
+            }
+          },
+          {
+            "url": "/users/{id}",
+            "method": "GET",
+            "metrics": {
+              "metricsStartDate": "Apr 25, 2017 11:41:59 PM",
+              "totalRequestTime": 80,
+              "maxRequestTime": 16,
+              "minRequestTime": 0,
+              "totalRequests": 50,
+              "responses": {
+                "200": 46,
+                "404": 4
+            }
+          }
+        }
+       ],
+      "threadPools": [
+        {
+          "activeCount": 0,
+          "completedTaskCount": 0,
+          "corePoolSize": 0,
+          "largestPoolSize": 0,
+          "maximumPoolSize": 5,
+          "poolSize": 0,
+          "rejectionPolicy": "AbortPolicy",
+          "taskCount": 0,
+          "queueCapacity": 2147483647,
+          "queuedTasks": 0,
+          "poolName": "default-executor"
+        },
+        {
+          "activeCount": 0,
+          "completedTaskCount": 1670,
+          "corePoolSize": 0,
+          "largestPoolSize": 1,
+          "maximumPoolSize": 5,
+          "poolSize": 1,
+          "rejectionPolicy": "AbortPolicy",
+          "taskCount": 1671,
+          "queueCapacity": -2147483648,
+          "queuedTasks": 1,
+          "poolName": "default-scheduler"
+        }
+      ],
+      "appMetrics": {
+         "my-metric": 123,
+         "anotherOne": true,
+         "andAnother": "Yolo"
+      }
+    }
+    
+
+```
 
