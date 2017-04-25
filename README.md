@@ -25,7 +25,7 @@ Features:
 
 ```xml
     <dependency>
-        <groupId>io.joshworks</groupId>
+        <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
         <version>0.2</version>
     </dependency>
@@ -102,10 +102,12 @@ public class App {
 
     public static void main(final String[] args) {
        
-       before("/*", exchange -> {/*...*/}); 
-       after("/users", exchange -> {/*...*/}); 
+       before("/*", exchange -> System.out.println("Before All")); 
+       after("/users", exchange -> System.out.println("After users")); 
        
-       get("/users", exchange -> {/*...*/});
+       get("/users", exchange -> {
+           //...
+       });
 
        
        start();
@@ -119,9 +121,11 @@ public class App {
 
     public static void main(final String[] args) {
        
-       exception(Exception.class, (e, exchange) -> exchange.status(500).send(e.getMessage()));
+       exception(Exception.class, (error, exchange) -> exchange.status(500).send(error.exception.getMessage()));
        
-       get("/users", exchange -> {/*...*/});
+       get("/users", exchange -> {
+           throw new RuntimeException("Some error");
+       });
 
        
        start();
@@ -169,17 +173,16 @@ public class App {
 
 #### Broadcasting data with SSE ####
 ```java
-public class App {
+public class ClockServer {
 
     public static void main(final String[] args) {
-       sse("/event-stream");
-       start();
-       
-       //curl http://localhost:9000/event-stream
-       
-       //...then somewhere else
-       SSEBroadcaster.broadcast("some data");
-    }
+            sse("/real-time");
+    
+            onStart(() -> AppExecutors.scheduleAtFixedRate(() ->
+                    SseBroadcaster.broadcast(new Date().toString()), 1, 1, TimeUnit.SECONDS));
+    
+            start();
+        }
 }
 ```
 
@@ -224,19 +227,24 @@ public class App {
 public class App {
 
      public static void main(String[] args) {
-            group("/groupA", () -> {
-                get("/a", exchange -> {/* ... */});
-                put("/b", exchange -> {/* ... */});
-    
-                group("/subgroup", () -> {
-                    get("/c", exchange -> {/* ... */});
-                });
-            });
-    
-            group("/groupB", () -> {
-                get("/d", exchange -> {/* ... */});
-            });
             
+        // /groupA/a
+        // /groupA/b
+        // /groupA/subgroup/c
+        group("/groupA", () -> {
+            get("/a", exchange -> {/* ... */});
+            put("/b", exchange -> {/* ... */});
+
+            group("/subgroup", () -> {
+                get("/c", exchange -> {/* ... */});
+            });
+        });
+
+        // /groupB/d
+        group("/groupB", () -> {
+            get("/d", exchange -> {/* ... */});
+        });
+        
         }
 }
 ```
