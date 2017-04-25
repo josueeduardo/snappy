@@ -22,7 +22,7 @@
     <parent>
         <artifactId>service-discovery</artifactId>
         <groupId>io.joshworks</groupId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -34,7 +34,7 @@
             <plugin>
                 <groupId>io.joshworks</groupId>
                 <artifactId>snappy-maven-plugin</artifactId>
-                <version>0.2</version>
+                <version>0.3-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <goals>

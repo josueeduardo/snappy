@@ -6,7 +6,7 @@
 
     <groupId>io.joshworks</groupId>
     <artifactId>snappy-parent</artifactId>
-    <version>0.2</version>
+    <version>0.3-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -19,7 +19,6 @@
         <module>integration-test</module>
         <module>snappy-plugin-parent</module>
         <module>extensions</module>
-        <module>examples</module>
     </modules>
 
     <name>Snappy</name>

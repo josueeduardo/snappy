@@ -8,7 +8,7 @@
     <parent>
         <groupId>io.joshworks</groupId>
         <artifactId>snappy-parent</artifactId>
-        <version>0.2</version>
+        <version>0.3-SNAPSHOT</version>
     </parent>
     <artifactId>snappy</artifactId>
 
