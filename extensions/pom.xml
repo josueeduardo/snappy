@@ -3,8 +3,8 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>io.joshworks</groupId>
-        <artifactId>snappy-parent</artifactId>
+        <groupId>io.joshworks.snappy</groupId>
+        <artifactId>parent</artifactId>
         <version>0.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -29,7 +29,7 @@
             <version>1.7.25</version>
         </dependency>
         <dependency>
-            <groupId>io.joshworks</groupId>
+            <groupId>io.joshworks.snappy</groupId>
             <artifactId>snappy</artifactId>
             <version>${project.parent.version}</version>
             <scope>provided</scope>

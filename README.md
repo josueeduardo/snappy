@@ -9,7 +9,7 @@ Features:
 - Server sent events client
 - Websockets
 - Websocket client
-- Built in service discovery (in progress)
+- Built in simple service discovery
 - Small. ~6mb
 - No magic, plain and simple
 - Small memory footprint
@@ -17,6 +17,7 @@ Features:
 - Rest client using [Unirest](https://github.com/Mashape/unirest-java)
 - Multipart support
 - Executors and schedulers managed by the server
+- Extensible
 - Metrics: total requests, responses codes per endpoint, thread and memory usage, and user provided metrics.
 - Maven uber jar plugin using [Spring boot](https://projects.spring.io/spring-boot/)
 
@@ -27,7 +28,7 @@ Features:
     <dependency>
         <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
-        <version>0.2</version>
+        <version>0.3</version>
     </dependency>
     <dependency>
         <groupId>org.slf4j</groupId>

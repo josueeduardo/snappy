@@ -123,12 +123,6 @@ public class HandlerUtil {
         return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
     }
 
-    public static MappedEndpoint sse(String url, List<Interceptor> interceptors) {
-        return sse(url, interceptors, (connection, lastEventId) -> {
-            //do nothing
-        });
-    }
-
     public static MappedEndpoint sse(String url, List<Interceptor> interceptors, ServerSentEventConnectionCallback connectionCallback) {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         url = resolveUrl(url);

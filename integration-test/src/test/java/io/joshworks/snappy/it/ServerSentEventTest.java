@@ -21,6 +21,7 @@ import io.joshworks.snappy.client.SseClient;
 import io.joshworks.snappy.client.sse.EventData;
 import io.joshworks.snappy.client.sse.SseClientCallback;
 import io.joshworks.snappy.client.sse.SSEConnection;
+import io.joshworks.snappy.sse.SseBroadcaster;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,6 +44,8 @@ public class ServerSentEventTest {
 
     @BeforeClass
     public static void init() {
+        sse("/empty");
+
         sse("/simple", (connection, lastEventId) -> {
             connection.addCloseTask(channel -> System.out.println("Disconnected"));
 
@@ -184,6 +187,50 @@ public class ServerSentEventTest {
         sseConnection.close();
 
         if (!latch.await(10, TimeUnit.SECONDS)) {
+            fail("Client could not detect connection closed by the server");
+        }
+
+        assertFalse(sseConnection.isOpen());
+    }
+
+    @Test
+    public void emptyHandler() throws Exception {
+        final CountDownLatch openLatch = new CountDownLatch(1);
+        final CountDownLatch closeLatch = new CountDownLatch(1);
+        final CountDownLatch messageLatch = new CountDownLatch(2);
+
+        SSEConnection sseConnection = SseClient.connect("http://localhost:9000/empty", new SseClientCallback() {
+            @Override
+            public void onOpen() {
+                openLatch.countDown();
+            }
+
+            @Override
+            public void onEvent(EventData event) {
+                messageLatch.countDown();
+            }
+
+            @Override
+            public void onClose() {
+                closeLatch.countDown();
+            }
+
+        });
+
+        if (!openLatch.await(10, TimeUnit.SECONDS)) {
+            fail("Could not connect to the server");
+        }
+
+        SseBroadcaster.broadcast("message 1");
+        SseBroadcaster.broadcast("message 2");
+
+        if (!messageLatch.await(10, TimeUnit.SECONDS)) {
+            fail("Failed on waiting messages from the server");
+        }
+
+        sseConnection.close();
+
+        if (!closeLatch.await(10, TimeUnit.SECONDS)) {
             fail("Client could not detect connection closed by the server");
         }
 

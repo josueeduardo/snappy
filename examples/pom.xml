@@ -3,17 +3,22 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.joshworks</groupId>
-    <artifactId>snappy-examples</artifactId>
+    <parent>
+        <groupId>io.joshworks.snappy</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.3-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>examples</artifactId>
     <packaging>pom</packaging>
 
     <modules>
         <module>service-discovery</module>
         <module>runnable-jar</module>
         <module>local-storage</module>
+        <module>clock-app</module>
     </modules>
 
     <dependencies>
@@ -23,7 +28,7 @@
             <version>1.2.1</version>
         </dependency>
         <dependency>
-            <groupId>io.joshworks</groupId>
+            <groupId>io.joshworks.snappy</groupId>
             <artifactId>snappy</artifactId>
             <version>0.3-SNAPSHOT</version>
         </dependency>

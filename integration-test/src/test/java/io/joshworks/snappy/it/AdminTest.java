@@ -72,8 +72,8 @@ public class AdminTest {
         assertTrue(foundMetrics.isPresent());
         RestMetricHandler.RestMetrics metric = foundMetrics.get();
         assertEquals(1L, metric.getMetrics().getTotalRequests());
-        assertEquals(1, metric.getMetrics().getResponseCodes().size());
-        assertEquals(1, metric.getMetrics().getResponseCodes().get("200").get()); //200 OK
+        assertEquals(1, metric.getMetrics().getResponses().size());
+        assertEquals(1, metric.getMetrics().getResponses().get("200").get()); //200 OK
 
     }
 

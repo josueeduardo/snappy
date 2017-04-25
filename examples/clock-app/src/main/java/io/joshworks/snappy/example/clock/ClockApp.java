@@ -17,10 +17,8 @@ public class ClockApp {
         staticFiles("/");
         sse("/real-time");
 
-
         onStart(() -> AppExecutors.scheduleAtFixedRate(() ->
                 SseBroadcaster.broadcast(new Date().toString()), 1, 1, TimeUnit.SECONDS));
-
 
         start();
     }

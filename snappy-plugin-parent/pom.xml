@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>io.joshworks</groupId>
-        <artifactId>snappy-parent</artifactId>
+        <groupId>io.joshworks.snappy</groupId>
+        <artifactId>parent</artifactId>
         <version>0.3-SNAPSHOT</version>
     </parent>
 
-    <artifactId>snappy-plugin-parent</artifactId>
+    <artifactId>plugin-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.3-SNAPSHOT</version>
 
