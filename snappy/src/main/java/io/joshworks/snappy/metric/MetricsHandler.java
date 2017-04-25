@@ -76,7 +76,7 @@ public class MetricsHandler implements HttpHandler {
         private volatile int maxRequestTime;
         private volatile int minRequestTime = -1;
         private volatile long totalRequests;
-        private ConcurrentHashMap<String, AtomicLong> responseCodes = new ConcurrentHashMap<>();
+        private ConcurrentHashMap<String, AtomicLong> responses = new ConcurrentHashMap<>();
 
         public MetricResult(Date metricsStartDate) {
             this.metricsStartDate = metricsStartDate;
@@ -88,7 +88,7 @@ public class MetricsHandler implements HttpHandler {
             this.maxRequestTime = copy.maxRequestTime;
             this.minRequestTime = copy.minRequestTime;
             this.totalRequests = copy.totalRequests;
-            this.responseCodes.putAll(copy.responseCodes);
+            this.responses.putAll(copy.responses);
         }
 
         void update(final int requestTime, String code) {
@@ -109,8 +109,8 @@ public class MetricsHandler implements HttpHandler {
                 }
             } while (!minRequestTimeUpdater.compareAndSet(this, minRequestTime, requestTime));
             invocationsUpdater.incrementAndGet(this);
-            responseCodes.putIfAbsent(code, new AtomicLong(0));
-            responseCodes.get(code).incrementAndGet();
+            responses.putIfAbsent(code, new AtomicLong(0));
+            responses.get(code).incrementAndGet();
 
 
         }
@@ -135,8 +135,8 @@ public class MetricsHandler implements HttpHandler {
             return totalRequests;
         }
 
-        public ConcurrentHashMap<String, AtomicLong> getResponseCodes() {
-            return responseCodes;
+        public ConcurrentHashMap<String, AtomicLong> getResponses() {
+            return responses;
         }
     }
 }
