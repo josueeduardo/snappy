@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clock app</title>
+
+    <script>
+        if (window.EventSource) {
+            var source = new EventSource("real-time");
+            source.onmessage = function(event) {
+                var chat = document.getElementById('clock');
+                chat.innerHTML = "Date / Time is: " + event.data;
+            };
+        } else {
+            alert("Your browser does not support Server Sent Events. (Use Chrome)");
+        }
+    </script>
+
+</head>
+<body>
+    <h1 id="clock">Date / Time is: </h1>
+</body>
+</html>
