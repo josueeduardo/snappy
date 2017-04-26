@@ -75,9 +75,7 @@ public class App {
 
     public static void main(final String[] args) {
        post("/users", exchange -> {
-
            User user = exchange.body().asObject(User.class);
-
        });
        
        start();
@@ -154,7 +152,7 @@ public class App {
     public static void main(final String[] args) {
         multipart("/fileUpload", exchange -> {
             Path theFile = exchange.part("theFile").file().path();
-            Files.copy(theFile, someOutputStrem);
+            Files.copy(theFile, someOutputStream);
         });
     }
 }

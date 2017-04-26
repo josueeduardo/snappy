@@ -137,6 +137,7 @@ public class SnappyServer {
 
     public static synchronized void stop() {
         instance().stopServer();
+        INSTANCE = null;
     }
 
     public static synchronized void tcpNoDeplay(boolean tcpNoDelay) {
@@ -374,7 +375,7 @@ public class SnappyServer {
         }
     }
 
-    private synchronized void startServer() {
+    private void startServer() {
         try {
             checkStarted();
             Info.logo();
@@ -448,7 +449,7 @@ public class SnappyServer {
                         endpoints));
     }
 
-    private synchronized void stopServer() {
+    private void stopServer() {
         try {
             if (server != null && started) {
                 logger.info("Stopping server...");
