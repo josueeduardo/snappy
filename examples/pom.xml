@@ -19,6 +19,7 @@
         <module>runnable-jar</module>
         <module>local-storage</module>
         <module>clock-app</module>
+        <module>admin-dashboard</module>
     </modules>
 
     <dependencies>

@@ -20,6 +20,7 @@
         <module>hazelcast</module>
         <module>discovery</module>
         <module>h2-mvstore</module>
+        <module>dashboard</module>
     </modules>
 
     <dependencies>
