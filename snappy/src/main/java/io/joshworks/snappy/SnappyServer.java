@@ -405,7 +405,7 @@ public class SnappyServer {
 
             //Extension are capable of adding / removing mapped endpoints,
             // therefore they must execute before the handler resolution
-            executeExtensions();
+            bootstrapExtensions();
 
             Info.httpConfig(bindAddress, port, adminBindAddress, adminPort, httpTracer, httpMetrics);
             Info.serverConfig(optionBuilder);
@@ -434,7 +434,7 @@ public class SnappyServer {
         }
     }
 
-    private void executeExtensions() {
+    private void bootstrapExtensions() {
         extensions.onStart(
                 new ServerData(port,
                         bindAddress,
