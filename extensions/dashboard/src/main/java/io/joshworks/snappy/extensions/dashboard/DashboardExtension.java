@@ -38,14 +38,22 @@ public class DashboardExtension implements SnappyExtension {
 
     private static final String PASSWORD = PREFIX + "password";
 
+    private static final String DEFAULT_PATH = "/";
+    private final String path;
+
 
     public DashboardExtension() {
+        this(DEFAULT_PATH);
+    }
+
+    public DashboardExtension(String path) {
+        this.path = path;
     }
 
 
     @Override
     public void onStart(ServerData config) {
-        config.adminEndpoints.add(HandlerUtil.staticFiles("/admin", "admin", new ArrayList<>()));
+        config.adminEndpoints.add(HandlerUtil.staticFiles(path, "admin", new ArrayList<>()));
     }
 
     @Override
