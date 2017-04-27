@@ -446,6 +446,7 @@ public class SnappyServer {
                         exceptionMapper,
                         basePath,
                         AppProperties.getProperties(),
+                        adminManager.getAdminEndpoints(),
                         endpoints));
     }
 

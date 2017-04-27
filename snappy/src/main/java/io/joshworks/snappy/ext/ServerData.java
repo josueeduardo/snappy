@@ -38,6 +38,7 @@ public class ServerData {
     public final List<Interceptor> interceptors;
     public final ExceptionMapper exceptionMapper;
     public final String basePath;
+    public final List<MappedEndpoint> adminEndpoints;
     public final List<MappedEndpoint> mappedEndpoints;
     public Properties properties;
 
@@ -51,6 +52,7 @@ public class ServerData {
                       ExceptionMapper exceptionMapper,
                       String basePath,
                       Properties properties,
+                      List<MappedEndpoint> adminEndpoints,
                       List<MappedEndpoint> mappedEndpoints) {
 
         this.port = port;
@@ -64,5 +66,6 @@ public class ServerData {
         this.basePath = basePath;
         this.properties = properties;
         this.mappedEndpoints = mappedEndpoints;
+        this.adminEndpoints = adminEndpoints;
     }
 }

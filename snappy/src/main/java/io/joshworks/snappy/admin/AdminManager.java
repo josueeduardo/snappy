@@ -78,4 +78,7 @@ public class AdminManager {
         return Handlers.predicate(mappedPredicate, routingAdminHandler, controlPanel);
     }
 
+    public List<MappedEndpoint> getAdminEndpoints() {
+        return adminEndpoints;
+    }
 }
