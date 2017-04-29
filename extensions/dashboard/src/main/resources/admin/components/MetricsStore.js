@@ -9,7 +9,7 @@ class Metrics {
     @observable usedMemory = 0;
 }
 
-class AccountStore {
+class MetricsStore {
     @observable metrics = new Metrics();
 
     constructor() {
@@ -30,4 +30,4 @@ class AccountStore {
     }
 
 }
-export default new AccountStore;
+export default new MetricsStore;

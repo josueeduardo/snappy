@@ -78,7 +78,7 @@
 	// import videoStore from "./components/video/VideoStore";
 	// import forumStore from "./components/forum/ForumStore";
 	// import commentStore from "./components/comment/CommentStore";
-	// import accountStore from "./components/account/AccountStore";
+	// import accountStore from "./components/account/StateStore";
 	// import locationStore from "./components/location/LocationStore";
 
 

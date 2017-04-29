@@ -3,11 +3,12 @@ import ReactDOM from "react-dom";
 import {Router, Route, IndexRoute, hashHistory, browserHistory} from "react-router";
 import {Provider} from "mobx-react";
 import App from "./components/App.js";
-import Home from "./components/Home";
+import Dashboard from "./components/Dashboard";
 import Resources from "./components/resources/Resources";
 import ThreadPool from "./components/threadpools/ThreadPool";
 import Logs from "./components/logs/Logs";
 import Discovery from "./components/discovery/Discovery";
+import Settings from "./components/settings/Settings";
 // import Debugger from "./components/Debugger";
 //Stores
 // import stateStore from "./components/StateStore";
@@ -15,23 +16,24 @@ import Discovery from "./components/discovery/Discovery";
 // import videoStore from "./components/video/VideoStore";
 // import forumStore from "./components/forum/ForumStore";
 // import commentStore from "./components/comment/CommentStore";
-// import accountStore from "./components/account/AccountStore";
+// import accountStore from "./components/account/StateStore";
 // import locationStore from "./components/location/LocationStore";
 import metricsStore from "./components/MetricsStore";
+import stateStore from "./components/StateStore";
 //
 // const stores = {stateStore, uploadStore, videoStore, commentStore, accountStore, locationStore, forumStore};
-const stores = {metricsStore};
+const stores = {metricsStore, stateStore};
 
 ReactDOM.render(
     <Provider {...stores}>
         <Router history={browserHistory}>
             <Route path="/" component={App}>
-                <IndexRoute component={Home}/>
+                <IndexRoute component={Dashboard}/>
                 <Route path="/resources" component={Resources}/>
                 <Route path="/thread-pools" component={ThreadPool}/>
                 <Route path="/logs" component={Logs}/>
                 <Route path="/discovery" component={Discovery}/>
-                <Route path="/settings" component={Discovery}/>
+                <Route path="/settings" component={Settings}/>
                 {/*<Route path="/uploads" component={Upload}/>*/}
                 {/*<Route path="/videos/:videoId/:chapterId" component={Video}/>*/}
                 {/*<Route path="/forum" component={Forum}>*/}
