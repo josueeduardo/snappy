@@ -18,6 +18,7 @@
 package io.joshworks.snappy.metric;
 
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by josh on 3/8/17.
@@ -34,7 +35,9 @@ public class PoolMetric {
     private final long taskCount;
     private final int queueCapacity;
     private final int queuedTasks;
-    private String poolName;
+    private final String poolName;
+    private final long keepAliveTime;
+    private final boolean shutdown;
 
     public PoolMetric(String poolName, ThreadPoolExecutor executor) {
         this.poolName = poolName;
@@ -48,6 +51,8 @@ public class PoolMetric {
         taskCount = executor.getTaskCount();
         queuedTasks = executor.getQueue().size();
         queueCapacity = executor.getQueue().remainingCapacity() + executor.getQueue().size();
+        keepAliveTime = executor.getKeepAliveTime(TimeUnit.MILLISECONDS);
+        shutdown = executor.isShutdown();
     }
 
     public int getActiveCount() {
@@ -92,5 +97,13 @@ public class PoolMetric {
 
     public String getRejectionPolicy() {
         return rejectionPolicy;
+    }
+
+    public long getKeepAliveTime() {
+        return keepAliveTime;
+    }
+
+    public boolean isShutdown() {
+        return shutdown;
     }
 }

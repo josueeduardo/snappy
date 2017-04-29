@@ -18,7 +18,7 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.admin.AdminManager;
-import io.joshworks.snappy.metric.RestMetricHandler;
+import io.joshworks.snappy.metric.RestMetricsHandler;
 import io.joshworks.snappy.rest.Interceptor;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
@@ -38,6 +38,8 @@ import java.util.List;
  */
 public class HandlerManager {
 
+    private static final String WS_UPGRADE_HEADER_VALUE = "websocket";
+
     //chain of responsibility
     public HttpHandler createRootHandler(
             List<MappedEndpoint> mappedEndpoints,
@@ -47,7 +49,7 @@ public class HandlerManager {
             boolean httpMetrics,
             boolean httpTracer) {
 
-        final List<RestMetricHandler> metricsHandlers = new ArrayList<>();
+        final List<RestMetricsHandler> metricsHandlers = new ArrayList<>();
         final RoutingHandler routingRestHandler = new TrailingSlashRoutingHandler();
         final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
         HttpHandler staticHandler = null;
@@ -58,13 +60,9 @@ public class HandlerManager {
             //TODO at the moment only rest has metrics
             if (MappedEndpoint.Type.REST.equals(me.type)) {
                 String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
-                if (httpMetrics) {
-                    RestMetricHandler restMetricHandler = new RestMetricHandler(me.method, endpointPath, me.handler);
-                    metricsHandlers.add(restMetricHandler);
-                    routingRestHandler.add(me.method, endpointPath, restMetricHandler);
-                } else {
-                    routingRestHandler.add(me.method, endpointPath, me.handler);
-                }
+                RestMetricsHandler restMetricHandler = new RestMetricsHandler(me.method, endpointPath, me.handler, httpMetrics);
+                metricsHandlers.add(restMetricHandler);
+                routingRestHandler.add(me.method, endpointPath, restMetricHandler);
             }
             if (MappedEndpoint.Type.MULTIPART.equals(me.type)) {
                 routingRestHandler.add(me.method, me.url, me.handler);
@@ -99,7 +97,7 @@ public class HandlerManager {
 
         PredicateHandler websocketRestResolved = Handlers.predicate(value -> {
             HeaderValues upgradeHeader = value.getRequestHeaders().get(Headers.UPGRADE);
-            return upgradeHeader != null && upgradeHeader.stream().anyMatch(v -> v.equalsIgnoreCase("websocket"));
+            return upgradeHeader != null && upgradeHeader.stream().anyMatch(v -> v.equalsIgnoreCase(WS_UPGRADE_HEADER_VALUE));
         }, ws, rest);
 
         if (file != null) {

@@ -17,7 +17,6 @@
 
 package io.joshworks.snappy.metric;
 
-import io.undertow.server.HandlerWrapper;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 
@@ -32,26 +31,35 @@ import java.util.concurrent.atomic.AtomicLongFieldUpdater;
  *
  * @author Stuart Douglas
  *         <p>
- *         Modified by Josh Gontijo - Added response code counter and replaced few methods with lambdas
+ *         Modified by Josh Gontijo
  */
-public class MetricsHandler implements HttpHandler {
+public class RestMetricsHandler implements HttpHandler {
 
-    public static final HandlerWrapper WRAPPER = MetricsHandler::new;
-    private final HttpHandler next;
+    protected final HttpHandler next;
     private volatile MetricResult totalResult = new MetricResult(new Date());
 
-    public MetricsHandler(HttpHandler next) {
+    private final String url;
+    private final String method;
+    private boolean enabled; //TODO toggleable
+
+    public RestMetricsHandler(String method, String url, HttpHandler next, boolean enabled) {
         this.next = next;
+        this.url = url;
+        this.method = method;
+        this.enabled = enabled;
     }
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        final long start = System.currentTimeMillis();
-        exchange.addExchangeCompleteListener((exchange1, nextListener) -> {
-            long time = System.currentTimeMillis() - start;
-            totalResult.update((int) time, String.valueOf(exchange1.getStatusCode()));
-            nextListener.proceed();
-        });
+        if(enabled) {
+            next.handleRequest(exchange);
+            final long start = System.currentTimeMillis();
+            exchange.addExchangeCompleteListener((exchange1, nextListener) -> {
+                long time = System.currentTimeMillis() - start;
+                totalResult.update((int) time, String.valueOf(exchange1.getStatusCode()));
+                nextListener.proceed();
+            });
+        }
         next.handleRequest(exchange);
     }
 
@@ -59,8 +67,12 @@ public class MetricsHandler implements HttpHandler {
         this.totalResult = new MetricResult(new Date());
     }
 
-    public MetricResult getMetrics() {
-        return new MetricResult(this.totalResult);
+    private MetricResult getMetrics() {
+        return enabled ? new MetricResult(this.totalResult) : new MetricResult();
+    }
+
+    RestMetrics getRestMetrics() {
+        return new RestMetrics(url, method, getMetrics());
     }
 
     public static class MetricResult {
@@ -70,7 +82,7 @@ public class MetricsHandler implements HttpHandler {
         private static final AtomicIntegerFieldUpdater<MetricResult> minRequestTimeUpdater = AtomicIntegerFieldUpdater.newUpdater(MetricResult.class, "minRequestTime");
         private static final AtomicLongFieldUpdater<MetricResult> invocationsUpdater = AtomicLongFieldUpdater.newUpdater(MetricResult.class, "totalRequests");
 
-        private final Date metricsStartDate;
+        private Date metricsStartDate;
 
         private volatile long totalRequestTime;
         private volatile int maxRequestTime;
@@ -78,11 +90,15 @@ public class MetricsHandler implements HttpHandler {
         private volatile long totalRequests;
         private ConcurrentHashMap<String, AtomicLong> responses = new ConcurrentHashMap<>();
 
-        public MetricResult(Date metricsStartDate) {
+        MetricResult(Date metricsStartDate) {
             this.metricsStartDate = metricsStartDate;
         }
 
-        public MetricResult(MetricResult copy) {
+        MetricResult() {
+
+        }
+
+        MetricResult(MetricResult copy) {
             this.metricsStartDate = copy.metricsStartDate;
             this.totalRequestTime = copy.totalRequestTime;
             this.maxRequestTime = copy.maxRequestTime;

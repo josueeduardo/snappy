@@ -40,7 +40,7 @@ public class Metrics {
         properties.put(key, value);
     }
 
-    public static void addMetric(String key, Supplier<Object> value) {
+    public static void supplyMetric(String key, Supplier<Object> value) {
         lazyProperty.put(key, value);
     }
 

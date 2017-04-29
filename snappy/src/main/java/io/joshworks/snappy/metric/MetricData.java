@@ -34,11 +34,11 @@ public class MetricData {
     private final long totalMemory;
     private final long freeMemory;
     private final long usedMemory;
-    private final List<RestMetricHandler.RestMetrics> resources;
+    private final List<RestMetrics> resources;
     private final List<PoolMetric> threadPools = new ArrayList<>();
     private final Map<String, Object> appMetrics = new HashMap<>();
 
-    public MetricData(List<RestMetricHandler> metricsHandlers) {
+    public MetricData(List<RestMetricsHandler> metricsHandlers) {
         Runtime runtime = Runtime.getRuntime();
         this.maxMemory = runtime.maxMemory();
         this.totalMemory = runtime.totalMemory();
@@ -48,7 +48,7 @@ public class MetricData {
         threadPools.addAll(ExecutorBootstrap.executorMetrics());
         threadPools.addAll(ExecutorBootstrap.schedulerMetrics());
 
-        resources = metricsHandlers.stream().map(RestMetricHandler::getRestMetrics).collect(Collectors.toList());
+        resources = metricsHandlers.stream().map(RestMetricsHandler::getRestMetrics).collect(Collectors.toList());
         appMetrics.putAll(Metrics.getData());
     }
 
@@ -72,7 +72,7 @@ public class MetricData {
         return threadPools;
     }
 
-    public List<RestMetricHandler.RestMetrics> getResources() {
+    public List<RestMetrics> getResources() {
         return resources;
     }
 }

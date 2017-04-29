@@ -21,8 +21,7 @@ import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.joshworks.snappy.handler.TrailingSlashRoutingHandler;
 import io.joshworks.snappy.metric.MetricData;
-import io.joshworks.snappy.metric.MetricsHandler;
-import io.joshworks.snappy.metric.RestMetricHandler;
+import io.joshworks.snappy.metric.RestMetricsHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.MediaType;
@@ -53,7 +52,7 @@ public class AdminManager {
         controlPanel = HandlerUtil.staticFiles("/", "admin", adminInterceptor).handler;
     }
 
-    public void registerMetrics(List<RestMetricHandler> metricsHandlers) {
+    public void registerMetrics(List<RestMetricsHandler> metricsHandlers) {
 
         ExceptionMapper internalExceptionMapper = new ExceptionMapper();
 
@@ -61,7 +60,7 @@ public class AdminManager {
                 new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper, new ArrayList<>());
 
         MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, "/metrics", (exchange) -> {
-            metricsHandlers.forEach(MetricsHandler::reset);
+            metricsHandlers.forEach(RestMetricsHandler::reset);
             exchange.status(StatusCodes.NO_CONTENT);
         }, internalExceptionMapper, new ArrayList<>());
 
