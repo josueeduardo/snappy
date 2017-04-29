@@ -45,21 +45,24 @@ public class AdminManager {
     private final RoutingHandler routingAdminHandler = new TrailingSlashRoutingHandler();
     private final HttpHandler controlPanel;
 
+    private static final String METRICS_ENDPOINT = "/metrics";
+    private static final String ADMIN_ROOT_FOLDER = "admin";
+
     //TODO add security interceptor etc
     private final List<Interceptor> adminInterceptor = new ArrayList<>();
 
     public AdminManager() {
-        controlPanel = HandlerUtil.staticFiles("/", "admin", adminInterceptor).handler;
+        controlPanel = HandlerUtil.staticFiles(HandlerUtil.BASE_PATH, ADMIN_ROOT_FOLDER, adminInterceptor).handler;
     }
 
     public void registerMetrics(List<RestMetricsHandler> metricsHandlers) {
 
         ExceptionMapper internalExceptionMapper = new ExceptionMapper();
 
-        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, "/metrics", (exchange) -> exchange.send(
+        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, METRICS_ENDPOINT, (exchange) -> exchange.send(
                 new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper, new ArrayList<>());
 
-        MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, "/metrics", (exchange) -> {
+        MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, METRICS_ENDPOINT, (exchange) -> {
             metricsHandlers.forEach(RestMetricsHandler::reset);
             exchange.status(StatusCodes.NO_CONTENT);
         }, internalExceptionMapper, new ArrayList<>());
