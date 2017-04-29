@@ -5,7 +5,7 @@ export default class Header extends React.Component {
         return (
             <nav class="navbar navbar-default navbar-inverse navbar-static-top" role="navigation">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Core Admin</a>
+                    <a class="navbar-brand" href="#">Snappy Admin</a>
 
 
                     <button type="button" class="navbar-toggle" data-toggle="collapse"

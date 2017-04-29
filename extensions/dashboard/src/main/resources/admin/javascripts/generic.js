@@ -191,7 +191,7 @@
       });
     });
     gauges = [];
-    $(".justgage").each(function() {
+    $(".justgage.js").each(function() {
       var gaugeWidthScale, refreshAnimationType, showMinMax;
       showMinMax = $(this).attr("data-labels") || true;
       gaugeWidthScale = $(this).attr("data-gauge-width-scale") || 1;

@@ -1,0 +1,75 @@
+{
+  "maxMemory": 3717201920,
+  "totalMemory": 251658240,
+  "freeMemory": 223553336,
+  "usedMemory": 28104904,
+  "resources": [
+    {
+      "url": "/users",
+      "method": "GET",
+      "metrics": {
+        "metricsStartDate": "Apr 25, 2017 11:41:59 PM",
+        "totalRequestTime": 91,
+        "maxRequestTime": 18,
+        "minRequestTime": 0,
+        "totalRequests": 46,
+        "responses": {
+          "200": 30,
+          "500": 16
+        }
+      }
+    },
+    {
+      "url": "/users/{id}",
+      "method": "GET",
+      "metrics": {
+        "metricsStartDate": "Apr 25, 2017 11:41:59 PM",
+        "totalRequestTime": 80,
+        "maxRequestTime": 16,
+        "minRequestTime": 0,
+        "totalRequests": 50,
+        "responses": {
+          "200": 46,
+          "404": 4
+        }
+      }
+    }
+  ],
+  "threadPools": [
+    {
+      "activeCount": 0,
+      "completedTaskCount": 0,
+      "corePoolSize": 0,
+      "largestPoolSize": 0,
+      "maximumPoolSize": 5,
+      "poolSize": 0,
+      "rejectionPolicy": "AbortPolicy",
+      "taskCount": 0,
+      "queueCapacity": 2147483647,
+      "queuedTasks": 0,
+      "poolName": "default-executor",
+      "keepAliveTime": 60000,
+      "shutdown": true
+    },
+    {
+      "activeCount": 0,
+      "completedTaskCount": 1670,
+      "corePoolSize": 0,
+      "largestPoolSize": 1,
+      "maximumPoolSize": 5,
+      "poolSize": 1,
+      "rejectionPolicy": "AbortPolicy",
+      "taskCount": 1671,
+      "queueCapacity": -2147483648,
+      "queuedTasks": 1,
+      "poolName": "default-scheduler",
+      "keepAliveTime": 60000,
+      "shutdown": false
+    }
+  ],
+  "appMetrics": {
+    "my-metric": 123,
+    "anotherOne": true,
+    "andAnother": "Yolo"
+  }
+}

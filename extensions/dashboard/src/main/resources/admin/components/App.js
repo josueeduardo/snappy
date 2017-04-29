@@ -1,6 +1,5 @@
 import React from "react";
 import Header from "./Header";
-import Home from "./Home";
 import SideMenu from "./SideMenu";
 
 export default class App extends React.Component {
@@ -8,9 +7,13 @@ export default class App extends React.Component {
     render() {
         return (
             <div>
-                <Header/>
-                <SideMenu />
-                <Home/>
+                <Header  />
+                <SideMenu currentPath={this.props.location.pathname}/>
+
+                {React.Children.map(this.props.children, child =>
+                    React.cloneElement(child, {key: this.props.location.pathname})
+                )}
+
             </div>
         )
     }

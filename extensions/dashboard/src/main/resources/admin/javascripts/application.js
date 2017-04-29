@@ -57657,34 +57657,7 @@ $(function () {
         stylesheets: false
       });
     });
-    gauges = [];
-    $(".justgage").each(function() {
-      var gaugeWidthScale, refreshAnimationType, showMinMax;
-      showMinMax = $(this).attr("data-labels") || true;
-      gaugeWidthScale = $(this).attr("data-gauge-width-scale") || 1;
-      refreshAnimationType = $(this).attr("data-animation-type") || "linear";
-      return gauges.push(new JustGage({
-        id: $(this).attr("id"),
-        min: 0,
-        max: 100,
-        title: $(this).attr("data-title"),
-        value: getRandomInt(1, 80),
-        label: "",
-        levelColorsGradient: false,
-        showMinMax: showMinMax,
-        gaugeWidthScale: gaugeWidthScale,
-        startAnimationTime: 1000,
-        startAnimationType: ">",
-        refreshAnimationTime: 1000,
-        refreshAnimationType: refreshAnimationType,
-        levelColors: [Theme.colors.green, Theme.colors.orange, Theme.colors.red]
-      }));
-    });
-    setInterval(function() {
-      return $(gauges).each(function() {
-        return this.refresh(getRandomInt(0, 80));
-      });
-    }, 2500);
+
     $(".easy-pie-chart").each(function() {
       var el;
       el = $(this);

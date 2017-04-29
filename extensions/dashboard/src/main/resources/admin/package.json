@@ -16,6 +16,9 @@
   "dependencies": {
     "axios": "^0.14.0",
     "classnames": "^2.2.5",
+    "highcharts": "^5.0.10",
+    "highcharts-more": "^0.1.2",
+    "justgage": "^1.2.2",
     "mobx": "^2.3.7",
     "mobx-react": "^4.0.4",
     "react": "^15.3.1",
