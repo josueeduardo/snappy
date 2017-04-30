@@ -22,6 +22,9 @@ import io.joshworks.snappy.rest.MediaType;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by josh on 3/6/17.
@@ -55,7 +58,7 @@ public class JsonParser implements Parser {
     }
 
     @Override
-    public MediaType mediaType() {
-        return MediaType.APPLICATION_JSON_TYPE;
+    public Set<MediaType> mediaType() {
+        return new HashSet<>(Arrays.asList(MediaType.APPLICATION_JSON_TYPE));
     }
 }

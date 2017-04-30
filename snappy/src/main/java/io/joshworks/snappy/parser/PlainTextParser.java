@@ -20,6 +20,8 @@ package io.joshworks.snappy.parser;
 import io.joshworks.snappy.rest.MediaType;
 
 import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by josh on 3/6/17.
@@ -42,8 +44,10 @@ public class PlainTextParser implements Parser {
     }
 
     @Override
-    public MediaType mediaType() {
-        return MediaType.TEXT_PLAIN_TYPE;
+    public Set<MediaType> mediaType() {
+        HashSet<MediaType> types = new HashSet<>();
+        types.add(MediaType.WILDCARD_TYPE);
+        return types;
     }
 
 }

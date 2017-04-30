@@ -23,11 +23,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.joshworks.snappy.SnappyServer.*;
 
@@ -39,6 +41,7 @@ public class Parsers {
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
     private static final Map<MediaType, Parser> available = new HashMap<>();
+    private static final Set<MediaType> mostSpecificOrderedParsers = new TreeSet<>(new MostSpecificMediaTypeComparator());
 
     private Parsers() {
 
@@ -49,11 +52,19 @@ public class Parsers {
      * @throws IllegalArgumentException if a null instance or no media type is provided
      */
     public static void register(Parser parser) {
-        if (parser == null || parser.mediaType() == null) {
+        if (parser == null || parser.mediaType() == null || parser.mediaType().isEmpty()) {
             throw new IllegalArgumentException("Invalid parser, media type not specified, or null instance");
         }
         logger.info("Registering Parser '{}' for type {}", parser.getClass().getSimpleName(), parser.mediaType().toString());
-        available.put(parser.mediaType(), parser);
+        parser.mediaType().forEach(mt -> {
+            available.put(mt, parser);
+            mostSpecificOrderedParsers.add(mt);
+        });
+
+        for(MediaType mt : mostSpecificOrderedParsers) {
+            System.out.println(mt);
+        }
+
     }
 
     /**
@@ -74,7 +85,7 @@ public class Parsers {
      * @return The {@link Parser} for the first match.
      * @throws ParserNotFoundException If parser is not found
      */
-    public static Parser getParser(MediaType contentType)  throws ParserNotFoundException {
+    public static Parser getParser(MediaType contentType) throws ParserNotFoundException {
         return findByType(new HashSet<>(Collections.singletonList(contentType)));
     }
 
@@ -84,16 +95,40 @@ public class Parsers {
 
     private static Parser findByType(Set<MediaType> contentTypes) throws ParserNotFoundException {
         if (contentTypes != null && !contentTypes.isEmpty()) {
-            for (Map.Entry<MediaType, Parser> parser : available.entrySet()) {
+            for (MediaType registredType : mostSpecificOrderedParsers) {
                 for (MediaType acceptType : contentTypes) {
-                    if (parser.getKey().isCompatible(acceptType)) {
-                        return parser.getValue();
+                    if (registredType.isCompatible(acceptType)) {
+                        return available.get(registredType);
                     }
                 }
             }
         }
 
-        throw new ParserNotFoundException(contentTypes.stream().map(MediaType::toString).toArray(String[]::new));
+        if (contentTypes != null) {
+            throw new ParserNotFoundException(contentTypes.stream().map(MediaType::toString).toArray(String[]::new));
+        }
+        throw new ParserNotFoundException("[NO MEDIA TYPE]");
+    }
+
+    private static class MostSpecificMediaTypeComparator implements Comparator<MediaType>{
+
+        @Override
+        public int compare(MediaType first, MediaType second) {
+            return getRank(first) - getRank(second);
+        }
+
+        public int getRank(MediaType type) {
+            int compatibility = 0;
+            if (type.isWildcardType()) {
+                compatibility++;
+            }
+            if (type.isWildcardSubtype()) {
+                compatibility++;
+            }
+            return compatibility;
+        }
+
+
     }
 
 }
