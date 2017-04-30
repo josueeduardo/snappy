@@ -62,25 +62,42 @@
 
 	var _App2 = _interopRequireDefault(_App);
 
-	var _MetricsStore = __webpack_require__(259);
+	var _Dashboard = __webpack_require__(251);
+
+	var _Dashboard2 = _interopRequireDefault(_Dashboard);
+
+	var _Resources = __webpack_require__(256);
+
+	var _Resources2 = _interopRequireDefault(_Resources);
+
+	var _ThreadPool = __webpack_require__(261);
+
+	var _ThreadPool2 = _interopRequireDefault(_ThreadPool);
+
+	var _Logs = __webpack_require__(262);
+
+	var _Logs2 = _interopRequireDefault(_Logs);
+
+	var _Discovery = __webpack_require__(263);
+
+	var _Discovery2 = _interopRequireDefault(_Discovery);
+
+	var _Settings = __webpack_require__(264);
+
+	var _Settings2 = _interopRequireDefault(_Settings);
+
+	var _MetricsStore = __webpack_require__(265);
 
 	var _MetricsStore2 = _interopRequireDefault(_MetricsStore);
 
+	var _StateStore = __webpack_require__(289);
+
+	var _StateStore2 = _interopRequireDefault(_StateStore);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	//
-	// const stores = {stateStore, uploadStore, videoStore, commentStore, accountStore, locationStore, forumStore};
-	var stores = { metricsStore: _MetricsStore2.default };
-	// import Debugger from "./components/Debugger";
 	//Stores
-	// import stateStore from "./components/StateStore";
-	// import uploadStore from "./components/upload/UploadStore";
-	// import videoStore from "./components/video/VideoStore";
-	// import forumStore from "./components/forum/ForumStore";
-	// import commentStore from "./components/comment/CommentStore";
-	// import accountStore from "./components/account/StateStore";
-	// import locationStore from "./components/location/LocationStore";
-
+	var stores = { metricsStore: _MetricsStore2.default, stateStore: _StateStore2.default };
 
 	_reactDom2.default.render(_react2.default.createElement(
 	    _mobxReact.Provider,
@@ -88,13 +105,18 @@
 	    _react2.default.createElement(
 	        _reactRouter.Router,
 	        { history: _reactRouter.browserHistory },
-	        _react2.default.createElement(_reactRouter.Route, { path: "/", component: _App2.default })
+	        _react2.default.createElement(
+	            _reactRouter.Route,
+	            { path: "/", component: _App2.default },
+	            _react2.default.createElement(_reactRouter.IndexRoute, { component: _Dashboard2.default }),
+	            _react2.default.createElement(_reactRouter.Route, { path: "/resources", component: _Resources2.default }),
+	            _react2.default.createElement(_reactRouter.Route, { path: "/thread-pools", component: _ThreadPool2.default }),
+	            _react2.default.createElement(_reactRouter.Route, { path: "/logs", component: _Logs2.default }),
+	            _react2.default.createElement(_reactRouter.Route, { path: "/discovery", component: _Discovery2.default }),
+	            _react2.default.createElement(_reactRouter.Route, { path: "/settings", component: _Settings2.default })
+	        )
 	    )
 	), document.getElementById('app'));
-
-	// ReactDOM.render(
-	//     <Debugger />
-	//     , document.getElementById('dev-tools'));
 
 /***/ }),
 /* 1 */
@@ -31311,6 +31333,8 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _dec, _class;
+
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
@@ -31319,13 +31343,15 @@
 
 	var _Header2 = _interopRequireDefault(_Header);
 
-	var _Home = __webpack_require__(249);
-
-	var _Home2 = _interopRequireDefault(_Home);
-
-	var _SideMenu = __webpack_require__(258);
+	var _SideMenu = __webpack_require__(249);
 
 	var _SideMenu2 = _interopRequireDefault(_SideMenu);
+
+	var _mobxReact = __webpack_require__(245);
+
+	var _ContainerHeader = __webpack_require__(250);
+
+	var _ContainerHeader2 = _interopRequireDefault(_ContainerHeader);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31335,7 +31361,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var App = function (_React$Component) {
+	var App = (_dec = (0, _mobxReact.inject)("metricsStore"), _dec(_class = function (_React$Component) {
 	    _inherits(App, _React$Component);
 
 	    function App() {
@@ -31345,21 +31371,38 @@
 	    }
 
 	    _createClass(App, [{
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.metricsStore.fetch();
+	        }
+	    }, {
 	        key: "render",
 	        value: function render() {
+	            var _this2 = this;
+
 	            return _react2.default.createElement(
 	                "div",
 	                null,
 	                _react2.default.createElement(_Header2.default, null),
-	                _react2.default.createElement(_SideMenu2.default, null),
-	                _react2.default.createElement(_Home2.default, null)
+	                _react2.default.createElement(_SideMenu2.default, { currentPath: this.props.location.pathname }),
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "main-content" },
+	                    _react2.default.createElement(_ContainerHeader2.default, null),
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "container" },
+	                        _react2.default.Children.map(this.props.children, function (child) {
+	                            return _react2.default.cloneElement(child, { key: _this2.props.location.pathname });
+	                        })
+	                    )
+	                )
 	            );
 	        }
 	    }]);
 
 	    return App;
-	}(_react2.default.Component);
-
+	}(_react2.default.Component)) || _class);
 	exports.default = App;
 
 /***/ }),
@@ -31655,33 +31698,15 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _dec, _class;
+	var _class;
 
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _Gauge = __webpack_require__(250);
-
-	var _Gauge2 = _interopRequireDefault(_Gauge);
-
 	var _mobxReact = __webpack_require__(245);
 
-	var _highcharts = __webpack_require__(252);
-
-	var _highcharts2 = _interopRequireDefault(_highcharts);
-
-	var _HighchartGauge = __webpack_require__(253);
-
-	var _HighchartGauge2 = _interopRequireDefault(_HighchartGauge);
-
-	var _ThreadPool = __webpack_require__(256);
-
-	var _ThreadPool2 = _interopRequireDefault(_ThreadPool);
-
-	var _Resources = __webpack_require__(257);
-
-	var _Resources2 = _interopRequireDefault(_Resources);
+	var _reactRouter = __webpack_require__(182);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31691,1256 +31716,207 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Home = (_dec = (0, _mobxReact.inject)("metricsStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
-	    _inherits(Home, _React$Component);
+	var SideMenu = (0, _reactRouter.withRouter)(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(SideMenu, _React$Component);
 
-	    function Home() {
-	        _classCallCheck(this, Home);
+	    function SideMenu() {
+	        _classCallCheck(this, SideMenu);
 
-	        return _possibleConstructorReturn(this, (Home.__proto__ || Object.getPrototypeOf(Home)).apply(this, arguments));
+	        return _possibleConstructorReturn(this, (SideMenu.__proto__ || Object.getPrototypeOf(SideMenu)).apply(this, arguments));
 	    }
 
-	    _createClass(Home, [{
-	        key: "componentWillMount",
-	        value: function componentWillMount() {
-	            this.props.metricsStore.fetch();
+	    _createClass(SideMenu, [{
+	        key: "render",
+	        value: function render() {
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "sidebar-background" },
+	                    _react2.default.createElement("div", { className: "primary-sidebar-background" })
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "primary-sidebar" },
+	                    _react2.default.createElement(
+	                        "ul",
+	                        { className: "nav navbar-collapse collapse navbar-collapse-primary" },
+	                        _react2.default.createElement(MenuItem, { label: "Dashboard", target: "/", icon: "icon-dashboard", currentPath: this.props.currentPath }),
+	                        _react2.default.createElement(MenuItem, { label: "Resources", target: "/resources", icon: "icon-exchange", currentPath: this.props.currentPath }),
+	                        _react2.default.createElement(MenuItem, { label: "Logs", target: "/logs", icon: "icon-file-alt", currentPath: this.props.currentPath }),
+	                        _react2.default.createElement(MenuItem, { label: "Thread Pools", target: "/thread-pools", icon: "icon-cogs", currentPath: this.props.currentPath }),
+	                        _react2.default.createElement(MenuItem, { label: "Discovery", target: "/discovery", icon: "icon-globe", currentPath: this.props.currentPath }),
+	                        _react2.default.createElement(MenuItem, { label: "App metrics", target: "/app-metrics", icon: "icon-globe", currentPath: this.props.currentPath }),
+	                        _react2.default.createElement(MenuItem, { label: "Settings", target: "/settings", icon: "icon-wrench", currentPath: this.props.currentPath })
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return SideMenu;
+	}(_react2.default.Component)) || _class) || _class;
+
+	exports.default = SideMenu;
+
+	var MenuItem = function (_React$Component2) {
+	    _inherits(MenuItem, _React$Component2);
+
+	    function MenuItem() {
+	        _classCallCheck(this, MenuItem);
+
+	        return _possibleConstructorReturn(this, (MenuItem.__proto__ || Object.getPrototypeOf(MenuItem)).apply(this, arguments));
+	    }
+
+	    _createClass(MenuItem, [{
+	        key: "isActive",
+	        value: function isActive() {
+	            var cp = this.props.currentPath;
+	            if (this.props.target === "/") return cp === this.props.target;else return cp.lastIndexOf(this.props.target, 0) === 0;
 	        }
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            var metrics = this.props.metricsStore.metrics;
+	            var active = this.isActive();
+	            var icon = this.props.icon + " icon-2x";
+	            return _react2.default.createElement(
+	                "li",
+	                { className: active ? 'active' : '' },
+	                _react2.default.createElement("span", { className: "glow" }),
+	                _react2.default.createElement(
+	                    _reactRouter.Link,
+	                    { to: this.props.target },
+	                    _react2.default.createElement("i", { className: icon }),
+	                    _react2.default.createElement(
+	                        "span",
+	                        null,
+	                        this.props.label
+	                    )
+	                )
+	            );
+	        }
+	    }]);
 
+	    return MenuItem;
+	}(_react2.default.Component);
+
+/***/ }),
+/* 250 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ContainerHeader = (_dec = (0, _mobxReact.inject)("stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(ContainerHeader, _React$Component);
+
+	    function ContainerHeader() {
+	        _classCallCheck(this, ContainerHeader);
+
+	        return _possibleConstructorReturn(this, (ContainerHeader.__proto__ || Object.getPrototypeOf(ContainerHeader)).apply(this, arguments));
+	    }
+
+	    _createClass(ContainerHeader, [{
+	        key: "render",
+	        value: function render() {
+	            var pageTitle = this.props.stateStore.pageTitle;
+	            var headerIcon = this.props.stateStore.headerIcon;
+	            var pageDescription = this.props.stateStore.pageDescription;
 
 	            return _react2.default.createElement(
 	                "div",
-	                { className: "main-content" },
+	                { className: "container" },
 	                _react2.default.createElement(
 	                    "div",
-	                    { className: "container" },
+	                    { className: "row" },
 	                    _react2.default.createElement(
 	                        "div",
-	                        { className: "row" },
+	                        { className: "area-top clearfix" },
 	                        _react2.default.createElement(
 	                            "div",
-	                            { className: "area-top clearfix" },
+	                            { className: "pull-left header" },
 	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "pull-left header" },
+	                                "h3",
+	                                { className: "title" },
+	                                _react2.default.createElement("i", { className: headerIcon }),
+	                                pageTitle
+	                            ),
+	                            _react2.default.createElement(
+	                                "h5",
+	                                null,
 	                                _react2.default.createElement(
-	                                    "h3",
-	                                    { className: "title" },
-	                                    _react2.default.createElement("i", { className: "icon-dashboard" }),
-	                                    "Dashboard"
-	                                ),
-	                                _react2.default.createElement(
-	                                    "h5",
+	                                    "span",
 	                                    null,
+	                                    pageDescription
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            "ul",
+	                            { className: "list-inline pull-right sparkline-box" },
+	                            _react2.default.createElement(
+	                                "li",
+	                                { className: "sparkline-row" },
+	                                _react2.default.createElement(
+	                                    "h4",
+	                                    { className: "blue" },
 	                                    _react2.default.createElement(
 	                                        "span",
 	                                        null,
-	                                        "A subtitle can go here"
-	                                    )
+	                                        "Orders"
+	                                    ),
+	                                    " 847"
 	                                )
 	                            ),
 	                            _react2.default.createElement(
-	                                "ul",
-	                                { className: "list-inline pull-right sparkline-box" },
+	                                "li",
+	                                { className: "sparkline-row" },
 	                                _react2.default.createElement(
-	                                    "li",
-	                                    { className: "sparkline-row" },
-	                                    _react2.default.createElement(
-	                                        "h4",
-	                                        { className: "blue" },
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            null,
-	                                            "Orders"
-	                                        ),
-	                                        " 847"
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "li",
-	                                    { className: "sparkline-row" },
-	                                    _react2.default.createElement(
-	                                        "h4",
-	                                        { className: "green" },
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            null,
-	                                            "Reviews"
-	                                        ),
-	                                        " 223"
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "li",
-	                                    { className: "sparkline-row" },
-	                                    _react2.default.createElement(
-	                                        "h4",
-	                                        { className: "red" },
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            null,
-	                                            "New visits"
-	                                        ),
-	                                        " 7930"
-	                                    )
-	                                )
-	                            )
-	                        )
-	                    )
-	                ),
-	                _react2.default.createElement(
-	                    "div",
-	                    { className: "container" },
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "row" },
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-12" },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "box" },
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-header" },
+	                                    "h4",
+	                                    { className: "green" },
 	                                    _react2.default.createElement(
 	                                        "span",
-	                                        { className: "title" },
-	                                        "Memory"
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-content padded", style: { textAlign: 'center' } },
-	                                    _react2.default.createElement(_Gauge2.default, { key: 'heapUsage',
-	                                        name: 'heapUsage',
-	                                        value: metrics.usedMemory,
-	                                        min: 0,
-	                                        max: metrics.totalMemory,
-	                                        title: 'Heap Usage',
-	                                        label: 'MB' }),
-	                                    _react2.default.createElement(_Gauge2.default, { key: 'heapSize',
-	                                        name: 'heapSize',
-	                                        value: metrics.totalMemory,
-	                                        min: 0,
-	                                        max: metrics.maxMemory,
-	                                        title: 'Heap Size',
-	                                        label: 'MB' })
-	                                )
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "row" },
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-6" },
-	                            _react2.default.createElement(_Resources2.default, { resources: metrics.resources })
-	                        ),
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-6" },
-	                            _react2.default.createElement(_ThreadPool2.default, { threadPools: metrics.threadPools })
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "row" },
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-3" },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "action-nav-normal" },
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "row action-nav-row" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "col-sm-6 action-nav-button" },
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#", title: "New Project" },
-	                                            _react2.default.createElement("i", { className: "icon-file-alt" }),
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "New Project"
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "triangle-button red" },
-	                                            _react2.default.createElement("i", { className: "icon-plus" })
-	                                        )
+	                                        null,
+	                                        "Reviews"
 	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "col-sm-6 action-nav-button" },
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#", title: "Messages" },
-	                                            _react2.default.createElement("i", { className: "icon-comments-alt" }),
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Messages"
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "label label-black" },
-	                                            "14"
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "row action-nav-row" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "col-sm-6 action-nav-button" },
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#", title: "Files" },
-	                                            _react2.default.createElement("i", { className: "icon-folder-open-alt" }),
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Files"
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "col-sm-6 action-nav-button" },
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#", title: "Users" },
-	                                            _react2.default.createElement("i", { className: "icon-user" }),
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Users"
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "triangle-button green" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                { className: "inner" },
-	                                                "+3"
-	                                            )
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "row action-nav-row" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "col-sm-6 action-nav-button" },
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#", title: "Friends" },
-	                                            _react2.default.createElement("i", { className: "icon-facebook-sign" }),
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Friends"
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "col-sm-6 action-nav-button" },
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#", title: "Followers" },
-	                                            _react2.default.createElement("i", { className: "icon-twitter" }),
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Followers"
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "triangle-button blue" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                { className: "inner" },
-	                                                "+8"
-	                                            )
-	                                        )
-	                                    )
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-9" },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "box" },
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-header" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "title" },
-	                                        "Charts"
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "ul",
-	                                        { className: "box-toolbar" },
-	                                        _react2.default.createElement(
-	                                            "li",
-	                                            { className: "toolbar-link" },
-	                                            _react2.default.createElement(
-	                                                "a",
-	                                                { href: "#", "data-toggle": "dropdown" },
-	                                                _react2.default.createElement("i", { className: "icon-cog" })
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "ul",
-	                                                { className: "dropdown-menu" },
-	                                                _react2.default.createElement(
-	                                                    "li",
-	                                                    null,
-	                                                    _react2.default.createElement(
-	                                                        "a",
-	                                                        { href: "#" },
-	                                                        _react2.default.createElement("i", { className: "icon-plus-sign" }),
-	                                                        " Add"
-	                                                    )
-	                                                ),
-	                                                _react2.default.createElement(
-	                                                    "li",
-	                                                    null,
-	                                                    _react2.default.createElement(
-	                                                        "a",
-	                                                        { href: "#" },
-	                                                        _react2.default.createElement("i", { className: "icon-remove-sign" }),
-	                                                        " Remove"
-	                                                    )
-	                                                ),
-	                                                _react2.default.createElement(
-	                                                    "li",
-	                                                    null,
-	                                                    _react2.default.createElement(
-	                                                        "a",
-	                                                        { href: "#" },
-	                                                        _react2.default.createElement("i", { className: "icon-pencil" }),
-	                                                        " Edit"
-	                                                    )
-	                                                )
-	                                            )
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-content padded" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "row" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "col-md-4 separate-sections", style: { marginTop: '5px' } },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "row" },
-	                                                _react2.default.createElement(
-	                                                    "div",
-	                                                    { className: "col-md-12" },
-	                                                    _react2.default.createElement(
-	                                                        "div",
-	                                                        { className: "dashboard-stats" },
-	                                                        _react2.default.createElement(
-	                                                            "ul",
-	                                                            { className: "list-inline" },
-	                                                            _react2.default.createElement(
-	                                                                "li",
-	                                                                { className: "glyph" },
-	                                                                _react2.default.createElement("i", { className: "icon-bolt icon-2x" })
-	                                                            ),
-	                                                            _react2.default.createElement(
-	                                                                "li",
-	                                                                { className: "count" },
-	                                                                "973,119"
-	                                                            )
-	                                                        ),
-	                                                        _react2.default.createElement(
-	                                                            "div",
-	                                                            { className: "progress" },
-	                                                            _react2.default.createElement("div", { className: "progress-bar progress-blue tip", title: "80%",
-	                                                                "data-percent": "80" })
-	                                                        ),
-	                                                        _react2.default.createElement(
-	                                                            "div",
-	                                                            { className: "stats-label" },
-	                                                            "Total Visits"
-	                                                        )
-	                                                    )
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "row", style: { marginTop: '30px' } },
-	                                                _react2.default.createElement(
-	                                                    "div",
-	                                                    { className: "col-md-6" },
-	                                                    _react2.default.createElement(
-	                                                        "div",
-	                                                        { className: "dashboard-stats small" },
-	                                                        _react2.default.createElement(
-	                                                            "ul",
-	                                                            { className: "list-inline" },
-	                                                            _react2.default.createElement(
-	                                                                "li",
-	                                                                { className: "glyph" },
-	                                                                _react2.default.createElement("i", { className: "icon-user" })
-	                                                            ),
-	                                                            _react2.default.createElement(
-	                                                                "li",
-	                                                                { className: "count" },
-	                                                                "8800"
-	                                                            )
-	                                                        ),
-	                                                        _react2.default.createElement(
-	                                                            "div",
-	                                                            { className: "progress" },
-	                                                            _react2.default.createElement("div", { className: "progress-bar progress-blue tip", title: "65%",
-	                                                                "data-percent": "65" })
-	                                                        ),
-	                                                        _react2.default.createElement(
-	                                                            "div",
-	                                                            { className: "stats-label" },
-	                                                            "New Visitors"
-	                                                        )
-	                                                    )
-	                                                ),
-	                                                _react2.default.createElement(
-	                                                    "div",
-	                                                    { className: "col-md-6" },
-	                                                    _react2.default.createElement(
-	                                                        "div",
-	                                                        { className: "dashboard-stats small" },
-	                                                        _react2.default.createElement(
-	                                                            "ul",
-	                                                            { className: "list-inline" },
-	                                                            _react2.default.createElement(
-	                                                                "li",
-	                                                                { className: "glyph" },
-	                                                                _react2.default.createElement("i", { className: "icon-eye-open" })
-	                                                            ),
-	                                                            _react2.default.createElement(
-	                                                                "li",
-	                                                                { className: "count" },
-	                                                                "25668"
-	                                                            )
-	                                                        ),
-	                                                        _react2.default.createElement(
-	                                                            "div",
-	                                                            { className: "progress" },
-	                                                            _react2.default.createElement("div", { className: "progress-bar progress-blue tip", title: "80%",
-	                                                                "data-percent": "80" })
-	                                                        ),
-	                                                        _react2.default.createElement(
-	                                                            "div",
-	                                                            { className: "stats-label" },
-	                                                            "Page Views"
-	                                                        )
-	                                                    )
-	                                                )
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "col-md-8" },
-	                                            _react2.default.createElement("div", { className: "sine-chart", id: "xchart-sine" })
-	                                        )
-	                                    )
-	                                )
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "row" },
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-6" },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "box" },
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-header" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "title" },
-	                                        "Full calendar"
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-content" },
-	                                    _react2.default.createElement("div", { id: "calendar" })
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-6" },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "box" },
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-header" },
-	                                    _react2.default.createElement(
-	                                        "span",
-	                                        { className: "title" },
-	                                        "News with avatars (scrollable box)"
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "ul",
-	                                        { className: "box-toolbar" },
-	                                        _react2.default.createElement(
-	                                            "li",
-	                                            null,
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                { className: "label label-blue" },
-	                                                "178"
-	                                            )
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-content scrollable", style: { height: '552px', overflowY: 'auto' } },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar blue" },
-	                                            _react2.default.createElement("i", { className: "icon-ok icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "06"
-	                                            ),
-	                                            " jan"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Twitter Bootstrap v3.0 is coming!"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "With 2.2.2 out the door, our attention has shifted almost entirely to the next major update to the project ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar green" },
-	                                            _react2.default.createElement("i", { className: "icon-lightbulb icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "11"
-	                                            ),
-	                                            " feb"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Ruby on Rails 4.0"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "Rails 4.0 is still unfinished, but it is shaping up to become a great release ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar purple" },
-	                                            _react2.default.createElement("i", { className: "icon-mobile-phone icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "04"
-	                                            ),
-	                                            " mar"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "All about SCSS"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "Sass makes CSS fun again. Sass is an extension of CSS3, adding nested rules ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar cyan" },
-	                                            _react2.default.createElement("i", { className: "icon-ok icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "22"
-	                                            ),
-	                                            " dec"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Twitter Bootstrap v3.0 is coming!"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "With 2.2.2 out the door, our attention has shifted almost entirely to the next major update to the project ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar blue" },
-	                                            _react2.default.createElement("i", { className: "icon-ok icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "06"
-	                                            ),
-	                                            " jan"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Twitter Bootstrap v3.0 is coming!"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "With 2.2.2 out the door, our attention has shifted almost entirely to the next major update to the project ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar green" },
-	                                            _react2.default.createElement("i", { className: "icon-lightbulb icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "11"
-	                                            ),
-	                                            " feb"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Ruby on Rails 4.0"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "Rails 4.0 is still unfinished, but it is shaping up to become a great release ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar purple" },
-	                                            _react2.default.createElement("i", { className: "icon-mobile-phone icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "04"
-	                                            ),
-	                                            " mar"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "All about SCSS"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "Sass makes CSS fun again. Sass is an extension of CSS3, adding nested rules ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar cyan" },
-	                                            _react2.default.createElement("i", { className: "icon-ok icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "22"
-	                                            ),
-	                                            " dec"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Twitter Bootstrap v3.0 is coming!"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "With 2.2.2 out the door, our attention has shifted almost entirely to the next major update to the project ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar blue" },
-	                                            _react2.default.createElement("i", { className: "icon-ok icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "06"
-	                                            ),
-	                                            " jan"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Twitter Bootstrap v3.0 is coming!"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "With 2.2.2 out the door, our attention has shifted almost entirely to the next major update to the project ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar green" },
-	                                            _react2.default.createElement("i", { className: "icon-lightbulb icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "11"
-	                                            ),
-	                                            " feb"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Ruby on Rails 4.0"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "Rails 4.0 is still unfinished, but it is shaping up to become a great release ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar purple" },
-	                                            _react2.default.createElement("i", { className: "icon-mobile-phone icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "04"
-	                                            ),
-	                                            " mar"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "All about SCSS"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "Sass makes CSS fun again. Sass is an extension of CSS3, adding nested rules ..."
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "box-section news with-icons" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar cyan" },
-	                                            _react2.default.createElement("i", { className: "icon-ok icon-2x" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-time" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "22"
-	                                            ),
-	                                            " dec"
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "news-content" },
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-title" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#" },
-	                                                    "Twitter Bootstrap v3.0 is coming!"
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "news-text" },
-	                                                "With 2.2.2 out the door, our attention has shifted almost entirely to the next major update to the project ..."
-	                                            )
-	                                        )
-	                                    )
-	                                )
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "row" },
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "col-md-12" },
-	                            _react2.default.createElement(
-	                                "ul",
-	                                { className: "chat-box timeline" },
-	                                _react2.default.createElement(
-	                                    "li",
-	                                    { className: "arrow-box-left gray" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "avatar" },
-	                                        _react2.default.createElement("img", { className: "avatar-small",
-	                                            src: "../../images/avatars/avatar1.jpg" })
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "info" },
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "name" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                { className: "label label-green" },
-	                                                "COMMENT"
-	                                            ),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "strong",
-	                                                { className: "indent" },
-	                                                "Janine"
-	                                            ),
-	                                            " posted a comment on this task: ",
-	                                            _react2.default.createElement(
-	                                                "strong",
-	                                                null,
-	                                                "Core Admin"
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "time" },
-	                                            _react2.default.createElement("i", { className: "icon-time" }),
-	                                            " 3 minutes ago"
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "content" },
-	                                        _react2.default.createElement(
-	                                            "blockquote",
-	                                            null,
-	                                            "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            null,
-	                                            _react2.default.createElement(
-	                                                "a",
-	                                                { href: "#" },
-	                                                _react2.default.createElement("i", { className: "icon-paper-clip" }),
-	                                                " ",
-	                                                _react2.default.createElement(
-	                                                    "b",
-	                                                    null,
-	                                                    "project_news.docx"
-	                                                )
-	                                            )
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "li",
-	                                    { className: "arrow-box-left gray" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "avatar" },
-	                                        _react2.default.createElement("img", { className: "avatar-small",
-	                                            src: "../../images/avatars/avatar2.jpg" })
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "info" },
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "name" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                { className: "label label-blue" },
-	                                                "TASK"
-	                                            ),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "strong",
-	                                                { className: "indent" },
-	                                                "Alex"
-	                                            ),
-	                                            " completed this task: ",
-	                                            _react2.default.createElement(
-	                                                "strong",
-	                                                {
-	                                                    className: "strikethrough" },
-	                                                "Core Admin"
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "time" },
-	                                            _react2.default.createElement("i", { className: "icon-time" }),
-	                                            " 6 minutes ago"
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "li",
-	                                    { className: "arrow-box-left gray" },
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "avatar" },
-	                                        _react2.default.createElement("img", { className: "avatar-small",
-	                                            src: "../../images/avatars/avatar3.jpg" })
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "info" },
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "name" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                { className: "label label-purple" },
-	                                                "FILE"
-	                                            ),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "strong",
-	                                                { className: "indent" },
-	                                                "Michael"
-	                                            ),
-	                                            " added 3 new files in project: ",
-	                                            _react2.default.createElement(
-	                                                "strong",
-	                                                null,
-	                                                "Core Admin"
-	                                            )
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "time" },
-	                                            _react2.default.createElement("i", { className: "icon-time" }),
-	                                            " 12 minutes ago"
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "content" },
-	                                        _react2.default.createElement(
-	                                            "ul",
-	                                            { className: "thumbnails padded" },
-	                                            _react2.default.createElement(
-	                                                "li",
-	                                                { className: "col-md-3" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#", className: "thumbnail" },
-	                                                    _react2.default.createElement("img", { src: "http://placehold.it/240x100", alt: "" })
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "li",
-	                                                { className: "col-md-3" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#", className: "thumbnail" },
-	                                                    _react2.default.createElement("img", { src: "http://placehold.it/240x100", alt: "" })
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "li",
-	                                                { className: "col-md-3" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#", className: "thumbnail" },
-	                                                    _react2.default.createElement("img", { src: "http://placehold.it/240x100", alt: "" })
-	                                                )
-	                                            )
-	                                        )
-	                                    )
+	                                    " 223"
 	                                )
 	                            ),
 	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "box closable-chat-box" },
+	                                "li",
+	                                { className: "sparkline-row" },
 	                                _react2.default.createElement(
-	                                    "div",
-	                                    { className: "box-content padded" },
+	                                    "h4",
+	                                    { className: "red" },
 	                                    _react2.default.createElement(
-	                                        "div",
-	                                        { className: "fields" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar" },
-	                                            _react2.default.createElement("img", { className: "avatar-small",
-	                                                src: "../../images/avatars/avatar2.jpg" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "ul",
-	                                            null,
-	                                            _react2.default.createElement(
-	                                                "li",
-	                                                null,
-	                                                _react2.default.createElement(
-	                                                    "b",
-	                                                    null,
-	                                                    "Add a comment for project ",
-	                                                    _react2.default.createElement(
-	                                                        "a",
-	                                                        { href: "#" },
-	                                                        "Core Admin"
-	                                                    )
-	                                                )
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "li",
-	                                                { className: "note" },
-	                                                "Click on the textarea below to expand it!"
-	                                            )
-	                                        )
+	                                        "span",
+	                                        null,
+	                                        "New visits"
 	                                    ),
-	                                    _react2.default.createElement(
-	                                        "form",
-	                                        { className: "fill-up", action: "/" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "chat-message-box" },
-	                                            _react2.default.createElement("textarea", { name: "ttt", id: "ttt", rows: "5",
-	                                                placeholder: "add a comment (click to expand!)" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "clearfix actions" },
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                { className: "note" },
-	                                                "An optional note can go here"
-	                                            ),
-	                                            _react2.default.createElement(
-	                                                "div",
-	                                                { className: "pull-right faded-toolbar" },
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#", className: "tip", title: "Attach files" },
-	                                                    _react2.default.createElement("i", {
-	                                                        className: "icon-paper-clip" })
-	                                                ),
-	                                                _react2.default.createElement(
-	                                                    "a",
-	                                                    { href: "#", className: "btn btn-blue btn-xs" },
-	                                                    "Send"
-	                                                )
-	                                            )
-	                                        )
-	                                    )
+	                                    " 7930"
 	                                )
 	                            )
 	                        )
@@ -32950,12 +31926,139 @@
 	        }
 	    }]);
 
-	    return Home;
+	    return ContainerHeader;
 	}(_react2.default.Component)) || _class) || _class);
-	exports.default = Home;
+	exports.default = ContainerHeader;
 
 /***/ }),
-/* 250 */
+/* 251 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _Gauge = __webpack_require__(252);
+
+	var _Gauge2 = _interopRequireDefault(_Gauge);
+
+	var _mobxReact = __webpack_require__(245);
+
+	var _ThreadPoolPane = __webpack_require__(254);
+
+	var _ThreadPoolPane2 = _interopRequireDefault(_ThreadPoolPane);
+
+	var _ResourcesPane = __webpack_require__(255);
+
+	var _ResourcesPane2 = _interopRequireDefault(_ResourcesPane);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Dashboard = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(Dashboard, _React$Component);
+
+	    function Dashboard() {
+	        _classCallCheck(this, Dashboard);
+
+	        return _possibleConstructorReturn(this, (Dashboard.__proto__ || Object.getPrototypeOf(Dashboard)).apply(this, arguments));
+	    }
+
+	    _createClass(Dashboard, [{
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.stateStore.pageTitle = "Dashboard";
+	            this.props.stateStore.pageDescription = "System overview";
+	            this.props.stateStore.headerIcon = "icon-dashboard";
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var metrics = this.props.metricsStore.metrics;
+
+
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "row" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-12" },
+	                        _react2.default.createElement(
+	                            "div",
+	                            { className: "box" },
+	                            _react2.default.createElement(
+	                                "div",
+	                                { className: "box-header" },
+	                                _react2.default.createElement(
+	                                    "span",
+	                                    { className: "title" },
+	                                    "Memory"
+	                                )
+	                            ),
+	                            _react2.default.createElement(
+	                                "div",
+	                                { className: "box-content padded", style: { textAlign: 'center' } },
+	                                _react2.default.createElement(_Gauge2.default, { key: 'heapUsage',
+	                                    name: 'heapUsage',
+	                                    value: metrics.usedMemory,
+	                                    min: 0,
+	                                    max: metrics.totalMemory,
+	                                    title: 'Heap Usage',
+	                                    label: 'MB' }),
+	                                _react2.default.createElement(_Gauge2.default, { key: 'heapSize',
+	                                    name: 'heapSize',
+	                                    value: metrics.totalMemory,
+	                                    min: 0,
+	                                    max: metrics.maxMemory,
+	                                    title: 'Heap Size',
+	                                    label: 'MB' })
+	                            )
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "row" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-6" },
+	                        _react2.default.createElement(_ResourcesPane2.default, { resources: metrics.resources })
+	                    ),
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-6" },
+	                        _react2.default.createElement(_ThreadPoolPane2.default, { threadPools: metrics.threadPools })
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Dashboard;
+	}(_react2.default.Component)) || _class) || _class);
+	exports.default = Dashboard;
+
+/***/ }),
+/* 252 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -32979,7 +32082,7 @@
 
 	var _mobxReact = __webpack_require__(245);
 
-	var _justgage = __webpack_require__(251);
+	var _justgage = __webpack_require__(253);
 
 	var _justgage2 = _interopRequireDefault(_justgage);
 
@@ -33009,9 +32112,9 @@
 
 	            this.guage = new _justgage2.default({
 	                id: this.props.name,
-	                value: 0,
-	                min: 0,
-	                max: 100,
+	                value: this.toMb(this.props.value),
+	                min: this.toMb(this.props.min),
+	                max: this.toMb(this.props.max),
 	                title: this.props.title,
 	                label: this.props.label
 	            });
@@ -33020,18 +32123,24 @@
 	        key: "componentWillReceiveProps",
 	        value: function componentWillReceiveProps(nextProps) {
 	            if (nextProps.value !== this.props.value) {
-	                var value = parseInt(parseInt(this.props.value) / mb);
+	                var value = this.toMb(this.props.value);
 	                this.guage.refresh(value);
 	            }
 	            if (nextProps.max !== this.props.max) {
-	                var max = parseInt(parseInt(nextProps.max) / mb);
-	                var _value = parseInt(parseInt(nextProps.value) / mb);
+	                var max = this.toMb(nextProps.max);
+	                var _value = this.toMb(nextProps.value);
 	                this.guage.refresh(_value, max);
 	            }
 	        }
 	    }, {
+	        key: "toMb",
+	        value: function toMb(val) {
+	            return parseInt(parseInt(val) / mb);
+	        }
+	    }, {
 	        key: "componentWillUnmount",
 	        value: function componentWillUnmount() {
+	            this.guage = null;
 	            _reactDom2.default.unmountComponentAtNode(this.node);
 	        }
 	    }, {
@@ -33077,7 +32186,7 @@
 	exports.default = Gauge;
 
 /***/ }),
-/* 251 */
+/* 253 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -34200,7 +33309,735 @@
 	exports.default = JustGage;
 
 /***/ }),
-/* 252 */
+/* 254 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ThreadPool = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(ThreadPool, _React$Component);
+
+	    function ThreadPool() {
+	        _classCallCheck(this, ThreadPool);
+
+	        return _possibleConstructorReturn(this, (ThreadPool.__proto__ || Object.getPrototypeOf(ThreadPool)).apply(this, arguments));
+	    }
+
+	    _createClass(ThreadPool, [{
+	        key: "threadPoolInfo",
+	        value: function threadPoolInfo(threadPool) {
+	            var poolName = threadPool.poolName;
+	            var poolSize = threadPool.poolSize;
+	            var activeCount = threadPool.activeCount;
+	            var shutdown = threadPool.shutdown;
+
+
+	            var label = shutdown ? 'label label-red' : 'label label-green';
+	            var statusText = shutdown ? 'Shutdown' : 'Active';
+	            return _react2.default.createElement(
+	                "tr",
+	                { key: poolName, className: "status-pending" },
+	                _react2.default.createElement(
+	                    "td",
+	                    { className: "icon" },
+	                    _react2.default.createElement("i", { className: "icon-cogs" })
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "a",
+	                        { href: "#" },
+	                        poolName
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "b",
+	                        null,
+	                        activeCount,
+	                        " / ",
+	                        poolSize
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "span",
+	                        { style: { textAlign: 'center' }, className: label },
+	                        statusText
+	                    )
+	                )
+	            );
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var _this2 = this;
+
+	            var element = _react2.default.createElement(
+	                "h3",
+	                null,
+	                "No thread pool available"
+	            );
+	            if (this.props.threadPools && this.props.threadPools.length > 0) {
+	                var threadPools = this.props.threadPools.map(function (tp) {
+	                    return _this2.threadPoolInfo(tp);
+	                });
+	                element = _react2.default.createElement(
+	                    "div",
+	                    { className: "box-content" },
+	                    _react2.default.createElement(
+	                        "table",
+	                        { className: "table table-normal" },
+	                        _react2.default.createElement(
+	                            "thead",
+	                            null,
+	                            _react2.default.createElement(
+	                                "tr",
+	                                null,
+	                                _react2.default.createElement("td", null),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Name"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Usage"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Status"
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            "tbody",
+	                            null,
+	                            threadPools
+	                        )
+	                    )
+	                );
+	            }
+
+	            return _react2.default.createElement(
+	                "div",
+	                { className: "box" },
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "box-header" },
+	                    _react2.default.createElement(
+	                        "span",
+	                        { className: "title" },
+	                        "Thread pools"
+	                    )
+	                ),
+	                element
+	            );
+	        }
+	    }]);
+
+	    return ThreadPool;
+	}(_react2.default.Component)) || _class;
+
+	exports.default = ThreadPool;
+
+/***/ }),
+/* 255 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ResourcesPanel = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(ResourcesPanel, _React$Component);
+
+	    function ResourcesPanel() {
+	        _classCallCheck(this, ResourcesPanel);
+
+	        return _possibleConstructorReturn(this, (ResourcesPanel.__proto__ || Object.getPrototypeOf(ResourcesPanel)).apply(this, arguments));
+	    }
+
+	    _createClass(ResourcesPanel, [{
+	        key: "methodLabel",
+	        value: function methodLabel(method) {
+	            var color = 'label label-blue';
+	            if (method === 'GET') {
+	                color = 'label label-green';
+	            } else if (method === 'POST') {
+	                color = 'label label-gray';
+	            } else if (method === 'PUT') {
+	                color = 'label label-blue';
+	            } else if (method === 'DELETE') {
+	                color = 'label label-red';
+	            }
+
+	            return _react2.default.createElement(
+	                "span",
+	                { style: { textAlign: 'center' }, className: color },
+	                method
+	            );
+	        }
+	    }, {
+	        key: "errorPercent",
+	        value: function errorPercent(metric) {
+	            if (metric.totalRequests === 0) {
+	                return "-";
+	            }
+	            var errorCount = 0;
+	            for (var key in metric.responses) {
+	                var status = parseInt(key);
+	                var count = metric.responses[key];
+	                if (status < 200 || status > 299) {
+	                    errorCount += count;
+	                }
+	            }
+	            if (errorCount === 0) {
+	                return 0;
+	            }
+	            return parseInt(errorCount / metric.totalRequests * 100);
+	        }
+	    }, {
+	        key: "resourceInfo",
+	        value: function resourceInfo(resource) {
+	            var url = resource.url;
+	            var method = resource.method;
+	            var metrics = resource.metrics;
+
+
+	            var methodSpan = this.methodLabel(method);
+	            var errorsPercent = this.errorPercent(resource.metrics);
+
+	            var urlKey = method + url.replace(/\//g, '').replace(/{/g, '').replace(/}/g, '');
+
+	            return _react2.default.createElement(
+	                "tr",
+	                { key: urlKey, className: "status-pending" },
+	                _react2.default.createElement(
+	                    "td",
+	                    { className: "icon" },
+	                    _react2.default.createElement("i", { className: "icon-exchange" })
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    { className: "icon" },
+	                    methodSpan
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "a",
+	                        { href: "#" },
+	                        url
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    { style: { width: '100px' } },
+	                    _react2.default.createElement(
+	                        "b",
+	                        null,
+	                        metrics.totalRequests
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    { style: { width: '150px' } },
+	                    _react2.default.createElement(
+	                        "b",
+	                        null,
+	                        metrics.maxRequestTime
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    { style: { width: '100px' } },
+	                    _react2.default.createElement(
+	                        "b",
+	                        null,
+	                        errorsPercent
+	                    )
+	                )
+	            );
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var _this2 = this;
+
+	            var element = _react2.default.createElement(
+	                "h3",
+	                null,
+	                "No resource available"
+	            );
+	            if (this.props.resources && this.props.resources.length > 0) {
+	                var resources = this.props.resources.map(function (re) {
+	                    return _this2.resourceInfo(re);
+	                });
+	                element = _react2.default.createElement(
+	                    "div",
+	                    { className: "box-content" },
+	                    _react2.default.createElement(
+	                        "table",
+	                        { className: "table table-normal" },
+	                        _react2.default.createElement(
+	                            "thead",
+	                            null,
+	                            _react2.default.createElement(
+	                                "tr",
+	                                null,
+	                                _react2.default.createElement("td", null),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Method"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "URL"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Requests"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Max response time"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Errors %"
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            "tbody",
+	                            null,
+	                            resources
+	                        )
+	                    )
+	                );
+	            }
+
+	            return _react2.default.createElement(
+	                "div",
+	                { className: "box" },
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "box-header" },
+	                    _react2.default.createElement(
+	                        "span",
+	                        { className: "title" },
+	                        "Resources"
+	                    )
+	                ),
+	                element
+	            );
+	        }
+	    }]);
+
+	    return ResourcesPanel;
+	}(_react2.default.Component)) || _class;
+
+	exports.default = ResourcesPanel;
+
+/***/ }),
+/* 256 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	var _ResourcesPane = __webpack_require__(255);
+
+	var _ResourcesPane2 = _interopRequireDefault(_ResourcesPane);
+
+	var _Pie = __webpack_require__(257);
+
+	var _Pie2 = _interopRequireDefault(_Pie);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Resources = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(Resources, _React$Component);
+
+	    function Resources() {
+	        _classCallCheck(this, Resources);
+
+	        return _possibleConstructorReturn(this, (Resources.__proto__ || Object.getPrototypeOf(Resources)).apply(this, arguments));
+	    }
+
+	    _createClass(Resources, [{
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.stateStore.pageTitle = "Resources";
+	            this.props.stateStore.pageDescription = "Resources metrics";
+	            this.props.stateStore.headerIcon = "icon-exchange";
+	        }
+	    }, {
+	        key: "usagePercentage",
+	        value: function usagePercentage(resources, totalRequest) {
+	            var usageData = resources.map(function (resource) {
+	                return { name: resource.url, y: resource.metrics.totalRequests / totalRequest * 100 };
+	            });
+
+	            return {
+	                title: {
+	                    text: 'Resource usage'
+	                },
+	                series: [{
+	                    name: 'Usage',
+	                    colorByPoint: true,
+	                    data: usageData
+	                }]
+	            };
+	        }
+	    }, {
+	        key: "responseStatuses",
+	        value: function responseStatuses(resources, totalRequest) {
+	            var vals = resources.map(function (resource) {
+	                return resource.metrics.responses;
+	            }).reduce(function (prev, curr) {
+	                for (var key in curr) {
+	                    if (prev[key]) {
+	                        prev[key] += curr[key];
+	                    } else {
+	                        prev[key] = curr[key];
+	                    }
+	                }
+	                return Object.assign({}, prev);
+	            }, {});
+
+	            var data = [];
+	            for (var key in vals) {
+	                var percentage = vals[key] / totalRequest * 100;
+	                data.push({ name: key, y: percentage });
+	            }
+	            return {
+	                title: {
+	                    text: 'Response statuses'
+	                },
+	                series: [{
+	                    name: 'Status code',
+	                    colorByPoint: true,
+	                    data: data
+	                }]
+	            };
+	        }
+	    }, {
+	        key: "errorPercentage",
+	        value: function errorPercentage(resources) {
+	            var errors = resources.map(function (resource) {
+
+	                var responses = resource.metrics.responses;
+	                var numError = 0;
+	                for (var key in responses) {
+	                    var code = parseInt(key);
+	                    if (code < 200 || code > 299) {
+	                        numError += responses[key];
+	                    }
+	                }
+
+	                return { name: resource.url, y: numError };
+	            });
+
+	            var totalErrors = errors.reduce(function (prev, curr) {
+	                return prev + curr.y;
+	            }, 0);
+
+	            var errorPercentages = errors.map(function (error) {
+	                error.y = error.y / totalErrors * 100;
+	                return error;
+	            });
+
+	            return {
+	                title: {
+	                    text: 'Errors per endpoint'
+	                },
+	                series: [{
+	                    name: 'Error code',
+	                    colorByPoint: true,
+	                    data: errorPercentages
+	                }]
+	            };
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var metrics = this.props.metricsStore.metrics;
+
+	            if (!metrics || !metrics.resources || metrics.resources.length === 0 || !metrics.resources[0].metrics || !metrics.resources[0].metrics.metricsStartDate) {
+
+	                return _react2.default.createElement(
+	                    "h3",
+	                    null,
+	                    "No data"
+	                );
+	            }
+
+	            var totalRequest = metrics.resources.map(function (resource) {
+	                return resource.metrics.totalRequests;
+	            }).reduce(function (prev, current) {
+	                return prev + current;
+	            }, 0);
+
+	            var usageData = this.usagePercentage(metrics.resources, totalRequest);
+	            var responseStatusesData = this.responseStatuses(metrics.resources, totalRequest);
+	            var errorPercent = this.errorPercentage(metrics.resources);
+
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "row" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-6" },
+	                        _react2.default.createElement(_ResourcesPane2.default, { resources: metrics.resources })
+	                    ),
+	                    _react2.default.createElement("div", { className: "col-md-6" })
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "row" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-4" },
+	                        _react2.default.createElement(
+	                            "div",
+	                            { className: "box" },
+	                            _react2.default.createElement(
+	                                "div",
+	                                { className: "box-header" },
+	                                _react2.default.createElement(
+	                                    "span",
+	                                    { className: "title" },
+	                                    "Usage"
+	                                )
+	                            ),
+	                            _react2.default.createElement(_Pie2.default, { name: 'usage', data: usageData })
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-4" },
+	                        _react2.default.createElement(
+	                            "div",
+	                            { className: "box" },
+	                            _react2.default.createElement(
+	                                "div",
+	                                { className: "box-header" },
+	                                _react2.default.createElement(
+	                                    "span",
+	                                    { className: "title" },
+	                                    "Response Statuses"
+	                                )
+	                            ),
+	                            _react2.default.createElement(_Pie2.default, { name: 'responseStatuses', data: responseStatusesData })
+	                        )
+	                    ),
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-4" },
+	                        _react2.default.createElement(
+	                            "div",
+	                            { className: "box" },
+	                            _react2.default.createElement(
+	                                "div",
+	                                { className: "box-header" },
+	                                _react2.default.createElement(
+	                                    "span",
+	                                    { className: "title" },
+	                                    "Errors per endpoint"
+	                                )
+	                            ),
+	                            _react2.default.createElement(_Pie2.default, { name: 'statuses', data: errorPercent })
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return Resources;
+	}(_react2.default.Component)) || _class) || _class);
+	exports.default = Resources;
+
+/***/ }),
+/* 257 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _highcharts = __webpack_require__(258);
+
+	var _highcharts2 = _interopRequireDefault(_highcharts);
+
+	var _highchartsMore = __webpack_require__(259);
+
+	var _highchartsMore2 = _interopRequireDefault(_highchartsMore);
+
+	var _HighchartReact = __webpack_require__(260);
+
+	var _HighchartReact2 = _interopRequireDefault(_HighchartReact);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Pie = function (_React$Component) {
+	    _inherits(Pie, _React$Component);
+
+	    function Pie(props) {
+	        _classCallCheck(this, Pie);
+
+	        var _this = _possibleConstructorReturn(this, (Pie.__proto__ || Object.getPrototypeOf(Pie)).call(this, props));
+
+	        _this.basePie = {
+	            chart: {
+	                plotBackgroundColor: null,
+	                plotBorderWidth: null,
+	                plotShadow: false,
+	                type: 'pie'
+	            },
+	            title: {
+	                text: 'CHANGE_ME'
+	            },
+	            tooltip: {
+	                pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+	            },
+	            plotOptions: {
+	                pie: {
+	                    allowPointSelect: true,
+	                    cursor: 'pointer',
+	                    dataLabels: {
+	                        enabled: false
+	                    },
+	                    showInLegend: true
+	                }
+	            },
+	            series: [{
+	                name: 'CHANGE_ME',
+	                colorByPoint: true,
+	                data: []
+	            }]
+	        };
+
+	        return _this;
+	    }
+
+	    _createClass(Pie, [{
+	        key: "componentWillReceiveProps",
+	        value: function componentWillReceiveProps(nextProps) {}
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var name = this.props.name;
+
+	            var props = _highcharts2.default.merge(this.basePie, this.props.data);
+	            return _react2.default.createElement(_HighchartReact2.default, { container: name, options: props });
+	        }
+	    }]);
+
+	    return Pie;
+	}(_react2.default.Component);
+
+	exports.default = Pie;
+
+/***/ }),
+/* 258 */
 /***/ (function(module, exports) {
 
 	/*
@@ -34599,113 +34436,7 @@
 
 
 /***/ }),
-/* 253 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	exports.default = undefined;
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	var _highcharts = __webpack_require__(252);
-
-	var _highcharts2 = _interopRequireDefault(_highcharts);
-
-	var _highchartsMore = __webpack_require__(254);
-
-	var _highchartsMore2 = _interopRequireDefault(_highchartsMore);
-
-	var _solidGauge = __webpack_require__(255);
-
-	var _solidGauge2 = _interopRequireDefault(_solidGauge);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-	var HighchartGauge = function (_React$Component) {
-	    _inherits(HighchartGauge, _React$Component);
-
-	    function HighchartGauge() {
-	        _classCallCheck(this, HighchartGauge);
-
-	        return _possibleConstructorReturn(this, (HighchartGauge.__proto__ || Object.getPrototypeOf(HighchartGauge)).apply(this, arguments));
-	    }
-
-	    _createClass(HighchartGauge, [{
-	        key: "componentDidMount",
-	        value: function componentDidMount() {
-	            // Extend Highcharts with modules
-	            (0, _solidGauge2.default)(_highcharts2.default);
-	            (0, _highchartsMore2.default)(_highcharts2.default);
-	            // if (this.props.modules) {
-	            //     this.props.modules.forEach(function (module) {
-	            //         solidgauge(Highcharts);
-	            //     });
-	            // }
-	            // Set container which the chart should render to.
-	            this.chart = new _highcharts2.default[this.props.type || "Chart"](this.props.container, this.props.options);
-	        }
-	    }, {
-	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(nextProps) {
-	            // // if (nextProps.value !== this.props.value) {
-	            // //     let value = parseInt(parseInt(this.props.value) / mb);
-	            // //     this.guage.refresh(value);
-	            // // }
-	            // // if (nextProps.max !== this.props.max) {
-	            // let max = parseInt(parseInt(nextProps.max) / mb);
-	            // let value = parseInt(parseInt(nextProps.value) / mb);
-	            // this.guage.refresh(value, max);
-	            // }
-
-	            var point = this.chart.series[0].points[0];
-	            var inc = Math.round((Math.random() - 0.5) * 100);
-	            var newVal = point.y + inc;
-
-	            if (newVal < 0 || newVal > 200) {
-	                newVal = point.y - inc;
-	            }
-
-	            point.update(newVal);
-	        }
-	    }, {
-	        key: "componentWillUnmount",
-	        value: function componentWillUnmount() {
-	            this.chart.destroy();
-	        }
-	    }, {
-	        key: "render",
-	        value: function render() {
-	            (0, _solidGauge2.default)(_highcharts2.default);
-	            (0, _highchartsMore2.default)(_highcharts2.default);
-	            return _react2.default.createElement(
-	                "div",
-	                null,
-	                _react2.default.createElement("div", { id: this.props.container })
-	            );
-	        }
-	    }]);
-
-	    return HighchartGauge;
-	}(_react2.default.Component);
-
-	exports.default = HighchartGauge;
-
-/***/ }),
-/* 254 */
+/* 259 */
 /***/ (function(module, exports) {
 
 	/*
@@ -34767,28 +34498,7 @@
 
 
 /***/ }),
-/* 255 */
-/***/ (function(module, exports) {
-
-	/*
-	  Highcharts JS v5.0.10 (2017-03-31)
-	 Solid angular gauge module
-
-	 (c) 2010-2017 Torstein Honsi
-
-	 License: www.highcharts.com/license
-	*/
-	(function(l){"object"===typeof module&&module.exports?module.exports=l:l(Highcharts)})(function(l){(function(f){var l=f.pInt,u=f.pick,m=f.each,v=f.isNumber,w=f.wrap,n;w(f.Renderer.prototype.symbols,"arc",function(a,d,e,c,f,g){a=a(d,e,c,f,g);g.rounded&&(c=((g.r||c)-g.innerR)/2,g=["A",c,c,0,1,1,a[12],a[13]],a.splice.apply(a,[a.length-1,0].concat(["A",c,c,0,1,1,a[1],a[2]])),a.splice.apply(a,[11,3].concat(g)));return a});n={initDataClasses:function(a){var d=this,e=this.chart,c,t=0,g=this.options;this.dataClasses=
-	c=[];m(a.dataClasses,function(h,b){h=f.merge(h);c.push(h);h.color||("category"===g.dataClassColor?(b=e.options.colors,h.color=b[t++],t===b.length&&(t=0)):h.color=d.tweenColors(f.color(g.minColor),f.color(g.maxColor),b/(a.dataClasses.length-1)))})},initStops:function(a){this.stops=a.stops||[[0,this.options.minColor],[1,this.options.maxColor]];m(this.stops,function(a){a.color=f.color(a[1])})},toColor:function(a,d){var e=this.stops,c,f,g=this.dataClasses,h,b;if(g)for(b=g.length;b--;){if(h=g[b],c=h.from,
-	e=h.to,(void 0===c||a>=c)&&(void 0===e||a<=e)){f=h.color;d&&(d.dataClass=b);break}}else{this.isLog&&(a=this.val2lin(a));a=1-(this.max-a)/(this.max-this.min);for(b=e.length;b--&&!(a>e[b][0]););c=e[b]||e[b+1];e=e[b+1]||c;a=1-(e[0]-a)/(e[0]-c[0]||1);f=this.tweenColors(c.color,e.color,a)}return f},tweenColors:function(a,d,e){var c;d.rgba.length&&a.rgba.length?(a=a.rgba,d=d.rgba,c=1!==d[3]||1!==a[3],a=(c?"rgba(":"rgb(")+Math.round(d[0]+(a[0]-d[0])*(1-e))+","+Math.round(d[1]+(a[1]-d[1])*(1-e))+","+Math.round(d[2]+
-	(a[2]-d[2])*(1-e))+(c?","+(d[3]+(a[3]-d[3])*(1-e)):"")+")"):a=d.input||"none";return a}};m(["fill","stroke"],function(a){f.Fx.prototype[a+"Setter"]=function(){this.elem.attr(a,n.tweenColors(f.color(this.start),f.color(this.end),this.pos),null,!0)}});f.seriesType("solidgauge","gauge",{colorByPoint:!0},{translate:function(){var a=this.yAxis;f.extend(a,n);!a.dataClasses&&a.options.dataClasses&&a.initDataClasses(a.options);a.initStops(a.options);f.seriesTypes.gauge.prototype.translate.call(this)},drawPoints:function(){var a=
-	this,d=a.yAxis,e=d.center,c=a.options,t=a.chart.renderer,g=c.overshoot,h=v(g)?g/180*Math.PI:0,b;v(c.threshold)&&(b=d.startAngleRad+d.translate(c.threshold,null,null,null,!0));this.thresholdAngleRad=u(b,d.startAngleRad);m(a.points,function(b){var g=b.graphic,k=d.startAngleRad+d.translate(b.y,null,null,null,!0),m=l(u(b.options.radius,c.radius,100))*e[2]/200,p=l(u(b.options.innerRadius,c.innerRadius,60))*e[2]/200,q=d.toColor(b.y,b),r=Math.min(d.startAngleRad,d.endAngleRad),n=Math.max(d.startAngleRad,
-	d.endAngleRad);"none"===q&&(q=b.color||a.color||"none");"none"!==q&&(b.color=q);k=Math.max(r-h,Math.min(n+h,k));!1===c.wrap&&(k=Math.max(r,Math.min(n,k)));r=Math.min(k,a.thresholdAngleRad);k=Math.max(k,a.thresholdAngleRad);k-r>2*Math.PI&&(k=r+2*Math.PI);b.shapeArgs=p={x:e[0],y:e[1],r:m,innerR:p,start:r,end:k,rounded:c.rounded};b.startR=m;g?(b=p.d,g.animate(f.extend({fill:q},p)),b&&(p.d=b)):(b.graphic=t.arc(p).addClass("highcharts-point").attr({fill:q,"sweep-flag":0}).add(a.group),"square"!==c.linecap&&
-	b.graphic.attr({"stroke-linecap":"round","stroke-linejoin":"round"}),b.graphic.attr({stroke:c.borderColor||"none","stroke-width":c.borderWidth||0}))})},animate:function(a){a||(this.startAngleRad=this.thresholdAngleRad,f.seriesTypes.pie.prototype.animate.call(this,a))}})})(l)});
-
-
-/***/ }),
-/* 256 */
+/* 260 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34800,7 +34510,82 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _class;
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _highcharts = __webpack_require__(258);
+
+	var _highcharts2 = _interopRequireDefault(_highcharts);
+
+	var _highchartsMore = __webpack_require__(259);
+
+	var _highchartsMore2 = _interopRequireDefault(_highchartsMore);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var HighchartReact = function (_React$Component) {
+	    _inherits(HighchartReact, _React$Component);
+
+	    function HighchartReact() {
+	        _classCallCheck(this, HighchartReact);
+
+	        return _possibleConstructorReturn(this, (HighchartReact.__proto__ || Object.getPrototypeOf(HighchartReact)).apply(this, arguments));
+	    }
+
+	    _createClass(HighchartReact, [{
+	        key: "componentDidMount",
+	        value: function componentDidMount() {
+	            // Set container which the chart should render to.
+	            this.chart = new _highcharts2.default[this.props.type || "Chart"](this.props.container, this.props.options);
+	        }
+	    }, {
+	        key: "componentWillReceiveProps",
+	        value: function componentWillReceiveProps(nextProps) {
+	            //TODO
+
+	        }
+	    }, {
+	        key: "componentWillUnmount",
+	        value: function componentWillUnmount() {
+	            this.chart.destroy();
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement("div", { id: this.props.container })
+	            );
+	        }
+	    }]);
+
+	    return HighchartReact;
+	}(_react2.default.Component);
+
+	exports.default = HighchartReact;
+
+/***/ }),
+/* 261 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
 
 	var _react = __webpack_require__(1);
 
@@ -34816,7 +34601,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var ThreadPool = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	var ThreadPool = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
 	    _inherits(ThreadPool, _React$Component);
 
 	    function ThreadPool() {
@@ -34826,146 +34611,25 @@
 	    }
 
 	    _createClass(ThreadPool, [{
-	        key: "threadPoolInfo",
-	        value: function threadPoolInfo(threadPool) {
-	            var poolName = threadPool.poolName;
-	            var poolSize = threadPool.poolSize;
-	            var activeCount = threadPool.activeCount;
-	            var shutdown = threadPool.shutdown;
-
-
-	            var label = shutdown ? 'label label-red' : 'label label-green';
-	            var statusText = shutdown ? 'Shutdown' : 'Active';
-	            return _react2.default.createElement(
-	                "tr",
-	                { key: poolName, className: "status-pending" },
-	                _react2.default.createElement(
-	                    "td",
-	                    { className: "icon" },
-	                    _react2.default.createElement("i", { className: "icon-cogs" })
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    null,
-	                    _react2.default.createElement(
-	                        "a",
-	                        { href: "#" },
-	                        poolName
-	                    )
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    null,
-	                    _react2.default.createElement(
-	                        "b",
-	                        null,
-	                        activeCount,
-	                        " / ",
-	                        poolSize
-	                    )
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    null,
-	                    _react2.default.createElement(
-	                        "span",
-	                        { style: { textAlign: 'center' }, className: label },
-	                        statusText
-	                    )
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    null,
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "btn-group" },
-	                        _react2.default.createElement(
-	                            "a",
-	                            { href: "#" },
-	                            _react2.default.createElement("i", { className: "icon-arrow-right" })
-	                        )
-	                    )
-	                )
-	            );
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.stateStore.pageTitle = "Thread pools";
+	            this.props.stateStore.pageDescription = "View system thread pools";
+	            this.props.stateStore.headerIcon = "icon-file-alt";
 	        }
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            var _this2 = this;
-
-	            var element = _react2.default.createElement(
-	                "h3",
-	                null,
-	                "No thread pool available"
-	            );
-	            if (this.props.threadPools && this.props.threadPools.length > 0) {
-	                var threadPools = this.props.threadPools.map(function (tp) {
-	                    return _this2.threadPoolInfo(tp);
-	                });
-	                element = _react2.default.createElement(
-	                    "div",
-	                    { className: "box-content" },
-	                    _react2.default.createElement(
-	                        "table",
-	                        { className: "table table-normal" },
-	                        _react2.default.createElement(
-	                            "thead",
-	                            null,
-	                            _react2.default.createElement(
-	                                "tr",
-	                                null,
-	                                _react2.default.createElement("td", null),
-	                                _react2.default.createElement(
-	                                    "td",
-	                                    null,
-	                                    "Name"
-	                                ),
-	                                _react2.default.createElement(
-	                                    "td",
-	                                    null,
-	                                    "Usage"
-	                                ),
-	                                _react2.default.createElement(
-	                                    "td",
-	                                    null,
-	                                    "Status"
-	                                ),
-	                                _react2.default.createElement("td", { style: { width: '40px' } })
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "tbody",
-	                            null,
-	                            threadPools
-	                        )
-	                    )
-	                );
-	            }
-
-	            return _react2.default.createElement(
-	                "div",
-	                { className: "box" },
-	                _react2.default.createElement(
-	                    "div",
-	                    { className: "box-header" },
-	                    _react2.default.createElement(
-	                        "span",
-	                        { className: "title" },
-	                        "Thread pools"
-	                    )
-	                ),
-	                element
-	            );
+	            return _react2.default.createElement("div", null);
 	        }
 	    }]);
 
 	    return ThreadPool;
-	}(_react2.default.Component)) || _class;
-
+	}(_react2.default.Component)) || _class) || _class);
 	exports.default = ThreadPool;
 
 /***/ }),
-/* 257 */
+/* 262 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34977,7 +34641,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _class;
+	var _dec, _class;
 
 	var _react = __webpack_require__(1);
 
@@ -34993,169 +34657,35 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Resources = (0, _mobxReact.observer)(_class = function (_React$Component) {
-	    _inherits(Resources, _React$Component);
+	var Logs = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(Logs, _React$Component);
 
-	    function Resources() {
-	        _classCallCheck(this, Resources);
+	    function Logs() {
+	        _classCallCheck(this, Logs);
 
-	        return _possibleConstructorReturn(this, (Resources.__proto__ || Object.getPrototypeOf(Resources)).apply(this, arguments));
+	        return _possibleConstructorReturn(this, (Logs.__proto__ || Object.getPrototypeOf(Logs)).apply(this, arguments));
 	    }
 
-	    _createClass(Resources, [{
-	        key: "methodLabel",
-	        value: function methodLabel(method) {
-	            var color = 'label label-blue';
-	            if (method === 'GET') {
-	                color = 'label label-green';
-	            } else if (method === 'POST') {
-	                color = 'label label-gray';
-	            } else if (method === 'PUT') {
-	                color = 'label label-blue';
-	            } else if (method === 'DELETE') {
-	                color = 'label label-red';
-	            }
-
-	            return _react2.default.createElement(
-	                "span",
-	                { style: { textAlign: 'center' }, className: color },
-	                method
-	            );
-	        }
-	    }, {
-	        key: "resourceInfo",
-	        value: function resourceInfo(resource) {
-	            var url = resource.url;
-	            var method = resource.method;
-	            var metrics = resource.metrics;
-
-
-	            var methodSpan = this.methodLabel(method);
-
-	            return _react2.default.createElement(
-	                "tr",
-	                { key: url, className: "status-pending" },
-	                _react2.default.createElement(
-	                    "td",
-	                    { className: "icon" },
-	                    _react2.default.createElement("i", { className: "icon-exchange" })
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    { className: "icon" },
-	                    methodSpan
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    null,
-	                    _react2.default.createElement(
-	                        "a",
-	                        { href: "#" },
-	                        url
-	                    )
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    null,
-	                    _react2.default.createElement(
-	                        "b",
-	                        null,
-	                        metrics.totalRequestTime
-	                    )
-	                ),
-	                _react2.default.createElement(
-	                    "td",
-	                    null,
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "btn-group" },
-	                        _react2.default.createElement(
-	                            "a",
-	                            { href: "#" },
-	                            _react2.default.createElement("i", { className: "icon-arrow-right" })
-	                        )
-	                    )
-	                )
-	            );
+	    _createClass(Logs, [{
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.stateStore.pageTitle = "Logs";
+	            this.props.stateStore.pageDescription = "View system logs";
+	            this.props.stateStore.headerIcon = "icon-file-alt";
 	        }
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            var _this2 = this;
-
-	            var element = _react2.default.createElement(
-	                "h3",
-	                null,
-	                "No resource available"
-	            );
-	            if (this.props.resources && this.props.resources.length > 0) {
-	                var resources = this.props.resources.map(function (re) {
-	                    return _this2.resourceInfo(re);
-	                });
-	                element = _react2.default.createElement(
-	                    "div",
-	                    { className: "box-content" },
-	                    _react2.default.createElement(
-	                        "table",
-	                        { className: "table table-normal" },
-	                        _react2.default.createElement(
-	                            "thead",
-	                            null,
-	                            _react2.default.createElement(
-	                                "tr",
-	                                null,
-	                                _react2.default.createElement("td", null),
-	                                _react2.default.createElement(
-	                                    "td",
-	                                    null,
-	                                    "Method"
-	                                ),
-	                                _react2.default.createElement(
-	                                    "td",
-	                                    null,
-	                                    "URL"
-	                                ),
-	                                _react2.default.createElement(
-	                                    "td",
-	                                    null,
-	                                    "Requests"
-	                                ),
-	                                _react2.default.createElement("td", { style: { width: '40px' } })
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "tbody",
-	                            null,
-	                            resources
-	                        )
-	                    )
-	                );
-	            }
-
-	            return _react2.default.createElement(
-	                "div",
-	                { className: "box" },
-	                _react2.default.createElement(
-	                    "div",
-	                    { className: "box-header" },
-	                    _react2.default.createElement(
-	                        "span",
-	                        { className: "title" },
-	                        "Resources"
-	                    )
-	                ),
-	                element
-	            );
+	            return _react2.default.createElement("div", null);
 	        }
 	    }]);
 
-	    return Resources;
-	}(_react2.default.Component)) || _class;
-
-	exports.default = Resources;
+	    return Logs;
+	}(_react2.default.Component)) || _class) || _class);
+	exports.default = Logs;
 
 /***/ }),
-/* 258 */
+/* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -35167,9 +34697,13 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _dec, _class;
+
 	var _react = __webpack_require__(1);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -35179,181 +34713,91 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var SideMenu = function (_React$Component) {
-	    _inherits(SideMenu, _React$Component);
+	var Discovery = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(Discovery, _React$Component);
 
-	    function SideMenu() {
-	        _classCallCheck(this, SideMenu);
+	    function Discovery() {
+	        _classCallCheck(this, Discovery);
 
-	        return _possibleConstructorReturn(this, (SideMenu.__proto__ || Object.getPrototypeOf(SideMenu)).apply(this, arguments));
+	        return _possibleConstructorReturn(this, (Discovery.__proto__ || Object.getPrototypeOf(Discovery)).apply(this, arguments));
 	    }
 
-	    _createClass(SideMenu, [{
+	    _createClass(Discovery, [{
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.stateStore.pageTitle = "Discovery";
+	            this.props.stateStore.pageDescription = "Manage services interaction";
+	            this.props.stateStore.headerIcon = "icon-globe";
+	        }
+	    }, {
 	        key: "render",
 	        value: function render() {
-	            return _react2.default.createElement(
-	                "div",
-	                null,
-	                _react2.default.createElement(
-	                    "div",
-	                    { className: "sidebar-background" },
-	                    _react2.default.createElement("div", { className: "primary-sidebar-background" })
-	                ),
-	                _react2.default.createElement(
-	                    "div",
-	                    { className: "primary-sidebar" },
-	                    _react2.default.createElement(
-	                        "ul",
-	                        { className: "nav navbar-collapse collapse navbar-collapse-primary" },
-	                        _react2.default.createElement(
-	                            "li",
-	                            { className: "active" },
-	                            _react2.default.createElement("span", { className: "glow" }),
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "dashboard.html" },
-	                                _react2.default.createElement("i", { className: "icon-dashboard icon-2x" }),
-	                                _react2.default.createElement(
-	                                    "span",
-	                                    null,
-	                                    "Dashboard"
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "li",
-	                            null,
-	                            _react2.default.createElement("span", { className: "glow" }),
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "dashboard.html" },
-	                                _react2.default.createElement("i", { className: "icon-dashboard icon-2x" }),
-	                                _react2.default.createElement(
-	                                    "span",
-	                                    null,
-	                                    "Resources"
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "li",
-	                            null,
-	                            _react2.default.createElement("span", { className: "glow" }),
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "dashboard.html" },
-	                                _react2.default.createElement("i", { className: "icon-dashboard icon-2x" }),
-	                                _react2.default.createElement(
-	                                    "span",
-	                                    null,
-	                                    "Logs"
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "li",
-	                            null,
-	                            _react2.default.createElement("span", { className: "glow" }),
-	                            _react2.default.createElement(
-	                                "a",
-	                                { href: "dashboard.html" },
-	                                _react2.default.createElement("i", { className: "icon-dashboard icon-2x" }),
-	                                _react2.default.createElement(
-	                                    "span",
-	                                    null,
-	                                    "Discovery"
-	                                )
-	                            )
-	                        )
-	                    ),
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "hidden-sm hidden-xs" },
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "text-center", style: { marginTop: '60px' } },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "easy-pie-chart-percent", style: { display: 'inlineBlock' }, "data-percent": "89" },
-	                                _react2.default.createElement(
-	                                    "span",
-	                                    null,
-	                                    "89%"
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                "div",
-	                                { style: { paddingTop: '20px' } },
-	                                _react2.default.createElement(
-	                                    "b",
-	                                    null,
-	                                    "CPU Usage"
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement("hr", { className: "divider", style: { marginTop: '60px' } }),
-	                        _react2.default.createElement(
-	                            "div",
-	                            { className: "sparkline-box side" },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "sparkline-row" },
-	                                _react2.default.createElement(
-	                                    "h4",
-	                                    { className: "gray" },
-	                                    _react2.default.createElement(
-	                                        "span",
-	                                        null,
-	                                        "Orders"
-	                                    ),
-	                                    " 847"
-	                                )
-	                            ),
-	                            _react2.default.createElement("hr", { className: "divider" }),
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "sparkline-row" },
-	                                _react2.default.createElement(
-	                                    "h4",
-	                                    { className: "dark-green" },
-	                                    _react2.default.createElement(
-	                                        "span",
-	                                        null,
-	                                        "Income"
-	                                    ),
-	                                    " $43.330"
-	                                )
-	                            ),
-	                            _react2.default.createElement("hr", { className: "divider" }),
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "sparkline-row" },
-	                                _react2.default.createElement(
-	                                    "h4",
-	                                    { className: "blue" },
-	                                    _react2.default.createElement(
-	                                        "span",
-	                                        null,
-	                                        "Reviews"
-	                                    ),
-	                                    " 223"
-	                                )
-	                            ),
-	                            _react2.default.createElement("hr", { className: "divider" })
-	                        )
-	                    )
-	                )
-	            );
+	            return _react2.default.createElement("div", null);
 	        }
 	    }]);
 
-	    return SideMenu;
-	}(_react2.default.Component);
-
-	exports.default = SideMenu;
+	    return Discovery;
+	}(_react2.default.Component)) || _class) || _class);
+	exports.default = Discovery;
 
 /***/ }),
-/* 259 */
+/* 264 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var Settings = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(Settings, _React$Component);
+
+	    function Settings() {
+	        _classCallCheck(this, Settings);
+
+	        return _possibleConstructorReturn(this, (Settings.__proto__ || Object.getPrototypeOf(Settings)).apply(this, arguments));
+	    }
+
+	    _createClass(Settings, [{
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.stateStore.pageTitle = "Settings";
+	            this.props.stateStore.pageDescription = "Configure system";
+	            this.props.stateStore.headerIcon = "icon-wrench";
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            return _react2.default.createElement("div", null);
+	        }
+	    }]);
+
+	    return Settings;
+	}(_react2.default.Component)) || _class) || _class);
+	exports.default = Settings;
+
+/***/ }),
+/* 265 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -35364,11 +34808,11 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _desc2, _value2, _class3, _descriptor5, _descriptor6;
+	var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _desc2, _value2, _class3, _descriptor5;
 
 	var _mobx = __webpack_require__(246);
 
-	var _API = __webpack_require__(260);
+	var _API = __webpack_require__(266);
 
 	var _API2 = _interopRequireDefault(_API);
 
@@ -35450,22 +34894,20 @@
 	        return 0;
 	    }
 	})), _class);
-	var AccountStore = (_class3 = function () {
-	    function AccountStore() {
+	var MetricsStore = (_class3 = function () {
+	    function MetricsStore() {
 	        var _this = this;
 
-	        _classCallCheck(this, AccountStore);
+	        _classCallCheck(this, MetricsStore);
 
 	        _initDefineProp(this, "metrics", _descriptor5, this);
-
-	        _initDefineProp(this, "users", _descriptor6, this);
 
 	        setInterval(function () {
 	            _this.fetch();
 	        }, 3000);
 	    }
 
-	    _createClass(AccountStore, [{
+	    _createClass(MetricsStore, [{
 	        key: "fetch",
 	        value: function fetch() {
 	            var _this2 = this;
@@ -35479,22 +34921,17 @@
 	        }
 	    }]);
 
-	    return AccountStore;
+	    return MetricsStore;
 	}(), (_descriptor5 = _applyDecoratedDescriptor(_class3.prototype, "metrics", [_mobx.observable], {
 	    enumerable: true,
 	    initializer: function initializer() {
 	        return new Metrics();
 	    }
-	}), _descriptor6 = _applyDecoratedDescriptor(_class3.prototype, "users", [_mobx.observable], {
-	    enumerable: true,
-	    initializer: function initializer() {
-	        return (0, _mobx.map)();
-	    }
 	})), _class3);
-	exports.default = new AccountStore();
+	exports.default = new MetricsStore();
 
 /***/ }),
-/* 260 */
+/* 266 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -35505,7 +34942,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _axios = __webpack_require__(261);
+	var _axios = __webpack_require__(267);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
@@ -35549,20 +34986,20 @@
 	exports.default = new API().axios();
 
 /***/ }),
-/* 261 */
+/* 267 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(262);
+	module.exports = __webpack_require__(268);
 
 /***/ }),
-/* 262 */
+/* 268 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
-	var bind = __webpack_require__(264);
-	var Axios = __webpack_require__(265);
+	var utils = __webpack_require__(269);
+	var bind = __webpack_require__(270);
+	var Axios = __webpack_require__(271);
 
 	/**
 	 * Create an instance of Axios
@@ -35598,7 +35035,7 @@
 	axios.all = function all(promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(282);
+	axios.spread = __webpack_require__(288);
 
 	module.exports = axios;
 
@@ -35607,12 +35044,12 @@
 
 
 /***/ }),
-/* 263 */
+/* 269 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var bind = __webpack_require__(264);
+	var bind = __webpack_require__(270);
 
 	/*global toString:true*/
 
@@ -35912,7 +35349,7 @@
 
 
 /***/ }),
-/* 264 */
+/* 270 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -35929,17 +35366,17 @@
 
 
 /***/ }),
-/* 265 */
+/* 271 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var defaults = __webpack_require__(266);
-	var utils = __webpack_require__(263);
-	var InterceptorManager = __webpack_require__(268);
-	var dispatchRequest = __webpack_require__(269);
-	var isAbsoluteURL = __webpack_require__(280);
-	var combineURLs = __webpack_require__(281);
+	var defaults = __webpack_require__(272);
+	var utils = __webpack_require__(269);
+	var InterceptorManager = __webpack_require__(274);
+	var dispatchRequest = __webpack_require__(275);
+	var isAbsoluteURL = __webpack_require__(286);
+	var combineURLs = __webpack_require__(287);
 
 	/**
 	 * Create a new instance of Axios
@@ -36020,13 +35457,13 @@
 
 
 /***/ }),
-/* 266 */
+/* 272 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
-	var normalizeHeaderName = __webpack_require__(267);
+	var utils = __webpack_require__(269);
+	var normalizeHeaderName = __webpack_require__(273);
 
 	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
 	var DEFAULT_CONTENT_TYPE = {
@@ -36098,12 +35535,12 @@
 
 
 /***/ }),
-/* 267 */
+/* 273 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
+	var utils = __webpack_require__(269);
 
 	module.exports = function normalizeHeaderName(headers, normalizedName) {
 	  utils.forEach(headers, function processHeader(value, name) {
@@ -36116,12 +35553,12 @@
 
 
 /***/ }),
-/* 268 */
+/* 274 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
+	var utils = __webpack_require__(269);
 
 	function InterceptorManager() {
 	  this.handlers = [];
@@ -36174,13 +35611,13 @@
 
 
 /***/ }),
-/* 269 */
+/* 275 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var utils = __webpack_require__(263);
-	var transformData = __webpack_require__(270);
+	var utils = __webpack_require__(269);
+	var transformData = __webpack_require__(276);
 
 	/**
 	 * Dispatch a request to the server using whichever adapter
@@ -36221,10 +35658,10 @@
 	    adapter = config.adapter;
 	  } else if (typeof XMLHttpRequest !== 'undefined') {
 	    // For browsers use XHR adapter
-	    adapter = __webpack_require__(271);
+	    adapter = __webpack_require__(277);
 	  } else if (typeof process !== 'undefined') {
 	    // For node use HTTP adapter
-	    adapter = __webpack_require__(271);
+	    adapter = __webpack_require__(277);
 	  }
 
 	  return Promise.resolve(config)
@@ -36256,12 +35693,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)))
 
 /***/ }),
-/* 270 */
+/* 276 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
+	var utils = __webpack_require__(269);
 
 	/**
 	 * Transform the data for a request or a response
@@ -36282,18 +35719,18 @@
 
 
 /***/ }),
-/* 271 */
+/* 277 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
-	var settle = __webpack_require__(272);
-	var buildURL = __webpack_require__(275);
-	var parseHeaders = __webpack_require__(276);
-	var isURLSameOrigin = __webpack_require__(277);
-	var createError = __webpack_require__(273);
-	var btoa = (typeof window !== 'undefined' && window.btoa) || __webpack_require__(278);
+	var utils = __webpack_require__(269);
+	var settle = __webpack_require__(278);
+	var buildURL = __webpack_require__(281);
+	var parseHeaders = __webpack_require__(282);
+	var isURLSameOrigin = __webpack_require__(283);
+	var createError = __webpack_require__(279);
+	var btoa = (typeof window !== 'undefined' && window.btoa) || __webpack_require__(284);
 
 	module.exports = function xhrAdapter(config) {
 	  return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -36387,7 +35824,7 @@
 	    // This is only done if running in a standard browser environment.
 	    // Specifically not if we're in a web worker, or react-native.
 	    if (utils.isStandardBrowserEnv()) {
-	      var cookies = __webpack_require__(279);
+	      var cookies = __webpack_require__(285);
 
 	      // Add xsrf header
 	      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -36450,12 +35887,12 @@
 
 
 /***/ }),
-/* 272 */
+/* 278 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createError = __webpack_require__(273);
+	var createError = __webpack_require__(279);
 
 	/**
 	 * Resolve or reject a Promise based on response status.
@@ -36481,12 +35918,12 @@
 
 
 /***/ }),
-/* 273 */
+/* 279 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var enhanceError = __webpack_require__(274);
+	var enhanceError = __webpack_require__(280);
 
 	/**
 	 * Create an Error with the specified message, config, error code, and response.
@@ -36504,7 +35941,7 @@
 
 
 /***/ }),
-/* 274 */
+/* 280 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36529,12 +35966,12 @@
 
 
 /***/ }),
-/* 275 */
+/* 281 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
+	var utils = __webpack_require__(269);
 
 	function encode(val) {
 	  return encodeURIComponent(val).
@@ -36603,12 +36040,12 @@
 
 
 /***/ }),
-/* 276 */
+/* 282 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
+	var utils = __webpack_require__(269);
 
 	/**
 	 * Parse headers into an object
@@ -36646,12 +36083,12 @@
 
 
 /***/ }),
-/* 277 */
+/* 283 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
+	var utils = __webpack_require__(269);
 
 	module.exports = (
 	  utils.isStandardBrowserEnv() ?
@@ -36720,7 +36157,7 @@
 
 
 /***/ }),
-/* 278 */
+/* 284 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36762,12 +36199,12 @@
 
 
 /***/ }),
-/* 279 */
+/* 285 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(263);
+	var utils = __webpack_require__(269);
 
 	module.exports = (
 	  utils.isStandardBrowserEnv() ?
@@ -36821,7 +36258,7 @@
 
 
 /***/ }),
-/* 280 */
+/* 286 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36841,7 +36278,7 @@
 
 
 /***/ }),
-/* 281 */
+/* 287 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36859,7 +36296,7 @@
 
 
 /***/ }),
-/* 282 */
+/* 288 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36890,6 +36327,97 @@
 	  };
 	};
 
+
+/***/ }),
+/* 289 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3;
+
+	var _mobx = __webpack_require__(246);
+
+	var _API = __webpack_require__(266);
+
+	var _API2 = _interopRequireDefault(_API);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _initDefineProp(target, property, descriptor, context) {
+	    if (!descriptor) return;
+	    Object.defineProperty(target, property, {
+	        enumerable: descriptor.enumerable,
+	        configurable: descriptor.configurable,
+	        writable: descriptor.writable,
+	        value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+	    });
+	}
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+	    var desc = {};
+	    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+	        desc[key] = descriptor[key];
+	    });
+	    desc.enumerable = !!desc.enumerable;
+	    desc.configurable = !!desc.configurable;
+
+	    if ('value' in desc || desc.initializer) {
+	        desc.writable = true;
+	    }
+
+	    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+	        return decorator(target, property, desc) || desc;
+	    }, desc);
+
+	    if (context && desc.initializer !== void 0) {
+	        desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+	        desc.initializer = undefined;
+	    }
+
+	    if (desc.initializer === void 0) {
+	        Object['define' + 'Property'](target, property, desc);
+	        desc = null;
+	    }
+
+	    return desc;
+	}
+
+	function _initializerWarningHelper(descriptor, context) {
+	    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+	}
+
+	var StateStore = (_class = function StateStore() {
+	    _classCallCheck(this, StateStore);
+
+	    _initDefineProp(this, "pageTitle", _descriptor, this);
+
+	    _initDefineProp(this, "pageDescription", _descriptor2, this);
+
+	    _initDefineProp(this, "headerIcon", _descriptor3, this);
+	}, (_descriptor = _applyDecoratedDescriptor(_class.prototype, "pageTitle", [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return "Dashboard";
+	    }
+	}), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, "pageDescription", [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return "System overview";
+	    }
+	}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, "headerIcon", [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return "icon-dashboard";
+	    }
+	})), _class);
+	exports.default = new StateStore();
 
 /***/ })
 /******/ ]);

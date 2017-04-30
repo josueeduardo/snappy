@@ -3,7 +3,7 @@ import {observer} from "mobx-react";
 
 
 @observer
-export default class Resources extends React.Component {
+export default class ResourcesPanel extends React.Component {
 
     methodLabel(method) {
         let color = 'label label-blue';
@@ -18,7 +18,24 @@ export default class Resources extends React.Component {
         }
 
         return (<span style={{textAlign: 'center'}} class={color}>{method}</span>)
+    }
 
+    errorPercent(metric) {
+        if(metric.totalRequests === 0) {
+            return "-";
+        }
+        let errorCount = 0;
+        for (var key in metric.responses) {
+            let status = parseInt(key);
+            var count = metric.responses[key];
+            if(status < 200 || status > 299) {
+                errorCount += count;
+            }
+        }
+        if(errorCount === 0) {
+            return 0;
+        }
+        return parseInt((errorCount / metric.totalRequests) * 100);
     }
 
     resourceInfo(resource) {
@@ -27,13 +44,18 @@ export default class Resources extends React.Component {
         const {metrics} = resource;
 
         let methodSpan = this.methodLabel(method);
+        let errorsPercent = this.errorPercent(resource.metrics);
+
+        let urlKey = method + url.replace(/\//g, '').replace(/{/g, '').replace(/}/g, '');
 
         return (
-            <tr key={url} class="status-pending">
+            <tr key={urlKey} class="status-pending">
                 <td class="icon"><i class="icon-exchange"></i></td>
                 <td class="icon">{methodSpan}</td>
                 <td><a href="#">{url}</a></td>
-                <td><b>{metrics.totalRequestTime}</b></td>
+                <td style={{width: '100px'}}><b>{metrics.totalRequests}</b></td>
+                <td style={{width: '150px'}}><b>{metrics.maxRequestTime}</b></td>
+                <td style={{width: '100px'}}><b>{errorsPercent}</b></td>
             </tr>
         )
     }
@@ -54,6 +76,8 @@ export default class Resources extends React.Component {
                             <td>Method</td>
                             <td>URL</td>
                             <td>Requests</td>
+                            <td>Max response time</td>
+                            <td>Errors %</td>
                         </tr>
                         </thead>
 

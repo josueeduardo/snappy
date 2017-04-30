@@ -18,6 +18,7 @@ export default class SideMenu extends React.Component {
                         <MenuItem label="Logs" target="/logs" icon="icon-file-alt" currentPath={this.props.currentPath}/>
                         <MenuItem label="Thread Pools" target="/thread-pools" icon="icon-cogs" currentPath={this.props.currentPath}/>
                         <MenuItem label="Discovery" target="/discovery" icon="icon-globe" currentPath={this.props.currentPath}/>
+                        <MenuItem label="App metrics" target="/app-metrics" icon=" icon-bar-chart" currentPath={this.props.currentPath}/>
                         <MenuItem label="Settings" target="/settings" icon="icon-wrench" currentPath={this.props.currentPath}/>
                     </ul>
                 </div>

@@ -12,10 +12,10 @@
         "totalRequestTime": 91,
         "maxRequestTime": 18,
         "minRequestTime": 0,
-        "totalRequests": 46,
+        "totalRequests": 50,
         "responses": {
-          "200": 30,
-          "500": 16
+          "200": 40,
+          "500": 10
         }
       }
     },
@@ -29,8 +29,8 @@
         "minRequestTime": 0,
         "totalRequests": 50,
         "responses": {
-          "200": 46,
-          "404": 4
+          "200": 45,
+          "404": 5
         }
       }
     }
