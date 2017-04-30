@@ -395,7 +395,7 @@ public class SnappyServer {
             Parsers.register(new JsonParser());
             Parsers.register(new PlainTextParser());
 
-            ClientManager.configureWorker(optionBuilder);
+            ClientManager.configureWorker();
             ClientManager.init();
 
             Undertow.Builder serverBuilder = Undertow.builder();

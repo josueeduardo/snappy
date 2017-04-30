@@ -52,12 +52,9 @@ public class ClientManager {
 
     }
 
-    public synchronized static void configureWorker(OptionMap.Builder builder) throws IOException {
-        if (builder == null) {
-            builder = DEFAULT;
-        }
-        builder.set(Options.WORKER_NAME, CLIENT_WORKER_NAME);
-        worker = Xnio.getInstance().createWorker(builder.getMap());
+    public synchronized static void configureWorker() throws IOException {
+        DEFAULT.set(Options.WORKER_NAME, CLIENT_WORKER_NAME);
+        worker = Xnio.getInstance().createWorker(DEFAULT.getMap());
     }
 
     public static void configureClientUrlLookup(UrlLookup lookup) {
