@@ -52,7 +52,7 @@ export default class ResourcesPanel extends React.Component {
             <tr key={urlKey} class="status-pending">
                 <td class="icon"><i class="icon-exchange"></i></td>
                 <td class="icon">{methodSpan}</td>
-                <td><a href="#">{url}</a></td>
+                <td><b>{url}</b></td>
                 <td style={{width: '100px'}}><b>{metrics.totalRequests}</b></td>
                 <td style={{width: '150px'}}><b>{metrics.maxRequestTime}</b></td>
                 <td style={{width: '100px'}}><b>{errorsPercent}</b></td>

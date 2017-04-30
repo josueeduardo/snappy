@@ -3,7 +3,7 @@ import {inject, observer} from "mobx-react";
 
 
 @observer
-export default class ThreadPool extends React.Component {
+export default class ThreadPoolPane extends React.Component {
 
     threadPoolInfo(threadPool) {
         const {poolName} = threadPool;
@@ -16,7 +16,7 @@ export default class ThreadPool extends React.Component {
         return (
             <tr key={poolName} class="status-pending">
                 <td class="icon"><i class="icon-cogs"></i></td>
-                <td><a href="#">{poolName}</a></td>
+                <td><b>{poolName}</b>b></td>
                 <td><b>{activeCount} / {poolSize}</b></td>
                 <td><span style={{textAlign: 'center'}} class={label}>{statusText}</span></td>
             </tr>
