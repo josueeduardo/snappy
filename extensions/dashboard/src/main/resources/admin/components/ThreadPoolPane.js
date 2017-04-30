@@ -16,7 +16,7 @@ export default class ThreadPoolPane extends React.Component {
         return (
             <tr key={poolName} class="status-pending">
                 <td class="icon"><i class="icon-cogs"></i></td>
-                <td><b>{poolName}</b>b></td>
+                <td><b>{poolName}</b></td>
                 <td><b>{activeCount} / {poolSize}</b></td>
                 <td><span style={{textAlign: 'center'}} class={label}>{statusText}</span></td>
             </tr>
