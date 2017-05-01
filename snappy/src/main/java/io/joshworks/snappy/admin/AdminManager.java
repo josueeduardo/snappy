@@ -30,6 +30,7 @@ import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
+import io.undertow.server.handlers.ResponseCodeHandler;
 import io.undertow.util.Methods;
 import io.undertow.util.StatusCodes;
 
@@ -43,16 +44,15 @@ public class AdminManager {
 
     private final List<MappedEndpoint> adminEndpoints = new ArrayList<>();
     private final RoutingHandler routingAdminHandler = new TrailingSlashRoutingHandler();
-    private final HttpHandler controlPanel;
+    private HttpHandler controlPanel = new ResponseCodeHandler(404);
 
     private static final String METRICS_ENDPOINT = "/metrics";
-    private static final String ADMIN_ROOT_FOLDER = "admin";
+
 
     //TODO add security interceptor etc
-    private final List<Interceptor> adminInterceptor = new ArrayList<>();
+    private final List<Interceptor> adminInterceptors = new ArrayList<>();
 
     public AdminManager() {
-        controlPanel = HandlerUtil.staticFiles(HandlerUtil.BASE_PATH, ADMIN_ROOT_FOLDER, adminInterceptor).handler;
     }
 
     public void registerMetrics(List<RestMetricsHandler> metricsHandlers) {
@@ -60,21 +60,20 @@ public class AdminManager {
         ExceptionMapper internalExceptionMapper = new ExceptionMapper();
 
         MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, METRICS_ENDPOINT, (exchange) -> exchange.send(
-                new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper, new ArrayList<>());
+                new MetricData(metricsHandlers), MediaType.APPLICATION_JSON_TYPE), internalExceptionMapper, adminInterceptors);
 
         MappedEndpoint clearMetrics = HandlerUtil.rest(Methods.DELETE, METRICS_ENDPOINT, (exchange) -> {
             metricsHandlers.forEach(RestMetricsHandler::reset);
             exchange.status(StatusCodes.NO_CONTENT);
         }, internalExceptionMapper, new ArrayList<>());
 
-        routingAdminHandler.add(getMetrics.method, getMetrics.url, getMetrics.handler);
-        routingAdminHandler.add(clearMetrics.method, clearMetrics.url, clearMetrics.handler);
-
         adminEndpoints.add(getMetrics);
         adminEndpoints.add(clearMetrics);
     }
 
     public HttpHandler resolveHandlers() {
+        adminEndpoints.forEach(me -> routingAdminHandler.add(me.method, me.url, me.handler));
+
         String[] mappedServices = HandlerUtil.removePathTemplate(adminEndpoints);
         Predicate mappedPredicate = Predicates.prefixes(mappedServices);
         return Handlers.predicate(mappedPredicate, routingAdminHandler, controlPanel);
@@ -82,5 +81,13 @@ public class AdminManager {
 
     public List<MappedEndpoint> getAdminEndpoints() {
         return adminEndpoints;
+    }
+
+    public void setAdminPage(MappedEndpoint mappedEndpoint) {
+        controlPanel = mappedEndpoint.handler;
+    }
+
+    public List<Interceptor> getAdminInterceptors() {
+        return adminInterceptors;
     }
 }

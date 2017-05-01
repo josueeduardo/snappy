@@ -17,6 +17,7 @@
 
 package io.joshworks.snappy.ext;
 
+import io.joshworks.snappy.admin.AdminManager;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Interceptor;
@@ -38,8 +39,8 @@ public class ServerData {
     public final List<Interceptor> interceptors;
     public final ExceptionMapper exceptionMapper;
     public final String basePath;
-    public final List<MappedEndpoint> adminEndpoints;
     public final List<MappedEndpoint> mappedEndpoints;
+    public final AdminManager adminManager;
     public Properties properties;
 
     public ServerData(int port,
@@ -52,7 +53,7 @@ public class ServerData {
                       ExceptionMapper exceptionMapper,
                       String basePath,
                       Properties properties,
-                      List<MappedEndpoint> adminEndpoints,
+                     AdminManager adminManager,
                       List<MappedEndpoint> mappedEndpoints) {
 
         this.port = port;
@@ -66,6 +67,6 @@ public class ServerData {
         this.basePath = basePath;
         this.properties = properties;
         this.mappedEndpoints = mappedEndpoints;
-        this.adminEndpoints = adminEndpoints;
+        this.adminManager = adminManager;
     }
 }

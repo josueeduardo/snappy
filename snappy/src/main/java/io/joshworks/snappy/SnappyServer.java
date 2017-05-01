@@ -66,6 +66,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.joshworks.snappy.handler.HandlerUtil.BASE_PATH;
+
 /**
  * Created by josh on 3/5/17.
  */
@@ -102,7 +104,7 @@ public class SnappyServer {
     private String adminBindAddress = "127.0.0.1";
     private List<Interceptor> interceptors = new LinkedList<>();
     private List<Interceptor> rootInterceptors = new LinkedList<>();
-    private String basePath = HandlerUtil.BASE_PATH;
+    private String basePath = BASE_PATH;
     private boolean started = false;
 
     private static final Object LOCK = new Object();
@@ -257,6 +259,7 @@ public class SnappyServer {
     public static synchronized void cors() {
         checkStarted();
         instance().rootInterceptors.add(Interceptors.cors());
+        instance().adminManager.getAdminInterceptors().add(Interceptors.cors());
     }
 
     public static synchronized void before(String url, RestConsumer<Exchange> consumer) {
@@ -410,7 +413,8 @@ public class SnappyServer {
             Info.httpConfig(bindAddress, port, adminBindAddress, adminPort, httpTracer, httpMetrics);
             Info.serverConfig(optionBuilder);
             Info.threadConfig(executors, schedulers);
-            Info.endpoints(endpoints, basePath);
+            Info.endpoints("ENDPOINTS", endpoints, basePath);
+            Info.endpoints("ADMIN ENDPOINTS", adminManager.getAdminEndpoints(), BASE_PATH);
 
 
             HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, adminManager, basePath, httpMetrics, httpTracer);
@@ -446,7 +450,7 @@ public class SnappyServer {
                         exceptionMapper,
                         basePath,
                         AppProperties.getProperties(),
-                        adminManager.getAdminEndpoints(),
+                        adminManager,
                         endpoints));
     }
 

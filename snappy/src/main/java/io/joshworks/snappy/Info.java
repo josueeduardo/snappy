@@ -98,13 +98,17 @@ public class Info {
         System.err.println();
     }
 
-    public static void endpoints(List<MappedEndpoint> endpoints, String basePath) {
-        System.err.println("----------------- ENDPOINTS -----------------");
+    public static void endpoints(String title, List<MappedEndpoint> endpoints, String basePath) {
+        System.err.println("----------------- " + title + " -----------------");
         logEndpoints(endpoints, basePath);
         System.err.println();
     }
 
     private static void logEndpoints(List<MappedEndpoint> endpoints, String basePath) {
+        if(endpoints.isEmpty()) {
+            System.err.println("NO ENDPOINTS FOUND");
+            return;
+        }
         endpoints.sort(Comparator.comparing(me -> me.url));
         endpoints.stream().sorted(Comparator.comparing(me -> me.url)).forEach(e -> System.err.println(e.toString(basePath)));
     }
