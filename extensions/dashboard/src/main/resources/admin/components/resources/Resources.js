@@ -46,7 +46,7 @@ export default class Resources extends React.Component {
         }, {});
 
         let data = [];
-        for(let key in vals) {
+        for (let key in vals) {
             let percentage = (vals[key] / totalRequest) * 100;
             data.push({name: key, y: percentage})
         }
@@ -67,9 +67,9 @@ export default class Resources extends React.Component {
 
             let responses = resource.metrics.responses;
             let numError = 0;
-            for(let key in responses) {
+            for (let key in responses) {
                 let code = parseInt(key);
-                if(code < 200 || code > 299) {
+                if (code < 200 || code > 299) {
                     numError += responses[key];
                 }
             }
@@ -155,7 +155,9 @@ export default class Resources extends React.Component {
                             <div class="box-header">
                                 <span class="title">Errors per endpoint</span>
                             </div>
-                            <Pie name={'statuses'} data={errorPercent}/>
+                            <div class="box-content">
+                                <Pie name={'statuses'} data={errorPercent}/>
+                            </div>
                         </div>
                     </div>
                 </div>

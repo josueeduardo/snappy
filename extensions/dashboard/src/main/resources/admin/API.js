@@ -1,20 +1,22 @@
 import axios from "axios";
 const ENVIRONMENT = {
     DEV: "http://localhost:3000",
+    INT: "http://localhost:9100",
     PROD: "",
 };
 
 const DEFAULT_ENV = "dev";
 class API {
     static instance;
+    static envKey;
 
     constructor() {
-        let envKey = process.env.NODE_ENV;
-        envKey = envKey ? envKey : DEFAULT_ENV;
+        API.envKey = process.env.NODE_ENV;
+        API.envKey = API.envKey ? API.envKey : DEFAULT_ENV;
 
-        envKey = envKey.trim().toUpperCase();
-        let url = ENVIRONMENT[envKey];
-        console.log("==== " + envKey + ":" + url + " ====");
+        API.envKey = API.envKey.trim().toUpperCase();
+        let url = ENVIRONMENT[API.envKey];
+        console.log("==== " + API.envKey + ":" + url + " ====");
 
         this.instance = axios.create({
             baseURL: url,
@@ -25,6 +27,10 @@ class API {
 
     axios() {
         return this.instance;
+    }
+
+    baseUrl() {
+        return ENVIRONMENT[API.envKey];
     }
 }
 

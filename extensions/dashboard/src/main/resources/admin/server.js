@@ -7,11 +7,6 @@ var url = require("url");
 var fs = require('fs');
 var path = require('path');
 
-var multer = require('multer'); //file upload
-var upload = multer({ dest: 'uploads/' });
-
-var fileUpload = require('express-fileupload');
-
 var app = express();
 app.use(bodyParser.json());
 app.use(cors());
@@ -29,6 +24,13 @@ app.get('/metrics', function (req, res) {
     res.json(_metrics)
 });
 
+app.get('/logs', function (req, res) {
+    console.log("-------------------");
+    res.writeHead(200, {'Content-Type': 'application/octet-stream'});
+    let _log = fs.readFileSync('./json/jmeter.log', 'utf8');
+    res.end(_log, 'blob');
+    // res.type('application/octet-stream').sendFile('./json/jmeter.log')
+});
 
 
 app.listen(3000);

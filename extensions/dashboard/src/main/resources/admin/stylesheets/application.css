@@ -15486,6 +15486,9 @@ a.editable-click.editable-disabled {
   td {
     text-align: center;
   }
+.padded-log {
+  margin-left: 30px;
+}
 
 /*
 

@@ -13,8 +13,9 @@ import AppMetrics from "./components/appMetrics/AppMetrics";
 //Stores
 import metricsStore from "./components/MetricsStore";
 import stateStore from "./components/StateStore";
+import logStore from "./components/logs/LogStore";
 
-const stores = {metricsStore, stateStore};
+const stores = {metricsStore, stateStore, logStore};
 
 ReactDOM.render(
     <Provider {...stores}>
