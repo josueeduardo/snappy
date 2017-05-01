@@ -16,6 +16,11 @@ export default class Logs extends React.Component {
         this.props.logStore.connect(document.getElementById("log"), tailf);
     }
 
+    componentWillUnmount() {
+        this.props.logStore.disconnect();
+        document.getElementById("log").innerHTML = '';
+    }
+
     switchTab(e, name) {
         e.preventDefault();
         const {logMode} = this.props.stateStore;

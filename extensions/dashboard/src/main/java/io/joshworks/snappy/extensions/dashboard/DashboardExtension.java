@@ -21,14 +21,10 @@ import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
 import io.joshworks.snappy.handler.HandlerUtil;
-import org.apache.commons.io.input.Tailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,32 +57,23 @@ public class DashboardExtension implements SnappyExtension {
     }
 
     private static final ExecutorService executor = Executors.newFixedThreadPool(3);
-    private final Set<Tailer> tailers = new HashSet<>();
+    private LogStreamer streamer;
 
     @Override
     public void onStart(ServerData config) {
-
         config.adminManager.setAdminPage(HandlerUtil.staticFiles(path, ADMIN_ROOT_FOLDER, new ArrayList<>()));
 
-        config.adminManager.getAdminEndpoints().add(HandlerUtil.sse(LOG_SSE, config.adminManager.getAdminInterceptors(), (connection, lastEventId) -> {
-
-            Deque<String> params = connection.getQueryParameters().get("tailf");
-            String tailf = params.isEmpty() ? Boolean.FALSE.toString() : params.getFirst();
-
-            String logLocation = config.properties.getProperty(LOG_LOCATION);
-            LogTailer listener = new LogTailer(false, logLocation);
-            Tailer tailer = Tailer.create(listener.file, listener, 1000, Boolean.parseBoolean(tailf));
-            connection.addCloseTask(channel -> {
-                tailer.stop();
-                tailers.remove(tailer);
-            });
-            executor.execute(tailer);
-        }));
+        String logLocation = config.properties.getProperty(LOG_LOCATION);
+        streamer = new LogStreamer(executor, logLocation);
+        config.adminManager.getAdminEndpoints()
+                .add(HandlerUtil.sse(LOG_SSE, config.adminManager.getAdminInterceptors(), streamer));
     }
 
     @Override
     public void onShutdown() {
-        tailers.forEach(Tailer::stop);
+        if (streamer != null) {
+            streamer.stopStreaming();
+        }
         executor.shutdownNow();
     }
 

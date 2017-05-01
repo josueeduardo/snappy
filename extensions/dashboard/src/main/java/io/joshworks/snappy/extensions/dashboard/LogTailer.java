@@ -13,16 +13,15 @@ import static io.joshworks.snappy.extensions.dashboard.DashboardExtension.LOG_LO
 public class LogTailer extends TailerListenerAdapter {
 
     private static final String LOG_EXTENSION = ".log";
+    private static final long MAX_FILE_SIZE = 10; //mb
 
-    private final boolean end;
     final File file;
 
-    public LogTailer(boolean end, String filePath) {
-        this.end = end;
-        this.file = getFile(filePath);
+    public LogTailer(String filePath, boolean tailf) {
+        this.file = getFile(filePath, tailf);
     }
 
-    private File getFile(String fileName) {
+    private File getFile(String fileName, boolean tailf) {
         if (fileName == null || fileName.isEmpty()) {
             throw new RuntimeException("Log location not configured, use '" + LOG_LOCATION + "'");
         }
@@ -32,6 +31,9 @@ public class LogTailer extends TailerListenerAdapter {
         }
         if (file.isDirectory() || !file.getName().endsWith(LOG_EXTENSION)) {
             throw new RuntimeException("Not a valid '" + LOG_EXTENSION + "' file, name: '" + fileName + "'");
+        }
+        if (!tailf && file.length() > (MAX_FILE_SIZE * 1048576)) {
+            throw new RuntimeException("File is too big, max allowed is " + MAX_FILE_SIZE + "mb");
         }
         return file;
     }

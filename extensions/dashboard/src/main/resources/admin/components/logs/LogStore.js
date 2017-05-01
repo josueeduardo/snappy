@@ -39,18 +39,22 @@ class LogStore {
         }
     }
 
+    disconnect() {
+        if (this.eventSource) {
+            this.eventSource.close();
+        }
+    }
+
     connect(element, tailf) {
-        if(tailf) {
-            element.innerHTML = '';
+        element.innerHTML = '';
+        if (tailf) {
             let span = document.createElement("span");
             span.id = "tailf-loading";
             span.innerHTML = "<br /><i class=\"icon-spinner icon-spin\"></i> Waiting for new logs...";
 
             element.appendChild(span);
         }
-        if (this.eventSource) {
-            this.eventSource.close();
-        }
+        this.disconnect();
 
         if (!!window.EventSource) {
             this.eventSource = new EventSource('http://localhost:9100/logs?tailf=' + tailf.toString());
@@ -73,7 +77,9 @@ class LogStore {
                 let fragment = document.createElement("div");
                 fragment.innerHTML = parsedLine;
                 element.appendChild(fragment);
-                element.appendChild(document.getElementById("tailf-loading"));
+                if (tailf) {
+                    element.appendChild(document.getElementById("tailf-loading"));
+                }
 
             };
 
