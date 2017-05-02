@@ -38,7 +38,7 @@ public class LogStreamer implements ServerSentEventConnectionCallback {
         try {
             boolean tailf = Boolean.parseBoolean(tailfParam);
             LogTailer listener = new LogTailer(logLocation, tailf);
-            Tailer tailer = new Tailer(listener.file, listener, 1000, tailf);
+            Tailer tailer = new Tailer(listener.file, listener, 500, tailf);
             connection.addCloseTask(channel -> {
                 tailer.stop();
                 tailers.remove(tailer);
