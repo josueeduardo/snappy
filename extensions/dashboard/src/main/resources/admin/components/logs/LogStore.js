@@ -67,6 +67,8 @@ class LogStore {
             this.eventSource.onmessage = (e) => {
                 this.reading = true;
 
+                console.log(e.data);
+
                 let parsedLine = "";
                 if (e.data.indexOf("\tat") !== -1) {
                     parsedLine += "<span class=\"padded-log\">" + e.data + "<br /></span>";

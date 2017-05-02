@@ -74,37 +74,46 @@
 
 	var _ThreadPool2 = _interopRequireDefault(_ThreadPool);
 
-	var _Logs = __webpack_require__(262);
+	var _Logs = __webpack_require__(263);
 
 	var _Logs2 = _interopRequireDefault(_Logs);
 
-	var _Discovery = __webpack_require__(263);
+	var _Discovery = __webpack_require__(264);
 
 	var _Discovery2 = _interopRequireDefault(_Discovery);
 
-	var _Settings = __webpack_require__(264);
+	var _Settings = __webpack_require__(265);
 
 	var _Settings2 = _interopRequireDefault(_Settings);
 
-	var _MetricsStore = __webpack_require__(265);
+	var _AppMetrics = __webpack_require__(266);
+
+	var _AppMetrics2 = _interopRequireDefault(_AppMetrics);
+
+	var _MetricsStore = __webpack_require__(268);
 
 	var _MetricsStore2 = _interopRequireDefault(_MetricsStore);
 
-	var _StateStore = __webpack_require__(289);
+	var _StateStore = __webpack_require__(292);
 
 	var _StateStore2 = _interopRequireDefault(_StateStore);
 
+	var _LogStore = __webpack_require__(293);
+
+	var _LogStore2 = _interopRequireDefault(_LogStore);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var stores = { metricsStore: _MetricsStore2.default, stateStore: _StateStore2.default, logStore: _LogStore2.default };
 	//Stores
-	var stores = { metricsStore: _MetricsStore2.default, stateStore: _StateStore2.default };
+
 
 	_reactDom2.default.render(_react2.default.createElement(
 	    _mobxReact.Provider,
 	    stores,
 	    _react2.default.createElement(
 	        _reactRouter.Router,
-	        { history: _reactRouter.browserHistory },
+	        { history: _reactRouter.hashHistory },
 	        _react2.default.createElement(
 	            _reactRouter.Route,
 	            { path: "/", component: _App2.default },
@@ -113,6 +122,7 @@
 	            _react2.default.createElement(_reactRouter.Route, { path: "/thread-pools", component: _ThreadPool2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: "/logs", component: _Logs2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: "/discovery", component: _Discovery2.default }),
+	            _react2.default.createElement(_reactRouter.Route, { path: "/app-metrics", component: _AppMetrics2.default }),
 	            _react2.default.createElement(_reactRouter.Route, { path: "/settings", component: _Settings2.default })
 	        )
 	    )
@@ -31475,206 +31485,6 @@
 	                        ),
 	                        _react2.default.createElement("i", { className: "icon-align-justify" })
 	                    )
-	                ),
-	                _react2.default.createElement(
-	                    "div",
-	                    { className: "collapse navbar-collapse navbar-collapse-top" },
-	                    _react2.default.createElement(
-	                        "div",
-	                        { className: "navbar-right" },
-	                        _react2.default.createElement(
-	                            "ul",
-	                            { className: "nav navbar-nav navbar-left" },
-	                            _react2.default.createElement(
-	                                "li",
-	                                { className: "cdrop active" },
-	                                _react2.default.createElement(
-	                                    "a",
-	                                    { href: "#" },
-	                                    "Link"
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                "li",
-	                                { className: "cdrop" },
-	                                _react2.default.createElement(
-	                                    "a",
-	                                    { href: "#" },
-	                                    "Link"
-	                                )
-	                            ),
-	                            _react2.default.createElement(
-	                                "li",
-	                                { className: "dropdown cdrop" },
-	                                _react2.default.createElement(
-	                                    "a",
-	                                    { href: "#", className: "dropdown-toggle", "data-toggle": "dropdown" },
-	                                    "Dropdown ",
-	                                    _react2.default.createElement("b", {
-	                                        className: "caret" })
-	                                ),
-	                                _react2.default.createElement(
-	                                    "ul",
-	                                    { className: "dropdown-menu" },
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        null,
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#" },
-	                                            "Action"
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        null,
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#" },
-	                                            "Another action"
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement("li", { className: "divider" }),
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        null,
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#" },
-	                                            "Separated link"
-	                                        )
-	                                    )
-	                                )
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "form",
-	                            { className: "navbar-form navbar-left", role: "search" },
-	                            _react2.default.createElement(
-	                                "div",
-	                                { className: "form-group" },
-	                                _react2.default.createElement("input", { type: "text", className: "search-query animated", placeholder: "Search" }),
-	                                _react2.default.createElement("i", { className: "icon-search" })
-	                            )
-	                        ),
-	                        _react2.default.createElement(
-	                            "ul",
-	                            { className: "nav navbar-nav navbar-left" },
-	                            _react2.default.createElement(
-	                                "li",
-	                                { className: "dropdown" },
-	                                _react2.default.createElement(
-	                                    "a",
-	                                    { href: "#", className: "dropdown-toggle dropdown-avatar", "data-toggle": "dropdown" },
-	                                    _react2.default.createElement(
-	                                        "span",
-	                                        null,
-	                                        _react2.default.createElement("img", { className: "menu-avatar",
-	                                            src: "../../images/avatars/avatar1.jpg" }),
-	                                        " ",
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            null,
-	                                            "John Smith ",
-	                                            _react2.default.createElement("i", {
-	                                                className: "icon-caret-down" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            { className: "badge badge-dark-red" },
-	                                            "5"
-	                                        )
-	                                    )
-	                                ),
-	                                _react2.default.createElement(
-	                                    "ul",
-	                                    { className: "dropdown-menu" },
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        { className: "with-image" },
-	                                        _react2.default.createElement(
-	                                            "div",
-	                                            { className: "avatar" },
-	                                            _react2.default.createElement("img", { src: "../../images/avatars/avatar1.jpg" })
-	                                        ),
-	                                        _react2.default.createElement(
-	                                            "span",
-	                                            null,
-	                                            "John Smith"
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement("li", { className: "divider" }),
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        null,
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#" },
-	                                            _react2.default.createElement("i", { className: "icon-user" }),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Profile"
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        null,
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#" },
-	                                            _react2.default.createElement("i", { className: "icon-cog" }),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Settings"
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        null,
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#" },
-	                                            _react2.default.createElement("i", { className: "icon-envelope" }),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Messages"
-	                                            ),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                {
-	                                                    className: "label label-dark-red pull-right" },
-	                                                "5"
-	                                            )
-	                                        )
-	                                    ),
-	                                    _react2.default.createElement(
-	                                        "li",
-	                                        null,
-	                                        _react2.default.createElement(
-	                                            "a",
-	                                            { href: "#" },
-	                                            _react2.default.createElement("i", { className: "icon-off" }),
-	                                            " ",
-	                                            _react2.default.createElement(
-	                                                "span",
-	                                                null,
-	                                                "Logout"
-	                                            )
-	                                        )
-	                                    )
-	                                )
-	                            )
-	                        )
-	                    )
 	                )
 	            );
 	        }
@@ -31747,7 +31557,7 @@
 	                        _react2.default.createElement(MenuItem, { label: "Logs", target: "/logs", icon: "icon-file-alt", currentPath: this.props.currentPath }),
 	                        _react2.default.createElement(MenuItem, { label: "Thread Pools", target: "/thread-pools", icon: "icon-cogs", currentPath: this.props.currentPath }),
 	                        _react2.default.createElement(MenuItem, { label: "Discovery", target: "/discovery", icon: "icon-globe", currentPath: this.props.currentPath }),
-	                        _react2.default.createElement(MenuItem, { label: "App metrics", target: "/app-metrics", icon: "icon-globe", currentPath: this.props.currentPath }),
+	                        _react2.default.createElement(MenuItem, { label: "App metrics", target: "/app-metrics", icon: " icon-bar-chart", currentPath: this.props.currentPath }),
 	                        _react2.default.createElement(MenuItem, { label: "Settings", target: "/settings", icon: "icon-wrench", currentPath: this.props.currentPath })
 	                    )
 	                )
@@ -33337,16 +33147,16 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var ThreadPool = (0, _mobxReact.observer)(_class = function (_React$Component) {
-	    _inherits(ThreadPool, _React$Component);
+	var ThreadPoolPane = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(ThreadPoolPane, _React$Component);
 
-	    function ThreadPool() {
-	        _classCallCheck(this, ThreadPool);
+	    function ThreadPoolPane() {
+	        _classCallCheck(this, ThreadPoolPane);
 
-	        return _possibleConstructorReturn(this, (ThreadPool.__proto__ || Object.getPrototypeOf(ThreadPool)).apply(this, arguments));
+	        return _possibleConstructorReturn(this, (ThreadPoolPane.__proto__ || Object.getPrototypeOf(ThreadPoolPane)).apply(this, arguments));
 	    }
 
-	    _createClass(ThreadPool, [{
+	    _createClass(ThreadPoolPane, [{
 	        key: "threadPoolInfo",
 	        value: function threadPoolInfo(threadPool) {
 	            var poolName = threadPool.poolName;
@@ -33369,8 +33179,8 @@
 	                    "td",
 	                    null,
 	                    _react2.default.createElement(
-	                        "a",
-	                        { href: "#" },
+	                        "b",
+	                        null,
 	                        poolName
 	                    )
 	                ),
@@ -33466,10 +33276,10 @@
 	        }
 	    }]);
 
-	    return ThreadPool;
+	    return ThreadPoolPane;
 	}(_react2.default.Component)) || _class;
 
-	exports.default = ThreadPool;
+	exports.default = ThreadPoolPane;
 
 /***/ }),
 /* 255 */
@@ -33578,8 +33388,8 @@
 	                    "td",
 	                    null,
 	                    _react2.default.createElement(
-	                        "a",
-	                        { href: "#" },
+	                        "b",
+	                        null,
 	                        url
 	                    )
 	                ),
@@ -33928,7 +33738,11 @@
 	                                    "Errors per endpoint"
 	                                )
 	                            ),
-	                            _react2.default.createElement(_Pie2.default, { name: 'statuses', data: errorPercent })
+	                            _react2.default.createElement(
+	                                "div",
+	                                { className: "box-content" },
+	                                _react2.default.createElement(_Pie2.default, { name: 'statuses', data: errorPercent })
+	                            )
 	                        )
 	                    )
 	                )
@@ -34019,9 +33833,6 @@
 	    }
 
 	    _createClass(Pie, [{
-	        key: "componentWillReceiveProps",
-	        value: function componentWillReceiveProps(nextProps) {}
-	    }, {
 	        key: "render",
 	        value: function render() {
 	            var name = this.props.name;
@@ -34548,8 +34359,7 @@
 	    }, {
 	        key: "componentWillReceiveProps",
 	        value: function componentWillReceiveProps(nextProps) {
-	            //TODO
-
+	            if (this.props !== nextProps) this.chart.series = nextProps;
 	        }
 	    }, {
 	        key: "componentWillUnmount",
@@ -34593,6 +34403,10 @@
 
 	var _mobxReact = __webpack_require__(245);
 
+	var _ThreadPoolDetails = __webpack_require__(262);
+
+	var _ThreadPoolDetails2 = _interopRequireDefault(_ThreadPoolDetails);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -34620,7 +34434,22 @@
 	    }, {
 	        key: "render",
 	        value: function render() {
-	            return _react2.default.createElement("div", null);
+	            var threadPools = this.props.metricsStore.metrics.threadPools;
+
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "row" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-8" },
+	                        _react2.default.createElement(_ThreadPoolDetails2.default, { threadPools: threadPools })
+	                    ),
+	                    _react2.default.createElement("div", { className: "col-md-4" })
+	                )
+	            );
 	        }
 	    }]);
 
@@ -34630,6 +34459,271 @@
 
 /***/ }),
 /* 262 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var ThreadPoolDetails = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(ThreadPoolDetails, _React$Component);
+
+	    function ThreadPoolDetails() {
+	        _classCallCheck(this, ThreadPoolDetails);
+
+	        return _possibleConstructorReturn(this, (ThreadPoolDetails.__proto__ || Object.getPrototypeOf(ThreadPoolDetails)).apply(this, arguments));
+	    }
+
+	    _createClass(ThreadPoolDetails, [{
+	        key: "threadPoolInfo",
+	        value: function threadPoolInfo(threadPool) {
+	            var poolName = threadPool.poolName;
+	            var poolSize = threadPool.poolSize;
+	            var corePoolSize = threadPool.corePoolSize;
+	            var maximumPoolSize = threadPool.maximumPoolSize;
+	            var activeCount = threadPool.activeCount;
+	            var shutdown = threadPool.shutdown;
+	            var completedTaskCount = threadPool.completedTaskCount;
+	            var largestPoolSize = threadPool.largestPoolSize;
+	            var queueCapacity = threadPool.queueCapacity;
+	            var queuedTasks = threadPool.queuedTasks;
+
+
+	            var label = shutdown ? 'label label-red' : 'label label-green';
+	            var statusText = shutdown ? 'Shutdown' : 'Active';
+
+	            var usagePercent = activeCount === 0 ? 0 : parseInt(activeCount / poolSize * 100);
+	            var poolSizePercent = poolSize === 0 ? 0 : parseInt(poolSize / maximumPoolSize * 100);
+	            var queuedTasksPercent = queuedTasks === 0 ? 0 : parseInt(queuedTasks / queueCapacity * 100);
+
+	            return _react2.default.createElement(
+	                "tr",
+	                { key: poolName, className: "status-pending" },
+	                _react2.default.createElement(
+	                    "td",
+	                    { className: "icon" },
+	                    _react2.default.createElement("i", { className: "icon-cogs" })
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "b",
+	                        null,
+	                        poolName
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "progress progress-striped active", style: { marginBottom: 0 } },
+	                        _react2.default.createElement("div", { className: "progress-bar progress-blue tip", title: "", style: { width: poolSizePercent + '%' } })
+	                    ),
+	                    _react2.default.createElement(
+	                        "span",
+	                        { style: { textAlign: 'center' } },
+	                        _react2.default.createElement(
+	                            "b",
+	                            null,
+	                            poolSize,
+	                            " / ",
+	                            maximumPoolSize
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "progress progress-striped active", style: { marginBottom: 0 } },
+	                        _react2.default.createElement("div", { className: "progress-bar progress-blue tip", title: "", style: { width: usagePercent + '%' } })
+	                    ),
+	                    _react2.default.createElement(
+	                        "span",
+	                        { style: { textAlign: 'center' } },
+	                        _react2.default.createElement(
+	                            "b",
+	                            null,
+	                            activeCount,
+	                            " / ",
+	                            poolSize
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "progress progress-striped active", style: { marginBottom: 0 } },
+	                        _react2.default.createElement("div", { className: "progress-bar progress-blue tip", title: "", style: { width: queuedTasksPercent + '%' } })
+	                    ),
+	                    _react2.default.createElement(
+	                        "span",
+	                        { style: { textAlign: 'center' } },
+	                        _react2.default.createElement(
+	                            "b",
+	                            null,
+	                            queuedTasks,
+	                            " / ",
+	                            queueCapacity
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "b",
+	                        null,
+	                        completedTaskCount
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "b",
+	                        null,
+	                        largestPoolSize
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "td",
+	                    null,
+	                    _react2.default.createElement(
+	                        "span",
+	                        { style: { textAlign: 'center' }, className: label },
+	                        _react2.default.createElement(
+	                            "b",
+	                            null,
+	                            statusText
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var _this2 = this;
+
+	            var element = _react2.default.createElement(
+	                "h3",
+	                null,
+	                "No thread pool available"
+	            );
+	            if (this.props.threadPools && this.props.threadPools.length > 0) {
+	                var threadPools = this.props.threadPools.map(function (tp) {
+	                    return _this2.threadPoolInfo(tp);
+	                });
+	                element = _react2.default.createElement(
+	                    "div",
+	                    { className: "box-content" },
+	                    _react2.default.createElement(
+	                        "table",
+	                        { className: "table table-normal" },
+	                        _react2.default.createElement(
+	                            "thead",
+	                            null,
+	                            _react2.default.createElement(
+	                                "tr",
+	                                null,
+	                                _react2.default.createElement("td", null),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Name"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Pool size"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Active taks"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Queued tasks"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Completed tasks"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Largest pool size"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Status"
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            "tbody",
+	                            null,
+	                            threadPools
+	                        )
+	                    )
+	                );
+	            }
+
+	            return _react2.default.createElement(
+	                "div",
+	                { className: "box" },
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "box-header" },
+	                    _react2.default.createElement(
+	                        "span",
+	                        { className: "title" },
+	                        "Thread pools"
+	                    )
+	                ),
+	                element
+	            );
+	        }
+	    }]);
+
+	    return ThreadPoolDetails;
+	}(_react2.default.Component)) || _class;
+
+	exports.default = ThreadPoolDetails;
+
+/***/ }),
+/* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34657,7 +34751,7 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var Logs = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	var Logs = (_dec = (0, _mobxReact.inject)("logStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
 	    _inherits(Logs, _React$Component);
 
 	    function Logs() {
@@ -34674,9 +34768,107 @@
 	            this.props.stateStore.headerIcon = "icon-file-alt";
 	        }
 	    }, {
+	        key: "componentDidMount",
+	        value: function componentDidMount() {
+	            var tailf = this.props.stateStore.logMode === 'tailf';
+	            this.props.logStore.connect(document.getElementById("log"), tailf);
+	        }
+	    }, {
+	        key: "componentWillUnmount",
+	        value: function componentWillUnmount() {
+	            this.props.logStore.disconnect();
+	            document.getElementById("log").innerHTML = '';
+	        }
+	    }, {
+	        key: "switchTab",
+	        value: function switchTab(e, name) {
+	            e.preventDefault();
+	            var logMode = this.props.stateStore.logMode;
+
+	            if (logMode !== name) {
+	                this.props.stateStore.logMode = name;
+	                var tailf = name === 'tailf';
+	                this.props.logStore.connect(document.getElementById("log"), tailf);
+	            }
+	        }
+	    }, {
+	        key: "getPanelHeader",
+	        value: function getPanelHeader() {
+	            var _this2 = this;
+
+	            var logMode = this.props.stateStore.logMode;
+
+	            return _react2.default.createElement(
+	                "ul",
+	                { className: "nav nav-tabs nav-tabs-right" },
+	                _react2.default.createElement(
+	                    "li",
+	                    { className: logMode === 'tailf' ? 'active' : '' },
+	                    _react2.default.createElement(
+	                        "a",
+	                        { href: "#", "data-toggle": "tab", onClick: function onClick(e) {
+	                                return _this2.switchTab(e, 'tailf');
+	                            } },
+	                        _react2.default.createElement("i", { className: "icon-refresh" }),
+	                        _react2.default.createElement(
+	                            "span",
+	                            null,
+	                            "Tailf"
+	                        )
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "li",
+	                    { className: logMode === 'full' ? 'active' : '' },
+	                    _react2.default.createElement(
+	                        "a",
+	                        { href: "#", "data-toggle": "tab", onClick: function onClick(e) {
+	                                return _this2.switchTab(e, 'full');
+	                            } },
+	                        _react2.default.createElement("i", { className: "icon-file-alt" }),
+	                        _react2.default.createElement(
+	                            "span",
+	                            null,
+	                            "Full log"
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }, {
 	        key: "render",
 	        value: function render() {
-	            return _react2.default.createElement("div", null);
+	            // const parsed = this.props.logStore.logLines.map((line, i) => {
+	            //     return (<span key={i}>{line}<br/></span>);
+	            // });
+	            var panelTab = this.getPanelHeader();
+	            return _react2.default.createElement(
+	                "div",
+	                { className: "row" },
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "col-md-12" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "box" },
+	                        _react2.default.createElement(
+	                            "div",
+	                            { className: "box-header" },
+	                            _react2.default.createElement(
+	                                "span",
+	                                { className: "title" },
+	                                "Log"
+	                            ),
+	                            panelTab
+	                        ),
+	                        _react2.default.createElement(
+	                            "div",
+	                            { className: "box-content" },
+	                            _react2.default.createElement("div", { id: "log", style: { marginLeft: '20px', minHeight: '500px' } })
+	                        )
+	                    )
+	                )
+	            );
 	        }
 	    }]);
 
@@ -34685,7 +34877,7 @@
 	exports.default = Logs;
 
 /***/ }),
-/* 263 */
+/* 264 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34726,7 +34918,7 @@
 	        key: "componentWillMount",
 	        value: function componentWillMount() {
 	            this.props.stateStore.pageTitle = "Discovery";
-	            this.props.stateStore.pageDescription = "Manage services interaction";
+	            this.props.stateStore.pageDescription = "Manage service discovery";
 	            this.props.stateStore.headerIcon = "icon-globe";
 	        }
 	    }, {
@@ -34741,7 +34933,7 @@
 	exports.default = Discovery;
 
 /***/ }),
-/* 264 */
+/* 265 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34797,7 +34989,212 @@
 	exports.default = Settings;
 
 /***/ }),
-/* 265 */
+/* 266 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _dec, _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	var _AppMetricsTable = __webpack_require__(267);
+
+	var _AppMetricsTable2 = _interopRequireDefault(_AppMetricsTable);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var AppMetrics = (_dec = (0, _mobxReact.inject)("metricsStore", "stateStore"), _dec(_class = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(AppMetrics, _React$Component);
+
+	    function AppMetrics() {
+	        _classCallCheck(this, AppMetrics);
+
+	        return _possibleConstructorReturn(this, (AppMetrics.__proto__ || Object.getPrototypeOf(AppMetrics)).apply(this, arguments));
+	    }
+
+	    _createClass(AppMetrics, [{
+	        key: "componentWillMount",
+	        value: function componentWillMount() {
+	            this.props.stateStore.pageTitle = "Application metrics";
+	            this.props.stateStore.pageDescription = "Manage metrics defined in your application";
+	            this.props.stateStore.headerIcon = "icon-bar-chart";
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            var metrics = this.props.metricsStore.metrics;
+
+	            return _react2.default.createElement(
+	                "div",
+	                null,
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "row" },
+	                    _react2.default.createElement(
+	                        "div",
+	                        { className: "col-md-6" },
+	                        _react2.default.createElement(_AppMetricsTable2.default, { appMetrics: metrics.appMetrics })
+	                    ),
+	                    _react2.default.createElement("div", { className: "col-md-6" })
+	                )
+	            );
+	        }
+	    }]);
+
+	    return AppMetrics;
+	}(_react2.default.Component)) || _class) || _class);
+	exports.default = AppMetrics;
+
+/***/ }),
+/* 267 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.default = undefined;
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _class;
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _mobxReact = __webpack_require__(245);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var AppMetricsTable = (0, _mobxReact.observer)(_class = function (_React$Component) {
+	    _inherits(AppMetricsTable, _React$Component);
+
+	    function AppMetricsTable() {
+	        _classCallCheck(this, AppMetricsTable);
+
+	        return _possibleConstructorReturn(this, (AppMetricsTable.__proto__ || Object.getPrototypeOf(AppMetricsTable)).apply(this, arguments));
+	    }
+
+	    _createClass(AppMetricsTable, [{
+	        key: "render",
+	        value: function render() {
+
+	            var metricElements = [];
+	            if (this.props.appMetrics) {
+	                for (var metricKey in this.props.appMetrics) {
+	                    metricElements.push(_react2.default.createElement(
+	                        "tr",
+	                        { key: metricKey, className: "status-pending" },
+	                        _react2.default.createElement(
+	                            "td",
+	                            null,
+	                            _react2.default.createElement(
+	                                "b",
+	                                null,
+	                                metricKey
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            "td",
+	                            null,
+	                            _react2.default.createElement(
+	                                "b",
+	                                null,
+	                                new String(this.props.appMetrics[metricKey])
+	                            )
+	                        )
+	                    ));
+	                }
+	            }
+
+	            if (metricElements.length === 0) {
+	                return _react2.default.createElement(
+	                    "h3",
+	                    null,
+	                    "No data available"
+	                );
+	            }
+
+	            return _react2.default.createElement(
+	                "div",
+	                { className: "box" },
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "box-header" },
+	                    _react2.default.createElement(
+	                        "span",
+	                        { className: "title" },
+	                        "App metrics"
+	                    )
+	                ),
+	                _react2.default.createElement(
+	                    "div",
+	                    { className: "box-content" },
+	                    _react2.default.createElement(
+	                        "table",
+	                        { className: "table table-normal" },
+	                        _react2.default.createElement(
+	                            "thead",
+	                            null,
+	                            _react2.default.createElement(
+	                                "tr",
+	                                null,
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Name"
+	                                ),
+	                                _react2.default.createElement(
+	                                    "td",
+	                                    null,
+	                                    "Value"
+	                                )
+	                            )
+	                        ),
+	                        _react2.default.createElement(
+	                            "tbody",
+	                            null,
+	                            metricElements
+	                        )
+	                    )
+	                )
+	            );
+	        }
+	    }]);
+
+	    return AppMetricsTable;
+	}(_react2.default.Component)) || _class;
+
+	exports.default = AppMetricsTable;
+
+/***/ }),
+/* 268 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34812,7 +35209,7 @@
 
 	var _mobx = __webpack_require__(246);
 
-	var _API = __webpack_require__(266);
+	var _API = __webpack_require__(269);
 
 	var _API2 = _interopRequireDefault(_API);
 
@@ -34931,7 +35328,7 @@
 	exports.default = new MetricsStore();
 
 /***/ }),
-/* 266 */
+/* 269 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -34942,7 +35339,7 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-	var _axios = __webpack_require__(267);
+	var _axios = __webpack_require__(270);
 
 	var _axios2 = _interopRequireDefault(_axios);
 
@@ -34952,6 +35349,7 @@
 
 	var ENVIRONMENT = {
 	    DEV: "http://localhost:3000",
+	    INT: "http://localhost:9100",
 	    PROD: ""
 	};
 
@@ -34961,12 +35359,12 @@
 	    function API() {
 	        _classCallCheck(this, API);
 
-	        var envKey = ("development");
-	        envKey = envKey ? envKey : DEFAULT_ENV;
+	        API.envKey = ("development");
+	        API.envKey = API.envKey ? API.envKey : DEFAULT_ENV;
 
-	        envKey = envKey.trim().toUpperCase();
-	        var url = ENVIRONMENT[envKey];
-	        console.log("==== " + envKey + ":" + url + " ====");
+	        API.envKey = API.envKey.trim().toUpperCase();
+	        var url = ENVIRONMENT[API.envKey];
+	        console.log("==== " + API.envKey + ":" + url + " ====");
 
 	        this.instance = _axios2.default.create({
 	            baseURL: url
@@ -34978,6 +35376,11 @@
 	        value: function axios() {
 	            return this.instance;
 	        }
+	    }, {
+	        key: "baseUrl",
+	        value: function baseUrl() {
+	            return ENVIRONMENT[API.envKey];
+	        }
 	    }]);
 
 	    return API;
@@ -34986,20 +35389,20 @@
 	exports.default = new API().axios();
 
 /***/ }),
-/* 267 */
+/* 270 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(268);
+	module.exports = __webpack_require__(271);
 
 /***/ }),
-/* 268 */
+/* 271 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
-	var bind = __webpack_require__(270);
-	var Axios = __webpack_require__(271);
+	var utils = __webpack_require__(272);
+	var bind = __webpack_require__(273);
+	var Axios = __webpack_require__(274);
 
 	/**
 	 * Create an instance of Axios
@@ -35035,7 +35438,7 @@
 	axios.all = function all(promises) {
 	  return Promise.all(promises);
 	};
-	axios.spread = __webpack_require__(288);
+	axios.spread = __webpack_require__(291);
 
 	module.exports = axios;
 
@@ -35044,12 +35447,12 @@
 
 
 /***/ }),
-/* 269 */
+/* 272 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var bind = __webpack_require__(270);
+	var bind = __webpack_require__(273);
 
 	/*global toString:true*/
 
@@ -35349,7 +35752,7 @@
 
 
 /***/ }),
-/* 270 */
+/* 273 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -35366,17 +35769,17 @@
 
 
 /***/ }),
-/* 271 */
+/* 274 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var defaults = __webpack_require__(272);
-	var utils = __webpack_require__(269);
-	var InterceptorManager = __webpack_require__(274);
-	var dispatchRequest = __webpack_require__(275);
-	var isAbsoluteURL = __webpack_require__(286);
-	var combineURLs = __webpack_require__(287);
+	var defaults = __webpack_require__(275);
+	var utils = __webpack_require__(272);
+	var InterceptorManager = __webpack_require__(277);
+	var dispatchRequest = __webpack_require__(278);
+	var isAbsoluteURL = __webpack_require__(289);
+	var combineURLs = __webpack_require__(290);
 
 	/**
 	 * Create a new instance of Axios
@@ -35457,13 +35860,13 @@
 
 
 /***/ }),
-/* 272 */
+/* 275 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
-	var normalizeHeaderName = __webpack_require__(273);
+	var utils = __webpack_require__(272);
+	var normalizeHeaderName = __webpack_require__(276);
 
 	var PROTECTION_PREFIX = /^\)\]\}',?\n/;
 	var DEFAULT_CONTENT_TYPE = {
@@ -35535,12 +35938,12 @@
 
 
 /***/ }),
-/* 273 */
+/* 276 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
+	var utils = __webpack_require__(272);
 
 	module.exports = function normalizeHeaderName(headers, normalizedName) {
 	  utils.forEach(headers, function processHeader(value, name) {
@@ -35553,12 +35956,12 @@
 
 
 /***/ }),
-/* 274 */
+/* 277 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
+	var utils = __webpack_require__(272);
 
 	function InterceptorManager() {
 	  this.handlers = [];
@@ -35611,13 +36014,13 @@
 
 
 /***/ }),
-/* 275 */
+/* 278 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
-	var utils = __webpack_require__(269);
-	var transformData = __webpack_require__(276);
+	var utils = __webpack_require__(272);
+	var transformData = __webpack_require__(279);
 
 	/**
 	 * Dispatch a request to the server using whichever adapter
@@ -35658,10 +36061,10 @@
 	    adapter = config.adapter;
 	  } else if (typeof XMLHttpRequest !== 'undefined') {
 	    // For browsers use XHR adapter
-	    adapter = __webpack_require__(277);
+	    adapter = __webpack_require__(280);
 	  } else if (typeof process !== 'undefined') {
 	    // For node use HTTP adapter
-	    adapter = __webpack_require__(277);
+	    adapter = __webpack_require__(280);
 	  }
 
 	  return Promise.resolve(config)
@@ -35693,12 +36096,12 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(27)))
 
 /***/ }),
-/* 276 */
+/* 279 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
+	var utils = __webpack_require__(272);
 
 	/**
 	 * Transform the data for a request or a response
@@ -35719,18 +36122,18 @@
 
 
 /***/ }),
-/* 277 */
+/* 280 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
-	var settle = __webpack_require__(278);
-	var buildURL = __webpack_require__(281);
-	var parseHeaders = __webpack_require__(282);
-	var isURLSameOrigin = __webpack_require__(283);
-	var createError = __webpack_require__(279);
-	var btoa = (typeof window !== 'undefined' && window.btoa) || __webpack_require__(284);
+	var utils = __webpack_require__(272);
+	var settle = __webpack_require__(281);
+	var buildURL = __webpack_require__(284);
+	var parseHeaders = __webpack_require__(285);
+	var isURLSameOrigin = __webpack_require__(286);
+	var createError = __webpack_require__(282);
+	var btoa = (typeof window !== 'undefined' && window.btoa) || __webpack_require__(287);
 
 	module.exports = function xhrAdapter(config) {
 	  return new Promise(function dispatchXhrRequest(resolve, reject) {
@@ -35824,7 +36227,7 @@
 	    // This is only done if running in a standard browser environment.
 	    // Specifically not if we're in a web worker, or react-native.
 	    if (utils.isStandardBrowserEnv()) {
-	      var cookies = __webpack_require__(285);
+	      var cookies = __webpack_require__(288);
 
 	      // Add xsrf header
 	      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
@@ -35887,12 +36290,12 @@
 
 
 /***/ }),
-/* 278 */
+/* 281 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var createError = __webpack_require__(279);
+	var createError = __webpack_require__(282);
 
 	/**
 	 * Resolve or reject a Promise based on response status.
@@ -35918,12 +36321,12 @@
 
 
 /***/ }),
-/* 279 */
+/* 282 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var enhanceError = __webpack_require__(280);
+	var enhanceError = __webpack_require__(283);
 
 	/**
 	 * Create an Error with the specified message, config, error code, and response.
@@ -35941,7 +36344,7 @@
 
 
 /***/ }),
-/* 280 */
+/* 283 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -35966,12 +36369,12 @@
 
 
 /***/ }),
-/* 281 */
+/* 284 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
+	var utils = __webpack_require__(272);
 
 	function encode(val) {
 	  return encodeURIComponent(val).
@@ -36040,12 +36443,12 @@
 
 
 /***/ }),
-/* 282 */
+/* 285 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
+	var utils = __webpack_require__(272);
 
 	/**
 	 * Parse headers into an object
@@ -36083,12 +36486,12 @@
 
 
 /***/ }),
-/* 283 */
+/* 286 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
+	var utils = __webpack_require__(272);
 
 	module.exports = (
 	  utils.isStandardBrowserEnv() ?
@@ -36157,7 +36560,7 @@
 
 
 /***/ }),
-/* 284 */
+/* 287 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36199,12 +36602,12 @@
 
 
 /***/ }),
-/* 285 */
+/* 288 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var utils = __webpack_require__(269);
+	var utils = __webpack_require__(272);
 
 	module.exports = (
 	  utils.isStandardBrowserEnv() ?
@@ -36258,7 +36661,7 @@
 
 
 /***/ }),
-/* 286 */
+/* 289 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36278,7 +36681,7 @@
 
 
 /***/ }),
-/* 287 */
+/* 290 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36296,7 +36699,7 @@
 
 
 /***/ }),
-/* 288 */
+/* 291 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -36329,7 +36732,7 @@
 
 
 /***/ }),
-/* 289 */
+/* 292 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -36338,11 +36741,11 @@
 	    value: true
 	});
 
-	var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3;
+	var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4;
 
 	var _mobx = __webpack_require__(246);
 
-	var _API = __webpack_require__(266);
+	var _API = __webpack_require__(269);
 
 	var _API2 = _interopRequireDefault(_API);
 
@@ -36393,7 +36796,10 @@
 	    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
 	}
 
-	var StateStore = (_class = function StateStore() {
+	var StateStore = (_class = //full / tailf
+
+
+	function StateStore() {
 	    _classCallCheck(this, StateStore);
 
 	    _initDefineProp(this, "pageTitle", _descriptor, this);
@@ -36401,6 +36807,8 @@
 	    _initDefineProp(this, "pageDescription", _descriptor2, this);
 
 	    _initDefineProp(this, "headerIcon", _descriptor3, this);
+
+	    _initDefineProp(this, "logMode", _descriptor4, this);
 	}, (_descriptor = _applyDecoratedDescriptor(_class.prototype, "pageTitle", [_mobx.observable], {
 	    enumerable: true,
 	    initializer: function initializer() {
@@ -36416,8 +36824,214 @@
 	    initializer: function initializer() {
 	        return "icon-dashboard";
 	    }
+	}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, "logMode", [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return "tailf";
+	    }
 	})), _class);
 	exports.default = new StateStore();
+
+/***/ }),
+/* 293 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _desc, _value, _class, _descriptor, _descriptor2, _descriptor3, _descriptor4, _desc2, _value2, _class3, _descriptor5, _descriptor6;
+
+	var _mobx = __webpack_require__(246);
+
+	function _initDefineProp(target, property, descriptor, context) {
+	    if (!descriptor) return;
+	    Object.defineProperty(target, property, {
+	        enumerable: descriptor.enumerable,
+	        configurable: descriptor.configurable,
+	        writable: descriptor.writable,
+	        value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+	    });
+	}
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+	    var desc = {};
+	    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+	        desc[key] = descriptor[key];
+	    });
+	    desc.enumerable = !!desc.enumerable;
+	    desc.configurable = !!desc.configurable;
+
+	    if ('value' in desc || desc.initializer) {
+	        desc.writable = true;
+	    }
+
+	    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+	        return decorator(target, property, desc) || desc;
+	    }, desc);
+
+	    if (context && desc.initializer !== void 0) {
+	        desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+	        desc.initializer = undefined;
+	    }
+
+	    if (desc.initializer === void 0) {
+	        Object['define' + 'Property'](target, property, desc);
+	        desc = null;
+	    }
+
+	    return desc;
+	}
+
+	function _initializerWarningHelper(descriptor, context) {
+	    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+	}
+
+	var Metrics = (_class = function Metrics() {
+	    _classCallCheck(this, Metrics);
+
+	    _initDefineProp(this, 'maxMemory', _descriptor, this);
+
+	    _initDefineProp(this, 'totalMemory', _descriptor2, this);
+
+	    _initDefineProp(this, 'freeMemory', _descriptor3, this);
+
+	    _initDefineProp(this, 'usedMemory', _descriptor4, this);
+	}, (_descriptor = _applyDecoratedDescriptor(_class.prototype, 'maxMemory', [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return 0;
+	    }
+	}), _descriptor2 = _applyDecoratedDescriptor(_class.prototype, 'totalMemory', [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return 0;
+	    }
+	}), _descriptor3 = _applyDecoratedDescriptor(_class.prototype, 'freeMemory', [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return 0;
+	    }
+	}), _descriptor4 = _applyDecoratedDescriptor(_class.prototype, 'usedMemory', [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return 0;
+	    }
+	})), _class);
+	var LogStore = (_class3 = function () {
+	    function LogStore() {
+	        _classCallCheck(this, LogStore);
+
+	        _initDefineProp(this, 'logLines', _descriptor5, this);
+
+	        _initDefineProp(this, 'reading', _descriptor6, this);
+
+	        this.eventSource = null;
+	    }
+
+	    _createClass(LogStore, [{
+	        key: 'fetchLogs',
+	        value: function fetchLogs(element) {
+	            var xhr = new XMLHttpRequest();
+	            xhr.open('GET', 'http://localhost:3000/logs', true);
+	            xhr.responseType = 'blob';
+
+	            xhr.onload = function (e) {
+	                // response is unsigned 8 bit integer
+	                var responseArray = new Uint8Array(this.response);
+	                var logString = String.fromCharCode.apply(null, new Uint16Array(responseArray));
+	                console.log(logString);
+	                element.innerHTML += logString;
+	            };
+
+	            xhr.send();
+	        }
+	    }, {
+	        key: 'appendHtml',
+	        value: function appendHtml(el, str) {
+	            var fragment = document.createDocumentFragment();
+	            fragment.innerHTML = str;
+	            while (fragment.children.length > 0) {
+	                el.appendChild(fragment.children[0]);
+	            }
+	        }
+	    }, {
+	        key: 'disconnect',
+	        value: function disconnect() {
+	            if (this.eventSource) {
+	                this.eventSource.close();
+	            }
+	        }
+	    }, {
+	        key: 'connect',
+	        value: function connect(element, tailf) {
+	            var _this = this;
+
+	            element.innerHTML = '';
+	            if (tailf) {
+	                var span = document.createElement("span");
+	                span.id = "tailf-loading";
+	                span.innerHTML = "<br /><i class=\"icon-spinner icon-spin\"></i> Waiting for new logs...";
+
+	                element.appendChild(span);
+	            }
+	            this.disconnect();
+
+	            if (!!window.EventSource) {
+	                this.eventSource = new EventSource('http://localhost:9100/logs?tailf=' + tailf.toString());
+	                // eventSource.onmessage = (e) => {
+	                //     console.log(e.data);
+	                //     element.innerHTML += <p>e.data</p>;
+	                //
+	                // };
+
+	                this.eventSource.onmessage = function (e) {
+	                    _this.reading = true;
+
+	                    var parsedLine = "";
+	                    if (e.data.indexOf("\tat") !== -1) {
+	                        parsedLine += "<span class=\"padded-log\">" + e.data + "<br /></span>";
+	                    } else {
+	                        parsedLine += "<span>" + e.data + "<br /></span>";
+	                    }
+
+	                    var fragment = document.createElement("div");
+	                    fragment.innerHTML = parsedLine;
+	                    element.appendChild(fragment);
+	                    if (tailf) {
+	                        element.appendChild(document.getElementById("tailf-loading"));
+	                    }
+	                };
+
+	                this.eventSource.onerror = function (e) {
+	                    _this.eventSource.close();
+	                    throw e;
+	                };
+	            } else {
+	                // not supported
+	            }
+	        }
+	    }]);
+
+	    return LogStore;
+	}(), (_descriptor5 = _applyDecoratedDescriptor(_class3.prototype, 'logLines', [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return [];
+	    }
+	}), _descriptor6 = _applyDecoratedDescriptor(_class3.prototype, 'reading', [_mobx.observable], {
+	    enumerable: true,
+	    initializer: function initializer() {
+	        return false;
+	    }
+	})), _class3);
+	exports.default = new LogStore();
 
 /***/ })
 /******/ ]);

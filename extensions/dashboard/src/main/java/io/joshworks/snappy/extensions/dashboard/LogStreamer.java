@@ -19,6 +19,7 @@ public class LogStreamer implements ServerSentEventConnectionCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(LogStreamer.class);
 
+    private static final String TAILF_PARAM = "tailf";
     private final Set<Tailer> tailers = new HashSet<>();
 
     private final ExecutorService executor;
@@ -31,13 +32,13 @@ public class LogStreamer implements ServerSentEventConnectionCallback {
 
     @Override
     public void connected(ServerSentEventConnection connection, String lastEventId) {
-        Deque<String> params = connection.getQueryParameters().get("tailf");
+        Deque<String> params = connection.getQueryParameters().get(TAILF_PARAM);
         String tailfParam = params == null || params.isEmpty() ? Boolean.FALSE.toString() : params.getFirst();
 
         try {
             boolean tailf = Boolean.parseBoolean(tailfParam);
             LogTailer listener = new LogTailer(logLocation, tailf);
-            Tailer tailer = Tailer.create(listener.file, listener, 1000, tailf);
+            Tailer tailer = new Tailer(listener.file, listener, 1000, tailf);
             connection.addCloseTask(channel -> {
                 tailer.stop();
                 tailers.remove(tailer);
