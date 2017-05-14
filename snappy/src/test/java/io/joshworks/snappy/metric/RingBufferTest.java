@@ -10,6 +10,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class RingBufferTest {
 
+    @Test(expected = IllegalArgumentException.class)
+    public void empty() throws Exception {
+        RingBuffer.ofSize(0);
+    }
+
     @Test
     public void noOverflow() throws Exception {
 
