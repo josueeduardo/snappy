@@ -12,8 +12,8 @@ public class RingBuffer<T> extends ConcurrentLinkedQueue<T> {
     private final int size;
 
     private RingBuffer(int size) {
-        if (size < 0) {
-            throw new IllegalArgumentException("Size must be greater than greater or equals to zero");
+        if (size <= 0) {
+            throw new IllegalArgumentException("Size must be greater than greater than zero");
         }
         this.size = size;
     }
