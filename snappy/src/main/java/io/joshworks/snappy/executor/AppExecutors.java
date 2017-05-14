@@ -55,10 +55,12 @@ public class AppExecutors {
 
 
     public static void submit(Runnable runnable) {
+        checkStarted();
         submit(container.defaultExecutor, runnable);
     }
 
     public static void execute(Runnable runnable) {
+        checkStarted();
         execute(container.defaultExecutor, runnable);
     }
 
@@ -75,6 +77,7 @@ public class AppExecutors {
     }
 
     public static <T> Future<T> submit(Runnable runnable, T result) {
+        checkStarted();
         return submit(container.defaultExecutor, runnable, result);
     }
 
@@ -84,6 +87,7 @@ public class AppExecutors {
     }
 
     public static ScheduledFuture<?> schedule(Runnable runnable, long delay, TimeUnit timeUnit) {
+        checkStarted();
         return schedule(container.defaultScheduler, runnable, delay, timeUnit);
     }
 
@@ -93,6 +97,7 @@ public class AppExecutors {
     }
 
     public static <T> ScheduledFuture<T> schedule(Callable<T> callable, long delay, TimeUnit timeUnit) {
+        checkStarted();
         return schedule(container.defaultScheduler, callable, delay, timeUnit);
     }
 
@@ -102,6 +107,7 @@ public class AppExecutors {
     }
 
     public static void scheduleAtFixedRate(Runnable runnable, long delay, long period, TimeUnit timeUnit) {
+        checkStarted();
         scheduleAtFixedRate(container.defaultScheduler, runnable, delay, period, timeUnit);
     }
 
@@ -111,19 +117,23 @@ public class AppExecutors {
     }
 
     public static ScheduledFuture<?> scheduleWithFixedDelay(Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
+        checkStarted();
         return scheduleWithFixedDelay(container.defaultScheduler, runnable, initialDelay, delay, timeUnit);
     }
 
     public static ScheduledFuture<?> scheduleWithFixedDelay(String poolName, Runnable runnable, long initialDelay, long delay, TimeUnit timeUnit) {
+        checkStarted();
         ScheduledThreadPoolExecutor scheduler = scheduler(poolName);
         return scheduler.scheduleWithFixedDelay(runnable, initialDelay, delay, timeUnit);
     }
 
     public static ExecutorService executor() {
+        checkStarted();
         return executor(container.defaultExecutor);
     }
 
     public static ExecutorService executor(String poolName) {
+        checkStarted();
         ThreadPoolExecutor threadPoolExecutor = container.executors.get(poolName);
         if (threadPoolExecutor == null) {
             throw new IllegalArgumentException("Thread pool not found for name " + poolName);
@@ -132,10 +142,12 @@ public class AppExecutors {
     }
 
     public static ScheduledThreadPoolExecutor scheduler() {
+        checkStarted();
         return scheduler(container.defaultScheduler);
     }
 
     public static ScheduledThreadPoolExecutor scheduler(String poolName) {
+        checkStarted();
         ScheduledThreadPoolExecutor threadPoolExecutor = container.schedulers.get(poolName);
         if (threadPoolExecutor == null) {
             throw new IllegalArgumentException("Thread pool not found for name " + poolName);
@@ -144,11 +156,19 @@ public class AppExecutors {
     }
 
     static Map<String, ThreadPoolExecutor> executors() {
+        checkStarted();
         return new HashMap<>(container.executors);
     }
 
     static Map<String, ScheduledThreadPoolExecutor> schedulers() {
+        checkStarted();
         return new HashMap<>(container.schedulers);
+    }
+
+    private static void checkStarted() {
+        if(container == null) {
+            throw new IllegalStateException("Server hasn't started");
+        }
     }
 
 }
