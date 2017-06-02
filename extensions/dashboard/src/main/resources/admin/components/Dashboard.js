@@ -17,6 +17,7 @@ export default class Dashboard extends React.Component {
     render() {
 
         const {metrics} = this.props.metricsStore;
+        const {usedMemory, totalMemory, maxMemory} = metrics.memory;
 
         return (
             <div>
@@ -27,17 +28,17 @@ export default class Dashboard extends React.Component {
                             <div class="box-content padded" style={{textAlign: 'center'}}>
                                 <Gauge key={'heapUsage'}
                                        name={'heapUsage'}
-                                       value={metrics.usedMemory}
+                                       value={usedMemory}
                                        min={0}
-                                       max={metrics.totalMemory}
+                                       max={totalMemory}
                                        title={'Heap Usage'}
                                        label={'MB'}/>
 
                                 <Gauge key={'heapSize'}
                                        name={'heapSize'}
-                                       value={metrics.totalMemory}
+                                       value={totalMemory}
                                        min={0}
-                                       max={metrics.maxMemory}
+                                       max={maxMemory}
                                        title={'Heap Size'}
                                        label={'MB'}/>
                             </div>

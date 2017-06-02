@@ -30,20 +30,15 @@ import java.util.stream.Collectors;
  */
 public class MetricData {
 
-    private final long maxMemory;
-    private final long totalMemory;
-    private final long freeMemory;
-    private final long usedMemory;
-    private final List<RestMetrics> resources;
-    private final List<PoolMetric> threadPools = new ArrayList<>();
-    private final Map<String, Object> appMetrics = new HashMap<>();
+
+    public final List<RestMetrics> resources;
+    public final Memory memory;
+    public final List<PoolMetric> threadPools = new ArrayList<>();
+    public final Map<String, Object> appMetrics = new HashMap<>();
 
     public MetricData(List<RestMetricsHandler> metricsHandlers) {
-        Runtime runtime = Runtime.getRuntime();
-        this.maxMemory = runtime.maxMemory();
-        this.totalMemory = runtime.totalMemory();
-        this.freeMemory = runtime.freeMemory();
-        this.usedMemory = (totalMemory - freeMemory);
+
+        memory = new Memory();
 
         threadPools.addAll(ExecutorBootstrap.executorMetrics());
         threadPools.addAll(ExecutorBootstrap.schedulerMetrics());
@@ -52,27 +47,19 @@ public class MetricData {
         appMetrics.putAll(Metrics.getData());
     }
 
-    public long getMaxMemory() {
-        return maxMemory;
+    static class Memory {
+        public final long maxMemory;
+        public final long totalMemory;
+        public final long freeMemory;
+        public final long usedMemory;
+
+        public Memory() {
+            Runtime runtime = Runtime.getRuntime();
+            this.maxMemory = runtime.maxMemory();
+            this.totalMemory = runtime.totalMemory();
+            this.freeMemory = runtime.freeMemory();
+            this.usedMemory = (totalMemory - freeMemory);
+        }
     }
 
-    public long getTotalMemory() {
-        return totalMemory;
-    }
-
-    public long getFreeMemory() {
-        return freeMemory;
-    }
-
-    public long getUsedMemory() {
-        return usedMemory;
-    }
-
-    public List<PoolMetric> getThreadPools() {
-        return threadPools;
-    }
-
-    public List<RestMetrics> getResources() {
-        return resources;
-    }
 }

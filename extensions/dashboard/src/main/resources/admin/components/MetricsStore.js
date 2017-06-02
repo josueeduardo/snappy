@@ -2,11 +2,15 @@ import {action, computed, map, observable} from "mobx";
 import API from "../API";
 
 
-class Metrics {
+class MemoryUsage {
     @observable maxMemory = 0;
     @observable totalMemory = 0;
     @observable freeMemory = 0;
     @observable usedMemory = 0;
+}
+
+class Metrics {
+    @observable memory = new MemoryUsage();
 }
 
 class MetricsStore {

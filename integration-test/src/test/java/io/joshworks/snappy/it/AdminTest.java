@@ -63,9 +63,9 @@ public class AdminTest {
 
         MetricData metrics = response.getBody();
         assertNotNull(metrics);
-        assertEquals(1, metrics.getResources().size());
+        assertEquals(1, metrics.resources.size());
 
-        Optional<RestMetrics> foundMetrics = metrics.getResources().stream()
+        Optional<RestMetrics> foundMetrics = metrics.resources.stream()
                 .filter(m -> m.getUrl().equals("/test"))
                 .findFirst();
 

@@ -13,11 +13,24 @@ export default class AppMetrics extends React.Component {
 
     render() {
         const {metrics} = this.props.metricsStore;
+
+
+        let timed = {};
+        let nonTimed = {};
+        for (let key in metrics.appMetrics) {
+            let item = metrics.appMetrics[key];
+            if (Object.prototype.toString.call(item) === '[object Array]') {
+                timed[key] = item;
+            } else {
+                nonTimed[key] = item;
+            }
+        }
+
         return (
             <div>
                 <div class="row">
                     <div class="col-md-6">
-                        <AppMetricsTable appMetrics={metrics.appMetrics}/>
+                        <AppMetricsTable appMetrics={nonTimed}/>
                     </div>
                     <div class="col-md-6">
 
