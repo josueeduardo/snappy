@@ -17,9 +17,9 @@
 
 package io.joshworks.snappy.it;
 
-import com.mashape.unirest.http.Headers;
-import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.client.RestClient;
+import io.joshworks.restclient.http.Headers;
+import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.SimpleClient;
 import io.undertow.util.Methods;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -55,7 +55,7 @@ public class CorsTest {
 
     @Test //only beforeAll will be applied anyway
     public void cors_accessControl() throws Exception {
-        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        HttpResponse<String> response = SimpleClient.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();
@@ -68,7 +68,7 @@ public class CorsTest {
 
     @Test //only beforeAll will be applied anyway
     public void cors_allowCrendetials() throws Exception {
-        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        HttpResponse<String> response = SimpleClient.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();
@@ -81,7 +81,7 @@ public class CorsTest {
 
     @Test //only beforeAll will be applied anyway
     public void cors_allowedMethods() throws Exception {
-        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        HttpResponse<String> response = SimpleClient.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();
@@ -102,7 +102,7 @@ public class CorsTest {
 
     @Test //only beforeAll will be applied anyway
     public void cors_allowedHeaders() throws Exception {
-        HttpResponse<String> response = RestClient.options(SERVER_URL + "/a").asString();
+        HttpResponse<String> response = SimpleClient.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();

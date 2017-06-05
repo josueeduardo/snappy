@@ -17,10 +17,8 @@
 
 package io.joshworks.snappy.extensions.ssr.client.connector;
 
-import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.client.RestClient;
-import io.joshworks.snappy.client.SseClient;
-import io.joshworks.snappy.client.sse.SSEConnection;
+import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.extensions.ssr.SSRException;
 import io.joshworks.snappy.extensions.ssr.client.SSERegistryClient;
@@ -29,6 +27,8 @@ import io.joshworks.snappy.extensions.ssr.client.ServiceStore;
 import io.joshworks.snappy.extensions.ssr.server.SSRServerExtension;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.Parser;
+import io.joshworks.snappy.sse.client.StreamClient;
+import io.joshworks.snappy.sse.client.sse.SSEConnection;
 import io.undertow.util.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +58,7 @@ public class SSEServiceRegister extends ServiceRegister {
         String instancesUrl = PROTOCOL + registryUrl + SSRServerExtension.INSTANCES_URL;
 
         logger.info("Trying to register service to " + registryUrl);
-        HttpResponse<Instance> response = RestClient.post(instancesUrl)
+        HttpResponse<Instance> response = SimpleClient.post(instancesUrl)
                 .header(Headers.CONTENT_TYPE_STRING, "application/json")
                 .body(parser.writeValue(instance))
                 .asObject(Instance.class);
@@ -69,7 +69,7 @@ public class SSEServiceRegister extends ServiceRegister {
         Instance registered = response.getBody();
 
         String registryUrl = PROTOCOL + this.registryUrl + SSRServerExtension.MONITOR_URL + "/" + registered.getId();
-        connect = SseClient.connect(registryUrl, new SSERegistryClient(this, store));
+        connect = StreamClient.connect(registryUrl, new SSERegistryClient(this, store));
 
     }
 

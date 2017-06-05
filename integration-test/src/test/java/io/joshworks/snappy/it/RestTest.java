@@ -17,8 +17,8 @@
 
 package io.joshworks.snappy.it;
 
-import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.client.RestClient;
+import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.it.util.SampleData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -59,7 +59,7 @@ public class RestTest {
 
     @Test
     public void getRequest() throws Exception {
-        HttpResponse<SampleData> response = RestClient.get(RESOURCE_PATH).asObject(SampleData.class);
+        HttpResponse<SampleData> response = SimpleClient.get(RESOURCE_PATH).asObject(SampleData.class);
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
         assertNotNull(responseBody);
@@ -68,7 +68,7 @@ public class RestTest {
 
     @Test
     public void postRequest() throws Exception {
-        HttpResponse<SampleData> response = RestClient.post(RESOURCE_PATH)
+        HttpResponse<SampleData> response = SimpleClient.post(RESOURCE_PATH)
                 .header("Content-Type", "application/json")
                 .body(payload)
                 .asObject(SampleData.class);
@@ -81,7 +81,7 @@ public class RestTest {
 
     @Test
     public void putRequest() throws Exception {
-        HttpResponse<SampleData> response = RestClient.put(RESOURCE_PATH)
+        HttpResponse<SampleData> response = SimpleClient.put(RESOURCE_PATH)
                 .header("Content-Type", "application/json")
                 .body(payload)
                 .asObject(SampleData.class);
@@ -94,7 +94,7 @@ public class RestTest {
 
     @Test
     public void deleteRequest() throws Exception {
-        HttpResponse<SampleData> response = RestClient.delete(RESOURCE_PATH)
+        HttpResponse<SampleData> response = SimpleClient.delete(RESOURCE_PATH)
                 .header("Content-Type", "application/json")
                 .body(payload)
                 .asObject(SampleData.class);
@@ -107,13 +107,13 @@ public class RestTest {
 
     @Test
     public void statusOnly() throws Exception {
-        HttpResponse<String> response = RestClient.get(SERVER_URL + "/statusOnly").asString();
+        HttpResponse<String> response = SimpleClient.get(SERVER_URL + "/statusOnly").asString();
         assertEquals(401, response.getStatus());
     }
 
     @Test
     public void traillingSlash() throws Exception {
-        HttpResponse<SampleData> response = RestClient.get(RESOURCE_PATH).asObject(SampleData.class);
+        HttpResponse<SampleData> response = SimpleClient.get(RESOURCE_PATH).asObject(SampleData.class);
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
         assertNotNull(responseBody);

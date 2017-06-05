@@ -17,8 +17,8 @@
 
 package io.joshworks.snappy.it;
 
-import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.client.RestClient;
+import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.metric.MetricData;
 import io.joshworks.snappy.metric.RestMetricHandler;
 import org.junit.AfterClass;
@@ -55,10 +55,10 @@ public class AdminTest {
 
     @Test
     public void metrics() throws Exception {
-        int status = RestClient.get("http://localhost:9000/test").asString().getStatus();
+        int status = SimpleClient.get("http://localhost:9000/test").asString().getStatus();
         assertEquals(200, status);
 
-        HttpResponse<MetricData> response = RestClient.get("http://localhost:9100/metrics").asObject(MetricData.class);
+        HttpResponse<MetricData> response = SimpleClient.get("http://localhost:9100/metrics").asObject(MetricData.class);
         assertEquals(200, response.getStatus());
 
         MetricData metrics = response.getBody();
@@ -79,13 +79,13 @@ public class AdminTest {
 
     @Test
     public void pageExists() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:9100/").asString();
+        HttpResponse<String> response = SimpleClient.get("http://localhost:9100/").asString();
         assertEquals(200, response.getStatus());
     }
 
     @Test
     public void contentType() throws Exception {
-        HttpResponse<String> response = RestClient.get("http://localhost:9100/").asString();
+        HttpResponse<String> response = SimpleClient.get("http://localhost:9100/").asString();
         assertEquals("text/html", response.getHeaders().getFirst(io.undertow.util.Headers.CONTENT_TYPE_STRING));
     }
 

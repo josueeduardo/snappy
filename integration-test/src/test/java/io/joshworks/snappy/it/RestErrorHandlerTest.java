@@ -17,8 +17,8 @@
 
 package io.joshworks.snappy.it;
 
-import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.client.RestClient;
+import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.rest.ExceptionResponse;
 import io.joshworks.snappy.rest.MediaType;
 import io.joshworks.snappy.rest.RestException;
@@ -60,7 +60,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void unsupportedContentType() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:9000/error1")
+        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/error1")
                 .header("Content-Type", "application/xml").asObject(ExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
@@ -75,7 +75,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void unsupportedAcceptedType() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:9000/error1")
+        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/error1")
                 .header("Accept", "application/xml").asObject(ExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
@@ -90,7 +90,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void exceptionThrown() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:9000/exception").asObject(ExceptionResponse.class);
+        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/exception").asObject(ExceptionResponse.class);
 
         assertEquals(500, response.getStatus());
         //default response type
@@ -104,7 +104,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void fromRestExceptionUtility() throws Exception {
-        HttpResponse<ExceptionResponse> response = RestClient.get("http://localhost:9000/restException").asObject(ExceptionResponse.class);
+        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/restException").asObject(ExceptionResponse.class);
 
         assertEquals(400, response.getStatus());
 

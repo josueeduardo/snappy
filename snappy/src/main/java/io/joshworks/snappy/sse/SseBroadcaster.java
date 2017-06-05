@@ -17,7 +17,6 @@
 
 package io.joshworks.snappy.sse;
 
-import io.joshworks.snappy.client.sse.EventData;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.rest.MediaType;
@@ -72,7 +71,7 @@ public class SseBroadcaster {
     }
 
     private static Stream<ServerSentEventConnection> all(String... groupFilter) {
-        if(groupFilter.length > 0) {
+        if (groupFilter.length > 0) {
             Set<String> groupVals = new HashSet<>(Arrays.asList(groupFilter));
             return groups.entrySet().stream()
                     .filter(es -> groupVals.contains(es.getKey()))

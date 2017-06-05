@@ -15,12 +15,24 @@
  *
  */
 
-package io.joshworks.snappy.it;
+package io.joshworks.snappy.sse.client.sse;
 
 /**
- * Created by josh on 3/10/17.
+ * Created by Josh Gontijo on 4/1/17.
  */
-public class RestClientTest {
+public abstract class SseClientCallback {
 
+    public abstract void onEvent(EventData event);
 
+    public void onOpen() {
+
+    }
+
+    public void onClose() {
+
+    }
+
+    public void onError(Exception e) {
+
+    }
 }

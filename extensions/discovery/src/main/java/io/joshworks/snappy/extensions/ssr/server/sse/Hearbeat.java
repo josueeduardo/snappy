@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.extensions.ssr.server.sse;
 
-import io.joshworks.snappy.client.sse.EventData;
+import io.joshworks.snappy.sse.EventData;
 import io.joshworks.snappy.sse.SseBroadcaster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

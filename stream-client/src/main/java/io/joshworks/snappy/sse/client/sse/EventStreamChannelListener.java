@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.client.sse;
+package io.joshworks.snappy.sse.client.sse;
 
 import io.undertow.connector.ByteBufferPool;
 import io.undertow.connector.PooledByteBuffer;

@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.client.sse;
+package io.joshworks.snappy.sse.client.sse;
 
-import io.joshworks.snappy.executor.AppExecutors;
-import io.joshworks.snappy.rest.RestException;
+
+import io.joshworks.snappy.sse.client.ClientException;
 import io.undertow.client.ClientCallback;
 import io.undertow.client.ClientConnection;
 import io.undertow.client.ClientExchange;
@@ -38,16 +38,19 @@ import org.xnio.XnioWorker;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.channels.Channel;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by Josh Gontijo on 4/1/17.
  */
 public class SSEConnection {
 
-    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
+    private static final Logger logger = LoggerFactory.getLogger(SSEConnection.class);
+
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     final String url;
     final SseClientCallback callback;
@@ -115,7 +118,7 @@ public class SSEConnection {
 
     void retryAfter(long timeMilli) {
         logger.debug("Reconnecting after {}ms", timeMilli);
-        AppExecutors.schedule(this::connect, timeMilli, TimeUnit.MILLISECONDS);
+        scheduler.schedule(this::connect, timeMilli, TimeUnit.MILLISECONDS);
     }
 
     private ClientCallback<ClientExchange> createClientCallback() {
@@ -132,12 +135,13 @@ public class SSEConnection {
                         int responseCode = result.getResponse().getResponseCode();
                         if (responseCode != 200) {
                             String status = result.getResponse().getStatus();
-                            callback.onError(new RestException(responseCode, "Server returned [" + responseCode + " - " + status + "] after connecting"));
+                            callback.onError(new ClientException(responseCode, "Server returned [" + responseCode + " - " + status + "] after connecting"));
                         }
                         callback.onOpen();
 
                         result.getResponseChannel().getCloseSetter().set((ChannelListener<Channel>) channel -> callback.onClose());
                         listener.setup(result.getResponseChannel());
+
 
                         result.getResponseChannel().resumeReads();
                     }
