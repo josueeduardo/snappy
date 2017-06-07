@@ -3,6 +3,7 @@ package io.joshworks.snappy.metric;
 import io.joshworks.snappy.SnappyServer;
 import org.junit.Test;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -81,10 +82,10 @@ public class MetricsTest {
             Object timed = Metrics.getData().get(metricName);
             assertNotNull(timed);
 
-            Map<Long, Object> serie = (Map<Long, Object>)timed;
+            Collection<Metrics.Serie> serie = (Collection<Metrics.Serie>)timed;
             //countdown is called before
             assertEquals(samples, serie.size());
-            serie.values().forEach(v -> assertEquals(value, v));
+            serie.forEach(v -> assertEquals(value, v.data));
 
 
         }finally {

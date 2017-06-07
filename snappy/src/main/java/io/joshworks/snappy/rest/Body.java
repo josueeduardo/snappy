@@ -19,8 +19,6 @@ package io.joshworks.snappy.rest;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.utils.ResponseUtils;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.ParserUtil;
 import io.joshworks.snappy.parser.Parsers;
@@ -58,7 +56,7 @@ public class Body {
 
     public InputStream asBinary() {
         try {
-            byte[] bytes = ResponseUtils.getBytes(this.is);
+            byte[] bytes = ParserUtil.getBytes(this.is);
             return new ByteArrayInputStream(bytes);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -68,7 +66,7 @@ public class Body {
     public String asString() {
         byte[] rawBody;
         try {
-            rawBody = ResponseUtils.getBytes(is);
+            rawBody = ParserUtil.getBytes(is);
             return new String(rawBody);
         } catch (IOException e2) {
             throw new RuntimeException(e2);
@@ -77,7 +75,7 @@ public class Body {
 
     public JsonNode asJson() {
         try {
-            byte[] bytes = ResponseUtils.getBytes(this.is);
+            byte[] bytes = ParserUtil.getBytes(this.is);
             String jsonString = new String(bytes, getCharset()).trim();
             return new JsonNode(jsonString);
         } catch (IOException e) {
@@ -131,3 +129,4 @@ public class Body {
         }
     }
 }
+

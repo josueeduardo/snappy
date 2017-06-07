@@ -4,6 +4,7 @@ import io.joshworks.snappy.parser.parser.ExactTypeParser;
 import io.joshworks.snappy.parser.parser.SubTypeWildcardParser;
 import io.joshworks.snappy.parser.parser.WildcardParser;
 import io.joshworks.snappy.rest.MediaType;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -12,6 +13,12 @@ import static org.junit.Assert.assertEquals;
  * Created by Josh Gontijo on 4/30/17.
  */
 public class ParsersTest {
+
+    @Before
+    public void cleanup() {
+        Parsers.available.clear();
+        Parsers.mostSpecificOrderedParsers.clear();
+    }
 
     @Test
     public void mostCompatibleFirst() throws Exception {

@@ -17,12 +17,12 @@
 
 package io.joshworks.snappy.extensions.ssr.client;
 
-import io.joshworks.snappy.client.sse.EventData;
-import io.joshworks.snappy.client.sse.SseClientCallback;
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.extensions.ssr.server.sse.EventType;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.Parser;
+import io.joshworks.snappy.sse.client.sse.EventData;
+import io.joshworks.snappy.sse.client.sse.SseClientCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

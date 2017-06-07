@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.client.WsClient;
+import io.joshworks.snappy.sse.client.StreamClient;
 import io.undertow.websockets.core.AbstractReceiveListener;
 import io.undertow.websockets.core.BufferedTextMessage;
 import io.undertow.websockets.core.WebSocketChannel;
@@ -46,7 +46,6 @@ public class WebsocketTest {
 
     @BeforeClass
     public static void setup() {
-
         websocket("/ws", (exchange, channel) -> {
             WebSockets.sendText(message, channel, null);
             channel.resumeReceives();
@@ -57,6 +56,7 @@ public class WebsocketTest {
 
     @AfterClass
     public static void shutdown() {
+        StreamClient.close();
         stop();
     }
 
@@ -65,7 +65,7 @@ public class WebsocketTest {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<String> result = new AtomicReference<>();
 
-        WebSocketChannel webSocketChannel = WsClient.connect(WS_ENDPOINT, new AbstractReceiveListener() {
+        WebSocketChannel webSocketChannel = StreamClient.connectWS(WS_ENDPOINT, new AbstractReceiveListener() {
             @Override
             protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
                 result.set(message.getData());

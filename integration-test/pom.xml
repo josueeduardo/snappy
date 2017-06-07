@@ -30,6 +30,18 @@
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>snappy</artifactId>
             <version>${project.parent.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.joshworks.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.4.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>stream-client</artifactId>
+            <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
 

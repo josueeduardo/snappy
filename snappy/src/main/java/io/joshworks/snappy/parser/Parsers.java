@@ -40,8 +40,8 @@ public class Parsers {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private static final Map<MediaType, Parser> available = new HashMap<>();
-    private static final Set<MediaType> mostSpecificOrderedParsers = new TreeSet<>(new MostSpecificMediaTypeComparator());
+    static final Map<MediaType, Parser> available = new HashMap<>();
+    static final Set<MediaType> mostSpecificOrderedParsers = new TreeSet<>(new MostSpecificMediaTypeComparator());
 
     private Parsers() {
 
@@ -53,7 +53,7 @@ public class Parsers {
      */
     public static void register(Parser parser) {
         if (parser == null || parser.mediaType() == null || parser.mediaType().isEmpty()) {
-            throw new IllegalArgumentException("Invalid parser, media type not specified, or null instance");
+            throw new IllegalArgumentException("Invalid parser");
         }
         logger.info("Registering Parser '{}' for type {}", parser.getClass().getSimpleName(), parser.mediaType().toString());
         parser.mediaType().forEach(mt -> {
@@ -61,10 +61,14 @@ public class Parsers {
             mostSpecificOrderedParsers.add(mt);
         });
 
-        for(MediaType mt : mostSpecificOrderedParsers) {
+        for (MediaType mt : mostSpecificOrderedParsers) {
             System.out.println(mt);
         }
+    }
 
+    public static void clear() {
+        available.clear();
+        mostSpecificOrderedParsers.clear();
     }
 
     /**
@@ -110,7 +114,7 @@ public class Parsers {
         throw new ParserNotFoundException("[NO MEDIA TYPE]");
     }
 
-    private static class MostSpecificMediaTypeComparator implements Comparator<MediaType>{
+    private static class MostSpecificMediaTypeComparator implements Comparator<MediaType> {
 
         @Override
         public int compare(MediaType first, MediaType second) {

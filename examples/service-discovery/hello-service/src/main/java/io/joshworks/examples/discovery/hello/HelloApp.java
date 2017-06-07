@@ -17,7 +17,7 @@
 
 package io.joshworks.examples.discovery.hello;
 
-import io.joshworks.snappy.client.RestClient;
+import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.extensions.ssr.client.SSRClientExtension;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -35,7 +35,7 @@ public class HelloApp {
         get("/hello", exchange -> {
 
             String message = "Hello";
-            String fromWorldService = RestClient.get("http://world-service/world").asString().getBody();
+            String fromWorldService = SimpleClient.get("http://world-service/world").asString().getBody();
             exchange.send(message + " " + fromWorldService, "txt");
 
         }, consumes("txt"));

@@ -18,7 +18,6 @@
 package io.joshworks.snappy;
 
 import io.joshworks.snappy.admin.AdminManager;
-import io.joshworks.snappy.client.ClientManager;
 import io.joshworks.snappy.executor.ExecutorBootstrap;
 import io.joshworks.snappy.executor.ExecutorConfig;
 import io.joshworks.snappy.executor.SchedulerConfig;
@@ -398,8 +397,8 @@ public class SnappyServer {
             Parsers.register(new JsonParser());
             Parsers.register(new PlainTextParser());
 
-            ClientManager.configureWorker();
-            ClientManager.init();
+//            ClientManager.configureWorker();
+//            ClientManager.init();
 
             Undertow.Builder serverBuilder = Undertow.builder();
 

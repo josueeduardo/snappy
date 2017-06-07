@@ -17,11 +17,11 @@
 
 package io.joshworks.snappy.extensions.ssr.client.connector;
 
-import io.joshworks.snappy.client.WsClient;
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.extensions.ssr.client.ServiceRegister;
 import io.joshworks.snappy.extensions.ssr.client.ServiceStore;
 import io.joshworks.snappy.extensions.ssr.client.WSRegistryClient;
+import io.joshworks.snappy.sse.client.StreamClient;
 import io.undertow.websockets.core.WebSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,7 @@ public class WSServiceRegister extends ServiceRegister {
     @Override
     protected void connect() {
         String registryUrl = PROTOCOL + this.registryUrl + SSR_ENDPOINT + "/" + instance.getName();
-        webSocketChannel = WsClient.connect(registryUrl, new WSRegistryClient(this, store, instance));
+        webSocketChannel = StreamClient.connectWS(registryUrl, new WSRegistryClient(this, store, instance));
     }
 
     @Override
@@ -62,6 +62,7 @@ public class WSServiceRegister extends ServiceRegister {
                 webSocketChannel.setCloseReason("Service disconnected");
                 webSocketChannel.sendClose();
             }
+
         } catch (IOException e) {
             logger.error("Error while closing the webSocketChannel", e);
         }

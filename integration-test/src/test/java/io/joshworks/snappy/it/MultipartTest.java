@@ -17,8 +17,8 @@
 
 package io.joshworks.snappy.it;
 
-import com.mashape.unirest.http.HttpResponse;
-import io.joshworks.snappy.client.RestClient;
+import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.multipart.Part;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -88,7 +88,7 @@ public class MultipartTest {
         String fileContent = "YOLO"; //content from the test file
 
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
-        HttpResponse<String> response = RestClient.post("http://localhost:9000/upload")
+        HttpResponse<String> response = SimpleClient.post("http://localhost:9000/upload")
                 .header("accept", "application/json")
                 .field(SOME_OTHER_FIELD, parameterValue)
                 .field(FILE_PART_NAME, uploadFile, "sample-input.txt")

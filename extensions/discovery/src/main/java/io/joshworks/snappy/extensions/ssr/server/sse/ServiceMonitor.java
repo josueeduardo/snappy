@@ -17,11 +17,11 @@
 
 package io.joshworks.snappy.extensions.ssr.server.sse;
 
-import io.joshworks.snappy.client.sse.EventData;
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.extensions.ssr.server.service.ServiceControl;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.Parser;
+import io.joshworks.snappy.sse.EventData;
 import io.joshworks.snappy.sse.SseBroadcaster;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;

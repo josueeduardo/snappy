@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.it;
 
-import io.joshworks.snappy.client.RestClient;
+import io.joshworks.restclient.http.SimpleClient;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class BasePathTest {
 
     @Test
     public void getRequest() throws Exception {
-        assertEquals(200, RestClient.get("http://localhost:9000/v1/test").asString().getStatus());
+        assertEquals(200, SimpleClient.get("http://localhost:9000/v1/test").asString().getStatus());
     }
 
 
