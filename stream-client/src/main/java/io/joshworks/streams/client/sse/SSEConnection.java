@@ -15,10 +15,10 @@
  *
  */
 
-package io.joshworks.snappy.sse.client.sse;
+package io.joshworks.streams.client.sse;
 
 
-import io.joshworks.snappy.sse.client.ClientException;
+import io.joshworks.streams.client.ClientException;
 import io.undertow.client.ClientCallback;
 import io.undertow.client.ClientConnection;
 import io.undertow.client.ClientExchange;

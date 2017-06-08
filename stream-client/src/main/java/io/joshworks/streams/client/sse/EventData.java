@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.sse.client.sse;
+package io.joshworks.streams.client.sse;
 
 public class EventData {
     public final String data;

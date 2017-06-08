@@ -15,25 +15,22 @@
  *
  */
 
-package io.joshworks.snappy.sse.client;
+package io.joshworks.streams.client;
 
-import io.joshworks.snappy.sse.client.sse.EventData;
-import io.joshworks.snappy.sse.client.sse.SSEConnection;
-import io.joshworks.snappy.sse.client.sse.SseClientCallback;
-import io.undertow.server.DefaultByteBufferPool;
-import io.undertow.websockets.client.WebSocketClient;
+import io.joshworks.streams.client.sse.SSEConnection;
+import io.joshworks.streams.client.sse.SseClientCallback;
+import io.joshworks.streams.client.sse.SseConfiguration;
+import io.joshworks.streams.client.ws.WebsocketClientEndpoint;
+import io.joshworks.streams.client.ws.WsConfiguration;
 import io.undertow.websockets.core.WebSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xnio.ChannelListener;
 import org.xnio.OptionMap;
 import org.xnio.Options;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.function.Consumer;
 
 /**
  * Created by Josh Gontijo on 4/2/17.
@@ -96,50 +93,20 @@ public final class StreamClient {
         }
     }
 
-    public static WebSocketChannel connectWS(String url, ChannelListener<? super WebSocketChannel> clientEndpoint) {
-        try {
-            WebSocketChannel webSocketChannel = new WebSocketClient.ConnectionBuilder(
-                    getWorker(),
-                    new DefaultByteBufferPool(false, 2048),
-                    URI.create(url))
-                    .connect().get();
-
-
-            webSocketChannel.getReceiveSetter().set(clientEndpoint);
-            webSocketChannel.resumeReceives();
-            return webSocketChannel;
-
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static WsConfiguration ws(String url) {
+        return new WsConfiguration(url, getWorker());
     }
 
-    public static SSEConnection connect(String url, Consumer<EventData> callback) {
-        return connect(url, new SseClientCallback() {
-            @Override
-            public void onEvent(EventData data) {
-                callback.accept(data);
-            }
-        }, null);
+    public static WebSocketChannel connect(String url, WebsocketClientEndpoint endpoint) {
+        return new WsConfiguration(url, getWorker(), endpoint).connect();
     }
 
-    public static SSEConnection connect(String url, Consumer<EventData> callback, String lastEventId) {
-        return connect(url, new SseClientCallback() {
-            @Override
-            public void onEvent(EventData data) {
-                callback.accept(data);
-            }
-        }, lastEventId);
+    public static SseConfiguration sse(String url) {
+        return new SseConfiguration(url, getWorker());
     }
 
-    public static SSEConnection connect(String url, SseClientCallback callback) {
-        return connect(url, callback, null);
-    }
-
-    public static SSEConnection connect(String url, SseClientCallback callback, String lastEventId) {
-        SSEConnection connection = new SSEConnection(url, callback, getWorker());
-        connection.connect(lastEventId);
-        return connection;
+    public static SSEConnection connect(String url, SseClientCallback clientCallback) {
+        return new SseConfiguration(url, getWorker(), clientCallback).connect();
     }
 
 }

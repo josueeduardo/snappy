@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.sse.client.sse;
+package io.joshworks.streams.client.sse;
 
 /**
  * Created by Josh Gontijo on 4/1/17.

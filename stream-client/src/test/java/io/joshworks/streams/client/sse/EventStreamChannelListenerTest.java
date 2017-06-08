@@ -1,4 +1,4 @@
-package io.joshworks.snappy.sse.client.sse;
+package io.joshworks.streams.client.sse;
 
 import io.undertow.server.DefaultByteBufferPool;
 import org.junit.Test;

@@ -1,9 +1,9 @@
-package io.joshworks.snappy.sse.client;
+package io.joshworks.streams.client;
 
 /**
  * Created by Josh Gontijo on 6/2/17.
  */
-public class ClientException extends RuntimeException{
+public class ClientException extends RuntimeException {
 
     private final int status;
 
