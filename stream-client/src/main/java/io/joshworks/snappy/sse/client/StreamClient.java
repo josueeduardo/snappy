@@ -137,9 +137,38 @@ public final class StreamClient {
     }
 
     public static SSEConnection connect(String url, SseClientCallback callback, String lastEventId) {
-        SSEConnection connection = new SSEConnection(url, lastEventId, callback, getWorker());
-        connection.connect();
+        SSEConnection connection = new SSEConnection(url, callback, getWorker());
+        connection.connect(lastEventId);
         return connection;
+    }
+
+    private static class ReconnectHandler extends SseClientCallback {
+
+        private final SseClientCallback original;
+
+        public ReconnectHandler(SseClientCallback original) {
+            this.original = original;
+        }
+
+        @Override
+        public void onEvent(EventData event) {
+            original.onEvent(event);
+        }
+
+        @Override
+        public void onOpen() {
+            original.onOpen();
+        }
+
+        @Override
+        public void onClose(String lastEventId) {
+            original.onClose(lastEventId);
+        }
+
+        @Override
+        public void onError(Exception e) {
+            original.onError(e);
+        }
     }
 
 }

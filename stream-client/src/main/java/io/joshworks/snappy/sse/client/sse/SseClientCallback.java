@@ -28,7 +28,7 @@ public abstract class SseClientCallback {
 
     }
 
-    public void onClose() {
+    public void onClose(String lastEventId) {
 
     }
 

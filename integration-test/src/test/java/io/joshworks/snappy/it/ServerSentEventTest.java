@@ -22,8 +22,8 @@ import io.joshworks.snappy.sse.client.StreamClient;
 import io.joshworks.snappy.sse.client.sse.EventData;
 import io.joshworks.snappy.sse.client.sse.SSEConnection;
 import io.joshworks.snappy.sse.client.sse.SseClientCallback;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -41,9 +41,8 @@ import static org.junit.Assert.fail;
  */
 public class ServerSentEventTest {
 
-    @BeforeClass
-    public static void init() {
-
+    @Before
+    public void init() {
 
         sse("/empty");
 
@@ -78,8 +77,8 @@ public class ServerSentEventTest {
         start();
     }
 
-    @AfterClass
-    public static void shutdown() {
+    @After
+    public void shutdown() {
         StreamClient.close();
         stop();
     }
@@ -101,19 +100,19 @@ public class ServerSentEventTest {
 
     @Test
     public void lastEventId() throws Exception {
-        CountDownLatch firstConenction = new CountDownLatch(3);
+        CountDownLatch firstConnection = new CountDownLatch(3);
         CountDownLatch secondConnection = new CountDownLatch(6);
 
         SSEConnection connect = StreamClient.connect("http://localhost:9000/id", new SseClientCallback() {
             @Override
             public void onEvent(EventData data) {
                 System.out.println(data);
-                firstConenction.countDown();
+                firstConnection.countDown();
                 secondConnection.countDown();
             }
 
             @Override
-            public void onClose() {
+            public void onClose(String lastEventId) {
                 System.out.println("Closed");
             }
 
@@ -124,7 +123,7 @@ public class ServerSentEventTest {
             }
         });
 
-        if (!firstConenction.await(5, TimeUnit.SECONDS)) {
+        if (!firstConnection.await(5, TimeUnit.SECONDS)) {
             fail("No messages were received");
         }
         String lastEventId = connect.close();
@@ -149,7 +148,7 @@ public class ServerSentEventTest {
             }
 
             @Override
-            public void onClose() {
+            public void onClose(String lastEventId) {
                 System.out.println("Closing connection");
                 latch.countDown();
             }
@@ -175,7 +174,7 @@ public class ServerSentEventTest {
             }
 
             @Override
-            public void onClose() {
+            public void onClose(String lastEventId) {
                 System.out.println("Closing connection");
                 latch.countDown();
             }
@@ -213,7 +212,7 @@ public class ServerSentEventTest {
             }
 
             @Override
-            public void onClose() {
+            public void onClose(String lastEventId) {
                 closeLatch.countDown();
             }
 
@@ -237,6 +236,86 @@ public class ServerSentEventTest {
         }
 
         assertFalse(sseConnection.isOpen());
+    }
+
+    @Test
+    public void autoReconnect() throws Exception {
+        CountDownLatch firstConnection = new CountDownLatch(3);
+        CountDownLatch secondConnection = new CountDownLatch(6);
+
+        SSEConnection connect = StreamClient.connect("http://localhost:9000/id", new SseClientCallback() {
+            @Override
+            public void onEvent(EventData data) {
+                System.out.println(data);
+                firstConnection.countDown();
+                secondConnection.countDown();
+            }
+
+            @Override
+            public void onClose(String lastEventId) {
+                System.out.println("Closed");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+                fail(e.getMessage());
+            }
+        });
+
+        if (!firstConnection.await(5, TimeUnit.SECONDS)) {
+            fail("No messages were received");
+        }
+
+        stop(); //server dies
+        init(); //reconfigure and reconnect
+
+
+        if (!secondConnection.await(10, TimeUnit.SECONDS)) {
+            fail("No messages were received, or client did not connect");
+        }
+        String lastEventId = connect.close();
+        assertEquals(6, Integer.parseInt(lastEventId));
+    }
+
+    @Test
+    public void connectionRetry() throws Exception {
+        stop(); //server not connected
+
+        CountDownLatch messageReceived = new CountDownLatch(1);
+        CountDownLatch error = new CountDownLatch(1);
+        CountDownLatch onClose = new CountDownLatch(1);
+
+        SSEConnection connect = StreamClient.connect("http://localhost:9000/id", new SseClientCallback() {
+            @Override
+            public void onEvent(EventData data) {
+                System.out.println(data);
+                messageReceived.countDown();
+            }
+
+            @Override
+            public void onClose(String lastEventId) {
+                System.out.println("Closed");
+                onClose.countDown();
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+                error.countDown();
+            }
+        });
+
+        if (!error.await(5, TimeUnit.SECONDS)) {
+            fail("onError callback was not called");
+        }
+
+        init(); //server startup
+
+        if (!messageReceived.await(5, TimeUnit.SECONDS)) {
+            fail("No message was received after connection retry");
+        }
+
     }
 
 }

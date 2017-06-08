@@ -45,7 +45,7 @@ public class EventStreamChannelListenerTest {
         }
 
         @Override
-        public void onClose() {
+        public void onClose(String lastEventId) {
 
         }
 
