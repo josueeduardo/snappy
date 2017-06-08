@@ -142,33 +142,4 @@ public final class StreamClient {
         return connection;
     }
 
-    private static class ReconnectHandler extends SseClientCallback {
-
-        private final SseClientCallback original;
-
-        public ReconnectHandler(SseClientCallback original) {
-            this.original = original;
-        }
-
-        @Override
-        public void onEvent(EventData event) {
-            original.onEvent(event);
-        }
-
-        @Override
-        public void onOpen() {
-            original.onOpen();
-        }
-
-        @Override
-        public void onClose(String lastEventId) {
-            original.onClose(lastEventId);
-        }
-
-        @Override
-        public void onError(Exception e) {
-            original.onError(e);
-        }
-    }
-
 }
