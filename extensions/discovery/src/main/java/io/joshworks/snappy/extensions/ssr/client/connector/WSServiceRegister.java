@@ -21,12 +21,11 @@ import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.extensions.ssr.client.ServiceRegister;
 import io.joshworks.snappy.extensions.ssr.client.ServiceStore;
 import io.joshworks.snappy.extensions.ssr.client.WSRegistryClient;
-import io.joshworks.snappy.sse.client.StreamClient;
-import io.undertow.websockets.core.WebSocketChannel;
+import io.joshworks.stream.client.StreamClient;
+import io.joshworks.stream.client.ws.WsConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.concurrent.ScheduledExecutorService;
 
 import static io.joshworks.snappy.extensions.ssr.SSRKeys.SSR_LOGGER;
@@ -40,7 +39,7 @@ public class WSServiceRegister extends ServiceRegister {
 
     public static final String SSR_ENDPOINT = "/ssr";
     public static final String PROTOCOL = "ws://"; //TODO read from properties
-    private WebSocketChannel webSocketChannel;
+    private WsConnection connection;
 
     public WSServiceRegister(ServiceStore store, Instance instance, String serverUrl, ScheduledExecutorService executorService) {
         super(store, instance, serverUrl, executorService);
@@ -49,22 +48,14 @@ public class WSServiceRegister extends ServiceRegister {
     @Override
     protected void connect() {
         String registryUrl = PROTOCOL + this.registryUrl + SSR_ENDPOINT + "/" + instance.getName();
-        webSocketChannel = StreamClient.connectWS(registryUrl, new WSRegistryClient(this, store, instance));
+        connection = StreamClient.connect(registryUrl, new WSRegistryClient(this, store, instance));
     }
 
     @Override
     protected void disconnect() {
-        try {
-            if (webSocketChannel != null && webSocketChannel.isOpen()) {
-                logger.info("Closing WS webSocketChannel");
-
-                webSocketChannel.setCloseCode(1000); //normal closure
-                webSocketChannel.setCloseReason("Service disconnected");
-                webSocketChannel.sendClose();
-            }
-
-        } catch (IOException e) {
-            logger.error("Error while closing the webSocketChannel", e);
+        if (connection != null && connection.isOpen()) {
+            logger.info("Closing WS connection");
+            connection.close();
         }
     }
 

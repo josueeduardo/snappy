@@ -20,12 +20,11 @@ package io.joshworks.snappy.extensions.ssr.client;
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.Parser;
-import io.joshworks.snappy.websocket.WebsocketEndpoint;
+import io.joshworks.stream.client.ws.WebSocketClientEndpoint;
 import io.undertow.websockets.core.BufferedTextMessage;
-import io.undertow.websockets.core.StreamSourceFrameChannel;
+import io.undertow.websockets.core.CloseMessage;
 import io.undertow.websockets.core.WebSocketChannel;
 import io.undertow.websockets.core.WebSockets;
-import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,7 @@ import static io.joshworks.snappy.SnappyServer.*;
 /**
  * Created by Josue on 16/06/2016.
  */
-public class WSRegistryClient extends WebsocketEndpoint {
+public class WSRegistryClient extends WebSocketClientEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
@@ -52,7 +51,7 @@ public class WSRegistryClient extends WebsocketEndpoint {
     }
 
     @Override
-    public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
+    protected void onConnect(WebSocketChannel channel) {
         try {
             logger.info("Sending connection event");
             store.newSession(); //TODO WS is application scoped bean now
@@ -63,30 +62,17 @@ public class WSRegistryClient extends WebsocketEndpoint {
     }
 
     @Override
-    protected void onClose(WebSocketChannel webSocketChannel, StreamSourceFrameChannel channel) throws IOException {
+    protected void onClose(WebSocketChannel channel, CloseMessage message) {
         if (!register.shutdownRequested()) {
-            logger.error("Connection closed, reason: {}", webSocketChannel.getCloseReason());
+            logger.error("Connection closed, reason: {}", channel.getCloseReason());
             register.register(); //reconnect
         } else {
-            logger.info("Client initiated shutdown process, not reconnecting", webSocketChannel.getCloseReason());
+            logger.info("Client initiated shutdown process, not reconnecting", channel.getCloseReason());
         }
-        super.onClose(webSocketChannel, channel);
     }
 
     @Override
-    protected void onError(WebSocketChannel channel, Throwable error) {
-        String message;
-        if (error instanceof IOException) {
-            message = "The server may have shutdown unexpectedly, error message: {}";
-        } else {
-            message = "Error handling event, error message {}";
-        }
-        logger.error(message, error.getMessage());
-        super.onError(channel, error);
-    }
-
-    @Override
-    protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
+    protected void onText(WebSocketChannel channel, BufferedTextMessage message) {
         try {
             Instance instance = parser.readValue(message.getData(), Instance.class);
             store.proccessInstance(instance);
@@ -94,6 +80,17 @@ public class WSRegistryClient extends WebsocketEndpoint {
         } catch (Exception e) {
             logger.error("Error receiving Instance event", e);
         }
+    }
+
+    @Override
+    protected void onError(WebSocketChannel channel, Exception error) {
+        String message;
+        if (error instanceof IOException) {
+            message = "The server may have shutdown unexpectedly, error message: {}";
+        } else {
+            message = "Error handling event, error message {}";
+        }
+        logger.error(message, error.getMessage());
     }
 }
 

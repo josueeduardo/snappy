@@ -311,6 +311,7 @@ public class SnappyServer {
         instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), endpoint, instance().interceptors));
     }
 
+    //TODO remove ?
     public static synchronized void websocket(String url, WebSocketConnectionCallback connectionCallback) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), connectionCallback, instance().interceptors));
