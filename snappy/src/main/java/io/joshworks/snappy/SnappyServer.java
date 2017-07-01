@@ -301,6 +301,30 @@ public class SnappyServer {
         instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    public static synchronized void get(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        get(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
+    }
+
+    public static synchronized void post(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        post(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
+    }
+
+    public static synchronized void put(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        put(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
+    }
+
+    public static synchronized void delete(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        delete(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
+    }
+
+    public static synchronized void options(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        options(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
+    }
+
+    public static synchronized void head(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+        head(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
+    }
+
     public static synchronized void add(HttpString method, String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(method, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
