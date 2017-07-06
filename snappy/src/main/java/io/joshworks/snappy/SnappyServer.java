@@ -92,7 +92,7 @@ public class SnappyServer {
     //-------------------------------------------
     private final List<MappedEndpoint> endpoints = new ArrayList<>();
     private final ExceptionMapper exceptionMapper = new ExceptionMapper();
-    //--------------------- REST -------------------
+    //--------------------- HTTP -------------------
     private final Deque<String> groups = new ArrayDeque<>();
     private Undertow server;
     private int port = 9000;
@@ -373,13 +373,13 @@ public class SnappyServer {
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.multipart(resolvePath(url), endpoint, instance().interceptors));
     }
 
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors, maxSize));
+        instance().endpoints.add(HandlerUtil.multipart(resolvePath(url), endpoint, instance().interceptors, maxSize));
     }
 
     public static synchronized void onStart(Runnable task) {
@@ -421,9 +421,6 @@ public class SnappyServer {
 
             Parsers.register(new JsonParser());
             Parsers.register(new PlainTextParser());
-
-//            ClientManager.configureWorker();
-//            ClientManager.init();
 
             Undertow.Builder serverBuilder = Undertow.builder();
 

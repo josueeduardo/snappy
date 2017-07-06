@@ -45,6 +45,7 @@ public class MultipartTest {
 
     private static Path output;
 
+
     @BeforeClass
     public static void setup() throws IOException {
         String tempDir = System.getProperty("java.io.tmpdir");
@@ -61,6 +62,12 @@ public class MultipartTest {
             String parameterValue = parameter.value();
 
             exchange.status(200).send(parameterValue, "txt");
+        });
+
+        group("/a", () -> {
+            multipart("/b", exchange -> {
+                exchange.status(201);
+            });
         });
 
         start();
@@ -99,6 +106,21 @@ public class MultipartTest {
 
         byte[] bytes = Files.readAllBytes(output);
         assertEquals(fileContent, new String(bytes));
+
+    }
+
+    @Test
+    public void resolveUrl() throws Exception {
+        String parameterValue = "SOME-VALUE";
+
+        InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
+        HttpResponse<String> response = SimpleClient.post("http://localhost:9000/a/b")
+                .header("accept", "application/json")
+                .field(SOME_OTHER_FIELD, parameterValue)
+                .field(FILE_PART_NAME, uploadFile, "sample-input.txt")
+                .asString();
+
+        assertEquals(201, response.getStatus());
 
     }
 
