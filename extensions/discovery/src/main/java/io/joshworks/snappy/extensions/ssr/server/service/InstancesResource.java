@@ -20,6 +20,8 @@ package io.joshworks.snappy.extensions.ssr.server.service;
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.rest.RestException;
 import io.joshworks.snappy.rest.RestExchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -28,6 +30,8 @@ import io.joshworks.snappy.rest.RestExchange;
 public class InstancesResource {
 
     private final ServiceControl control;
+
+    private static final Logger logger = LoggerFactory.getLogger(InstancesResource.class);
 
     public InstancesResource(ServiceControl control) {
         this.control = control;
@@ -54,7 +58,12 @@ public class InstancesResource {
             throw RestException.badRequest("Invalid instance");
         }
 
-        Instance updated = control.updateInstanceState(instanceId, instance.getState());
+        try {
+            Instance updated = control.updateInstanceState(instanceId, instance.getState());
+
+        } catch (Exception ex) {
+            logger.warn("Could not update instance {}", instanceId);
+        }
 //        sessionStore.pushInstanceState(updated);
 
         exchange.status(204);

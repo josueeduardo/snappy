@@ -40,7 +40,6 @@ import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
-import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
 import io.undertow.websockets.core.AbstractReceiveListener;
 
@@ -98,17 +97,6 @@ public class HandlerUtil {
         interceptorHandler.setNext(websocket);
 
         return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
-    }
-
-    public static MappedEndpoint websocket(String url, WebSocketConnectionCallback connectionCallback, List<Interceptor> interceptors) {
-        Objects.requireNonNull(url, Messages.INVALID_URL);
-        Objects.requireNonNull(connectionCallback, Messages.INVALID_HANDLER);
-        WebSocketProtocolHandshakeHandler websocket = Handlers.websocket(connectionCallback);
-
-        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-        interceptorHandler.setNext(websocket);
-        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.WS, interceptorHandler);
-
     }
 
     public static MappedEndpoint websocket(String url, WebsocketEndpoint websocketEndpoint, List<Interceptor> interceptors) {
@@ -188,20 +176,25 @@ public class HandlerUtil {
     }
 
     private static String resolveGroup(String url) {
-        return groups.stream().collect(Collectors.joining("")) + url;
+        return groups.stream().map(HandlerUtil::parseUrl).collect(Collectors.joining("")) + url;
     }
 
-    private static String resolveUrl(String url) {
-        url = resolveGroup(url);
+    private static String parseUrl(String url) {
         Objects.requireNonNull(url, INVALID_URL);
         if (url.isEmpty()) {
             Objects.requireNonNull(url, EMPTY_URL);
         }
         if (BASE_PATH.equals(url)) {
-            return url;
+            return "";
         }
         url = url.startsWith(BASE_PATH) ? url : BASE_PATH + url;
         url = url.endsWith(BASE_PATH) ? url.substring(0, url.length() - 1) : url;
+        return url;
+    }
+
+    private static String resolveUrl(String url) {
+        url = parseUrl(url);
+        url = resolveGroup(url);
         return url;
     }
 

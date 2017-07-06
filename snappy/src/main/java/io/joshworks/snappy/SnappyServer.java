@@ -46,8 +46,10 @@ import io.undertow.server.HttpHandler;
 import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
-import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.core.AbstractReceiveListener;
+import io.undertow.websockets.core.BufferedTextMessage;
+import io.undertow.websockets.core.WebSocketChannel;
+import io.undertow.websockets.spi.WebSocketHttpExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xnio.OptionMap;
@@ -55,11 +57,13 @@ import org.xnio.Options;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static io.joshworks.snappy.handler.HandlerUtil.BASE_PATH;
@@ -330,10 +334,19 @@ public class SnappyServer {
         instance().endpoints.add(HandlerUtil.websocket(url, endpoint, instance().interceptors));
     }
 
-    //TODO remove ?
-    public static synchronized void websocket(String url, WebSocketConnectionCallback connectionCallback) {
+    public static synchronized void websocket(String url, BiConsumer<WebSocketChannel, BufferedTextMessage> onMessage) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(url, connectionCallback, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.websocket(url, new WebsocketEndpoint() {
+            @Override
+            public void onConnect(WebSocketHttpExchange exchange, WebSocketChannel channel) {
+
+            }
+
+            @Override
+            protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
+                onMessage.accept(channel, message);
+            }
+        }, instance().interceptors));
     }
 
     public static synchronized void websocket(String url, WebsocketEndpoint websocketEndpoint) {
