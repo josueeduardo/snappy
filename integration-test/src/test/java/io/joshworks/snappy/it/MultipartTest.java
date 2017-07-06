@@ -121,7 +121,6 @@ public class MultipartTest {
                 .asString();
 
         assertEquals(201, response.getStatus());
-
     }
 
 }

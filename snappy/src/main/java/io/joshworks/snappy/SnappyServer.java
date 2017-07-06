@@ -55,15 +55,12 @@ import org.xnio.Options;
 import org.xnio.Xnio;
 import org.xnio.XnioWorker;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static io.joshworks.snappy.handler.HandlerUtil.BASE_PATH;
 
@@ -93,7 +90,7 @@ public class SnappyServer {
     private final List<MappedEndpoint> endpoints = new ArrayList<>();
     private final ExceptionMapper exceptionMapper = new ExceptionMapper();
     //--------------------- HTTP -------------------
-    private final Deque<String> groups = new ArrayDeque<>();
+
     private Undertow server;
     private int port = 9000;
     private String bindAddress = "0.0.0.0";
@@ -234,9 +231,7 @@ public class SnappyServer {
 
     public static synchronized void group(String groupPath, Group group) {
         checkStarted();
-        instance().groups.addLast(groupPath);
-        group.addResources();
-        instance().groups.removeLast();
+        HandlerUtil.group(groupPath, group);
     }
 
     public static synchronized void register(SnappyExtension extension) {
@@ -273,32 +268,32 @@ public class SnappyServer {
 
     public static synchronized void get(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.GET, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void post(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.POST, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void put(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void delete(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void options(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void head(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void get(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
@@ -327,59 +322,59 @@ public class SnappyServer {
 
     public static synchronized void add(HttpString method, String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(method, resolvePath(url), endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(method, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
     public static synchronized void websocket(String url, AbstractReceiveListener endpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), endpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.websocket(url, endpoint, instance().interceptors));
     }
 
     //TODO remove ?
     public static synchronized void websocket(String url, WebSocketConnectionCallback connectionCallback) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), connectionCallback, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.websocket(url, connectionCallback, instance().interceptors));
     }
 
     public static synchronized void websocket(String url, WebsocketEndpoint websocketEndpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(resolvePath(url), websocketEndpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.websocket(url, websocketEndpoint, instance().interceptors));
     }
 
     public static synchronized void sse(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors, null));
+        instance().endpoints.add(HandlerUtil.sse(url, instance().interceptors, null));
     }
 
     public static synchronized void sse(String url, ServerSentEventConnectionCallback connectionCallback) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.sse(resolvePath(url), instance().interceptors, connectionCallback));
+        instance().endpoints.add(HandlerUtil.sse(url, instance().interceptors, connectionCallback));
     }
 
     public static synchronized void staticFiles(String url, String docPath) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url), docPath, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.staticFiles(url, docPath, instance().interceptors));
     }
 
     public static synchronized void staticFiles(String url) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.staticFiles(resolvePath(url), instance().interceptors));
+        instance().endpoints.add(HandlerUtil.staticFiles(url, instance().interceptors));
     }
 
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.multipart(resolvePath(url), endpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors));
     }
 
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
         checkStarted();
         Objects.requireNonNull(url, Messages.INVALID_URL);
-        instance().endpoints.add(HandlerUtil.multipart(resolvePath(url), endpoint, instance().interceptors, maxSize));
+        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors, maxSize));
     }
 
     public static synchronized void onStart(Runnable task) {
@@ -390,10 +385,6 @@ public class SnappyServer {
     public static synchronized void onShutdown(Runnable task) {
         checkStarted();
         instance().shutdownListeners.add(task);
-    }
-
-    private static String resolvePath(String url) {
-        return instance().groups.stream().collect(Collectors.joining("")) + url;
     }
 
     private static void checkStarted() {

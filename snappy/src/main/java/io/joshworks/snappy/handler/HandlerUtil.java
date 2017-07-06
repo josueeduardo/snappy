@@ -22,6 +22,7 @@ import io.joshworks.snappy.multipart.MultipartEntrypointHandler;
 import io.joshworks.snappy.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.rest.ExceptionMapper;
+import io.joshworks.snappy.rest.Group;
 import io.joshworks.snappy.rest.Interceptor;
 import io.joshworks.snappy.rest.RestDispatcher;
 import io.joshworks.snappy.rest.RestExchange;
@@ -43,10 +44,13 @@ import io.undertow.websockets.WebSocketConnectionCallback;
 import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
 import io.undertow.websockets.core.AbstractReceiveListener;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static io.joshworks.snappy.Messages.EMPTY_URL;
 import static io.joshworks.snappy.Messages.INVALID_URL;
@@ -60,6 +64,8 @@ public class HandlerUtil {
     public static final String WILDCARD = "*";
     public static final String HEADER_VALUE_SEPARATOR = ",";
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
+
+    private static final Deque<String> groups = new ArrayDeque<>();
 
     public static MappedEndpoint rest(HttpString method,
                                       String url,
@@ -160,6 +166,7 @@ public class HandlerUtil {
     }
 
     public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint, List<Interceptor> interceptors, long maxSize) {
+        url = resolveUrl(url);
         MultipartEntrypointHandler entrypointHandler = new MultipartEntrypointHandler(endpoint);
 
         InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
@@ -174,8 +181,18 @@ public class HandlerUtil {
         return new MappedEndpoint(Methods.POST_STRING, url, MappedEndpoint.Type.MULTIPART, formHandler);
     }
 
+    public static synchronized void group(String groupPath, Group group) {
+        groups.addLast(groupPath);
+        group.addResources();
+        groups.removeLast();
+    }
+
+    private static String resolveGroup(String url) {
+        return groups.stream().collect(Collectors.joining("")) + url;
+    }
 
     private static String resolveUrl(String url) {
+        url = resolveGroup(url);
         Objects.requireNonNull(url, INVALID_URL);
         if (url.isEmpty()) {
             Objects.requireNonNull(url, EMPTY_URL);
