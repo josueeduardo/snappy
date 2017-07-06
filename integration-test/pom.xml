@@ -39,9 +39,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.parent.groupId}</groupId>
+            <groupId>io.joshworks.stream</groupId>
             <artifactId>stream-client</artifactId>
-            <version>${project.parent.version}</version>
+            <version>0.3</version>
         </dependency>
     </dependencies>
 
