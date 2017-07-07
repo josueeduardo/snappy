@@ -111,16 +111,12 @@ public class MultipartTest {
 
     @Test
     public void resolveUrl() throws Exception {
-        String parameterValue = "SOME-VALUE";
-
-        InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
         HttpResponse<String> response = SimpleClient.post("http://localhost:9000/a/b")
                 .header("accept", "application/json")
-                .field(SOME_OTHER_FIELD, parameterValue)
-                .field(FILE_PART_NAME, uploadFile, "sample-input.txt")
                 .asString();
 
         assertEquals(201, response.getStatus());
     }
+
 
 }

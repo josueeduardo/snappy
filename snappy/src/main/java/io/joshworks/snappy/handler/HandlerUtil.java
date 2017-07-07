@@ -51,7 +51,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static io.joshworks.snappy.Messages.EMPTY_URL;
 import static io.joshworks.snappy.Messages.INVALID_URL;
 
 /**
@@ -179,10 +178,10 @@ public class HandlerUtil {
         return groups.stream().map(HandlerUtil::parseUrl).collect(Collectors.joining("")) + url;
     }
 
-    private static String parseUrl(String url) {
+    public static String parseUrl(String url) {
         Objects.requireNonNull(url, INVALID_URL);
         if (url.isEmpty()) {
-            Objects.requireNonNull(url, EMPTY_URL);
+            return "";
         }
         if (BASE_PATH.equals(url)) {
             return "";

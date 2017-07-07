@@ -61,9 +61,11 @@ public class Parsers {
             mostSpecificOrderedParsers.add(mt);
         });
 
+        StringBuilder sb = new StringBuilder("\n");
         for (MediaType mt : mostSpecificOrderedParsers) {
-            System.out.println(mt);
+            sb.append(mt.toString()).append("\n");
         }
+        logger.debug("Most specialized parsers order: {}", sb.toString());
     }
 
     public static void clear() {

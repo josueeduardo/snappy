@@ -47,11 +47,6 @@ public class InterceptorHandler implements HttpHandler {
         this.interceptors = interceptors;
     }
 
-    public InterceptorHandler(List<Interceptor> interceptors, ExceptionMapper exceptionMapper) {
-        this.interceptors = interceptors;
-        this.exceptionMapper = exceptionMapper;
-    }
-
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         String url = exchange.getRequestPath();

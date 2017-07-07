@@ -56,10 +56,8 @@ public class HandlerManager {
 
         for (MappedEndpoint me : mappedEndpoints) {
 
-            //TODO clean this up
-            //TODO at the moment only rest has metrics
+            String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
             if (MappedEndpoint.Type.REST.equals(me.type)) {
-                String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
                 RestMetricsHandler restMetricHandler = new RestMetricsHandler(me.method, endpointPath, me.handler, httpMetrics);
                 metricsHandlers.add(restMetricHandler);
                 routingRestHandler.add(me.method, endpointPath, restMetricHandler);

@@ -61,7 +61,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -223,117 +222,273 @@ public class SnappyServer {
         instance().schedulers.add(schedulerConfig);
     }
 
-    public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler handler) {
+    /**
+     * Register an error interceptor that captures exception thrown from endpoints, allowing to change the http response.
+     * The default response is mapped to any {@link Exception} and returns an {@link io.joshworks.snappy.rest.RestException} body
+     *
+     * @param exception The exception type that will trigger the handler
+     * @param handler The handler that handles the exception and send the appropriate response.
+     */
+    public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler<T> handler) {
         checkStarted();
         instance().exceptionMapper.put(exception, handler);
     }
 
+    /**
+     * Set the base path for REST endpoints only. This configuration has no effect on ws, sse, staticFiles and multipart endpoints
+     *
+     * @param basePath The base path for the REST endpoints
+     */
     public static synchronized void basePath(String basePath) {
         checkStarted();
-        instance().basePath = basePath;
+        instance().basePath = HandlerUtil.parseUrl(basePath);
     }
 
+    /**
+     * @param groupPath The path to be used by the endpoints declared under this group
+     * @param group     The grouped endpoints, meant to be used as lambda function.
+     */
     public static synchronized void group(String groupPath, Group group) {
         checkStarted();
         HandlerUtil.group(groupPath, group);
     }
 
+    /**
+     * Register a new Extension that will be executed on startup. Extensions allows the implementation to change the server behavior.
+     *
+     * @param extension The extension to be registered
+     */
     public static synchronized void register(SnappyExtension extension) {
         checkStarted();
         instance().extensions.register(extension);
     }
 
-    //TODO add url validation
+    /**
+     * Adds an interceptor that executes before any other handler.
+     * Calling {@link Exchange#end()} or {@link Exchange#send(Object)} causes the request to complete.
+     *
+     * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
+     * @param consumer The code to be executed when a URL matches the provided pattern
+     */
     public static synchronized void beforeAll(String url, Consumer<Exchange> consumer) {
         checkStarted();
-        instance().rootInterceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
+        instance().rootInterceptors.add(new Interceptor(Interceptor.Type.BEFORE, HandlerUtil.parseUrl(url), consumer));
     }
 
+    /**
+     * Adds an interceptor that executed after all other handlers are executed, changes to {@link Exchange} has no effect.
+     *
+     * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
+     * @param consumer The code to be executed when a URL matches the provided pattern
+     */
     public static synchronized void afterAll(String url, Consumer<Exchange> consumer) {
         checkStarted();
-        instance().rootInterceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
+        instance().rootInterceptors.add(new Interceptor(Interceptor.Type.AFTER, HandlerUtil.parseUrl(url), consumer));
     }
 
+    /**
+     * Adds an interceptor that executed right before the endpoint.
+     * Calling {@link Exchange#end()} or {@link Exchange#send(Object)} causes the request to complete.
+     *
+     * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
+     * @param consumer The code to be executed when a URL matches the provided pattern
+     */
+    public static synchronized void before(String url, RestConsumer<Exchange> consumer) {
+        checkStarted();
+        instance().interceptors.add(new Interceptor(Interceptor.Type.BEFORE, HandlerUtil.parseUrl(url), consumer));
+    }
+
+    /**
+     * Adds an interceptor that executed after the endpoint, changes to {@link Exchange} has no effect.
+     *
+     * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
+     * @param consumer The code to be executed when a URL matches the provided pattern
+     */
+    public static synchronized void after(String url, RestConsumer<Exchange> consumer) {
+        checkStarted();
+        instance().interceptors.add(new Interceptor(Interceptor.Type.AFTER, HandlerUtil.parseUrl(url), consumer));
+    }
+
+    /**
+     * Enable CORS by setting:
+     * <ul>
+     * <li>Access-Control-Allow-Origin: *</li>
+     * <li>Access-Control-Allow-Credentials: true</li>
+     * <li>Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS, HEAD</li>
+     * <li>Access-Control-Allow-Headers: Origin, Accept, X-Requested-With, Content-Type, Authorization, Access-Control-Request-Method, Access-Control-Request-Headers</li>
+     * </ul>
+     * <p>
+     * For custom headers, use {@link SnappyServer#before(String, RestConsumer)}
+     */
     public static synchronized void cors() {
         checkStarted();
         instance().rootInterceptors.add(Interceptors.cors());
         instance().adminManager.getAdminInterceptors().add(Interceptors.cors());
     }
 
-    public static synchronized void before(String url, RestConsumer<Exchange> consumer) {
-        checkStarted();
-        instance().interceptors.add(new Interceptor(Interceptor.Type.BEFORE, url, consumer));
-    }
-
-    public static synchronized void after(String url, RestConsumer<Exchange> consumer) {
-        checkStarted();
-        instance().interceptors.add(new Interceptor(Interceptor.Type.AFTER, url, consumer));
-    }
-
+    /**
+     * Define a REST endpoint mapped to HTTP GET
+     *
+     * @param url        The relative URL to be map this endpoint.
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void get(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP POST
+     *
+     * @param url        The relative URL to be map this endpoint.
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void post(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP PUT
+     *
+     * @param url        The relative URL to be map this endpoint.
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void put(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP DELETE
+     *
+     * @param url        The relative URL to be map this endpoint.
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void delete(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP OPTIONS
+     *
+     * @param url        The relative URL to be map this endpoint.
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     *                   </pre>
+     */
     public static synchronized void options(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP HEAD
+     *
+     * @param url        The relative URL to be map this endpoint.
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void head(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP GET, uses "/" as url
+     *
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void get(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         get(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP POST, uses "/" as url
+     *
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void post(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         post(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP PUT, uses "/" as url
+     *
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void put(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         put(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP DELETE, uses "/" as url
+     *
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void delete(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         delete(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP OPTIONS, uses "/" as url
+     *
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void options(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         options(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
+    /**
+     * Define a REST endpoint mapped to HTTP HEAD, uses "/" as url
+     *
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void head(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         head(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
+    /**
+     * Define a REST endpoint mapped to the specified HTTP method, uses "/" as url
+     *
+     * @param method     The HTTP method
+     * @param url        The relative URL to be map this endpoint.
+     * @param endpoint   The endpoint handler
+     * @param mediaTypes (Optional) The accepted and returned types for this endpoint
+     */
     public static synchronized void add(HttpString method, String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.rest(method, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
     }
 
+    /**
+     * Define a Websocket endpoint. Supports path variables
+     *
+     * @param url      The relative URL to be map this endpoint.
+     * @param endpoint The endpoint handler
+     */
     public static synchronized void websocket(String url, AbstractReceiveListener endpoint) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.websocket(url, endpoint, instance().interceptors));
     }
 
+    /**
+     * A simplified Websocket endpoint. Supports path variables
+     *
+     * @param url       The relative URL to be map this endpoint.
+     * @param onMessage The handler for when a new message is received
+     */
     public static synchronized void websocket(String url, BiConsumer<WebSocketChannel, BufferedTextMessage> onMessage) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.websocket(url, new WebsocketEndpoint() {
@@ -349,52 +504,99 @@ public class SnappyServer {
         }, instance().interceptors));
     }
 
-    public static synchronized void websocket(String url, WebsocketEndpoint websocketEndpoint) {
+    /**
+     * Define a Websocket endpoint. Supports path variables
+     *
+     * @param url      The relative URL to be map this endpoint.
+     * @param endpoint The endpoint handler
+     */
+    public static synchronized void websocket(String url, WebsocketEndpoint endpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(url, websocketEndpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.websocket(url, endpoint, instance().interceptors));
     }
 
+    /**
+     * Define a Server sent events endpoint without a handler. Supports path variables
+     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
+     *
+     * @param url The relative URL to be map this endpoint.
+     */
     public static synchronized void sse(String url) {
         checkStarted();
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.sse(url, instance().interceptors, null));
     }
 
+    /**
+     * Define a Server sent events endpoint with a specified handler. Supports path variables
+     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
+     *
+     * @param url                The relative URL to be map this endpoint.
+     * @param connectionCallback Endpoint handler.
+     */
     public static synchronized void sse(String url, ServerSentEventConnectionCallback connectionCallback) {
         checkStarted();
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.sse(url, instance().interceptors, connectionCallback));
     }
 
+    /**
+     * Serve static files from a given url. Path variables are not supported.
+     *
+     * @param url     The relative URL to be map this endpoint.
+     * @param docPath The relative path to the classpath.
+     */
     public static synchronized void staticFiles(String url, String docPath) {
         checkStarted();
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.staticFiles(url, docPath, instance().interceptors));
     }
 
+    /**
+     * Serve static files from a given url from the default "/static" folder in the classpath. Path variables are not supported.
+     *
+     * @param url The relative URL to be map this endpoint.
+     */
     public static synchronized void staticFiles(String url) {
         checkStarted();
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.staticFiles(url, instance().interceptors));
     }
 
+    /**
+     * Define a endpoint that accepts a specialized {@link Exchange} to handle multipart requests. The data is parsed eagerly.
+     *
+     * @param url      The relative URL to be map this endpoint.
+     * @param endpoint The endpoint handler
+     */
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint) {
         checkStarted();
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors));
     }
 
+    /**
+     * Define a endpoint that accepts a specialized {@link Exchange} to handle multipart requests. The data is parsed eagerly.
+     *
+     * @param url      The relative URL to be map this endpoint.
+     * @param endpoint The endpoint handler
+     * @param maxSize  The maximum request size for this endpoint.
+     */
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
         checkStarted();
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors, maxSize));
     }
 
+    /**
+     * Register a server startup listener that executes after all resources and extensions are loaded.
+     *
+     * @param task the {@link Runnable} to be executed.
+     */
     public static synchronized void onStart(Runnable task) {
         checkStarted();
         instance().startListeners.add(task);
     }
 
+    /**
+     * Register a server shutdown listener that executes after all resources have been shut down.
+     *
+     * @param task the {@link Runnable} to be executed.
+     */
     public static synchronized void onShutdown(Runnable task) {
         checkStarted();
         instance().shutdownListeners.add(task);
@@ -412,9 +614,7 @@ public class SnappyServer {
             Info.logo();
             Info.version();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                if (started) server.stop();
-            }));
+            Runtime.getRuntime().addShutdownHook(new Thread(SnappyServer::stop));
 
             long start = System.currentTimeMillis();
             logger.info("Starting server...");
@@ -484,10 +684,12 @@ public class SnappyServer {
             if (server != null && started) {
                 logger.info("Stopping server...");
 
-                extensions.onShutdown();
+                shutdownExtensions();
+                server.stop();
+                shutdownWorkers();
 
                 server.stop();
-                worker.shutdownNow();
+
                 INSTANCE = null;
                 started = false;
 
@@ -496,6 +698,22 @@ public class SnappyServer {
             }
         } catch (Exception e) {
             logger.error("Error while shutting down", e);
+        }
+    }
+
+    private void shutdownExtensions() {
+        try {
+            extensions.onShutdown();
+        } catch (Exception e) {
+            logger.error("Error shutting down extensions", e);
+        }
+    }
+
+    private void shutdownWorkers() {
+        try {
+            worker.shutdownNow();
+        } catch (Exception e) {
+            logger.error("Error shutting down workers", e);
         }
     }
 

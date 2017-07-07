@@ -17,8 +17,7 @@
 
 package io.joshworks.examples.runnablejar;
 
-import static io.joshworks.snappy.SnappyServer.get;
-import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by Josh Gontijo on 4/2/17.

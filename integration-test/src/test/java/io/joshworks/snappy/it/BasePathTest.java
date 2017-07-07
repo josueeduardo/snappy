@@ -18,8 +18,6 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.SimpleClient;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -30,24 +28,34 @@ import static org.junit.Assert.assertEquals;
  */
 public class BasePathTest {
 
-    @BeforeClass
-    public static void setup() {
-        basePath("/v1");
-        get("/test", exchange -> {
-        });
-        start();
-    }
-
-    @AfterClass
-    public static void shutdown() {
-        stop();
-    }
-
-
     @Test
     public void getRequest() throws Exception {
-        assertEquals(200, SimpleClient.get("http://localhost:9000/v1/test").asString().getStatus());
+        try {
+            basePath("/v1");
+            get("/test", exchange -> {
+            });
+            start();
+
+            assertEquals(200, SimpleClient.get("http://localhost:9000/v1/test").asString().getStatus());
+
+        } finally {
+            stop();
+        }
     }
 
+    @Test
+    public void withGroup() throws Exception {
+        try {
+            basePath("/v1");
+            group("/a", () -> get("/test", exchange -> {
+            }));
+            start();
+
+            assertEquals(200, SimpleClient.get("http://localhost:9000/v1/a/test").asString().getStatus());
+
+        } finally {
+            stop();
+        }
+    }
 
 }
