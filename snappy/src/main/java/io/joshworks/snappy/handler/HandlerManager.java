@@ -17,8 +17,6 @@
 
 package io.joshworks.snappy.handler;
 
-import io.joshworks.snappy.admin.AdminManager;
-import io.joshworks.snappy.metric.RestMetricsHandler;
 import io.joshworks.snappy.rest.Interceptor;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
@@ -30,7 +28,6 @@ import io.undertow.server.handlers.PredicateHandler;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,23 +41,18 @@ public class HandlerManager {
     public HttpHandler createRootHandler(
             List<MappedEndpoint> mappedEndpoints,
             List<Interceptor> rootInterceptors,
-            AdminManager adminManager,
             String basePath,
-            boolean httpMetrics,
             boolean httpTracer) {
 
-        final List<RestMetricsHandler> metricsHandlers = new ArrayList<>();
         final RoutingHandler routingRestHandler = new TrailingSlashRoutingHandler();
         final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
         HttpHandler staticHandler = null;
 
         for (MappedEndpoint me : mappedEndpoints) {
 
-            String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
             if (MappedEndpoint.Type.REST.equals(me.type)) {
-                RestMetricsHandler restMetricHandler = new RestMetricsHandler(me.method, endpointPath, me.handler, httpMetrics);
-                metricsHandlers.add(restMetricHandler);
-                routingRestHandler.add(me.method, endpointPath, restMetricHandler);
+                String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
+                routingRestHandler.add(me.method, endpointPath, me.handler);
             }
             if (MappedEndpoint.Type.MULTIPART.equals(me.type)) {
                 routingRestHandler.add(me.method, me.url, me.handler);
@@ -75,8 +67,6 @@ public class HandlerManager {
                 staticHandler = me.handler;
             }
         }
-
-        adminManager.registerMetrics(metricsHandlers);
 
         HttpHandler root = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
         if(!rootInterceptors.isEmpty()) {

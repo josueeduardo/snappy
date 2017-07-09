@@ -66,8 +66,7 @@ public class Info {
                                   int port,
                                   String adminBindAddress,
                                   int adminPort,
-                                  boolean httpTracer,
-                                  boolean httpMetrics) {
+                                  boolean httpTracer) {
 
         System.err.println("---------------- HTTP CONFIG ----------------");
         System.err.println(String.format("Bind address: %s", bindAddress));
@@ -75,7 +74,6 @@ public class Info {
         System.err.println(String.format("Admin Bind address: %s", adminBindAddress));
         System.err.println(String.format("Admin Port: %d", adminPort));
         System.err.println(String.format("Http tracer : %b", httpTracer));
-        System.err.println(String.format("Http metrics: %b", httpMetrics));
 
         System.err.println();
     }

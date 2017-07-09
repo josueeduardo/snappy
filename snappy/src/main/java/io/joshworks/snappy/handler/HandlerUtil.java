@@ -132,6 +132,7 @@ public class HandlerUtil {
     public static MappedEndpoint staticFiles(String url, String docPath, List<Interceptor> interceptors) {
         Objects.requireNonNull(url, Messages.INVALID_URL);
         url = resolveUrl(url);
+        url = url.isEmpty() ? BASE_PATH : url;
         docPath = docPath.startsWith(BASE_PATH) ? docPath.replaceFirst(BASE_PATH, "") : docPath;
         HttpHandler handler = Handlers.path()
                 .addPrefixPath(url,
@@ -181,7 +182,7 @@ public class HandlerUtil {
     public static String parseUrl(String url) {
         Objects.requireNonNull(url, INVALID_URL);
         if (url.isEmpty()) {
-            return "";
+            return url;
         }
         if (BASE_PATH.equals(url)) {
             return "";

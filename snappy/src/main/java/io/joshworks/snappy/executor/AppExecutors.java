@@ -155,12 +155,12 @@ public class AppExecutors {
         return threadPoolExecutor;
     }
 
-    static Map<String, ThreadPoolExecutor> executors() {
+    public static Map<String, ThreadPoolExecutor> executors() {
         checkStarted();
         return new HashMap<>(container.executors);
     }
 
-    static Map<String, ScheduledThreadPoolExecutor> schedulers() {
+    public static Map<String, ScheduledThreadPoolExecutor> schedulers() {
         checkStarted();
         return new HashMap<>(container.schedulers);
     }

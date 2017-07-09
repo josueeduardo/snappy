@@ -17,7 +17,6 @@
 
 package io.joshworks.snappy;
 
-import io.joshworks.snappy.admin.AdminManager;
 import io.joshworks.snappy.executor.ExecutorBootstrap;
 import io.joshworks.snappy.executor.ExecutorConfig;
 import io.joshworks.snappy.executor.SchedulerConfig;
@@ -98,9 +97,6 @@ public class SnappyServer {
     private int port = 9000;
     private String bindAddress = "0.0.0.0";
     private boolean httpTracer;
-    private boolean httpMetrics;
-    private int adminPort = 9100;
-    private String adminBindAddress = "127.0.0.1";
     private List<Interceptor> interceptors = new LinkedList<>();
     private List<Interceptor> rootInterceptors = new LinkedList<>();
     private String basePath = BASE_PATH;
@@ -148,12 +144,12 @@ public class SnappyServer {
 
     public static synchronized void adminPort(int adminPort) {
         checkStarted();
-        instance().adminPort = adminPort;
+        instance().adminManager.port = adminPort;
     }
 
     public static synchronized void adminAddress(String address) {
         checkStarted();
-        instance().adminBindAddress = address;
+        instance().adminManager.bindAddress = address;
     }
 
     public static synchronized void port(int port) {
@@ -164,7 +160,7 @@ public class SnappyServer {
     public static synchronized void portOffset(int offset) {
         checkStarted();
         instance().port += offset;
-        instance().adminPort += offset;
+        instance().adminManager.port += offset;
     }
 
     public static synchronized void address(String address) {
@@ -192,11 +188,6 @@ public class SnappyServer {
     public static synchronized void enableTracer() {
         checkStarted();
         instance().httpTracer = true;
-    }
-
-    public static synchronized void enableHttpMetrics() {
-        checkStarted();
-        instance().httpMetrics = true;
     }
 
     public static synchronized OptionMap.Builder xnioOptions() {
@@ -227,7 +218,7 @@ public class SnappyServer {
      * The default response is mapped to any {@link Exception} and returns an {@link io.joshworks.snappy.rest.RestException} body
      *
      * @param exception The exception type that will trigger the handler
-     * @param handler The handler that handles the exception and send the appropriate response.
+     * @param handler   The handler that handles the exception and send the appropriate response.
      */
     public static synchronized <T extends Exception> void exception(Class<T> exception, ErrorHandler<T> handler) {
         checkStarted();
@@ -323,7 +314,7 @@ public class SnappyServer {
     public static synchronized void cors() {
         checkStarted();
         instance().rootInterceptors.add(Interceptors.cors());
-        instance().adminManager.getAdminInterceptors().add(Interceptors.cors());
+        instance().adminManager.getInterceptors().add(Interceptors.cors());
     }
 
     /**
@@ -635,17 +626,17 @@ public class SnappyServer {
             // therefore they must execute before the handler resolution
             bootstrapExtensions();
 
-            Info.httpConfig(bindAddress, port, adminBindAddress, adminPort, httpTracer, httpMetrics);
+            Info.httpConfig(bindAddress, port, adminManager.bindAddress, adminManager.port, httpTracer);
             Info.serverConfig(optionBuilder);
             Info.threadConfig(executors, schedulers);
             Info.endpoints("ENDPOINTS", endpoints, basePath);
-            Info.endpoints("ADMIN ENDPOINTS", adminManager.getAdminEndpoints(), BASE_PATH);
+            Info.endpoints("ADMIN ENDPOINTS", adminManager.getEndpoints(), BASE_PATH);
 
 
-            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, adminManager, basePath, httpMetrics, httpTracer);
+            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, basePath, httpTracer);
             server = serverBuilder
                     .addHttpListener(port, bindAddress, rootHandler)
-                    .addHttpListener(adminPort, adminBindAddress, adminManager.resolveHandlers())
+                    .addHttpListener(adminManager.port, adminManager.bindAddress, adminManager.resolveHandlers())
                     .build();
 
             server.start();
@@ -668,9 +659,6 @@ public class SnappyServer {
                 new ServerData(port,
                         bindAddress,
                         httpTracer,
-                        httpMetrics,
-                        adminPort,
-                        adminBindAddress,
                         interceptors,
                         exceptionMapper,
                         basePath,

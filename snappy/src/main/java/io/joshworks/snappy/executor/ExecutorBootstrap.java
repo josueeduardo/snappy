@@ -17,7 +17,6 @@
 
 package io.joshworks.snappy.executor;
 
-import io.joshworks.snappy.metric.PoolMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,8 +27,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
-import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
-import static io.joshworks.snappy.SnappyServer.onShutdown;
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by josh on 3/14/17.
@@ -89,16 +87,5 @@ public class ExecutorBootstrap {
 
     }
 
-    public static List<PoolMetric> executorMetrics() {
-        return AppExecutors.executors().entrySet().stream()
-                .map(entry -> new PoolMetric(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-    }
-
-    public static List<PoolMetric> schedulerMetrics() {
-        return AppExecutors.schedulers().entrySet().stream()
-                .map(entry -> new PoolMetric(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
-    }
 
 }
