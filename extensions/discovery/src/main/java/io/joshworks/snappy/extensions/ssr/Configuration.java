@@ -23,6 +23,7 @@ import io.joshworks.snappy.extensions.ssr.client.locator.EC2Discovery;
 import io.joshworks.snappy.extensions.ssr.client.locator.HostInfo;
 import io.joshworks.snappy.extensions.ssr.client.locator.LocalDiscovery;
 import io.joshworks.snappy.property.AppProperties;
+import io.joshworks.snappy.property.PropertyKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,12 +95,11 @@ public class Configuration {
     }
 
     private String getRegistryHost() {
-        String registryUrl = AppProperties.resolveProperties(properties, SSRKeys.SSR_REGISTRY_HOST);
-        return registryUrl == null ? DEFAULT_REGISTRY_HOST : registryUrl;
+        return AppProperties.get(SSRKeys.SSR_REGISTRY_HOST).orElse(DEFAULT_REGISTRY_HOST);
     }
 
     private int getRegistryPort() {
-        String port = AppProperties.resolveProperties(properties, SSRKeys.SSR_REGISTRY_PORT);
+        String port = AppProperties.get(SSRKeys.SSR_REGISTRY_PORT).orElse(DEFAULT_REGISTRY_PORT);
         port = isEmpty(port) ? DEFAULT_REGISTRY_PORT : port;
         return Integer.parseInt(port);
     }
@@ -108,8 +108,7 @@ public class Configuration {
     //--------------------- CLIENT PROPERTIES -----------------
 
     private HostInfo getClientHost() {
-        String key = SSRKeys.SSR_CLIENT_HOST;
-        String host = AppProperties.resolveProperties(properties, key);
+        String host = AppProperties.get(SSRKeys.SSR_CLIENT_HOST).orElse(null);
         if (isEmpty(host)) {
             logger.info("Client host not provided using '{}' to discover host address", discovery.getClass().getSimpleName());
             return discovery.resolveHost();
@@ -125,37 +124,37 @@ public class Configuration {
 
 
     /**
-     * @return Snappy port if no ssr.service.port is found, in Docker container, this property must be used
+     * @return Snappy port if no ssr.service.port is found. In Docker container, this property must be used since the port can be anything else
      */
     private int getClientPort() {
-        String port = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_PORT);
-        String serverPort = AppProperties.resolveProperties(properties, SSRKeys.SNAPPY_PORT);
-        port = isEmpty(port) ? serverPort : port;
-        return Integer.parseInt(port);
+        String ssrPort = AppProperties.get(SSRKeys.SSR_CLIENT_PORT).orElse(null);
+        String serverPort = AppProperties.get(PropertyKey.HTTP_PORT).orElse(null);
+        if (ssrPort == null && serverPort == null) {
+            throw new IllegalStateException("Service port must be specified, use '" + SSRKeys.SSR_CLIENT_PORT + "' property");
+        }
+        String resolvedPort = isEmpty(ssrPort) ? serverPort : ssrPort;
+        return Integer.parseInt(resolvedPort);
     }
 
     private boolean useHostname() {
-        String useHost = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_USE_HOSTNAME);
-        return isEmpty(useHost) || Boolean.parseBoolean(useHost);
+        return AppProperties.getBoolean(SSRKeys.SSR_CLIENT_USE_HOSTNAME).orElse(false);
     }
 
     //String name, boolean clientEnabled, boolean enableDiscovery
     private String getAppName() {
-        return AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_APP_NAME);
+        return AppProperties.get(SSRKeys.SSR_CLIENT_APP_NAME).orElse(null);
     }
 
     private boolean isClientEnabled() {
-        String isClientEnabled = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_ENABLED);
-        return isClientEnabled == null || Boolean.parseBoolean(isClientEnabled);
+        return AppProperties.getBoolean(SSRKeys.SSR_CLIENT_ENABLED).orElse(false);
     }
 
     private boolean isDiscoverable() {
-        String isDiscoverable = AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_DISCOVERABLE);
-        return isDiscoverable == null || Boolean.parseBoolean(isDiscoverable);
+        return AppProperties.getBoolean(SSRKeys.SSR_CLIENT_DISCOVERABLE).orElse(false);
     }
 
     private boolean isAws() {
-        return Boolean.parseBoolean(AppProperties.resolveProperties(properties, SSRKeys.SSR_CLIENT_ON_AWS));
+        return AppProperties.getBoolean(SSRKeys.SSR_CLIENT_ON_AWS).orElse(false);
     }
 
 

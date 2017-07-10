@@ -17,17 +17,17 @@
 
 package io.joshworks.snappy.extensions.dashboard;
 
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
 import io.joshworks.snappy.extensions.dashboard.log.LogStreamer;
 import io.joshworks.snappy.extensions.dashboard.metrics.AppMetricsResource;
+import io.joshworks.snappy.extensions.dashboard.resource.ResourceMetricUpdater;
 import io.joshworks.snappy.extensions.dashboard.resource.ResourcesMetricResource;
 import io.joshworks.snappy.extensions.dashboard.resource.RestMetricsHandler;
-import io.joshworks.snappy.extensions.dashboard.resource.ResourceMetricUpdater;
 import io.joshworks.snappy.extensions.dashboard.stats.ServerStats;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
+import io.joshworks.snappy.property.AppProperties;
 import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.MediaType;
 import io.undertow.util.Methods;
@@ -88,8 +88,12 @@ public class AdminExtension implements SnappyExtension {
         registerAppMetricsEndpoint(config);
 
 
-        String logLocation = config.properties.getProperty(LOG_LOCATION);
-        streamer = new LogStreamer(executor, logLocation);
+        String logLocation = AppProperties.get(LOG_LOCATION).orElse(null);
+        if (logLocation == null || logLocation.isEmpty()) {
+            logger.warn(LOG_LOCATION + " not specified, log won't be available");
+        } else {
+            streamer = new LogStreamer(executor, logLocation);
+        }
         config.adminManager.addEndpoint(HandlerUtil.sse(LOG_SSE, config.adminManager.getInterceptors(), streamer));
     }
 
@@ -103,8 +107,8 @@ public class AdminExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PREFIX);
+    public String name() {
+        return EXTENSION_NAME;
     }
 
     private void registerResourceMetricEndpoints(ServerData config) {

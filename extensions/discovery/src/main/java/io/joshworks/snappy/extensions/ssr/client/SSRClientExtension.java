@@ -18,18 +18,15 @@
 package io.joshworks.snappy.extensions.ssr.client;
 
 import io.joshworks.snappy.executor.AppExecutors;
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
 import io.joshworks.snappy.extensions.ssr.Configuration;
 import io.joshworks.snappy.extensions.ssr.Instance;
-import io.joshworks.snappy.extensions.ssr.SSRKeys;
 import io.joshworks.snappy.extensions.ssr.client.connector.SSEServiceRegister;
+import io.joshworks.snappy.property.AppProperties;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import static io.joshworks.snappy.extensions.ssr.SSRKeys.PROPERTY_PREFIX;
 
 /**
  * Created by Josh Gontijo on 3/29/17.
@@ -46,9 +43,7 @@ public class SSRClientExtension implements SnappyExtension {
 
     @Override
     public void onStart(ServerData config) {
-        config.properties.setProperty(SSRKeys.SNAPPY_PORT, String.valueOf(config.port));
-
-        Configuration configuration = new Configuration(config.properties);
+        Configuration configuration = new Configuration(AppProperties.getProperties());
         Instance instance = configuration.configureInstance();
 
         ScheduledExecutorService scheduler = AppExecutors.scheduler();
@@ -64,7 +59,7 @@ public class SSRClientExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PROPERTY_PREFIX);
+    public String name() {
+        return EXTENSION_NAME;
     }
 }

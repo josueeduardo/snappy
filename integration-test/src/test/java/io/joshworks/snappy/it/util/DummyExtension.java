@@ -17,9 +17,9 @@
 
 package io.joshworks.snappy.it.util;
 
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
+import io.joshworks.snappy.property.AppProperties;
 
 /**
  * Created by Josh Gontijo on 3/26/17.
@@ -33,7 +33,7 @@ public class DummyExtension implements SnappyExtension {
     @Override
     public void onStart(ServerData config) {
         startedCalled = true;
-        valueFromProperties = config.properties.getProperty("dummy.value");
+        valueFromProperties = AppProperties.get("dummy.value").get();
     }
 
     @Override
@@ -42,7 +42,7 @@ public class DummyExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name("DUMMY").propertyPrefix("dummy");
+    public String name() {
+        return "DUMMY";
     }
 }

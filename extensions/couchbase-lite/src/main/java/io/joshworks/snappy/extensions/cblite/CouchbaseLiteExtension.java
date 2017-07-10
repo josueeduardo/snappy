@@ -19,9 +19,9 @@ package io.joshworks.snappy.extensions.cblite;
 
 import com.couchbase.lite.DatabaseOptions;
 import com.couchbase.lite.Manager;
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
+import io.joshworks.snappy.property.AppProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +65,8 @@ public class CouchbaseLiteExtension implements SnappyExtension {
                 CouchbaseStore.init(manager, options);
                 return;
             }
-            String location = String.valueOf(config.properties.getOrDefault(LOCATION, DEFAULT_LOCATION));
-            String key = String.valueOf(config.properties.getOrDefault(PASSWORD, DEFAULT_KEY));
+            String location = AppProperties.get(LOCATION).orElse(DEFAULT_LOCATION);
+            String key = AppProperties.get(PASSWORD).orElse(DEFAULT_KEY);
 
             manager = new Manager(new SnappyStoreContext(location), Manager.DEFAULT_OPTIONS);
 
@@ -78,7 +78,7 @@ public class CouchbaseLiteExtension implements SnappyExtension {
 
 
         } catch (Exception ex) {
-            logger.error("Error loading extension " + details().name, ex);
+            logger.error("Error loading extension " + EXTENSION_NAME, ex);
         }
 
     }
@@ -89,8 +89,8 @@ public class CouchbaseLiteExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PREFIX);
+    public String name() {
+        return EXTENSION_NAME;
     }
 
 }

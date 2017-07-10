@@ -32,6 +32,7 @@ import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.parser.PlainTextParser;
 import io.joshworks.snappy.property.AppProperties;
+import io.joshworks.snappy.property.PropertyKey;
 import io.joshworks.snappy.rest.ErrorHandler;
 import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Group;
@@ -110,7 +111,8 @@ public class SnappyServer {
         optionBuilder.set(Options.TCP_NODELAY, true);
         int processors = Runtime.getRuntime().availableProcessors();
         this.optionBuilder.set(Options.WORKER_IO_THREADS, processors);
-        this.optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, processors * 2);
+        this.optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, processors);
+        this.optionBuilder.set(Options.WORKER_TASK_MAX_THREADS, processors * 10);
     }
 
     private static SnappyServer instance() {
@@ -611,6 +613,7 @@ public class SnappyServer {
             logger.info("Starting server...");
 
             AppProperties.load();
+            overrideFromProps();
 
             ExecutorBootstrap.init(schedulers, executors);
 
@@ -654,6 +657,42 @@ public class SnappyServer {
         }
     }
 
+    private void overrideFromProps() {
+        //http
+        this.port = AppProperties.getInt(PropertyKey.HTTP_PORT).orElse(this.port);
+        this.httpTracer = AppProperties.getBoolean(PropertyKey.HTTP_TRACER).orElse(this.httpTracer);
+        this.bindAddress = AppProperties.get(PropertyKey.HTTP_BIND_ADDRESS).orElse(this.bindAddress);
+
+        //admin http
+        this.adminManager.port = AppProperties.getInt(PropertyKey.ADMIN_HTTP_PORT).orElse(this.adminManager.port);
+        this.adminManager.bindAddress = AppProperties.get(PropertyKey.ADMIN_HTTP_BIND_ADDRESS).orElse(this.adminManager.bindAddress);
+
+        //xnio
+        OptionMap map = optionBuilder.getMap();
+        Integer ioThreads = map.get(Options.WORKER_IO_THREADS);
+        Integer maxWorkers = map.get(Options.WORKER_TASK_MAX_THREADS);
+        Integer coreWorkers = map.get(Options.WORKER_TASK_CORE_THREADS);
+        Boolean tcpNoDelay = map.get(Options.TCP_NODELAY);
+
+        ioThreads = AppProperties.getInt(PropertyKey.XNIO_IO_THREADS).orElse(ioThreads);
+        maxWorkers = AppProperties.getInt(PropertyKey.XNIO_MAX_WORKER_THREAD).orElse(maxWorkers);
+        coreWorkers = AppProperties.getInt(PropertyKey.XNIO_CORE_WORKER_THREAD).orElse(coreWorkers);
+        tcpNoDelay = AppProperties.getBoolean(PropertyKey.TCP_NO_DELAY).orElse(tcpNoDelay);
+
+        optionBuilder.set(Options.WORKER_IO_THREADS, ioThreads);
+        optionBuilder.set(Options.WORKER_TASK_MAX_THREADS, maxWorkers);
+        optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, coreWorkers);
+        optionBuilder.set(Options.TCP_NODELAY, tcpNoDelay);
+
+        exportDefaultProperties();
+    }
+
+    //sets the properties that are may be useful outside the application
+    private void exportDefaultProperties() {
+        AppProperties.set(PropertyKey.HTTP_PORT, String.valueOf(this.port));
+        AppProperties.set(PropertyKey.ADMIN_HTTP_PORT, String.valueOf(this.adminManager.port));
+    }
+
     private void bootstrapExtensions() {
         extensions.onStart(
                 new ServerData(port,
@@ -662,7 +701,6 @@ public class SnappyServer {
                         interceptors,
                         exceptionMapper,
                         basePath,
-                        AppProperties.getProperties(),
                         adminManager,
                         endpoints));
     }

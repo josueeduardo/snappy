@@ -35,9 +35,10 @@
         <dependency>
             <groupId>io.joshworks.unirest</groupId>
             <artifactId>unirest-java</artifactId>
-            <version>1.4.10</version>
+            <version>0.2.1</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>io.joshworks.stream</groupId>
             <artifactId>stream-client</artifactId>

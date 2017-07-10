@@ -26,6 +26,6 @@ public interface SnappyExtension {
 
     void onShutdown();
 
-    ExtensionMeta details();
+    String name();
 
 }

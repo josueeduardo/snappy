@@ -20,7 +20,6 @@ package io.joshworks.snappy.extras.hazelcast;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
 
@@ -54,7 +53,7 @@ public class HazelcastExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PROPERTY_PREFIX);
+    public String name() {
+        return EXTENSION_NAME;
     }
 }

@@ -32,7 +32,7 @@ public class SSRKeys {
     //It is used ONLY IF no ssr.registry.port is used
     //Use case for this is OUTSIDE Docker for example, where there's no need to use the ssr.registry.port
     //Since snappy will provide the port
-    public static final String SNAPPY_PORT = "snappy.port";
+//    public static final String SNAPPY_PORT = "snappy.port";
 
     //ssr discovery registry
     //ssr registry properties

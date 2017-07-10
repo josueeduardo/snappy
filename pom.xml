@@ -17,7 +17,7 @@
     <modules>
         <module>snappy</module>
         <module>integration-test</module>
-        <module>snappy-plugin-parent</module>
+        <module>plugin-parent</module>
         <module>extensions</module>
         <module>examples</module>
         <module>stress-test</module>

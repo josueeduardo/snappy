@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.Properties;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -30,38 +31,36 @@ import static io.joshworks.snappy.SnappyServer.*;
  * Created by josh on 3/10/17.
  */
 public class AppProperties {
+
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
+    private static final String PROPERTIES_NAME = "snappy.properties";
     private static final Properties properties = new Properties();
 
     private AppProperties() {
     }
 
     public static void load() {
-        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(PropertyKeys.PROPERTIES_NAME);
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(PROPERTIES_NAME);
         if (is != null) {
-            logger.info("Loading {}", PropertyKeys.PROPERTIES_NAME);
+            logger.info("Loading {}", PROPERTIES_NAME);
             try {
                 properties.load(is);
             } catch (IOException e) {
-                throw new RuntimeException("Error while loading " + PropertyKeys.PROPERTIES_NAME, e);
+                throw new RuntimeException("Error while loading " + PROPERTIES_NAME, e);
             }
         } else {
-            logger.info("{} not found", PropertyKeys.PROPERTIES_NAME);
-        }
-
-        //override with system props
-        String override = resolveProperties(properties, PropertyKeys.HTTP_PORT);
-        if (override != null) {
-            properties.setProperty(PropertyKeys.HTTP_PORT, override);
+            logger.info("{} not found", PROPERTIES_NAME);
         }
     }
 
     public static Properties getProperties() {
-        return properties;
+        Properties copy = new Properties();
+        copy.putAll(properties);
+        return copy;
     }
 
-    public static String resolveProperties(Properties source, String key) {
+    private static String resolveProperty(Properties source, String key) {
         String fromEnv = fromEnv(key);
         String fromSystem = System.getProperty(key, fromEnv);
 
@@ -76,60 +75,38 @@ public class AppProperties {
         return System.getenv(envKey);
     }
 
-
-    public static Integer getIntegerProperty(String key) {
-        String value = getProperty(key);
-        if (value == null) {
-            return null;
-        }
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException nfe) {
-            parseError(key, value, nfe);
-            return null;
-        }
+    public static void set(String key, String value) {
+        properties.setProperty(key, value);
     }
 
-    public static Double getDoubleProperty(String key) {
-        String value = getProperty(key);
-        if (value == null) {
-            return null;
-        }
-        try {
-            return Double.parseDouble(value);
-        } catch (NumberFormatException nfe) {
-            parseError(key, value, nfe);
-            return null;
-        }
+    public static Optional<Integer> getInt(String key) {
+        Optional<String> value = get(key);
+        return value.map(Integer::parseInt);
     }
 
-    public static Long getLongProperty(String key) {
-        String value = getProperty(key);
-        if (value == null) {
-            return null;
-        }
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException nfe) {
-            parseError(key, value, nfe);
-            return null;
-        }
+    public static Optional<Boolean> getBoolean(String key) {
+        return get(key).map(Boolean::parseBoolean);
     }
 
-    public static String getProperty(String key) {
+    public static Optional<Double> getDouble(String key) {
+        return get(key).map(Double::parseDouble);
+    }
+
+    public static Optional<Long> getLong(String key) {
+        return get(key).map(Long::parseLong);
+    }
+
+    public static Optional<String> get(String key) {
         if (key.isEmpty()) {
             logger.warn("No property key found for '{}'", key);
-            return null;
+            return Optional.empty();
         }
 
-        String value = properties.getProperty(key);
-        if (value == null) {
-            logger.warn("No value found for property key: " + key);
+        String resolved = resolveProperty(properties, key);
+        if (resolved == null) {
+            logger.warn("No resolved found for property key: " + key);
+            return Optional.empty();
         }
-        return value;
-    }
-
-    private static void parseError(String key, String value, Exception e) {
-        logger.warn("Error parsing key '{}' value '{}', error: {}, return null", key, value, e.getMessage());
+        return Optional.of(resolved);
     }
 }

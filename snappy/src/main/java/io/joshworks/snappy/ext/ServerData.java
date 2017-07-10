@@ -23,7 +23,6 @@ import io.joshworks.snappy.rest.ExceptionMapper;
 import io.joshworks.snappy.rest.Interceptor;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created by Josh Gontijo on 3/25/17.
@@ -38,7 +37,6 @@ public class ServerData {
     public final String basePath;
     public final List<MappedEndpoint> mappedEndpoints;
     public final AdminManager adminManager;
-    public Properties properties;
 
     public ServerData(int port,
                       String bindAddress,
@@ -46,8 +44,7 @@ public class ServerData {
                       List<Interceptor> interceptors,
                       ExceptionMapper exceptionMapper,
                       String basePath,
-                      Properties properties,
-                     AdminManager adminManager,
+                      AdminManager adminManager,
                       List<MappedEndpoint> mappedEndpoints) {
 
         this.port = port;
@@ -56,7 +53,6 @@ public class ServerData {
         this.interceptors = interceptors;
         this.exceptionMapper = exceptionMapper;
         this.basePath = basePath;
-        this.properties = properties;
         this.mappedEndpoints = mappedEndpoints;
         this.adminManager = adminManager;
     }

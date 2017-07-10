@@ -1,7 +1,7 @@
 /*
  * Copyright 2017 Josue Gontijo
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License"));
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -17,28 +17,22 @@
 
 package io.joshworks.snappy.property;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Created by josh on 3/10/17.
  */
-public final class PropertyKeys {
-
-    public static final String PROPERTIES_NAME = "snappy.properties";
-
-    public static final Set<String> RESERVED_PREFIXES = Collections.unmodifiableSet(new HashSet<>(Arrays.asList("http", "xnio", "executor", "scheduler")));
+public final class PropertyKey {
 
     //http
     public static final String HTTP_PORT = "http.port";
     public static final String HTTP_BIND_ADDRESS = "http.bind";
     public static final String HTTP_TRACER = "http.tracer";
-    public static final String HTTP_METRICS = "http.metrics";
     public static final String TCP_NO_DELAY = "tcp.nodelay";
 
-    //core server
+    //admin
+    public static final String ADMIN_HTTP_PORT = "admin.http.port";
+    public static final String ADMIN_HTTP_BIND_ADDRESS = "admin.http.bind";
+
+    //xnio
     public static final String XNIO_IO_THREADS = "xnio.io.threads";
     public static final String XNIO_MAX_WORKER_THREAD = "xnio.worker.maxThread";
     public static final String XNIO_CORE_WORKER_THREAD = "xnio.worker.coreThread";

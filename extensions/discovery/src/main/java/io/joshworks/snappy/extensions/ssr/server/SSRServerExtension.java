@@ -18,14 +18,13 @@
 package io.joshworks.snappy.extensions.ssr.server;
 
 import io.joshworks.snappy.executor.AppExecutors;
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
-import io.joshworks.snappy.extensions.ssr.server.sse.Hearbeat;
-import io.joshworks.snappy.extensions.ssr.server.sse.ServiceMonitor;
 import io.joshworks.snappy.extensions.ssr.server.service.InstancesResource;
 import io.joshworks.snappy.extensions.ssr.server.service.ServiceControl;
 import io.joshworks.snappy.extensions.ssr.server.service.ServiceResource;
+import io.joshworks.snappy.extensions.ssr.server.sse.Hearbeat;
+import io.joshworks.snappy.extensions.ssr.server.sse.ServiceMonitor;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.undertow.util.Methods;
@@ -33,7 +32,6 @@ import io.undertow.util.Methods;
 import java.util.Arrays;
 import java.util.List;
 
-import static io.joshworks.snappy.extensions.ssr.SSRKeys.PROPERTY_PREFIX;
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
 import static io.joshworks.snappy.parser.MediaTypes.produces;
 
@@ -74,8 +72,8 @@ public class SSRServerExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PROPERTY_PREFIX);
+    public String name() {
+        return EXTENSION_NAME;
     }
 
     private MappedEndpoint serviceMonitor(ServerData config) {

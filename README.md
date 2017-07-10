@@ -14,28 +14,22 @@ Features:
 - No magic, plain and simple
 - Small memory footprint
 - Static files
-- Rest client using [Unirest](https://github.com/Mashape/unirest-java)
+- Rest client
 - Multipart support
 - Executors and schedulers managed by the server
 - Extensible
-- Metrics: total requests, responses codes per endpoint, thread and memory usage, and user provided metrics.
 - Maven uber jar plugin using [Spring boot](https://projects.spring.io/spring-boot/)
 
 
-### Installing ###
+### Maven setup ###
 
 ```xml
     <dependency>
         <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
-        <version>0.3</version>
+        <version>0.3.0</version>
     </dependency>
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>1.7.25</version>
-    </dependency>
-
+    
 ```
 
 ### Import ###
@@ -164,7 +158,7 @@ public class App {
 
     public static void main(final String[] args) {
         //wrapped Unirest api
-           String page = RestClient.get("http://www.google.com").asString();
+           String page = SimpleClient.get("http://www.google.com").asString();
     }
 }
 ```
@@ -287,6 +281,19 @@ public class App {
 </build>
 ```
 
+## Extensions ##
+Extension allows access to internal API, to add or modify the server behaviour.
+
+```java
+public class App {
+
+     public static void main(String[] args) {
+           
+            
+     }
+}
+```
+
 ### Server API ###
 ```java
  
@@ -306,9 +313,9 @@ public class App {
     ioThreads(int ioThreads)
     workerThreads(int core, int max)
     
-    enableTracer()
-    enableHttpMetrics()
+    register(SnappyExtension extension)
     
+    enableTracer()
     cors()
     
     executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis)
@@ -316,84 +323,5 @@ public class App {
     
     
     
-```
-
-#### Metrics ###
-
-```json
-    //curl http://localhost:9100/metrics
-    {
-      "maxMemory": 3717201920,
-      "totalMemory": 251658240,
-      "freeMemory": 223553336,
-      "usedMemory": 28104904,
-      "resources": [ // enableHttpMetrics();
-          {
-            "url": "/users",
-            "method": "GET",
-            "metrics": {
-              "metricsStartDate": "Apr 25, 2017 11:41:59 PM",
-              "totalRequestTime": 91,
-              "maxRequestTime": 18,
-              "minRequestTime": 0,
-              "totalRequests": 46,
-              "responses": {
-                "200": 30,
-                "500": 16
-              }
-            }
-          },
-          {
-            "url": "/users/{id}",
-            "method": "GET",
-            "metrics": {
-              "metricsStartDate": "Apr 25, 2017 11:41:59 PM",
-              "totalRequestTime": 80,
-              "maxRequestTime": 16,
-              "minRequestTime": 0,
-              "totalRequests": 50,
-              "responses": {
-                "200": 46,
-                "404": 4
-            }
-          }
-        }
-       ],
-      "threadPools": [
-        {
-          "activeCount": 0,
-          "completedTaskCount": 0,
-          "corePoolSize": 0,
-          "largestPoolSize": 0,
-          "maximumPoolSize": 5,
-          "poolSize": 0,
-          "rejectionPolicy": "AbortPolicy",
-          "taskCount": 0,
-          "queueCapacity": 2147483647,
-          "queuedTasks": 0,
-          "poolName": "default-executor"
-        },
-        {
-          "activeCount": 0,
-          "completedTaskCount": 1670,
-          "corePoolSize": 0,
-          "largestPoolSize": 1,
-          "maximumPoolSize": 5,
-          "poolSize": 1,
-          "rejectionPolicy": "AbortPolicy",
-          "taskCount": 1671,
-          "queueCapacity": -2147483648,
-          "queuedTasks": 1,
-          "poolName": "default-scheduler"
-        }
-      ],
-      "appMetrics": {
-         "my-metric": 123,
-         "anotherOne": true,
-         "andAnother": "Yolo"
-      }
-    }
-    
-
 ```
 

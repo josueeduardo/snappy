@@ -71,7 +71,6 @@ public class SSEServiceRegister extends ServiceRegister {
         String registryUrl = PROTOCOL + this.registryUrl + SSRServerExtension.MONITOR_URL + "/" + registered.getId();
         disconnect();
         connect = StreamClient.sse(registryUrl)
-                .reconnect(false)
                 .clientCallback(new SSERegistryClient(this, store))
                 .connect();
 

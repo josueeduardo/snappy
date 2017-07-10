@@ -73,6 +73,12 @@ public class MultipartTest {
         start();
     }
 
+    @AfterClass
+    public static void shutdown() throws IOException {
+        stop();
+        Files.delete(output);
+    }
+
     private static boolean saveFileToTemp(Path path) {
         try {
             Files.copy(path, output, StandardCopyOption.REPLACE_EXISTING);
@@ -81,12 +87,6 @@ public class MultipartTest {
             e.printStackTrace();
             return false;
         }
-    }
-
-    @AfterClass
-    public static void shutdown() throws IOException {
-        stop();
-        Files.delete(output);
     }
 
     @Test

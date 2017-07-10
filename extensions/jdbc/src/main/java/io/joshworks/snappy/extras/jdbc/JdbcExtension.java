@@ -19,9 +19,9 @@ package io.joshworks.snappy.extras.jdbc;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
+import io.joshworks.snappy.property.AppProperties;
 import org.apache.commons.dbutils.DbUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +62,7 @@ public class JdbcExtension implements SnappyExtension {
         if (dataSource != null) {
             throw new IllegalStateException("Datasource already configured");
         }
-        Properties properties = config.properties;
+        Properties properties = AppProperties.getProperties();
 
         logger.info("Initializing Datasource connection pool");
 
@@ -100,8 +100,8 @@ public class JdbcExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(JDBC_PREFIX);
+    public String name() {
+        return EXTENSION_NAME;
     }
 
     private void runStartScript(String scriptFile, Properties properties) {

@@ -17,9 +17,9 @@
 
 package io.joshworks.snappy.extensions.mvstore;
 
-import io.joshworks.snappy.ext.ExtensionMeta;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
+import io.joshworks.snappy.property.AppProperties;
 import org.h2.mvstore.MVStore;
 import org.h2.mvstore.OffHeapStore;
 import org.slf4j.Logger;
@@ -66,11 +66,11 @@ public class MvStoreExtension implements SnappyExtension {
             if (store != null) {
                 return;
             }
-            String location = String.valueOf(config.properties.getOrDefault(LOCATION, DEFAULT_LOCATION));
-            String key = String.valueOf(config.properties.getOrDefault(PASSWORD, DEFAULT_KEY));
-            boolean autoCommit = Boolean.parseBoolean(String.valueOf(config.properties.getOrDefault(AUTO_COMMIT, DEFAULT_AUTO_COMMIT)));
-            boolean offHeap = Boolean.parseBoolean(String.valueOf(config.properties.getOrDefault(OFF_HEAP_MODE, DEFAULT_OFF_HEAP_MODE)));
-            int cacheSize = Integer.parseInt(String.valueOf(config.properties.getOrDefault(CACHE_SIZE, DEFAULT_CACHE_SIZE)));
+            String location = String.valueOf(AppProperties.get(LOCATION).orElse(DEFAULT_LOCATION));
+            String key = String.valueOf(AppProperties.get(PASSWORD).orElse(DEFAULT_KEY));
+            boolean autoCommit = Boolean.parseBoolean(String.valueOf(AppProperties.get(AUTO_COMMIT).orElse(DEFAULT_AUTO_COMMIT)));
+            boolean offHeap = Boolean.parseBoolean(String.valueOf(AppProperties.get(OFF_HEAP_MODE).orElse(DEFAULT_OFF_HEAP_MODE)));
+            int cacheSize = Integer.parseInt(String.valueOf(AppProperties.get(CACHE_SIZE).orElse(DEFAULT_CACHE_SIZE)));
 
             location = location.endsWith(File.separator) ? location.substring(0, location.length() - 1) : location;
             createFolder(location);
@@ -96,7 +96,7 @@ public class MvStoreExtension implements SnappyExtension {
 
 
         } catch (Exception ex) {
-            logger.error("Error loading extension " + details().name, ex);
+            logger.error("Error loading extension " + EXTENSION_NAME, ex);
         }
     }
 
@@ -115,8 +115,8 @@ public class MvStoreExtension implements SnappyExtension {
     }
 
     @Override
-    public ExtensionMeta details() {
-        return new ExtensionMeta().name(EXTENSION_NAME).propertyPrefix(PREFIX);
+    public String name() {
+        return EXTENSION_NAME;
     }
 
 }
