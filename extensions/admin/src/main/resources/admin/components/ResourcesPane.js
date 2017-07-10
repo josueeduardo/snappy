@@ -74,7 +74,7 @@ export default class ResourcesPanel extends React.Component {
                             <td>Method</td>
                             <td>URL</td>
                             <td>Requests</td>
-                            <td>Max response time</td>
+                            <td>Max response time (ms)</td>
                             <td>Errors %</td>
                         </tr>
                         </thead>

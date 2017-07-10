@@ -4,11 +4,11 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "build": "NODE_ENV=PROD && webpack",
+    "build": "export NODE_ENV=production && webpack --production",
     "watch": "webpack --watch",
-    "dev": "export NODE_ENV=DEV && webpack-dev-server --progress --inline --colors --hot --port 8000",
-    "int": "export NODE_ENV=INT && webpack-dev-server --progress --inline --colors --hot --port 8000",
-    "prod": "export NODE_ENV=PROD && webpack-dev-server --progress --inline --colors --hot --port 8000",
+    "dev": "export NODE_ENV=development && webpack-dev-server --progress --inline --colors --hot --port 8000",
+    "int": "export NODE_ENV=integration && webpack-dev-server --progress --inline --colors --hot --port 8000",
+    "prod": "export NODE_ENV=production && webpack-dev-server --progress --inline --colors --hot --port 8000",
     "server": "node server.js"
   },
   "author": "",
@@ -17,6 +17,7 @@
     "axios": "^0.14.0",
     "classnames": "^2.2.5",
     "highcharts": "^5.0.10",
+    "highcharts-drilldown": "^0.1.2",
     "highcharts-more": "^0.1.2",
     "justgage": "^1.2.2",
     "mobx": "^2.3.7",

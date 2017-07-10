@@ -15,7 +15,13 @@ import metricsStore from "./components/MetricsStore";
 import stateStore from "./components/StateStore";
 import logStore from "./components/logs/LogStore";
 
+import drilldown from 'highcharts-drilldown';
+import Highcharts from "highcharts";
+
 const stores = {metricsStore, stateStore, logStore};
+
+drilldown(Highcharts);
+console.log("===============")
 
 ReactDOM.render(
     <Provider {...stores}>

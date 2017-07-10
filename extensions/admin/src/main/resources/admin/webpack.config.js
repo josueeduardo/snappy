@@ -2,7 +2,7 @@ var path = require('path');
 var webpack = require('webpack');
 var proxy = require('http-proxy-middleware');
 
-module.exports = {
+const config = {
     entry: './main.js',
     output: {
         path: __dirname + '/build',
@@ -33,7 +33,7 @@ module.exports = {
     },
     devServer: {
         port: 8000,
-        historyApiFallback: true,
+        historyApiFallback: true
         //the proxy config is to proxy api requests to backend server, instead using the webpack dev server
         // proxy: {
         //     '/api': {
@@ -53,3 +53,16 @@ module.exports = {
     ]
 
 };
+
+if (process.env.NODE_ENV === 'production') {
+    console.log("--- PRODUCTION ---");
+    config.plugins.push(
+        new webpack.optimize.UglifyJsPlugin({
+            compressor: {
+                warnings: false
+            }
+        })
+    )
+}
+
+module.exports = config;
