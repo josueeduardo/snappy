@@ -42,7 +42,7 @@ export default class ResourcesPanel extends React.Component {
         const {url,method, metrics} = resource;
 
         let methodSpan = this.methodLabel(method);
-        let errorsPercent = this.errorPercent(metrics);
+        // let errorsPercent = this.errorPercent(metrics);
 
         let urlKey = method + url.replace(/\//g, '').replace(/{/g, '').replace(/}/g, '');
 
@@ -53,7 +53,7 @@ export default class ResourcesPanel extends React.Component {
                 <td><b>{url}</b></td>
                 <td style={{width: '100px'}}><b>{metrics.totalRequests}</b></td>
                 <td style={{width: '150px'}}><b>{metrics.maxRequestTime}</b></td>
-                <td style={{width: '100px'}}><b>{errorsPercent}</b></td>
+                {/*<td style={{width: '100px'}}><b>{errorsPercent}</b></td>*/}
             </tr>
         )
     }
@@ -75,7 +75,6 @@ export default class ResourcesPanel extends React.Component {
                             <td>URL</td>
                             <td>Requests</td>
                             <td>Max response time (ms)</td>
-                            <td>Errors %</td>
                         </tr>
                         </thead>
 
@@ -91,7 +90,7 @@ export default class ResourcesPanel extends React.Component {
         return (
             <div class="box">
                 <div class="box-header">
-                    <span class="title">Resources</span>
+                    <span class="title">{this.props.title}</span>
                 </div>
                 {element}
 

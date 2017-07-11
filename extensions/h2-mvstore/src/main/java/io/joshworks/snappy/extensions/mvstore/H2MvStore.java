@@ -54,49 +54,38 @@ public class H2MvStore {
 
     private static MVStore store;
 
-    private static final Map<String, MVMap> maps = new HashMap<>();
+    private static final Map<String, Map> stores = new HashMap<>();
 
     static void init(MVStore store) {
         H2MvStore.store = store;
     }
 
-    public static <T> MVMap<String, T> of(String name, Class<T> valueType) {
+    public static <U, T> Map<U, T> of(String name, Class<U> keyType, Class<T> valueType) {
         checkInitialized();
-        if (maps.containsKey(name)) {
-            return maps.get(name);
-        }
-
-        MVMap<String, T> mvMap = of(name, String.class, valueType);
-
-        maps.put(name, mvMap);
-        return mvMap;
-    }
-
-    public static <T, U> MVMap<U, T> of(String name, Class<U> keyType, Class<T> valueType) {
-        checkInitialized();
-        if (maps.containsKey(name)) {
-            return maps.get(name);
+        if (stores.containsKey(name)) {
+            return stores.get(name);
         }
 
         MVMap<U, T> mvMap = store.openMap(name, new MVMap.Builder<U, T>()
                 .keyType(getDataType(keyType))
                 .valueType(getDataType(valueType)));
 
-        maps.put(name, mvMap);
+        stores.put(name, mvMap);
         return mvMap;
+
     }
 
-    public static <T, U> MVMap<U, T> of(String name, Class<U> keyType, Type valueType) {
+    public static <U, T> Map<U, T> of(String name, Class<U> keyType, Type valueType) {
         checkInitialized();
-        if (maps.containsKey(name)) {
-            return maps.get(name);
+        if (stores.containsKey(name)) {
+            return stores.get(name);
         }
 
         MVMap<U, T> mvMap = store.openMap(name, new MVMap.Builder<U, T>()
                 .keyType(getDataType(keyType))
                 .valueType(JsonSerializer.of(valueType)));
 
-        maps.put(name, mvMap);
+        stores.put(name, mvMap);
         return mvMap;
     }
 

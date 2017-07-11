@@ -1,7 +1,6 @@
 import React from "react";
 import {inject, observer} from "mobx-react";
 import ResourcesPane from "../ResourcesPane";
-import Pie from "../charts/highcharts/Pie";
 import HighchartReact from "../charts/highcharts/HighchartReact";
 import ResourceUsage from "./ResourceUsage";
 import ResourceError from "./ResourceError";
@@ -36,13 +35,45 @@ export default class Resources extends React.Component {
     }
 
 
-
     getTotalRequests(resourceSummaries) {
         return resourceSummaries.map((resource) => {
             return resource.metrics.totalRequests;
         }).reduce((prev, current) => {
             return prev + current;
         }, 0);
+    }
+
+    getGroupedResources(resourceSummaries) {
+        return resourceSummaries.map((res) => {
+            let baseUrl = res.url.split("/")[1];
+            return {base: baseUrl, resource: res};
+        }).reduce((prev, curr) => {
+            if (!prev[curr.base]) {
+                prev[curr.base] = [];
+            }
+            prev[curr.base].push(curr.resource);
+            return prev;
+        }, {});
+    }
+
+    buildGroupedResourceGroupPanel(resourceSummaries) {
+        const resources = this.getGroupedResources(resourceSummaries);
+        const size = Object.keys(resources).length;
+        if (size === 0) {
+            return <div></div>
+        }
+
+        let items = [];
+        Object.keys(resources).map((key) => {
+            items.push(
+                <div key={'resource_pane_' + key} class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        <ResourcesPane title={key} resources={resources[key]}/>
+                    </div>
+                </div>
+            );
+        });
+        return items;
     }
 
     render() {
@@ -52,11 +83,13 @@ export default class Resources extends React.Component {
             return <h3>No data</h3>
         }
 
-        let totalRequest = this.getTotalRequests(resourceSummaries);
+        // let totalRequest = this.getTotalRequests(resourceSummaries);
 
         // const usageData = this.usagePercentage(resourceSummaries, totalRequest);
         // const responseStatusesData = this.responseStatuses(resourceSummaries, totalRequest);
         // const errorPercent = this.errorPercentage(resourceSummaries);
+
+        const groupedResources = this.buildGroupedResourceGroupPanel(resourceSummaries);
 
         const resourceGraphs = resources.map((res, idx) => {
             return <ResourceGraphs key={'resource_graph_' + idx} resource={res}/>
@@ -64,46 +97,25 @@ export default class Resources extends React.Component {
 
         return (
             <div>
-                <div class="row">
-                    <div class="col-md-6 col-md-offset-3">
-                        <ResourcesPane resources={resourceSummaries}/>
-                    </div>
-                </div>
+                {groupedResources}
+
                 <div class="row">
                     <div class="col-md-12">
                         <div class="box">
                             <div class="box-header">
                                 <span class="title">Usage</span>
                             </div>
-                            <ResourceUsage resources={resources} resourceSummaries={resourceSummaries} />
+                            <ResourceUsage resources={resources} resourceSummaries={resourceSummaries}/>
                         </div>
                     </div>
-                    {/*<div class="col-md-4">*/}
-                        {/*<div class="box">*/}
-                            {/*<div class="box-header">*/}
-                                {/*<span class="title">Response Statuses</span>*/}
-                            {/*</div>*/}
-                            {/*<Pie name={'responseStatuses'} data={responseStatusesData}/>*/}
-                        {/*</div>*/}
-                    {/*</div>*/}
-                    {/*<div class="col-md-4">*/}
-                        {/*<div class="box">*/}
-                            {/*<div class="box-header">*/}
-                                {/*<span class="title">Errors per endpoint</span>*/}
-                            {/*</div>*/}
-                            {/*<div class="box-content">*/}
-                                {/*<Pie name={'statuses'} data={errorPercent}/>*/}
-                            {/*</div>*/}
-                        {/*</div>*/}
-                    {/*</div>*/}
                 </div>
                 <div class="row">
                     <div class="col-md-12">
                         <div class="box">
                             <div class="box-header">
-                                <span class="title">Usage</span>
+                                <span class="title">Errors per endpoint</span>
                             </div>
-                            <ResourceError resources={resources} resourceSummaries={resourceSummaries} />
+                            <ResourceError resources={resources} resourceSummaries={resourceSummaries}/>
                         </div>
                     </div>
                 </div>
@@ -134,7 +146,7 @@ class ResourceGraphs extends React.Component {
                                     <ResponseCodeGraph resource={resource}/>
                                 </div>
                             </div>
-                            <div class="col-md-12">
+                            <div class="col-md-6">
                                 <div class="box ">
                                     <div class="box-header">
                                         <span class="title">Request processing time</span>
