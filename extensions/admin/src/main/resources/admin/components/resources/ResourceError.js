@@ -45,8 +45,8 @@ export default class ResourceUsage extends React.Component {
     }
 
 
-    getMainResources(resourceSummaries) {
-        const result = resourceSummaries.map((res) => {
+    getMainResources(resources) {
+        const result = resources.map((res) => {
             let baseUrl = res.url.split("/")[1];
             return {base: baseUrl, resource: res};
         }).reduce((prev, curr) => {
@@ -57,7 +57,7 @@ export default class ResourceUsage extends React.Component {
             return prev;
         }, {});
 
-        const totalErrors = this.getTotalErrors(resourceSummaries);
+        const totalErrors = this.getTotalErrors(resources);
         let copyResult = Object.assign({}, result);
 
 
@@ -170,12 +170,12 @@ export default class ResourceUsage extends React.Component {
 
     render() {
 
-        const {resourceSummaries} = this.props;
-        if (!resourceSummaries || resourceSummaries.length === 0) {
+        const {resources} = this.props;
+        if (!resources || resources.length === 0) {
             return <h3>No data</h3>
         }
 
-        let series = this.getMainResources(resourceSummaries);
+        let series = this.getMainResources(resources);
         const config = this.getConfig(series);
 
         console.log(JSON.stringify(config));

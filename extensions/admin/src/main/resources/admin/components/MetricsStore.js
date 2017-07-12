@@ -50,18 +50,6 @@ class MetricsStore {
         API.get("/resources")
             .then((res) => {
                 this.resources = res.data;
-                this.resourceSummaries = this.resources.map((resource) => {
-                    const latestData = resource.metrics.length === 0 ? {
-                        totalRequestTime: 0,
-                        maxRequestTime: 0,
-                        minRequestTime: -1,
-                        totalRequests: 0,
-                        responses: {}
-                    } : resource.metrics[resource.metrics.length - 1].data;
-
-                    return {id: resource.id, url: resource.url, method: resource.method, metrics: latestData};
-
-                })
             })
             .catch((err) => {
                 console.error("Error fetching metrics data");

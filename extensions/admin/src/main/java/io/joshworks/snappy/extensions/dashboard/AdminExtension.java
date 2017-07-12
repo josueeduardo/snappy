@@ -21,7 +21,7 @@ import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
 import io.joshworks.snappy.extensions.dashboard.log.LogStreamer;
 import io.joshworks.snappy.extensions.dashboard.metrics.AppMetricsResource;
-import io.joshworks.snappy.extensions.dashboard.resource.ResourceMetricUpdater;
+import io.joshworks.snappy.extensions.dashboard.resource.ResourceMetricHolder;
 import io.joshworks.snappy.extensions.dashboard.resource.ResourcesMetricResource;
 import io.joshworks.snappy.extensions.dashboard.resource.RestMetricsHandler;
 import io.joshworks.snappy.extensions.dashboard.stats.ServerStats;
@@ -112,9 +112,9 @@ public class AdminExtension implements SnappyExtension {
     }
 
     private void registerResourceMetricEndpoints(ServerData config) {
-        ResourceMetricUpdater resourceMetricUpdater = wrapHandlerWithMetricsHandler(config);
-        final ResourcesMetricResource endpoint = new ResourcesMetricResource(resourceMetricUpdater);
-        resourceMetricUpdater.start();
+        ResourceMetricHolder resourceMetricHolder = wrapHandlerWithMetricsHandler(config);
+        final ResourcesMetricResource endpoint = new ResourcesMetricResource(resourceMetricHolder);
+
 
         MappedEndpoint getMetrics = HandlerUtil.rest(
                 Methods.GET,
@@ -134,19 +134,19 @@ public class AdminExtension implements SnappyExtension {
         config.adminManager.addEndpoint(getMetric);
     }
 
-    private ResourceMetricUpdater wrapHandlerWithMetricsHandler(ServerData config) {
+    private ResourceMetricHolder wrapHandlerWithMetricsHandler(ServerData config) {
         //Enable metrics only for REST
         Map<Boolean, List<MappedEndpoint>> splitResources = config.mappedEndpoints.stream()
                 .collect(Collectors.partitioningBy(me -> MappedEndpoint.Type.REST.equals(me.type)));
 
-        final ResourceMetricUpdater resourceMetricUpdater = new ResourceMetricUpdater();
+        final ResourceMetricHolder resourceMetricHolder = new ResourceMetricHolder();
         //Replaces the handler reference to a wrapped ResMetricsHandler
         List<MappedEndpoint> restResources =
                 splitResources.getOrDefault(true, new ArrayList<>())
                         .stream()
                         .map(me -> {
                             RestMetricsHandler restMetricsHandler = new RestMetricsHandler(me.handler);
-                            resourceMetricUpdater.add(me.method, me.url, restMetricsHandler);
+                            resourceMetricHolder.add(me.method, me.url, restMetricsHandler);
                             return new MappedEndpoint(me.method, me.url, me.type, restMetricsHandler);
                         })
                         .collect(Collectors.toList());
@@ -159,7 +159,7 @@ public class AdminExtension implements SnappyExtension {
         config.mappedEndpoints.clear();
         config.mappedEndpoints.addAll(replacedResources);
 
-        return resourceMetricUpdater;
+        return resourceMetricHolder;
     }
 
     private void registerStatsEndpoint(ServerData config) {

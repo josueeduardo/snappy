@@ -27,7 +27,7 @@ export default class Dashboard extends React.Component {
 
     render() {
 
-        const {stats, resourceSummaries} = this.props.metricsStore;
+        const {stats, resources} = this.props.metricsStore;
         const {usedMemory, totalMemory, maxMemory} = stats.memory;
 
         return (
@@ -59,7 +59,7 @@ export default class Dashboard extends React.Component {
 
                 <div class="row">
                     <div class="col-md-6">
-                        <ResourcesPane resources={resourceSummaries}/>
+                        <ResourcesPane resources={resources}/>
                     </div>
                     <div class="col-md-6">
                         <ThreadPoolPane threadPools={stats.threadPools}/>

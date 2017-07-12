@@ -78,22 +78,22 @@ export default class Resources extends React.Component {
 
     render() {
 
-        const {resourceSummaries, resources} = this.props.metricsStore;
-        if (!resourceSummaries || resourceSummaries.length === 0) {
+        const {resources} = this.props.metricsStore;
+        if (!resources || resources.length === 0) {
             return <h3>No data</h3>
         }
 
-        // let totalRequest = this.getTotalRequests(resourceSummaries);
+        // let totalRequest = this.getTotalRequests(resources);
 
-        // const usageData = this.usagePercentage(resourceSummaries, totalRequest);
-        // const responseStatusesData = this.responseStatuses(resourceSummaries, totalRequest);
-        // const errorPercent = this.errorPercentage(resourceSummaries);
+        // const usageData = this.usagePercentage(resources, totalRequest);
+        // const responseStatusesData = this.responseStatuses(resources, totalRequest);
+        // const errorPercent = this.errorPercentage(resources);
 
-        const groupedResources = this.buildGroupedResourceGroupPanel(resourceSummaries);
+        const groupedResources = this.buildGroupedResourceGroupPanel(resources);
 
-        const resourceGraphs = resources.map((res, idx) => {
-            return <ResourceGraphs key={'resource_graph_' + idx} resource={res}/>
-        });
+        // const resourceGraphs = resources.map((res, idx) => {
+        //     return <ResourceGraphs key={'resource_graph_' + idx} resource={res}/>
+        // });
 
         return (
             <div>
@@ -105,7 +105,7 @@ export default class Resources extends React.Component {
                             <div class="box-header">
                                 <span class="title">Usage</span>
                             </div>
-                            <ResourceUsage resources={resources} resourceSummaries={resourceSummaries}/>
+                            <ResourceUsage resources={resources} />
                         </div>
                     </div>
                 </div>
@@ -115,12 +115,12 @@ export default class Resources extends React.Component {
                             <div class="box-header">
                                 <span class="title">Errors per endpoint</span>
                             </div>
-                            <ResourceError resources={resources} resourceSummaries={resourceSummaries}/>
+                            <ResourceError resources={resources} />
                         </div>
                     </div>
                 </div>
 
-                {resourceGraphs}
+                {/*{resourceGraphs}*/}
 
             </div>
         )

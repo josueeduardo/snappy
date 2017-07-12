@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 public class ResourcesMetricResource {
 
 
-    private final ResourceMetricUpdater control;
+    private final ResourceMetricHolder control;
 
-    public ResourcesMetricResource(ResourceMetricUpdater registeredMetricHandlers) {
+    public ResourcesMetricResource(ResourceMetricHolder registeredMetricHandlers) {
         this.control = registeredMetricHandlers;
     }
 
