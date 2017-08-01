@@ -281,19 +281,6 @@ public class App {
 </build>
 ```
 
-## Extensions ##
-Extension allows access to internal API, to add or modify the server behaviour.
-
-```java
-public class App {
-
-     public static void main(String[] args) {
-           
-            
-     }
-}
-```
-
 ### Server API ###
 ```java
  
