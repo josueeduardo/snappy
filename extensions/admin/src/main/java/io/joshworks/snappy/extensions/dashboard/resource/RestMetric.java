@@ -5,7 +5,6 @@ package io.joshworks.snappy.extensions.dashboard.resource;
  */
 public class RestMetric {
 
-
     public final String id;
     public final String url;
     public final String method;

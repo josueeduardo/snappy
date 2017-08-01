@@ -19,10 +19,10 @@ package io.joshworks.snappy.examples.ls;
 
 import io.joshworks.snappy.extensions.mvstore.H2MvStore;
 import io.joshworks.snappy.rest.RestExchange;
-import org.h2.mvstore.MVMap;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -32,7 +32,7 @@ import static io.joshworks.snappy.SnappyServer.*;
  */
 public class UserResource {
 
-    private MVMap<String, User> users;
+    private Map<String, User> users;
 
     public UserResource() {
         onStart(() -> users = H2MvStore.of("users", String.class, User.class));
