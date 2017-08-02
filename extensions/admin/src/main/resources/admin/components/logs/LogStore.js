@@ -23,7 +23,6 @@ class LogStore {
             // response is unsigned 8 bit integer
             let responseArray = new Uint8Array(this.response);
             let logString = String.fromCharCode.apply(null, new Uint16Array(responseArray));
-            console.log(logString);
             element.innerHTML += logString;
 
         };
@@ -67,7 +66,6 @@ class LogStore {
             this.eventSource.onmessage = (e) => {
                 this.reading = true;
 
-                console.log(e.data);
 
                 let parsedLine = "";
                 if (e.data.indexOf("\tat") !== -1) {

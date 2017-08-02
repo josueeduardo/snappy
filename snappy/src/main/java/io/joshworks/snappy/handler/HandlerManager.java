@@ -38,7 +38,7 @@ public class HandlerManager {
     private static final String WS_UPGRADE_HEADER_VALUE = "websocket";
 
     //chain of responsibility
-    public HttpHandler createRootHandler(
+    public static HttpHandler createRootHandler(
             List<MappedEndpoint> mappedEndpoints,
             List<Interceptor> rootInterceptors,
             String basePath,
@@ -68,12 +68,8 @@ public class HandlerManager {
             }
         }
 
-        HttpHandler root = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
-        if(!rootInterceptors.isEmpty()) {
-            InterceptorHandler interceptorHandler = new InterceptorHandler(rootInterceptors);
-            interceptorHandler.setNext(root);
-            root = interceptorHandler;
-        }
+        HttpHandler resolved = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
+        HttpHandler root = resolveRootInterceptors(resolved, rootInterceptors);
 
         HttpHandler handler = httpTracer ? Handlers.requestDump(root) : root;
 
@@ -81,7 +77,16 @@ public class HandlerManager {
     }
 
 
-    private HttpHandler resolveHandlers(HttpHandler rest, HttpHandler ws, HttpHandler file, List<MappedEndpoint> mappedEndpoints) {
+    private static HttpHandler resolveRootInterceptors(HttpHandler original, List<Interceptor> interceptors) {
+        if (!interceptors.isEmpty()) {
+            InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
+            interceptorHandler.setNext(original);
+            return interceptorHandler;
+        }
+        return original;
+    }
+
+    private static HttpHandler resolveHandlers(HttpHandler rest, HttpHandler ws, HttpHandler file, List<MappedEndpoint> mappedEndpoints) {
 
         PredicateHandler websocketRestResolved = Handlers.predicate(value -> {
             HeaderValues upgradeHeader = value.getRequestHeaders().get(Headers.UPGRADE);

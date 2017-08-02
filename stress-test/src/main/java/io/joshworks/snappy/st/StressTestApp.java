@@ -20,7 +20,7 @@ public class StressTestApp {
         });
 
         post("/c", exchange -> {
-            Map<String, Object> map = exchange.body().asJsonMap();
+            Map<String, Object> map = exchange.body().asMap();
         });
 
         get("/ex", exchange -> {

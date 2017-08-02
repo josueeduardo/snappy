@@ -65,7 +65,7 @@ public class Metrics {
     }
 
 
-    public synchronized static void setEnable(boolean enabled) {
+    public synchronized static void setEnabled(boolean enabled) {
         Metrics.enabled = enabled;
     }
 
@@ -107,7 +107,5 @@ public class Metrics {
         TimeMetric<Boolean> booleanSupplier = booleanSuppliers.get(key);
         return booleanSupplier == null ? new LinkedList<>() : booleanSupplier.getData();
     }
-
-
 
 }

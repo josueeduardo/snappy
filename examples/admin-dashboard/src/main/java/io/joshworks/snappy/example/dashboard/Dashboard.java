@@ -1,13 +1,10 @@
 package io.joshworks.snappy.example.dashboard;
 
-import io.joshworks.restclient.http.SimpleClient;
-import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.extensions.dashboard.AdminExtension;
 import io.joshworks.snappy.extensions.dashboard.metrics.Metrics;
 
 import java.io.File;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
 import static io.joshworks.snappy.SnappyServer.*;
 
@@ -38,11 +35,12 @@ public class Dashboard {
             }
         });
 
-        onStart(() -> {
-            AppExecutors.scheduleAtFixedRate(() -> {
-                SimpleClient.get("http://localhost:9000/test-endpoint").asString();
-            }, 1,1, TimeUnit.SECONDS);
-        });
+
+//        onStart(() -> {
+//            AppExecutors.scheduleAtFixedRate(() -> {
+//                SimpleClient.get("http://localhost:9000/test-endpoint").asString();
+//            }, 1,1, TimeUnit.SECONDS);
+//        });
 
         cors();
         start(); //http://localhost:9100/

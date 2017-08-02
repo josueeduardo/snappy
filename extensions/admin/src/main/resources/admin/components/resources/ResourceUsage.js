@@ -32,7 +32,7 @@ export default class ResourceUsage extends React.Component {
         }, 0);
     }
 
-    getMainResources(resources) {
+    getMainResources(resources, totalRequests) {
         const result = resources.map((res) => {
             let baseUrl = res.url.split("/")[1];
             return {base: baseUrl, resource: res};
@@ -44,7 +44,6 @@ export default class ResourceUsage extends React.Component {
             return prev;
         }, {});
 
-        const totalRequests = this.getTotalRequests(resources);
         let copyResult = Object.assign({}, result);
 
 
@@ -127,13 +126,13 @@ export default class ResourceUsage extends React.Component {
 // }
 
 
-    getConfig(data) {
+    getConfig(data, totalRequests) {
         let config = {
             chart: {
                 type: 'column'
             },
             title: {
-                text: 'Resource usage'
+                text: 'Resource usage (' + totalRequests + ' total)'
             },
             subtitle: {
                 text: 'Click the columns to more details.'
@@ -142,6 +141,7 @@ export default class ResourceUsage extends React.Component {
                 type: 'category'
             },
             yAxis: {
+                max: 100,
                 title: {
                     text: 'Total percent resource usage'
                 }
@@ -175,8 +175,9 @@ export default class ResourceUsage extends React.Component {
             return <h3>No data</h3>
         }
 
-        let series = this.getMainResources(resources);
-        const config = this.getConfig(series);
+        const totalRequests = this.getTotalRequests(resources);
+        const series = this.getMainResources(resources, totalRequests);
+        const config = this.getConfig(series, totalRequests);
 
         return (
             <div>

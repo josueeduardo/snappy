@@ -2,7 +2,9 @@ package io.joshworks.snappy.extensions.dashboard.resource;
 
 import io.joshworks.snappy.rest.RestExchange;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -10,20 +12,19 @@ import java.util.stream.Collectors;
  */
 public class ResourcesMetricResource {
 
-
-    private final ResourceMetricHolder control;
+    private final ResourceMetricHolder resourceMetricHolder;
 
     public ResourcesMetricResource(ResourceMetricHolder registeredMetricHandlers) {
-        this.control = registeredMetricHandlers;
+        this.resourceMetricHolder = registeredMetricHandlers;
     }
 
     public void getMetrics(RestExchange exchange) {
-        exchange.send(control.getMetrics());
+        exchange.send(resourceMetricHolder.getMetrics());
     }
 
     public void getMetric(RestExchange exchange) {
         String id = exchange.pathParameter("id");
-        List<RestMetric> foundById = control.getMetrics().stream()
+        List<RestMetric> foundById = resourceMetricHolder.getMetrics().stream()
                 .filter(rm -> id.equals(rm.id))
                 .collect(Collectors.toList());
 
@@ -31,7 +32,21 @@ public class ResourcesMetricResource {
             exchange.status(404);
         } else {
             exchange.send(foundById.get(0));
-
         }
+    }
+
+    public void updateMetric(RestExchange exchange) {
+        Object enabled = exchange.body().asMap().get("enabled");
+        if(enabled != null) {
+            boolean metricsEnabled = Boolean.parseBoolean(String.valueOf(enabled));
+            resourceMetricHolder.setMetricsEnabled(metricsEnabled);
+        }
+        exchange.status(204);
+    }
+
+    public void metricStatus(RestExchange exchange) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("enabled", resourceMetricHolder.isMetricsEnabled());
+        exchange.send(response);
     }
 }

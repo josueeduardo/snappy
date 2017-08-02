@@ -83,7 +83,7 @@ public class Body {
         }
     }
 
-    public Map<String, Object> asJsonMap() {
+    public Map<String, Object> asMap() {
         Type type = new TypeToken<Map<String, Object>>() {
         }.getType();
         return new Gson().fromJson(asString(), type);

@@ -60,9 +60,13 @@ public class AdminExtension implements SnappyExtension {
     private final String path;
 
     private static final String LOG_SSE = "/logs";
+
     private static final String METRICS_ENDPOINT = "/metrics";
+    private static final String METRICS_STATUS_ENDPOINT = METRICS_ENDPOINT + "/status";
     private static final String METRIC_ENDPOINT = METRICS_ENDPOINT + "/{id}";
+
     private static final String RESOURCES_METRIC_ENDPOINT = "/resources";
+    private static final String RESOURCES_METRIC_STATUS_ENDPOINT = RESOURCES_METRIC_ENDPOINT + "/status";
     private static final String RESOURCE_METRIC_ENDPOINT = RESOURCES_METRIC_ENDPOINT + "/{id}";
     private static final String STATS_ENDPOINT = "/stats";
 
@@ -87,14 +91,13 @@ public class AdminExtension implements SnappyExtension {
         registerResourceMetricEndpoints(config);
         registerAppMetricsEndpoint(config);
 
-
         String logLocation = AppProperties.get(LOG_LOCATION).orElse(null);
         if (logLocation == null || logLocation.isEmpty()) {
             logger.warn(LOG_LOCATION + " not specified, log won't be available");
         } else {
             streamer = new LogStreamer(executor, logLocation);
         }
-        config.adminManager.addEndpoint(HandlerUtil.sse(LOG_SSE, config.adminManager.getInterceptors(), streamer));
+        config.adminManager.addEndpoint(HandlerUtil.sse(LOG_SSE, new ArrayList<>(), streamer));
     }
 
     @Override
@@ -115,23 +118,41 @@ public class AdminExtension implements SnappyExtension {
         ResourceMetricHolder resourceMetricHolder = wrapHandlerWithMetricsHandler(config);
         final ResourcesMetricResource endpoint = new ResourcesMetricResource(resourceMetricHolder);
 
-
         MappedEndpoint getMetrics = HandlerUtil.rest(
                 Methods.GET,
                 RESOURCES_METRIC_ENDPOINT,
                 endpoint::getMetrics,
                 new ExceptionMapper(),
-                config.adminManager.getInterceptors());
+                new ArrayList<>());
 
         MappedEndpoint getMetric = HandlerUtil.rest(
                 Methods.GET,
                 RESOURCE_METRIC_ENDPOINT,
                 endpoint::getMetric,
                 new ExceptionMapper(),
-                config.adminManager.getInterceptors());
+               new ArrayList<>());
+
+
+        MappedEndpoint updateMetric = HandlerUtil.rest(
+                Methods.PUT,
+                RESOURCES_METRIC_STATUS_ENDPOINT,
+                endpoint::updateMetric,
+                new ExceptionMapper(),
+               new ArrayList<>());
+
+
+        MappedEndpoint metricStatus = HandlerUtil.rest(
+                Methods.GET,
+                RESOURCES_METRIC_STATUS_ENDPOINT,
+                endpoint::metricStatus,
+                new ExceptionMapper(),
+               new ArrayList<>());
+
 
         config.adminManager.addEndpoint(getMetrics);
         config.adminManager.addEndpoint(getMetric);
+        config.adminManager.addEndpoint(updateMetric);
+        config.adminManager.addEndpoint(metricStatus);
     }
 
     private ResourceMetricHolder wrapHandlerWithMetricsHandler(ServerData config) {
@@ -166,7 +187,7 @@ public class AdminExtension implements SnappyExtension {
 
         MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, STATS_ENDPOINT, exchange -> {
             exchange.send(new ServerStats(), MediaType.APPLICATION_JSON_TYPE);
-        }, new ExceptionMapper(), config.adminManager.getInterceptors());
+        }, new ExceptionMapper(),new ArrayList<>());
 
 
         config.adminManager.addEndpoint(getMetrics);
@@ -181,7 +202,7 @@ public class AdminExtension implements SnappyExtension {
                 METRICS_ENDPOINT,
                 appMetricsResource::getMetrics,
                 new ExceptionMapper(),
-                config.adminManager.getInterceptors());
+               new ArrayList<>());
 
 
         MappedEndpoint getMetric = HandlerUtil.rest(
@@ -189,20 +210,29 @@ public class AdminExtension implements SnappyExtension {
                 METRIC_ENDPOINT,
                 appMetricsResource::getMetric,
                 new ExceptionMapper(),
-                config.adminManager.getInterceptors());
+               new ArrayList<>());
 
 
         MappedEndpoint updateMetrics = HandlerUtil.rest(
                 Methods.PUT,
-                METRICS_ENDPOINT,
+                METRICS_STATUS_ENDPOINT,
                 appMetricsResource::updateMetricState,
                 new ExceptionMapper(),
-                config.adminManager.getInterceptors());
+               new ArrayList<>());
+
+
+        MappedEndpoint metricsStatus = HandlerUtil.rest(
+                Methods.GET,
+                METRICS_STATUS_ENDPOINT,
+                appMetricsResource::updateMetricState,
+                new ExceptionMapper(),
+               new ArrayList<>());
 
 
         config.adminManager.addEndpoint(getMetrics);
         config.adminManager.addEndpoint(getMetric);
         config.adminManager.addEndpoint(updateMetrics);
+        config.adminManager.addEndpoint(metricsStatus);
 
     }
 

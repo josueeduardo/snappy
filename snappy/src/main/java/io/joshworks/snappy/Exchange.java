@@ -145,12 +145,12 @@ public class Exchange {
 
     //--------------- Response ---------------
     public Exchange header(String name, String value) {
-        exchange.getResponseHeaders().add(HttpString.tryFromString(name), value);
+        exchange.getResponseHeaders().put(HttpString.tryFromString(name), value);
         return this;
     }
 
     public Exchange header(String name, long value) {
-        exchange.getResponseHeaders().add(HttpString.tryFromString(name), value);
+        exchange.getResponseHeaders().put(HttpString.tryFromString(name), value);
         return this;
     }
 

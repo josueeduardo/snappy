@@ -11,9 +11,14 @@ import java.util.stream.Collectors;
  */
 public class ResourceMetricHolder {
 
+    private boolean metricsEnabled = true;
+
     private final List<ResourceMetricItem> registeredEndpoints = new ArrayList<>();
+    private final List<RestMetricsHandler> metricsHandlers = new ArrayList<>();
 
     public void add(String method, String url, RestMetricsHandler handler) {
+        metricsHandlers.add(handler);
+        handler.setEnabled(metricsEnabled);
         registeredEndpoints.add(new ResourceMetricItem(method, url, handler::getMetrics));
     }
 
@@ -21,6 +26,14 @@ public class ResourceMetricHolder {
         return registeredEndpoints.stream()
                 .map(re -> new RestMetric(re.id, re.url, re.method, re.metricsSupplier.get()))
                 .collect(Collectors.toList());
+    }
+
+    public void setMetricsEnabled(boolean enabled) {
+        metricsHandlers.forEach(rmh -> rmh.setEnabled(enabled));
+    }
+
+    public boolean isMetricsEnabled() {
+        return metricsEnabled;
     }
 
     public static class ResourceMetricItem {

@@ -17,16 +17,11 @@
 
 package io.joshworks.snappy;
 
+import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
-import io.joshworks.snappy.handler.TrailingSlashRoutingHandler;
 import io.joshworks.snappy.rest.Interceptor;
-import io.undertow.Handlers;
-import io.undertow.predicate.Predicate;
-import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.RoutingHandler;
-import io.undertow.server.handlers.ResponseCodeHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,29 +31,28 @@ import java.util.List;
  */
 public class AdminManager {
 
-    int port = 9100;
-    String bindAddress = "127.0.0.1";
+    public static final int ADMIN_PORT = 9100;
 
+    private int port = ADMIN_PORT;
+    private String bindAddress = "127.0.0.1";
     private final List<MappedEndpoint> endpoints = new ArrayList<>();
-    private final RoutingHandler routingAdminHandler = new TrailingSlashRoutingHandler();
-    private HttpHandler controlPanel = new ResponseCodeHandler(404);
-
     private final List<Interceptor> interceptors = new ArrayList<>();
+
+    private MappedEndpoint adminPage;
 
     AdminManager() {
 
     }
 
-    public void addEndpoint(MappedEndpoint endpoint) {
-        endpoints.add(endpoint);
+    HttpHandler resolveHandlers() {
+        if (adminPage != null) {
+            endpoints.add(adminPage);
+        }
+        return HandlerManager.createRootHandler(endpoints, interceptors, HandlerUtil.BASE_PATH, false);
     }
 
-    HttpHandler resolveHandlers() {
-        endpoints.forEach(me -> routingAdminHandler.add(me.method, me.url, me.handler));
-
-        String[] mappedServices = HandlerUtil.removePathTemplate(endpoints);
-        Predicate mappedPredicate = Predicates.prefixes(mappedServices);
-        return Handlers.predicate(mappedPredicate, routingAdminHandler, controlPanel);
+    public void addEndpoint(MappedEndpoint endpoint) {
+        endpoints.add(endpoint);
     }
 
     List<MappedEndpoint> getEndpoints() {
@@ -66,12 +60,28 @@ public class AdminManager {
     }
 
     public void setAdminPage(String url, String docPath, List<Interceptor> interceptors) {
-        controlPanel = HandlerUtil.staticFiles(url, docPath, interceptors).handler;
+        adminPage = HandlerUtil.staticFiles(url, docPath, interceptors);
     }
 
-    public List<Interceptor> getInterceptors() {
-        return interceptors;
+    //FIXME leaking list, modifying state outside. really messy
+    void addInterceptor(Interceptor interceptor) {
+        interceptors.add(interceptor);
     }
 
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public void setBindAddress(String bindAddress) {
+        this.bindAddress = bindAddress;
+    }
 
 }

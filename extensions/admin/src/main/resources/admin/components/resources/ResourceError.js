@@ -45,7 +45,7 @@ export default class ResourceUsage extends React.Component {
     }
 
 
-    getMainResources(resources) {
+    getMainResources(resources, totalErrors) {
         const result = resources.map((res) => {
             let baseUrl = res.url.split("/")[1];
             return {base: baseUrl, resource: res};
@@ -57,9 +57,7 @@ export default class ResourceUsage extends React.Component {
             return prev;
         }, {});
 
-        const totalErrors = this.getTotalErrors(resources);
         let copyResult = Object.assign({}, result);
-
 
         let totalPerBaseEndpoint = Object.keys(copyResult).map((key, index) => {
             let resources = copyResult[key];
@@ -122,13 +120,13 @@ export default class ResourceUsage extends React.Component {
         }
     };
 
-    getConfig(data) {
+    getConfig(data, totalErrors) {
         let config = {
             chart: {
                 type: 'column'
             },
             title: {
-                text: 'Errors per endpoint'
+                text: 'Errors per endpoint (' + totalErrors + ' total)'
             },
             subtitle: {
                 text: 'Click the columns to more details.'
@@ -142,6 +140,7 @@ export default class ResourceUsage extends React.Component {
                 type: 'category'
             },
             yAxis: {
+                max: 100,
                 title: {
                     text: 'Resource errors'
                 }
@@ -175,10 +174,10 @@ export default class ResourceUsage extends React.Component {
             return <h3>No data</h3>
         }
 
-        let series = this.getMainResources(resources);
-        const config = this.getConfig(series);
+        const totalErrors = this.getTotalErrors(resources);
+        const series = this.getMainResources(resources, totalErrors);
+        const config = this.getConfig(series, totalErrors);
 
-        console.log(JSON.stringify(config));
 
         return (
             <div>

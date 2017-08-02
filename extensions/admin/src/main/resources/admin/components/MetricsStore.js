@@ -15,6 +15,7 @@ class ServerStats {
 
 class MetricsStore {
     //memory + thread pool
+    @observable resourcesEnabled = false;
     @observable stats = new ServerStats();
     @observable metrics = {};
     @observable resources = [];
@@ -53,6 +54,28 @@ class MetricsStore {
             })
             .catch((err) => {
                 console.error("Error fetching metrics data");
+                throw err;
+            });
+    }
+
+    fetchResourceMetricsStatus() {
+        API.get("/resources/status")
+            .then((res) => {
+                this.resourcesEnabled = res.data.enabled;
+            })
+            .catch((err) => {
+                console.error("Error on fetchResourceMetricsStatus");
+                throw err;
+            });
+    }
+
+    setResourceMetricEnabled(enabled) {
+        API.put("/resources/status", {enabled: enabled})
+            .then((res) => {
+                this.resourcesEnabled = enabled;
+            })
+            .catch((err) => {
+                console.error("Error on setResourceMetricEnabled");
                 throw err;
             });
     }

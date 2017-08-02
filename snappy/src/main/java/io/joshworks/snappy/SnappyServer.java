@@ -73,10 +73,10 @@ import static io.joshworks.snappy.handler.HandlerUtil.BASE_PATH;
 public class SnappyServer {
 
     public static final String LOGGER_NAME = "snappy";
+    private static final int PORT = 9000;
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private final HandlerManager handlerManager = new HandlerManager();
     private final AdminManager adminManager = new AdminManager();
     private final ExtensionProxy extensions = new ExtensionProxy();
     private XnioWorker worker;
@@ -146,12 +146,12 @@ public class SnappyServer {
 
     public static synchronized void adminPort(int adminPort) {
         checkStarted();
-        instance().adminManager.port = adminPort;
+        instance().adminManager.setPort(adminPort);
     }
 
     public static synchronized void adminAddress(String address) {
         checkStarted();
-        instance().adminManager.bindAddress = address;
+        instance().adminManager.setBindAddress(address);
     }
 
     public static synchronized void port(int port) {
@@ -161,8 +161,8 @@ public class SnappyServer {
 
     public static synchronized void portOffset(int offset) {
         checkStarted();
-        instance().port += offset;
-        instance().adminManager.port += offset;
+        instance().port = PORT + offset;
+        instance().adminManager.setPort(AdminManager.ADMIN_PORT + offset);
     }
 
     public static synchronized void address(String address) {
@@ -316,7 +316,7 @@ public class SnappyServer {
     public static synchronized void cors() {
         checkStarted();
         instance().rootInterceptors.add(Interceptors.cors());
-        instance().adminManager.getInterceptors().add(Interceptors.cors());
+        instance().adminManager.addInterceptor(Interceptors.cors());
     }
 
     /**
@@ -629,17 +629,17 @@ public class SnappyServer {
             // therefore they must execute before the handler resolution
             bootstrapExtensions();
 
-            Info.httpConfig(bindAddress, port, adminManager.bindAddress, adminManager.port, httpTracer);
+            Info.httpConfig(bindAddress, port, adminManager.getBindAddress(), adminManager.getPort(), httpTracer);
             Info.serverConfig(optionBuilder);
             Info.threadConfig(executors, schedulers);
             Info.endpoints("ENDPOINTS", endpoints, basePath);
             Info.endpoints("ADMIN ENDPOINTS", adminManager.getEndpoints(), BASE_PATH);
 
 
-            HttpHandler rootHandler = handlerManager.createRootHandler(endpoints, rootInterceptors, basePath, httpTracer);
+            HttpHandler rootHandler = HandlerManager.createRootHandler(endpoints, rootInterceptors, basePath, httpTracer);
             server = serverBuilder
                     .addHttpListener(port, bindAddress, rootHandler)
-                    .addHttpListener(adminManager.port, adminManager.bindAddress, adminManager.resolveHandlers())
+                    .addHttpListener(adminManager.getPort(), adminManager.getBindAddress(), adminManager.resolveHandlers())
                     .build();
 
             server.start();
@@ -664,8 +664,8 @@ public class SnappyServer {
         this.bindAddress = AppProperties.get(PropertyKey.HTTP_BIND_ADDRESS).orElse(this.bindAddress);
 
         //admin http
-        this.adminManager.port = AppProperties.getInt(PropertyKey.ADMIN_HTTP_PORT).orElse(this.adminManager.port);
-        this.adminManager.bindAddress = AppProperties.get(PropertyKey.ADMIN_HTTP_BIND_ADDRESS).orElse(this.adminManager.bindAddress);
+        this.adminManager.setPort(AppProperties.getInt(PropertyKey.ADMIN_HTTP_PORT).orElse(this.adminManager.getPort()));
+        this.adminManager.setBindAddress(AppProperties.get(PropertyKey.ADMIN_HTTP_BIND_ADDRESS).orElse(this.adminManager.getBindAddress()));
 
         //xnio
         OptionMap map = optionBuilder.getMap();
@@ -690,7 +690,7 @@ public class SnappyServer {
     //sets the properties that are may be useful outside the application
     private void exportDefaultProperties() {
         AppProperties.set(PropertyKey.HTTP_PORT, String.valueOf(this.port));
-        AppProperties.set(PropertyKey.ADMIN_HTTP_PORT, String.valueOf(this.adminManager.port));
+        AppProperties.set(PropertyKey.ADMIN_HTTP_PORT, String.valueOf(this.adminManager.getPort()));
     }
 
     private void bootstrapExtensions() {

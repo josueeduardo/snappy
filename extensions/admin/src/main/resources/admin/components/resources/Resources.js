@@ -15,6 +15,7 @@ export default class Resources extends React.Component {
         this.props.stateStore.headerIcon = "icon-exchange";
 
         this.props.metricsStore.fetchResources();
+        this.props.metricsStore.fetchResourceMetricsStatus();
     }
 
     usagePercentage(resources, totalRequest) {
@@ -76,11 +77,41 @@ export default class Resources extends React.Component {
         return items;
     }
 
-    render() {
+    setResourceMetricsEnabled(e, enabled) {
+        e.preventDefault();
+        this.props.metricsStore.setResourceMetricEnabled(enabled);
+    }
 
-        const {resources} = this.props.metricsStore;
+    getEnableButton() {
+        const {resourcesEnabled} = this.props.metricsStore;
+
+        const btn = resourcesEnabled ?
+            <a href="#" onClick={(e) => this.setResourceMetricsEnabled(e, false)} class="btn btn-red">Disable</a> :
+            <a href="#" onClick={(e) => this.setResourceMetricsEnabled(e, true)} class="btn btn-green">Enable</a>;
+
+        return (
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="padded pull-right">
+                        {btn}
+                    </div>
+                </div>
+            </div>
+        )
+
+    }
+
+    render() {
+        const {resources, resourcesEnabled} = this.props.metricsStore;
+        const enableButton = this.getEnableButton();
+
         if (!resources || resources.length === 0) {
-            return <h3>No data</h3>
+            return (
+                <div>
+                    {enableButton}
+                    <h3 class="padded">No data</h3>
+                </div>
+        )
         }
 
         // let totalRequest = this.getTotalRequests(resources);
@@ -97,6 +128,14 @@ export default class Resources extends React.Component {
 
         return (
             <div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="padded pull-right">
+                            {this.getEnableButton()}
+                        </div>
+                    </div>
+                </div>
+
                 {groupedResources}
 
                 <div class="row">
@@ -105,7 +144,7 @@ export default class Resources extends React.Component {
                             <div class="box-header">
                                 <span class="title">Usage</span>
                             </div>
-                            <ResourceUsage resources={resources} />
+                            {resourcesEnabled ? <ResourceUsage resources={resources}/> : <h3 class="text-center padded">Disabled</h3>}
                         </div>
                     </div>
                 </div>
@@ -115,7 +154,8 @@ export default class Resources extends React.Component {
                             <div class="box-header">
                                 <span class="title">Errors per endpoint</span>
                             </div>
-                            <ResourceError resources={resources} />
+                            {resourcesEnabled ? <ResourceError resources={resources}/> : <h3 class="text-center padded">Disabled</h3>}
+
                         </div>
                     </div>
                 </div>
