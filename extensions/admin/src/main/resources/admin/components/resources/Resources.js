@@ -130,7 +130,7 @@ export default class Resources extends React.Component {
             <div>
                 <div class="row">
                     <div class="col-md-12">
-                        <div class="padded pull-right">
+                        <div class="pull-right">
                             {this.getEnableButton()}
                         </div>
                     </div>

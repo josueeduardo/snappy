@@ -59,13 +59,13 @@ export default class Dashboard extends React.Component {
 
                 <div class="row">
                     <div class="col-md-6">
-                        <ResourcesPane resources={resources}/>
+                        <ResourcesPane title="Resources" resources={resources}/>
                     </div>
                     <div class="col-md-6">
                         <ThreadPoolPane threadPools={stats.threadPools}/>
                     </div>
                 </div>
             </div>
-    )
+        )
     }
-    }
+}
