@@ -38,7 +38,7 @@ export default class Logs extends React.Component {
             <ul class="nav nav-tabs nav-tabs-right">
                 <li class={logMode === 'tailf' ? 'active' : ''}>
                     <a href="#" data-toggle="tab" onClick={(e) => this.switchTab(e, 'tailf')}>
-                        <i class="icon-refresh"></i><span>Tailf</span>
+                        <i class="icon-refresh"></i><span>Tail</span>
                     </a>
                 </li>
                 <li class={logMode === 'full' ? 'active' : ''}>
