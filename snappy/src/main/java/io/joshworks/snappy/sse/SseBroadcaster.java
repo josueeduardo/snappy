@@ -25,6 +25,7 @@ import io.undertow.server.handlers.sse.ServerSentEventHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -80,13 +81,19 @@ public class SseBroadcaster {
         return endpoints.stream().flatMap(sse -> sse.getConnections().stream());
     }
 
-    public static void addToGroup(String name, ServerSentEventConnection connection) {
-        groups.putIfAbsent(name, new HashSet<>());
-        groups.get(name).add(connection);
+    public static void addToGroup(final String name, final ServerSentEventConnection connection) {
+        groups.putIfAbsent(name, Collections.unmodifiableSet(new HashSet<>(Arrays.asList(connection))));
+        groups.computeIfPresent(name, (s, serverSentEventConnections) -> {
+            Set<ServerSentEventConnection> conns = new HashSet<>(serverSentEventConnections);
+            conns.add(connection);
+            return Collections.unmodifiableSet(conns);
+        });
         connection.addCloseTask(channel ->
                 groups.computeIfPresent(name, (s, serverSentEventConnections) -> {
-                    serverSentEventConnections.remove(connection);
-                    return serverSentEventConnections.isEmpty() ? null : serverSentEventConnections;
+                    Set<ServerSentEventConnection> conns = new HashSet<>(serverSentEventConnections);
+                    conns.remove(connection);
+                    conns = Collections.unmodifiableSet(conns);
+                    return conns.isEmpty() ? null : conns;
                 }));
     }
 
