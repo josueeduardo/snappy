@@ -32,6 +32,9 @@ import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.BlockingHandler;
+import io.undertow.server.handlers.encoding.ContentEncodingRepository;
+import io.undertow.server.handlers.encoding.EncodingHandler;
+import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.server.handlers.form.EagerFormParsingHandler;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
@@ -167,6 +170,17 @@ public class HandlerUtil {
         formHandler.setNext(interceptorHandler);
 
         return new MappedEndpoint(Methods.POST_STRING, url, MappedEndpoint.Type.MULTIPART, formHandler);
+    }
+
+
+    public static HttpHandler gzipRestHandler(HttpHandler handler) {
+        return new EncodingHandler(new ContentEncodingRepository()
+                .addEncodingHandler("gzip", new GzipEncodingProvider(), 60))
+                .setNext(handler);
+    }
+
+    public static HttpHandler gzipSseHandler() {
+        throw new UnsupportedOperationException("TODO - not implemented");
     }
 
     public static synchronized void group(String groupPath, Group group) {

@@ -48,7 +48,7 @@ public class AdminManager {
         if (adminPage != null) {
             endpoints.add(adminPage);
         }
-        return HandlerManager.createRootHandler(endpoints, interceptors, HandlerUtil.BASE_PATH, false);
+        return HandlerManager.createRootHandler(endpoints, interceptors, false, HandlerUtil.BASE_PATH, false);
     }
 
     public void addEndpoint(MappedEndpoint endpoint) {

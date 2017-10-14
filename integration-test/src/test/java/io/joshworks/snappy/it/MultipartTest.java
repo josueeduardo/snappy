@@ -18,6 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.multipart.Part;
 import org.junit.AfterClass;
@@ -30,9 +31,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.HashMap;
+import java.util.Map;
 
 import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -52,6 +56,7 @@ public class MultipartTest {
         output = Files.createTempFile(Paths.get(tempDir), "testFile", "output");
 
 
+        enableTracer();
         multipart("/upload", exchange -> {
             Part part = exchange.part(FILE_PART_NAME);
             if (!saveFileToTemp(part.file().path())) {
@@ -62,6 +67,15 @@ public class MultipartTest {
             String parameterValue = parameter.value();
 
             exchange.status(200).send(parameterValue, "txt");
+        });
+
+        multipart("/partMime", exchange -> {
+            Map<String, Object> mime = new HashMap<>();
+            for (Part part : exchange.parts()) {
+                mime.put(part.name(), part.type().toString());
+            }
+
+            exchange.status(200).send(mime, "json");
         });
 
         group("/a", () -> {
@@ -91,13 +105,10 @@ public class MultipartTest {
 
     @Test
     public void upload() throws Exception {
-        String parameterValue = "SOME-VALUE";
         String fileContent = "YOLO"; //content from the test file
 
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
         HttpResponse<String> response = SimpleClient.post("http://localhost:9000/upload")
-                .header("accept", "application/json")
-                .field(SOME_OTHER_FIELD, parameterValue)
                 .field(FILE_PART_NAME, uploadFile, "sample-input.txt")
                 .asString();
 
@@ -106,8 +117,49 @@ public class MultipartTest {
 
         byte[] bytes = Files.readAllBytes(output);
         assertEquals(fileContent, new String(bytes));
+    }
+
+    @Test
+    public void uploadBinaryWithText() throws Exception {
+        String parameterValue = "SOME-VALUE";
+        String fileContent = "YOLO"; //content from the test file
+
+        InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
+        HttpResponse<String> response = SimpleClient.post("http://localhost:9000/upload")
+                .field(SOME_OTHER_FIELD, parameterValue)
+                .field(FILE_PART_NAME, uploadFile, "sample-input.txt")
+                .asString();
+
+        assertEquals(200, response.getStatus());
+        assertTrue(Files.exists(output));
+        assertEquals(parameterValue, response.getBody());//server returns the text parameter
+
+        byte[] bytes = Files.readAllBytes(output);
+        assertEquals(fileContent, new String(bytes));
+    }
+
+    @Test
+    public void partMime() throws Exception {
+        InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
+        HttpResponse<JsonNode> response = SimpleClient.post("http://localhost:9000/partMime")
+                .field("textPart", "someContent", "text/plain")
+                .field("jsonPart", new HashMap<>(), false, "application/json")
+                .field("filePart", uploadFile, "sample-input.txt")
+                .asJson();
+
+        assertEquals(200, response.getStatus());
+        assertNotNull(response.getBody());
+        assertEquals("text/plain", response.getBody().getObject().getString("textPart"));
+        assertEquals("application/json", response.getBody().getObject().getString("jsonPart"));
+        assertEquals("application/octet-stream", response.getBody().getObject().getString("filePart"));
+    }
+
+    @Test
+    public void uploadWithContentType() throws Exception {
+
 
     }
+
 
     @Test
     public void resolveUrl() throws Exception {

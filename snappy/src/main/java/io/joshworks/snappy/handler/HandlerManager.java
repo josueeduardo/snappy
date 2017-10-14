@@ -41,10 +41,11 @@ public class HandlerManager {
     public static HttpHandler createRootHandler(
             List<MappedEndpoint> mappedEndpoints,
             List<Interceptor> rootInterceptors,
+            boolean gzipEnabled,
             String basePath,
             boolean httpTracer) {
 
-        final RoutingHandler routingRestHandler = new TrailingSlashRoutingHandler();
+        final RoutingHandler routingRestHandler = new HttpRootHandler();
         final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
         HttpHandler staticHandler = null;
 
@@ -52,19 +53,24 @@ public class HandlerManager {
 
             if (MappedEndpoint.Type.REST.equals(me.type)) {
                 String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
-                routingRestHandler.add(me.method, endpointPath, me.handler);
+                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipRestHandler(me.handler) : me.handler;
+                routingRestHandler.add(me.method, endpointPath, handler);
             }
             if (MappedEndpoint.Type.MULTIPART.equals(me.type)) {
-                routingRestHandler.add(me.method, me.url, me.handler);
+                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipRestHandler(me.handler) : me.handler;
+                routingRestHandler.add(me.method, me.url, handler);
             }
             if (MappedEndpoint.Type.SSE.equals(me.type)) {
-                routingRestHandler.add(me.method, me.url, me.handler);
+                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipSseHandler() : me.handler;
+                routingRestHandler.add(me.method, me.url, handler);
             }
             if (MappedEndpoint.Type.WS.equals(me.type)) {
+                //TODO gzip not supported
                 websocketHandler.add(me.url, me.handler);
             }
             if (MappedEndpoint.Type.STATIC.equals(me.type)) {
-                staticHandler = me.handler;
+                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipRestHandler(me.handler) : me.handler;
+                staticHandler = handler;
             }
         }
 

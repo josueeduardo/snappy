@@ -98,8 +98,9 @@ public class SnappyServer {
     private int port = 9000;
     private String bindAddress = "0.0.0.0";
     private boolean httpTracer;
-    private List<Interceptor> interceptors = new LinkedList<>();
-    private List<Interceptor> rootInterceptors = new LinkedList<>();
+    private final List<Interceptor> interceptors = new LinkedList<>();
+    private final List<Interceptor> rootInterceptors = new LinkedList<>();
+    private boolean gzipEnabled = false;
     private String basePath = BASE_PATH;
     private boolean started = false;
 
@@ -124,10 +125,6 @@ public class SnappyServer {
             }
         }
         return INSTANCE;
-    }
-
-    private static SnappyServer createServer() {
-        return new SnappyServer();
     }
 
     public static void start() {
@@ -235,6 +232,10 @@ public class SnappyServer {
     public static synchronized void basePath(String basePath) {
         checkStarted();
         instance().basePath = HandlerUtil.parseUrl(basePath);
+    }
+
+    public static synchronized void enableGzip() {
+       instance().gzipEnabled = true;
     }
 
     /**
@@ -636,7 +637,7 @@ public class SnappyServer {
             Info.endpoints("ADMIN ENDPOINTS", adminManager.getEndpoints(), BASE_PATH);
 
 
-            HttpHandler rootHandler = HandlerManager.createRootHandler(endpoints, rootInterceptors, basePath, httpTracer);
+            HttpHandler rootHandler = HandlerManager.createRootHandler(endpoints, rootInterceptors, gzipEnabled, basePath, httpTracer);
             server = serverBuilder
                     .addHttpListener(port, bindAddress, rootHandler)
                     .addHttpListener(adminManager.getPort(), adminManager.getBindAddress(), adminManager.resolveHandlers())
