@@ -19,9 +19,9 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.SimpleClient;
-import io.joshworks.snappy.rest.ExceptionResponse;
-import io.joshworks.snappy.rest.MediaType;
-import io.joshworks.snappy.rest.RestException;
+import io.joshworks.snappy.http.ExceptionResponse;
+import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.HttpException;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -47,7 +47,7 @@ public class RestErrorHandlerTest {
             throw new RuntimeException(EXCEPTION_MESSAGE);
         });
         get("/restException", exchange -> {
-            throw RestException.badRequest(EXCEPTION_MESSAGE);
+            throw HttpException.badRequest(EXCEPTION_MESSAGE);
         });
 
         start();

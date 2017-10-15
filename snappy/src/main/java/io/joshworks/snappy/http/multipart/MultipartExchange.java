@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.multipart;
+package io.joshworks.snappy.http.multipart;
 
 import io.joshworks.snappy.Exchange;
 import io.undertow.server.HttpServerExchange;
@@ -54,8 +54,11 @@ public class MultipartExchange extends Exchange {
     }
 
     public List<Part> parts() {
-        Iterator<String> iterator = formData.iterator();
         List<Part> parts = new ArrayList<>();
+        if (formData == null) {
+            return parts;
+        }
+        Iterator<String> iterator = formData.iterator();
         while (iterator.hasNext()) {
             String next = iterator.next();
             Deque<FormData.FormValue> formValues = formData.get(next);

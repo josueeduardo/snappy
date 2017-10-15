@@ -15,14 +15,16 @@
  *
  */
 
-package io.joshworks.snappy.rest;
-
-import io.joshworks.snappy.Exchange;
+package io.joshworks.snappy.http;
 
 /**
- * Created by Josh Gontijo on 3/15/17.
+ * Created by Josh Gontijo on 4/2/17.
  */
-public interface ErrorHandler<T extends Exception> {
+class ExceptionCaught extends RuntimeException {
 
-    void onException(ExceptionDetails<T> e, Exchange exchange);
+    public final Exception exception;
+
+    ExceptionCaught(Exception e) {
+        this.exception = e;
+    }
 }

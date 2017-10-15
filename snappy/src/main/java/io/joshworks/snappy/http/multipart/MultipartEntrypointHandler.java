@@ -15,27 +15,27 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http.multipart;
+
+import io.undertow.server.HttpHandler;
+import io.undertow.server.HttpServerExchange;
 
 import java.util.function.Consumer;
 
 /**
- * Created by Josh Gontijo on 4/2/17.
- * Wraps checked exceptions into unchecked exception
- * When used with exception handlers it will unwrap the real cause and pass it in
+ * Created by Josh Gontijo on 3/19/17.
  */
-@FunctionalInterface
-public interface RestConsumer<T> extends Consumer<T> {
+public class MultipartEntrypointHandler implements HttpHandler {
 
-    @Override
-    default void accept(final T elem) {
-        try {
-            acceptThrows(elem);
-        } catch (final Exception e) {
-            throw new ExceptionCaught(e);
-        }
+    private Consumer<MultipartExchange> endpoint;
+
+    public MultipartEntrypointHandler(Consumer<MultipartExchange> endpoint) {
+        this.endpoint = endpoint;
     }
 
-    void acceptThrows(T elem) throws Exception;
-
+    @Override
+    public void handleRequest(HttpServerExchange exchange) throws Exception {
+        MultipartExchange multipartExchange = new MultipartExchange(exchange);
+        endpoint.accept(multipartExchange);
+    }
 }

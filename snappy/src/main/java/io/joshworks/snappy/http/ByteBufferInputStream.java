@@ -15,27 +15,27 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 /**
  * Created by Josh Gontijo on 4/3/17.
  */
-public class ByteBufferOutputStream extends OutputStream {
-
+public class ByteBufferInputStream extends InputStream {
     private ByteBuffer byteBuffer;
 
-    public ByteBufferOutputStream() {
+    public ByteBufferInputStream() {
     }
 
-    public ByteBufferOutputStream(int bufferSize) {
+    public ByteBufferInputStream(int bufferSize) {
         this(ByteBuffer.allocate(bufferSize));
+        byteBuffer.flip();
     }
 
-    public ByteBufferOutputStream(ByteBuffer byteBuffer) {
+    public ByteBufferInputStream(ByteBuffer byteBuffer) {
         this.byteBuffer = byteBuffer;
     }
 
@@ -47,13 +47,20 @@ public class ByteBufferOutputStream extends OutputStream {
         this.byteBuffer = byteBuffer;
     }
 
-    public void write(int b) throws IOException {
-        if (!byteBuffer.hasRemaining()) flush();
-        byteBuffer.put((byte) b);
+    public int read() throws IOException {
+        if (!byteBuffer.hasRemaining()) return -1;
+        return byteBuffer.get() & 0xFF;
     }
 
-    public void write(byte[] bytes, int offset, int length) throws IOException {
-        if (byteBuffer.remaining() < length) flush();
-        byteBuffer.put(bytes, offset, length);
+    public int read(byte[] bytes, int offset, int length) throws IOException {
+        if (length == 0) return 0;
+        int count = Math.min(byteBuffer.remaining(), length);
+        if (count == 0) return -1;
+        byteBuffer.get(bytes, offset, count);
+        return count;
+    }
+
+    public int available() throws IOException {
+        return byteBuffer.remaining();
     }
 }

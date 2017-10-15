@@ -19,7 +19,7 @@ package io.joshworks.snappy.extensions.ssr.server.service;
 
 
 import io.joshworks.snappy.extensions.ssr.Instance;
-import io.joshworks.snappy.rest.RestException;
+import io.joshworks.snappy.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class ServiceControl {
     public Service getService(String name) {
         Service service = store.get(name);
         if (service == null) {
-            throw RestException.notFound("Service not found for name '" + name + "'");
+            throw HttpException.notFound("Service not found for name '" + name + "'");
         }
         return service;
     }
@@ -58,10 +58,10 @@ public class ServiceControl {
 
     public Instance register(Instance instance) {
         if (instance == null) {
-            throw RestException.badRequest("Invalid instance");
+            throw HttpException.badRequest("Invalid instance");
         }
         if (instance.resolveAddress() == null || instance.resolveAddress().trim().isEmpty()) {
-            throw RestException.badRequest("'address' must be provided");
+            throw HttpException.badRequest("'address' must be provided");
         }
 //        if (instance.getId() == null || instance.getId().trim().isEmpty()) {
 //            throw RestException.badRequest("'id' must be provided");
@@ -91,7 +91,7 @@ public class ServiceControl {
                 .findFirst();
 
         if (!first.isPresent()) {
-            throw RestException.badRequest("Instance not found for id '" + instanceId + "'");
+            throw HttpException.badRequest("Instance not found for id '" + instanceId + "'");
         }
 
         Instance instance = first.get();
@@ -109,10 +109,10 @@ public class ServiceControl {
         Service sourceService = store.get(client);
 
         if (targetService == null) {
-            throw RestException.badRequest("Service " + target + " not found");
+            throw HttpException.badRequest("Service " + target + " not found");
         }
         if (sourceService == null) {
-            throw RestException.badRequest("Service " + client + " not found");
+            throw HttpException.badRequest("Service " + client + " not found");
         }
 
         sourceService.getLinks().add(target);

@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 /*
  * The contents of this file are subject to the terms

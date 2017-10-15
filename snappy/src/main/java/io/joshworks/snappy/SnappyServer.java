@@ -26,20 +26,21 @@ import io.joshworks.snappy.ext.SnappyExtension;
 import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
-import io.joshworks.snappy.multipart.MultipartExchange;
+import io.joshworks.snappy.http.HttpException;
+import io.joshworks.snappy.http.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.parser.PlainTextParser;
 import io.joshworks.snappy.property.AppProperties;
 import io.joshworks.snappy.property.PropertyKey;
-import io.joshworks.snappy.rest.ErrorHandler;
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.Group;
-import io.joshworks.snappy.rest.Interceptor;
-import io.joshworks.snappy.rest.Interceptors;
-import io.joshworks.snappy.rest.RestConsumer;
-import io.joshworks.snappy.rest.RestExchange;
+import io.joshworks.snappy.http.ErrorHandler;
+import io.joshworks.snappy.http.ExceptionMapper;
+import io.joshworks.snappy.http.Group;
+import io.joshworks.snappy.http.Interceptor;
+import io.joshworks.snappy.http.Interceptors;
+import io.joshworks.snappy.http.HttpConsumer;
+import io.joshworks.snappy.http.HttpExchange;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.server.HttpHandler;
@@ -90,10 +91,11 @@ public class SnappyServer {
     private final List<ExecutorConfig> executors = new ArrayList<>();
     private final List<SchedulerConfig> schedulers = new ArrayList<>();
     //-------------------------------------------
+
     private final List<MappedEndpoint> endpoints = new ArrayList<>();
     private final ExceptionMapper exceptionMapper = new ExceptionMapper();
-    //--------------------- HTTP -------------------
 
+    //--------------------- HTTP -------------------
     private Undertow server;
     private int port = 9000;
     private String bindAddress = "0.0.0.0";
@@ -214,7 +216,7 @@ public class SnappyServer {
 
     /**
      * Register an error interceptor that captures exception thrown from endpoints, allowing to change the http response.
-     * The default response is mapped to any {@link Exception} and returns an {@link io.joshworks.snappy.rest.RestException} body
+     * The default response is mapped to any {@link Exception} and returns an {@link HttpException} body
      *
      * @param exception The exception type that will trigger the handler
      * @param handler   The handler that handles the exception and send the appropriate response.
@@ -287,7 +289,7 @@ public class SnappyServer {
      * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
      * @param consumer The code to be executed when a URL matches the provided pattern
      */
-    public static synchronized void before(String url, RestConsumer<Exchange> consumer) {
+    public static synchronized void before(String url, HttpConsumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.BEFORE, HandlerUtil.parseUrl(url), consumer));
     }
@@ -298,7 +300,7 @@ public class SnappyServer {
      * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
      * @param consumer The code to be executed when a URL matches the provided pattern
      */
-    public static synchronized void after(String url, RestConsumer<Exchange> consumer) {
+    public static synchronized void after(String url, HttpConsumer<Exchange> consumer) {
         checkStarted();
         instance().interceptors.add(new Interceptor(Interceptor.Type.AFTER, HandlerUtil.parseUrl(url), consumer));
     }
@@ -312,7 +314,7 @@ public class SnappyServer {
      * <li>Access-Control-Allow-Headers: Origin, Accept, X-Requested-With, Content-Type, Authorization, Access-Control-Request-Method, Access-Control-Request-Headers</li>
      * </ul>
      * <p>
-     * For custom headers, use {@link SnappyServer#before(String, RestConsumer)}
+     * For custom headers, use {@link SnappyServer#before(String, HttpConsumer)}
      */
     public static synchronized void cors() {
         checkStarted();
@@ -327,9 +329,9 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void get(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void get(String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.GET, url, endpoint, instance().exceptionMapper,  mediaTypes));
     }
 
     /**
@@ -339,9 +341,9 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void post(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void post(String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.POST, url, endpoint, instance().exceptionMapper,  mediaTypes));
     }
 
     /**
@@ -351,9 +353,9 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void put(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void put(String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.PUT, url, endpoint, instance().exceptionMapper,  mediaTypes));
     }
 
     /**
@@ -363,9 +365,9 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void delete(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void delete(String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.DELETE, url, endpoint, instance().exceptionMapper,  mediaTypes));
     }
 
     /**
@@ -376,9 +378,9 @@ public class SnappyServer {
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      *                   </pre>
      */
-    public static synchronized void options(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void options(String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.OPTIONS, url, endpoint, instance().exceptionMapper,  mediaTypes));
     }
 
     /**
@@ -388,9 +390,9 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void head(String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void head(String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(Methods.HEAD, url, endpoint, instance().exceptionMapper,  mediaTypes));
     }
 
     /**
@@ -399,7 +401,7 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void get(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void get(HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         get(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
@@ -409,7 +411,7 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void post(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void post(HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         post(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
@@ -419,7 +421,7 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void put(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void put(HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         put(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
@@ -429,7 +431,7 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void delete(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void delete(HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         delete(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
@@ -439,7 +441,7 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void options(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void options(HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         options(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
@@ -449,7 +451,7 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void head(RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void head(HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         head(HandlerUtil.BASE_PATH, endpoint, mediaTypes);
     }
 
@@ -461,9 +463,9 @@ public class SnappyServer {
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
-    public static synchronized void add(HttpString method, String url, RestConsumer<RestExchange> endpoint, MediaTypes... mediaTypes) {
+    public static synchronized void add(HttpString method, String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(method, url, endpoint, instance().exceptionMapper, instance().interceptors, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(method, url, endpoint, instance().exceptionMapper,  mediaTypes));
     }
 
     /**
@@ -474,7 +476,7 @@ public class SnappyServer {
      */
     public static synchronized void websocket(String url, AbstractReceiveListener endpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(url, endpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.websocket(url, endpoint));
     }
 
     /**
@@ -495,7 +497,7 @@ public class SnappyServer {
             protected void onFullTextMessage(WebSocketChannel channel, BufferedTextMessage message) throws IOException {
                 onMessage.accept(channel, message);
             }
-        }, instance().interceptors));
+        }));
     }
 
     /**
@@ -506,7 +508,7 @@ public class SnappyServer {
      */
     public static synchronized void websocket(String url, WebsocketEndpoint endpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.websocket(url, endpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.websocket(url, endpoint));
     }
 
     /**
@@ -517,7 +519,7 @@ public class SnappyServer {
      */
     public static synchronized void sse(String url) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.sse(url, instance().interceptors, null));
+        instance().endpoints.add(HandlerUtil.sse(url,  null));
     }
 
     /**
@@ -529,7 +531,7 @@ public class SnappyServer {
      */
     public static synchronized void sse(String url, ServerSentEventConnectionCallback connectionCallback) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.sse(url, instance().interceptors, connectionCallback));
+        instance().endpoints.add(HandlerUtil.sse(url,  connectionCallback));
     }
 
     /**
@@ -540,7 +542,7 @@ public class SnappyServer {
      */
     public static synchronized void staticFiles(String url, String docPath) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.staticFiles(url, docPath, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.staticFiles(url, docPath));
     }
 
     /**
@@ -550,7 +552,7 @@ public class SnappyServer {
      */
     public static synchronized void staticFiles(String url) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.staticFiles(url, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.staticFiles(url));
     }
 
     /**
@@ -561,7 +563,7 @@ public class SnappyServer {
      */
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors));
+        instance().endpoints.add(HandlerUtil.multipart(url, endpoint));
     }
 
     /**
@@ -573,7 +575,7 @@ public class SnappyServer {
      */
     public static synchronized void multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.multipart(url, endpoint, instance().interceptors, maxSize));
+        instance().endpoints.add(HandlerUtil.multipart(url, endpoint,  maxSize));
     }
 
     /**
@@ -637,7 +639,16 @@ public class SnappyServer {
             Info.endpoints("ADMIN ENDPOINTS", adminManager.getEndpoints(), BASE_PATH);
 
 
-            HttpHandler rootHandler = HandlerManager.createRootHandler(endpoints, rootInterceptors, gzipEnabled, basePath, httpTracer);
+            HttpHandler rootHandler = HandlerManager.createRootHandler(
+                    endpoints,
+                    rootInterceptors,
+                    interceptors,
+                    exceptionMapper,
+                    gzipEnabled,
+                    basePath,
+                    httpTracer);
+
+
             server = serverBuilder
                     .addHttpListener(port, bindAddress, rootHandler)
                     .addHttpListener(adminManager.getPort(), adminManager.getBindAddress(), adminManager.resolveHandlers())

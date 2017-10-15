@@ -78,7 +78,7 @@ public class SSRServerExtension implements SnappyExtension {
 
     private MappedEndpoint serviceMonitor(ServerData config) {
         final ServiceMonitor monitor = new ServiceMonitor(serviceControl);
-        return HandlerUtil.sse(MONITOR_URL + "/{instanceId}", config.interceptors, monitor);
+        return HandlerUtil.sse(MONITOR_URL + "/{instanceId}", monitor);
     }
 
     private List<MappedEndpoint> instanceResource(ServerData config) {
@@ -88,7 +88,6 @@ public class SSRServerExtension implements SnappyExtension {
                 INSTANCES_URL + "/{instanceId}",
                 instanceResource::updateServiceState,
                 config.exceptionMapper,
-                config.interceptors,
                 consumes("json"),
                 produces("json"));
 
@@ -97,7 +96,6 @@ public class SSRServerExtension implements SnappyExtension {
                 INSTANCES_URL,
                 instanceResource::register,
                 config.exceptionMapper,
-                config.interceptors,
                 consumes("json"),
                 produces("json"));
 
@@ -111,20 +109,17 @@ public class SSRServerExtension implements SnappyExtension {
 
         MappedEndpoint getServices = HandlerUtil.rest(Methods.GET, SERVICES_URL, serviceResource::getServices,
                 config.exceptionMapper,
-                config.interceptors,
                 consumes("json"),
                 produces("json"));
 
 
         MappedEndpoint getService = HandlerUtil.rest(Methods.GET, SERVICES_NAME_URL, serviceResource::getService,
                 config.exceptionMapper,
-                config.interceptors,
                 consumes("json"),
                 produces("json"));
 
         MappedEndpoint addLink = HandlerUtil.rest(Methods.PUT, SERVICES_NAME_URL, serviceResource::addLink,
                 config.exceptionMapper,
-                config.interceptors,
                 consumes("json"),
                 produces("json"));
 

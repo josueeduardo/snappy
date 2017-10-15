@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import io.joshworks.snappy.handler.UnsupportedMediaType;
 import io.undertow.util.StatusCodes;

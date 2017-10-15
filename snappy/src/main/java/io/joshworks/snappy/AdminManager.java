@@ -20,7 +20,8 @@ package io.joshworks.snappy;
 import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
-import io.joshworks.snappy.rest.Interceptor;
+import io.joshworks.snappy.http.ExceptionMapper;
+import io.joshworks.snappy.http.Interceptor;
 import io.undertow.server.HttpHandler;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class AdminManager {
         if (adminPage != null) {
             endpoints.add(adminPage);
         }
-        return HandlerManager.createRootHandler(endpoints, interceptors, false, HandlerUtil.BASE_PATH, false);
+        return HandlerManager.createRootHandler(endpoints, interceptors, new ArrayList<>(), new ExceptionMapper(), false, HandlerUtil.BASE_PATH, false);
     }
 
     public void addEndpoint(MappedEndpoint endpoint) {
@@ -60,10 +61,9 @@ public class AdminManager {
     }
 
     public void setAdminPage(String url, String docPath, List<Interceptor> interceptors) {
-        adminPage = HandlerUtil.staticFiles(url, docPath, interceptors);
+        adminPage = HandlerUtil.staticFiles(url, docPath);
     }
 
-    //FIXME leaking list, modifying state outside. really messy
     void addInterceptor(Interceptor interceptor) {
         interceptors.add(interceptor);
     }

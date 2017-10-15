@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.parser;
 
-import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.http.MediaType;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;

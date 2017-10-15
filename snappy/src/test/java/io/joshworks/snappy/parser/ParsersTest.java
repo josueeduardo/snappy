@@ -3,7 +3,7 @@ package io.joshworks.snappy.parser;
 import io.joshworks.snappy.parser.parser.ExactTypeParser;
 import io.joshworks.snappy.parser.parser.SubTypeWildcardParser;
 import io.joshworks.snappy.parser.parser.WildcardParser;
-import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.http.MediaType;
 import org.junit.Before;
 import org.junit.Test;
 

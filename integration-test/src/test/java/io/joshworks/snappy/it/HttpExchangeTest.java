@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by josh on 3/10/17.
  */
-public class RestExchangeTest {
+public class HttpExchangeTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
     private static final String TEST_RESOURCE = "/echo";

@@ -32,8 +32,7 @@ public class ServerSentEventTests {
                     .onEvent(e -> {
                         receivedMessage.set(e.data);
                         latch.countDown();
-                    })
-                    .connect();
+                    }).connect();
 
             if(!latch.await(5, TimeUnit.SECONDS)) {
                 fail("No message received");

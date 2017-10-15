@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.undertow.server.HttpHandler;
@@ -30,24 +30,24 @@ import static io.joshworks.snappy.SnappyServer.*;
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public class RestEntrypoint implements HttpHandler {
+public class HttpEntrypoint implements HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private final Consumer<RestExchange> endpoint;
+    private final Consumer<HttpExchange> endpoint;
     private final ExceptionMapper exceptionMapper;
 
-    RestEntrypoint(Consumer<RestExchange> endpoint, ExceptionMapper exceptionMapper) {
+    public HttpEntrypoint(Consumer<HttpExchange> endpoint, ExceptionMapper exceptionMapper) {
         this.endpoint = endpoint;
         this.exceptionMapper = exceptionMapper;
     }
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        RestExchange restExchange = new RestExchange(exchange);
+        HttpExchange httpExchange = new HttpExchange(exchange);
         try {
             if (!exchange.isResponseComplete()) {
-                endpoint.accept(restExchange);
+                endpoint.accept(httpExchange);
             }
         }  catch (Exception e) {
             //unwraps the exception caught from RestConsumer
@@ -57,7 +57,7 @@ public class RestEntrypoint implements HttpHandler {
 
             ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(e);
             logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Application error"), e);
-            exceptionMapper.getOrFallback(e).onException(wrapper, restExchange);
+            exceptionMapper.getOrFallback(e).onException(wrapper, httpExchange);
             exchange.endExchange();
         }
     }

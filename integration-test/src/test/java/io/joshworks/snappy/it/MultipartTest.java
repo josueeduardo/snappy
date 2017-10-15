@@ -20,7 +20,7 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.SimpleClient;
-import io.joshworks.snappy.multipart.Part;
+import io.joshworks.snappy.http.multipart.Part;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

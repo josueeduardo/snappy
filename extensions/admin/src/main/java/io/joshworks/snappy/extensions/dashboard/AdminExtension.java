@@ -27,9 +27,9 @@ import io.joshworks.snappy.extensions.dashboard.resource.RestMetricsHandler;
 import io.joshworks.snappy.extensions.dashboard.stats.ServerStats;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
+import io.joshworks.snappy.http.ExceptionMapper;
+import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.property.AppProperties;
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.MediaType;
 import io.undertow.util.Methods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +97,7 @@ public class AdminExtension implements SnappyExtension {
         } else {
             streamer = new LogStreamer(executor, logLocation);
         }
-        config.adminManager.addEndpoint(HandlerUtil.sse(LOG_SSE, new ArrayList<>(), streamer));
+        config.adminManager.addEndpoint(HandlerUtil.sse(LOG_SSE, streamer));
     }
 
     @Override
@@ -122,31 +122,27 @@ public class AdminExtension implements SnappyExtension {
                 Methods.GET,
                 RESOURCES_METRIC_ENDPOINT,
                 endpoint::getMetrics,
-                new ExceptionMapper(),
-                new ArrayList<>());
+                new ExceptionMapper());
 
         MappedEndpoint getMetric = HandlerUtil.rest(
                 Methods.GET,
                 RESOURCE_METRIC_ENDPOINT,
                 endpoint::getMetric,
-                new ExceptionMapper(),
-               new ArrayList<>());
+                new ExceptionMapper());
 
 
         MappedEndpoint updateMetric = HandlerUtil.rest(
                 Methods.PUT,
                 RESOURCES_METRIC_STATUS_ENDPOINT,
                 endpoint::updateMetric,
-                new ExceptionMapper(),
-               new ArrayList<>());
+                new ExceptionMapper());
 
 
         MappedEndpoint metricStatus = HandlerUtil.rest(
                 Methods.GET,
                 RESOURCES_METRIC_STATUS_ENDPOINT,
                 endpoint::metricStatus,
-                new ExceptionMapper(),
-               new ArrayList<>());
+                new ExceptionMapper());
 
 
         config.adminManager.addEndpoint(getMetrics);
@@ -187,7 +183,7 @@ public class AdminExtension implements SnappyExtension {
 
         MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, STATS_ENDPOINT, exchange -> {
             exchange.send(new ServerStats(), MediaType.APPLICATION_JSON_TYPE);
-        }, new ExceptionMapper(),new ArrayList<>());
+        }, new ExceptionMapper());
 
 
         config.adminManager.addEndpoint(getMetrics);
@@ -201,32 +197,28 @@ public class AdminExtension implements SnappyExtension {
                 Methods.GET,
                 METRICS_ENDPOINT,
                 appMetricsResource::getMetrics,
-                new ExceptionMapper(),
-               new ArrayList<>());
+                new ExceptionMapper());
 
 
         MappedEndpoint getMetric = HandlerUtil.rest(
                 Methods.GET,
                 METRIC_ENDPOINT,
                 appMetricsResource::getMetric,
-                new ExceptionMapper(),
-               new ArrayList<>());
+                new ExceptionMapper());
 
 
         MappedEndpoint updateMetrics = HandlerUtil.rest(
                 Methods.PUT,
                 METRICS_STATUS_ENDPOINT,
                 appMetricsResource::updateMetricState,
-                new ExceptionMapper(),
-               new ArrayList<>());
+                new ExceptionMapper());
 
 
         MappedEndpoint metricsStatus = HandlerUtil.rest(
                 Methods.GET,
                 METRICS_STATUS_ENDPOINT,
                 appMetricsResource::updateMetricState,
-                new ExceptionMapper(),
-               new ArrayList<>());
+                new ExceptionMapper());
 
 
         config.adminManager.addEndpoint(getMetrics);

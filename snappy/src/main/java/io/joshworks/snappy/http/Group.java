@@ -15,20 +15,12 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 /**
- * Created by Josh Gontijo on 3/27/17.
+ * Created by Josh Gontijo on 3/17/17.
  */
-public class ExceptionDetails<T extends Exception> {
+public interface Group {
 
-    public final long timestamp;
-    public final T exception;
-    public final int assignedStatusCode;
-
-    public ExceptionDetails(T exception) {
-        assignedStatusCode = exception instanceof RestException ? ((RestException) exception).status : 500;
-        this.timestamp = System.currentTimeMillis();
-        this.exception = exception;
-    }
+    void addResources();
 }

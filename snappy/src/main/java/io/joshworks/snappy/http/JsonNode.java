@@ -23,7 +23,7 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import org.json.JSONArray;
 import org.json.JSONException;

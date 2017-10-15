@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import io.undertow.io.IoCallback;
 import io.undertow.io.Sender;

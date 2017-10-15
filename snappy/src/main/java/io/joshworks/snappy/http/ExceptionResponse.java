@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import java.io.Serializable;
 

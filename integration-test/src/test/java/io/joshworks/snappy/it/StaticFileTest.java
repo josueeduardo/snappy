@@ -2,7 +2,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.SimpleClient;
-import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.http.MediaType;
 import org.junit.Test;
 
 import java.util.List;

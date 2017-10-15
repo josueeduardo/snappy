@@ -18,7 +18,7 @@
 package io.joshworks.snappy.parser;
 
 import com.google.gson.Gson;
-import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.http.MediaType;
 import org.json.JSONObject;
 
 import java.lang.reflect.Type;

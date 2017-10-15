@@ -17,30 +17,45 @@
 
 package io.joshworks.snappy.handler;
 
-import io.joshworks.snappy.rest.Interceptor;
+import io.joshworks.snappy.http.ConnegHandler;
+import io.joshworks.snappy.http.ExceptionMapper;
+import io.joshworks.snappy.http.HttpDispatcher;
+import io.joshworks.snappy.http.Interceptor;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
+import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.PathTemplateHandler;
 import io.undertow.server.handlers.PredicateHandler;
+import io.undertow.server.handlers.encoding.ContentEncodingProvider;
+import io.undertow.server.handlers.encoding.ContentEncodingRepository;
+import io.undertow.server.handlers.encoding.EncodingHandler;
+import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by josh on 3/11/17.
  */
 public class HandlerManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     private static final String WS_UPGRADE_HEADER_VALUE = "websocket";
 
     //chain of responsibility
     public static HttpHandler createRootHandler(
             List<MappedEndpoint> mappedEndpoints,
             List<Interceptor> rootInterceptors,
+            List<Interceptor> endpointInterceptors,
+            ExceptionMapper exceptionMapper,
             boolean gzipEnabled,
             String basePath,
             boolean httpTracer) {
@@ -49,47 +64,86 @@ public class HandlerManager {
         final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
         HttpHandler staticHandler = null;
 
+
         for (MappedEndpoint me : mappedEndpoints) {
 
             if (MappedEndpoint.Type.REST.equals(me.type)) {
+                HttpDispatcher httpDispatcher =
+                        new HttpDispatcher(
+                                new ConnegHandler(
+                                        new InterceptorHandler(
+                                                new BlockingHandler(me.handler), endpointInterceptors),
+                                        me.mediaTypes),
+                                exceptionMapper);
+
                 String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
-                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipRestHandler(me.handler) : me.handler;
-                routingRestHandler.add(me.method, endpointPath, handler);
+
+                HttpHandler httpHandler = wrapGzipHandler(httpDispatcher, me, gzipEnabled);
+                routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.MULTIPART.equals(me.type)) {
-                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipRestHandler(me.handler) : me.handler;
-                routingRestHandler.add(me.method, me.url, handler);
+                HttpDispatcher httpDispatcher =
+                        new HttpDispatcher(
+                                new ConnegHandler(
+                                        new InterceptorHandler(
+                                                new BlockingHandler(me.handler), endpointInterceptors), me.mediaTypes),
+                                exceptionMapper);
+
+                String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
+
+                HttpHandler httpHandler = wrapGzipHandler(httpDispatcher, me, gzipEnabled);
+                routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.SSE.equals(me.type)) {
-                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipSseHandler() : me.handler;
-                routingRestHandler.add(me.method, me.url, handler);
+                InterceptorHandler interceptorHandler = new InterceptorHandler(me.handler, endpointInterceptors);
+                HttpHandler httpHandler = wrapGzipHandler(interceptorHandler, me, gzipEnabled);
+
+                String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
+                routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.WS.equals(me.type)) {
-                //TODO gzip not supported
-                websocketHandler.add(me.url, me.handler);
+                InterceptorHandler interceptorHandler = new InterceptorHandler(me.handler, endpointInterceptors);
+                HttpHandler httpHandler = wrapGzipHandler(interceptorHandler, me, gzipEnabled);
+                websocketHandler.add(me.url, httpHandler);
             }
             if (MappedEndpoint.Type.STATIC.equals(me.type)) {
-                HttpHandler handler = gzipEnabled ? HandlerUtil.gzipRestHandler(me.handler) : me.handler;
-                staticHandler = handler;
+                staticHandler = wrapGzipHandler(me.handler, me, gzipEnabled);
             }
         }
 
         HttpHandler resolved = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
-        HttpHandler root = resolveRootInterceptors(resolved, rootInterceptors);
 
-        HttpHandler handler = httpTracer ? Handlers.requestDump(root) : root;
+        HttpHandler root = wrapRootInterceptorHandler(resolved, rootInterceptors);
+        HttpHandler handler = wrapRequestDump(root, httpTracer);
 
         return Handlers.gracefulShutdown(handler);
     }
 
 
-    private static HttpHandler resolveRootInterceptors(HttpHandler original, List<Interceptor> interceptors) {
-        if (!interceptors.isEmpty()) {
-            InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-            interceptorHandler.setNext(original);
-            return interceptorHandler;
+    private static HttpHandler wrapRootInterceptorHandler(HttpHandler original, List<Interceptor> interceptors) {
+        return interceptors.isEmpty() ? original : new InterceptorHandler(original, interceptors);
+    }
+
+    private static HttpHandler wrapGzipHandler(HttpHandler original, MappedEndpoint endpoint, boolean gzipEnabled) {
+        if (!gzipEnabled) {
+            return original;
         }
-        return original;
+        //TODO missing
+        if (MappedEndpoint.Type.REST.equals(endpoint.type)) {
+            return gzipHandler(original, new GzipEncodingProvider());
+        } else {
+            logger.warn("GZIP encoding not implemented for {} endpoints, response will not be compressed for '{}'.", endpoint.type, endpoint.url);
+            return original;
+        }
+    }
+
+    private static HttpHandler gzipHandler(HttpHandler handler, ContentEncodingProvider provider) {
+        return new EncodingHandler(new ContentEncodingRepository().addEncodingHandler("gzip", provider, 60))
+                .setNext(handler);
+    }
+
+    private static HttpHandler wrapRequestDump(HttpHandler original, boolean httpTracer) {
+        return httpTracer ? Handlers.requestDump(original) : original;
     }
 
     private static HttpHandler resolveHandlers(HttpHandler rest, HttpHandler ws, HttpHandler file, List<MappedEndpoint> mappedEndpoints) {

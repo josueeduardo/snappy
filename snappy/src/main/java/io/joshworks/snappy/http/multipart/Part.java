@@ -15,9 +15,9 @@
  *
  */
 
-package io.joshworks.snappy.multipart;
+package io.joshworks.snappy.http.multipart;
 
-import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.http.MediaType;
 import io.undertow.server.handlers.form.FormData;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;

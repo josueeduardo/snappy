@@ -19,8 +19,8 @@ package io.joshworks.snappy.ext;
 
 import io.joshworks.snappy.AdminManager;
 import io.joshworks.snappy.handler.MappedEndpoint;
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.Interceptor;
+import io.joshworks.snappy.http.ExceptionMapper;
+import io.joshworks.snappy.http.Interceptor;
 
 import java.util.List;
 

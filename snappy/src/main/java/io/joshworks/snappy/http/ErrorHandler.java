@@ -15,23 +15,14 @@
  *
  */
 
-package io.joshworks.snappy.parser;
+package io.joshworks.snappy.http;
 
-import io.joshworks.snappy.http.MediaType;
-
-import java.lang.reflect.Type;
-import java.util.Set;
+import io.joshworks.snappy.Exchange;
 
 /**
- * Created by josh on 3/6/17.
+ * Created by Josh Gontijo on 3/15/17.
  */
-public interface Parser {
+public interface ErrorHandler<T extends Exception> {
 
-    <T> T readValue(String value, Class<T> valueType);
-
-    <T> T readValue(String value, Type valueType);
-
-    String writeValue(Object value);
-
-    Set<MediaType> mediaType();
+    void onException(ExceptionDetails<T> e, Exchange exchange);
 }

@@ -1,7 +1,7 @@
 package io.joshworks.snappy.extensions.dashboard.metrics;
 
-import io.joshworks.snappy.rest.MediaType;
-import io.joshworks.snappy.rest.RestExchange;
+import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.HttpExchange;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,16 +11,16 @@ import java.util.Map;
  */
 public class AppMetricsResource {
 
-    public void getMetrics(RestExchange exchange) {
+    public void getMetrics(HttpExchange exchange) {
         exchange.send(Metrics.getData(), MediaType.APPLICATION_JSON_TYPE);
     }
 
-    public void getMetric(RestExchange exchange) {
+    public void getMetric(HttpExchange exchange) {
         String id = exchange.pathParameter("id");
         exchange.send(Metrics.getData(id));
     }
 
-    public void updateMetricState(RestExchange exchange) {
+    public void updateMetricState(HttpExchange exchange) {
         Map<String, Object> map = exchange.body().asMap();
         Object enabled = map.get("enabled");
         if (enabled != null) {
@@ -30,7 +30,7 @@ public class AppMetricsResource {
         exchange.status(204);
     }
 
-    public void metricStatus(RestExchange exchange) {
+    public void metricStatus(HttpExchange exchange) {
         Map<String, Object> response = new HashMap<>();
         response.put("enabled", Metrics.isEnabled());
         exchange.send(response);

@@ -15,12 +15,27 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
+
+import java.util.function.Consumer;
 
 /**
- * Created by Josh Gontijo on 3/17/17.
+ * Created by Josh Gontijo on 4/2/17.
+ * Wraps checked exceptions into unchecked exception
+ * When used with exception handlers it will unwrap the real cause and pass it in
  */
-public interface Group {
+@FunctionalInterface
+public interface HttpConsumer<T> extends Consumer<T> {
 
-    void addResources();
+    @Override
+    default void accept(final T elem) {
+        try {
+            acceptThrows(elem);
+        } catch (final Exception e) {
+            throw new ExceptionCaught(e);
+        }
+    }
+
+    void acceptThrows(T elem) throws Exception;
+
 }

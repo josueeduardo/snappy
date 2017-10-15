@@ -19,9 +19,9 @@ package io.joshworks.snappy;
 
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
-import io.joshworks.snappy.rest.DefaultIoCallback;
-import io.joshworks.snappy.rest.MediaType;
-import io.joshworks.snappy.rest.Parameter;
+import io.joshworks.snappy.http.DefaultIoCallback;
+import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.Parameter;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;

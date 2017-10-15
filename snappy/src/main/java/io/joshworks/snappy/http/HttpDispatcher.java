@@ -15,18 +15,15 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
+import io.joshworks.snappy.handler.ChainHandler;
 import io.joshworks.snappy.handler.HandlerUtil;
-import io.joshworks.snappy.handler.InterceptorHandler;
 import io.joshworks.snappy.handler.UnsupportedMediaType;
-import io.joshworks.snappy.parser.MediaTypes;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.Consumer;
 
 import static io.joshworks.snappy.SnappyServer.*;
 
@@ -36,23 +33,21 @@ import static io.joshworks.snappy.SnappyServer.*;
  * This should be the higher level Rest class, ideally this is wrapped in the Error handler which will return
  * handler exceptions thrown by the endpoints
  */
-public class RestDispatcher implements HttpHandler {
+public class HttpDispatcher extends ChainHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private final ConnegHandler connegHandler;
     private final ExceptionMapper exceptionMapper;
 
-    public RestDispatcher(Consumer<RestExchange> endpoint, InterceptorHandler interceptorHandler, ExceptionMapper exceptionMapper, MediaTypes... mimeTypes) {
+    public HttpDispatcher(HttpHandler next, ExceptionMapper exceptionMapper) {
+        super(next);
         this.exceptionMapper = exceptionMapper;
-        interceptorHandler.setNext(new RestEntrypoint(endpoint, exceptionMapper));
-        this.connegHandler = new ConnegHandler(interceptorHandler, mimeTypes);
     }
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         try {
-            this.connegHandler.handleRequest(exchange);
+            this.next.handleRequest(exchange);
         } catch (UnsupportedMediaType connex) {
 
             ExceptionDetails<UnsupportedMediaType> wrapper = new ExceptionDetails<>(connex);
@@ -75,7 +70,7 @@ public class RestDispatcher implements HttpHandler {
     private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, ExceptionDetails<T> wrapper) {
         ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(wrapper.exception);
         try {
-            errorHandler.onException(wrapper, new RestExchange(exchange));
+            errorHandler.onException(wrapper, new HttpExchange(exchange));
         } catch (Exception handlingError) {
             logger.error("Exception was thrown when executing exception handler: {}, no body will be sent", errorHandler.getClass().getName(), handlingError);
         }

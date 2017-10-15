@@ -15,8 +15,9 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
+import io.joshworks.snappy.handler.ChainHandler;
 import io.joshworks.snappy.handler.UnsupportedMediaType;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.undertow.server.HttpHandler;
@@ -26,27 +27,21 @@ import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.StatusCodes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public class ConnegHandler implements HttpHandler {
+public class ConnegHandler extends ChainHandler {
 
     public static final AttachmentKey<NegotiatedMediaType> NEGOTIATED_MEDIA_TYPE = AttachmentKey.create(NegotiatedMediaType.class);
-    private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
-    private final HttpHandler next;
     private MediaTypes consumes;
     private MediaTypes produces;
 
-    ConnegHandler(HttpHandler next, MediaTypes... mimeTypes) {
+    public ConnegHandler(HttpHandler next, MediaTypes... mimeTypes) {
+        super(next);
         initTypes(mimeTypes);
         consumes = consumes == null ? MediaTypes.DEFAULT_CONSUMES : consumes;
         produces = produces == null ? MediaTypes.DEFAULT_PRODUCES : produces;
-        this.next = next;
     }
 
     @Override

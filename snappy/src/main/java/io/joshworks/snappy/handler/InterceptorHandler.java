@@ -18,13 +18,12 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.Exchange;
-import io.joshworks.snappy.rest.ErrorHandler;
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.ExceptionDetails;
-import io.joshworks.snappy.rest.Interceptor;
+import io.joshworks.snappy.http.ErrorHandler;
+import io.joshworks.snappy.http.ExceptionDetails;
+import io.joshworks.snappy.http.ExceptionMapper;
+import io.joshworks.snappy.http.Interceptor;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.ResponseCodeHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,14 +35,14 @@ import static io.joshworks.snappy.SnappyServer.*;
 /**
  * Created by Josh Gontijo on 3/19/17.
  */
-public class InterceptorHandler implements HttpHandler {
+public class InterceptorHandler extends ChainHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
     private final List<Interceptor> interceptors;
-    private HttpHandler next = ResponseCodeHandler.HANDLE_404;
-    private ExceptionMapper exceptionMapper = new ExceptionMapper();
+    private final ExceptionMapper exceptionMapper = new ExceptionMapper();
 
-    public InterceptorHandler(List<Interceptor> interceptors) {
+    public InterceptorHandler(HttpHandler next, List<Interceptor> interceptors) {
+        super(next);
         this.interceptors = interceptors;
     }
 
@@ -85,9 +84,5 @@ public class InterceptorHandler implements HttpHandler {
             }
         }
         return !exchange.isComplete();
-    }
-
-    public void setNext(HttpHandler next) {
-        this.next = next;
     }
 }

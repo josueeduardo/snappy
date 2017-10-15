@@ -1,6 +1,6 @@
 package io.joshworks.snappy.extensions.dashboard.resource;
 
-import io.joshworks.snappy.rest.RestExchange;
+import io.joshworks.snappy.http.HttpExchange;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +18,11 @@ public class ResourcesMetricResource {
         this.resourceMetricHolder = registeredMetricHandlers;
     }
 
-    public void getMetrics(RestExchange exchange) {
+    public void getMetrics(HttpExchange exchange) {
         exchange.send(resourceMetricHolder.getMetrics());
     }
 
-    public void getMetric(RestExchange exchange) {
+    public void getMetric(HttpExchange exchange) {
         String id = exchange.pathParameter("id");
         List<RestMetric> foundById = resourceMetricHolder.getMetrics().stream()
                 .filter(rm -> id.equals(rm.id))
@@ -35,7 +35,7 @@ public class ResourcesMetricResource {
         }
     }
 
-    public void updateMetric(RestExchange exchange) {
+    public void updateMetric(HttpExchange exchange) {
         Object enabled = exchange.body().asMap().get("enabled");
         if(enabled != null) {
             boolean metricsEnabled = Boolean.parseBoolean(String.valueOf(enabled));
@@ -44,7 +44,7 @@ public class ResourcesMetricResource {
         exchange.status(204);
     }
 
-    public void metricStatus(RestExchange exchange) {
+    public void metricStatus(HttpExchange exchange) {
         Map<String, Object> response = new HashMap<>();
         response.put("enabled", resourceMetricHolder.isMetricsEnabled());
         exchange.send(response);

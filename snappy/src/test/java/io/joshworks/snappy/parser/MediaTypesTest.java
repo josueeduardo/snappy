@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.parser;
 
-import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.http.MediaType;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

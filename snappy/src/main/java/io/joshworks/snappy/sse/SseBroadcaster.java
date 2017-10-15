@@ -19,7 +19,7 @@ package io.joshworks.snappy.sse;
 
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.Parsers;
-import io.joshworks.snappy.rest.MediaType;
+import io.joshworks.snappy.http.MediaType;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.server.handlers.sse.ServerSentEventHandler;
 

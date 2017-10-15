@@ -17,6 +17,7 @@
 
 package io.joshworks.snappy.handler;
 
+import io.joshworks.snappy.parser.MediaTypes;
 import io.undertow.server.HttpHandler;
 
 /**
@@ -28,12 +29,18 @@ public class MappedEndpoint {
     public final String url;
     public final Type type;
     public final HttpHandler handler;
+    public final MediaTypes[] mediaTypes;
 
-    public MappedEndpoint(String method, String url, Type type, HttpHandler handler) {
+    public MappedEndpoint(String method, String url, Type type, HttpHandler handler, MediaTypes[] mediaTypes) {
         this.method = method;
         this.url = url;
         this.type = type;
         this.handler = handler;
+        this.mediaTypes = mediaTypes;
+    }
+
+    public MappedEndpoint(String method, String url, Type type, HttpHandler handler) {
+        this(method, url, type, handler, new MediaTypes[0]);
     }
 
     public String toString(String basePath) {

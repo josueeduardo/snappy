@@ -18,24 +18,21 @@
 package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.Messages;
-import io.joshworks.snappy.multipart.MultipartEntrypointHandler;
-import io.joshworks.snappy.multipart.MultipartExchange;
+import io.joshworks.snappy.http.ExceptionMapper;
+import io.joshworks.snappy.http.Group;
+import io.joshworks.snappy.http.HttpEntrypoint;
+import io.joshworks.snappy.http.HttpExchange;
+import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.multipart.MultipartEntrypointHandler;
+import io.joshworks.snappy.http.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.MediaTypes;
-import io.joshworks.snappy.rest.ExceptionMapper;
-import io.joshworks.snappy.rest.Group;
-import io.joshworks.snappy.rest.Interceptor;
-import io.joshworks.snappy.rest.RestDispatcher;
-import io.joshworks.snappy.rest.RestExchange;
 import io.joshworks.snappy.sse.BroadcasterSetup;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import io.undertow.server.handlers.BlockingHandler;
-import io.undertow.server.handlers.encoding.ContentEncodingRepository;
-import io.undertow.server.handlers.encoding.EncodingHandler;
-import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.server.handlers.form.EagerFormParsingHandler;
+import io.undertow.server.handlers.form.FormParserFactory;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;
@@ -70,24 +67,20 @@ public class HandlerUtil {
 
     public static MappedEndpoint rest(HttpString method,
                                       String url,
-                                      Consumer<RestExchange> endpoint,
+                                      Consumer<HttpExchange> endpoint,
                                       ExceptionMapper exceptionMapper,
-                                      List<Interceptor> interceptors,
                                       MediaTypes... mimeTypes) {
 
         Objects.requireNonNull(method, Messages.INVALID_METHOD);
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);
 
         url = resolveUrl(url);
 
-        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-        HttpHandler handler = new BlockingHandler(new RestDispatcher(endpoint, interceptorHandler, exceptionMapper, mimeTypes));
-        return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, handler);
+        HttpHandler handler = new HttpEntrypoint(endpoint, exceptionMapper);
+        return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, handler, mimeTypes);
     }
 
-    public static MappedEndpoint websocket(String url, AbstractReceiveListener endpoint, List<Interceptor> interceptors) {
-        Objects.requireNonNull(url, Messages.INVALID_URL);
+    public static MappedEndpoint websocket(String url, AbstractReceiveListener endpoint) {
         Objects.requireNonNull(endpoint, Messages.INVALID_HANDLER);
         url = resolveUrl(url);
         WebSocketProtocolHandshakeHandler websocket = Handlers.websocket((exchange, channel) -> {
@@ -95,14 +88,10 @@ public class HandlerUtil {
             channel.resumeReceives();
         });
 
-        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-        interceptorHandler.setNext(websocket);
-
-        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
+        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, websocket);
     }
 
-    public static MappedEndpoint websocket(String url, WebsocketEndpoint websocketEndpoint, List<Interceptor> interceptors) {
-        Objects.requireNonNull(url, Messages.INVALID_URL);
+    public static MappedEndpoint websocket(String url, WebsocketEndpoint websocketEndpoint) {
         Objects.requireNonNull(websocketEndpoint, Messages.INVALID_HANDLER);
         url = resolveUrl(url);
 
@@ -113,27 +102,19 @@ public class HandlerUtil {
             channel.resumeReceives();
         });
 
-        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-        interceptorHandler.setNext(websocket);
-
-        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, interceptorHandler);
+        return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, websocket);
     }
 
-    public static MappedEndpoint sse(String url, List<Interceptor> interceptors, ServerSentEventConnectionCallback connectionCallback) {
-        Objects.requireNonNull(url, Messages.INVALID_URL);
+    public static MappedEndpoint sse(String url, ServerSentEventConnectionCallback connectionCallback) {
         url = resolveUrl(url);
 
-        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-
         ServerSentEventHandler serverSentEventHandler = Handlers.serverSentEvents(connectionCallback);
-        interceptorHandler.setNext(serverSentEventHandler);
-
         BroadcasterSetup.register(serverSentEventHandler);
-        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE, interceptorHandler);
+
+        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE, serverSentEventHandler);
     }
 
-    public static MappedEndpoint staticFiles(String url, String docPath, List<Interceptor> interceptors) {
-        Objects.requireNonNull(url, Messages.INVALID_URL);
+    public static MappedEndpoint staticFiles(String url, String docPath) {
         url = resolveUrl(url);
         url = url.isEmpty() ? BASE_PATH : url;
         docPath = docPath.startsWith(BASE_PATH) ? docPath.replaceFirst(BASE_PATH, "") : docPath;
@@ -142,46 +123,36 @@ public class HandlerUtil {
                         Handlers.resource(new ClassPathResourceManager(Thread.currentThread().getContextClassLoader(), docPath))
                                 .addWelcomeFiles("index.html"));
 
-        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-        interceptorHandler.setNext(handler);
-
-        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.STATIC, interceptorHandler);
+        return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.STATIC, handler);
     }
 
-    public static MappedEndpoint staticFiles(String url, List<Interceptor> interceptors) {
-        return staticFiles(url, STATIC_FILES_DEFAULT_LOCATION, interceptors);
+    public static MappedEndpoint staticFiles(String url) {
+        return staticFiles(url, STATIC_FILES_DEFAULT_LOCATION);
     }
 
-    public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint, List<Interceptor> interceptors) {
-        return multipart(url, endpoint, interceptors, -1);
+    public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint) {
+        return multipart(url, endpoint, -1);
     }
 
-    public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint, List<Interceptor> interceptors, long maxSize) {
+    public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
         url = resolveUrl(url);
-        MultipartEntrypointHandler entrypointHandler = new MultipartEntrypointHandler(endpoint);
 
-        InterceptorHandler interceptorHandler = new InterceptorHandler(interceptors);
-        interceptorHandler.setNext(entrypointHandler);
+        MultipartEntrypointHandler entrypointHandler = new MultipartEntrypointHandler(endpoint);
 
         MultiPartParserDefinition multiPartParserDefinition = new MultiPartParserDefinition();
         multiPartParserDefinition.setMaxIndividualFileSize(maxSize);
 
-        EagerFormParsingHandler formHandler = new EagerFormParsingHandler();
-        formHandler.setNext(interceptorHandler);
+        EagerFormParsingHandler formHandler = new EagerFormParsingHandler(FormParserFactory.builder().addParser(multiPartParserDefinition).build());
+        formHandler.setNext(entrypointHandler);
 
-        return new MappedEndpoint(Methods.POST_STRING, url, MappedEndpoint.Type.MULTIPART, formHandler);
+        return new MappedEndpoint(
+                Methods.POST_STRING,
+                url,
+                MappedEndpoint.Type.MULTIPART,
+                formHandler,
+                new MediaTypes[]{MediaTypes.consumes(MediaType.APPLICATION_FORM_URLENCODED), MediaTypes.consumes(MediaType.MULTIPART_FORM_DATA)});
     }
 
-
-    public static HttpHandler gzipRestHandler(HttpHandler handler) {
-        return new EncodingHandler(new ContentEncodingRepository()
-                .addEncodingHandler("gzip", new GzipEncodingProvider(), 60))
-                .setNext(handler);
-    }
-
-    public static HttpHandler gzipSseHandler() {
-        throw new UnsupportedOperationException("TODO - not implemented");
-    }
 
     public static synchronized void group(String groupPath, Group group) {
         groups.addLast(groupPath);
@@ -207,6 +178,7 @@ public class HandlerUtil {
     }
 
     private static String resolveUrl(String url) {
+        Objects.requireNonNull(url, Messages.INVALID_URL);
         url = parseUrl(url);
         url = resolveGroup(url);
         return url;

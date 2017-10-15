@@ -15,16 +15,20 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 /**
- * Created by Josh Gontijo on 4/2/17.
+ * Created by Josh Gontijo on 3/27/17.
  */
-class ExceptionCaught extends RuntimeException {
+public class ExceptionDetails<T extends Exception> {
 
-    public final Exception exception;
+    public final long timestamp;
+    public final T exception;
+    public final int assignedStatusCode;
 
-    ExceptionCaught(Exception e) {
-        this.exception = e;
+    public ExceptionDetails(T exception) {
+        assignedStatusCode = exception instanceof HttpException ? ((HttpException) exception).status : 500;
+        this.timestamp = System.currentTimeMillis();
+        this.exception = exception;
     }
 }

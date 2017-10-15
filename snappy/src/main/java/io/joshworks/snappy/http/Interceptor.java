@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import io.joshworks.snappy.Exchange;
 import io.joshworks.snappy.handler.HandlerUtil;

@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

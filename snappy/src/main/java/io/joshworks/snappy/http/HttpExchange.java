@@ -15,7 +15,7 @@
  *
  */
 
-package io.joshworks.snappy.rest;
+package io.joshworks.snappy.http;
 
 import io.joshworks.snappy.Exchange;
 import io.undertow.server.HttpServerExchange;
@@ -23,11 +23,11 @@ import io.undertow.server.HttpServerExchange;
 /**
  * Created by josh on 3/5/17.
  */
-public class RestExchange extends Exchange {
+public class HttpExchange extends Exchange {
 
     private Body body;
 
-    RestExchange(HttpServerExchange exchange) {
+    HttpExchange(HttpServerExchange exchange) {
         super(exchange);
         setNegotiatedContentType();
     }
