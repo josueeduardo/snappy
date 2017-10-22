@@ -2,16 +2,25 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.SimpleClient;
+import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.joshworks.snappy.SnappyServer.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Josh Gontijo on 7/6/17.
@@ -47,6 +56,40 @@ public class GZipTest {
 
         String responseBody = response.getBody();
         assertEquals(dummyData, responseBody);
+    }
+
+    @Test
+    public void acceptEncodingNone() throws Exception {
+        InputStream inputStream = null;
+        try {
+            URL obj = new URL(SERVER_URL + TEST_RESOURCE);
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            inputStream = conn.getInputStream();
+
+            conn.connect();
+            List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
+            assertTrue(strings == null || !new HashSet<>(strings).contains("gzip"));
+        } finally {
+            closeQuietly(inputStream);
+        }
+    }
+
+    private void closeQuietly(InputStream inputStream) {
+        try {
+            if (inputStream != null) {
+                char[] buffer = new char[1024];
+                try (Reader in = new InputStreamReader(inputStream, "UTF-8")) {
+                    int read = 0;
+                    while ((read = in.read(buffer)) > 0) {
+                        //do nothing
+                    }
+                }
+                inputStream.close();
+            }
+
+        } catch (Exception ex) {
+
+        }
     }
 
 }
