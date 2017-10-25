@@ -29,8 +29,8 @@ import io.undertow.server.RoutingHandler;
 import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.PathTemplateHandler;
 import io.undertow.server.handlers.PredicateHandler;
-import io.undertow.server.handlers.encoding.ContentEncodingProvider;
 import io.undertow.server.handlers.encoding.ContentEncodingRepository;
+import io.undertow.server.handlers.encoding.DeflateEncodingProvider;
 import io.undertow.server.handlers.encoding.EncodingHandler;
 import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.util.HeaderValues;
@@ -56,7 +56,6 @@ public class HandlerManager {
             List<Interceptor> rootInterceptors,
             List<Interceptor> endpointInterceptors,
             ExceptionMapper exceptionMapper,
-            boolean gzipEnabled,
             String basePath,
             boolean httpTracer) {
 
@@ -68,46 +67,49 @@ public class HandlerManager {
         for (MappedEndpoint me : mappedEndpoints) {
 
             if (MappedEndpoint.Type.REST.equals(me.type)) {
-                HttpDispatcher httpDispatcher =
-                        new HttpDispatcher(
-                                new ConnegHandler(
-                                        new InterceptorHandler(
-                                                new BlockingHandler(me.handler), endpointInterceptors),
-                                        me.mediaTypes),
-                                exceptionMapper);
+                HttpHandler httpDispatcher =
+                        new BlockingHandler(
+                                new HttpDispatcher(
+                                        new ConnegHandler(
+                                                new InterceptorHandler(me.handler, endpointInterceptors), me.mediaTypes
+                                        ),
+                                        exceptionMapper
+                                )
+                        );
 
                 String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
 
-                HttpHandler httpHandler = wrapGzipHandler(httpDispatcher, me, gzipEnabled);
+                HttpHandler httpHandler = wrapCompressionHandler(httpDispatcher, me);
                 routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.MULTIPART.equals(me.type)) {
-                HttpDispatcher httpDispatcher =
-                        new HttpDispatcher(
-                                new ConnegHandler(
-                                        new InterceptorHandler(
-                                                new BlockingHandler(me.handler), endpointInterceptors), me.mediaTypes),
-                                exceptionMapper);
+                HttpHandler httpDispatcher =
+                        new BlockingHandler(
+                                new HttpDispatcher(
+                                        new ConnegHandler(
+                                                new InterceptorHandler(me.handler, endpointInterceptors), me.mediaTypes),
+                                        exceptionMapper)
+                        );
 
                 String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
 
-                HttpHandler httpHandler = wrapGzipHandler(httpDispatcher, me, gzipEnabled);
+                HttpHandler httpHandler = wrapCompressionHandler(httpDispatcher, me);
                 routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.SSE.equals(me.type)) {
                 InterceptorHandler interceptorHandler = new InterceptorHandler(me.handler, endpointInterceptors);
-                HttpHandler httpHandler = wrapGzipHandler(interceptorHandler, me, gzipEnabled);
+                HttpHandler httpHandler = wrapCompressionHandler(interceptorHandler, me);
 
                 String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
                 routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.WS.equals(me.type)) {
                 InterceptorHandler interceptorHandler = new InterceptorHandler(me.handler, endpointInterceptors);
-                HttpHandler httpHandler = wrapGzipHandler(interceptorHandler, me, gzipEnabled);
+                HttpHandler httpHandler = wrapCompressionHandler(interceptorHandler, me);
                 websocketHandler.add(me.url, httpHandler);
             }
             if (MappedEndpoint.Type.STATIC.equals(me.type)) {
-                staticHandler = wrapGzipHandler(me.handler, me, gzipEnabled);
+                staticHandler = wrapCompressionHandler(me.handler, me);
             }
         }
 
@@ -124,12 +126,9 @@ public class HandlerManager {
         return interceptors.isEmpty() ? original : new InterceptorHandler(original, interceptors);
     }
 
-    private static HttpHandler wrapGzipHandler(HttpHandler original, MappedEndpoint endpoint, boolean gzipEnabled) {
-        if (!gzipEnabled) {
-            return original;
-        }
+    private static HttpHandler wrapCompressionHandler(HttpHandler original, MappedEndpoint endpoint) {
         if (MappedEndpoint.Type.REST.equals(endpoint.type)) {
-            return gzipHandler(original, new GzipEncodingProvider());
+            return defaultCompressionHandler(original);
         }
         //TODO not supported
 //        else if(MappedEndpoint.Type.SSE.equals(endpoint.type)) {
@@ -141,8 +140,10 @@ public class HandlerManager {
         }
     }
 
-    private static HttpHandler gzipHandler(HttpHandler handler, ContentEncodingProvider provider) {
-        return new EncodingHandler(new ContentEncodingRepository().addEncodingHandler("gzip", provider, 60))
+    private static HttpHandler defaultCompressionHandler(HttpHandler handler) {
+        return new EncodingHandler(new ContentEncodingRepository()
+                .addEncodingHandler("gzip", new GzipEncodingProvider(), 60)
+                .addEncodingHandler("deflate", new DeflateEncodingProvider(), 60))
                 .setNext(handler);
     }
 

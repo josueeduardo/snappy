@@ -38,6 +38,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.channels.FileChannel;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -63,6 +64,16 @@ public class Exchange {
 
     public int status() {
         return exchange.getStatusCode();
+    }
+
+    public Map<String, String> pathParameters() {
+        PathTemplateMatch pathMatch = exchange.getAttachment(PathTemplateMatch.ATTACHMENT_KEY);
+        Map<String, String> parameters = new HashMap<>();
+        for (String key : pathMatch.getParameters().keySet()) {
+            parameters.put(key, pathMatch.getParameters().get(key));
+        }
+        return parameters;
+
     }
 
     public String pathParameter(String key) {

@@ -72,7 +72,7 @@ public class HttpDispatcher extends ChainHandler {
         try {
             errorHandler.onException(wrapper, new HttpExchange(exchange));
         } catch (Exception handlingError) {
-            logger.error("Exception was thrown when executing exception handler: {}, no body will be sent", errorHandler.getClass().getName(), handlingError);
+            logger.error("Exception was thrown when executing original handler: {}, no body will be sent", errorHandler.getClass().getName(), handlingError);
         }
     }
 

@@ -21,8 +21,8 @@ import java.util.function.Consumer;
 
 /**
  * Created by Josh Gontijo on 4/2/17.
- * Wraps checked exceptions into unchecked exception
- * When used with exception handlers it will unwrap the real cause and pass it in
+ * Wraps checked exceptions into unchecked original
+ * When used with original handlers it will unwrap the real cause and pass it in
  */
 @FunctionalInterface
 public interface HttpConsumer<T> extends Consumer<T> {
@@ -32,7 +32,7 @@ public interface HttpConsumer<T> extends Consumer<T> {
         try {
             acceptThrows(elem);
         } catch (final Exception e) {
-            throw new ExceptionCaught(e);
+            throw new ApplicationException(e);
         }
     }
 

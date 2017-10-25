@@ -49,7 +49,7 @@ public class AdminManager {
         if (adminPage != null) {
             endpoints.add(adminPage);
         }
-        return HandlerManager.createRootHandler(endpoints, interceptors, new ArrayList<>(), new ExceptionMapper(), false, HandlerUtil.BASE_PATH, false);
+        return HandlerManager.createRootHandler(endpoints, interceptors, new ArrayList<>(), new ExceptionMapper(), HandlerUtil.BASE_PATH, false);
     }
 
     public void addEndpoint(MappedEndpoint endpoint) {
@@ -60,6 +60,7 @@ public class AdminManager {
         return new ArrayList<>(endpoints);
     }
 
+    //TODO implement interceptors to admin page
     public void setAdminPage(String url, String docPath, List<Interceptor> interceptors) {
         adminPage = HandlerUtil.staticFiles(url, docPath);
     }

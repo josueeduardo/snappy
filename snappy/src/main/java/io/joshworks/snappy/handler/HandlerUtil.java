@@ -20,10 +20,10 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.Messages;
 import io.joshworks.snappy.http.ExceptionMapper;
 import io.joshworks.snappy.http.Group;
+import io.joshworks.snappy.http.HttpConsumer;
 import io.joshworks.snappy.http.HttpEntrypoint;
 import io.joshworks.snappy.http.HttpExchange;
 import io.joshworks.snappy.http.MediaType;
-import io.joshworks.snappy.http.multipart.MultipartEntrypointHandler;
 import io.joshworks.snappy.http.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.sse.BroadcasterSetup;
@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.joshworks.snappy.Messages.INVALID_URL;
@@ -62,12 +61,13 @@ public class HandlerUtil {
     public static final String WILDCARD = "*";
     public static final String HEADER_VALUE_SEPARATOR = ",";
     public static final String STATIC_FILES_DEFAULT_LOCATION = "static";
+    public static final String INDEX_HTML = "index.html";
 
     private static final Deque<String> groups = new ArrayDeque<>();
 
     public static MappedEndpoint rest(HttpString method,
                                       String url,
-                                      Consumer<HttpExchange> endpoint,
+                                      HttpConsumer<HttpExchange> endpoint,
                                       ExceptionMapper exceptionMapper,
                                       MediaTypes... mimeTypes) {
 
@@ -76,7 +76,12 @@ public class HandlerUtil {
 
         url = resolveUrl(url);
 
-        HttpHandler handler = new HttpEntrypoint(endpoint, exceptionMapper);
+        HttpHandler handler = new HttpEntrypoint<HttpExchange>(endpoint, exceptionMapper) {
+            @Override
+            protected HttpExchange createExchange(HttpServerExchange exchange) {
+                return new HttpExchange(exchange);
+            }
+        };
         return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, handler, mimeTypes);
     }
 
@@ -121,7 +126,7 @@ public class HandlerUtil {
         HttpHandler handler = Handlers.path()
                 .addPrefixPath(url,
                         Handlers.resource(new ClassPathResourceManager(Thread.currentThread().getContextClassLoader(), docPath))
-                                .addWelcomeFiles("index.html"));
+                                .addWelcomeFiles(INDEX_HTML));
 
         return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.STATIC, handler);
     }
@@ -130,27 +135,35 @@ public class HandlerUtil {
         return staticFiles(url, STATIC_FILES_DEFAULT_LOCATION);
     }
 
-    public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint) {
-        return multipart(url, endpoint, -1);
-    }
 
-    public static MappedEndpoint multipart(String url, Consumer<MultipartExchange> endpoint, long maxSize) {
+    public static MappedEndpoint multipart(HttpString method, String url, HttpConsumer<MultipartExchange> endpoint, ExceptionMapper exceptionMapper,long maxSize) {
         url = resolveUrl(url);
 
-        MultipartEntrypointHandler entrypointHandler = new MultipartEntrypointHandler(endpoint);
+        validateHttpMethod(method);
 
         MultiPartParserDefinition multiPartParserDefinition = new MultiPartParserDefinition();
         multiPartParserDefinition.setMaxIndividualFileSize(maxSize);
 
         EagerFormParsingHandler formHandler = new EagerFormParsingHandler(FormParserFactory.builder().addParser(multiPartParserDefinition).build());
-        formHandler.setNext(entrypointHandler);
+        formHandler.setNext(new HttpEntrypoint<MultipartExchange>(endpoint, exceptionMapper) {
+            @Override
+            protected MultipartExchange createExchange(HttpServerExchange exchange) {
+                return new MultipartExchange(exchange);
+            }
+        });
 
         return new MappedEndpoint(
-                Methods.POST_STRING,
+                method.toString(),
                 url,
                 MappedEndpoint.Type.MULTIPART,
                 formHandler,
                 new MediaTypes[]{MediaTypes.consumes(MediaType.APPLICATION_FORM_URLENCODED), MediaTypes.consumes(MediaType.MULTIPART_FORM_DATA)});
+    }
+
+    private static void validateHttpMethod(HttpString method) {
+        if(!Methods.POST.equals(method) && !Methods.PUT.equals(method) && !Methods.DELETE.equals(method)) {
+            throw new IllegalArgumentException("Only POST, PUT and DELETE are supported");
+        }
     }
 
 

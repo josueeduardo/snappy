@@ -154,12 +154,6 @@ public class MultipartTest {
         assertEquals("application/octet-stream", response.getBody().getObject().getString("filePart"));
     }
 
-    @Test
-    public void uploadWithContentType() throws Exception {
-
-
-    }
-
 
     @Test
     public void resolveUrl() throws Exception {

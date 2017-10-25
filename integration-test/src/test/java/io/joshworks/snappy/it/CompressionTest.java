@@ -1,7 +1,5 @@
 package io.joshworks.snappy.it;
 
-import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,13 +17,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.joshworks.snappy.SnappyServer.*;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
  * Created by Josh Gontijo on 7/6/17.
  */
-public class GZipTest {
+public class CompressionTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
     private static final String TEST_RESOURCE = "/gzip";
@@ -35,7 +32,6 @@ public class GZipTest {
     @BeforeClass
     public static void setup() throws IOException {
 
-        enableGzip();
         enableTracer();
         get(TEST_RESOURCE, exchange -> exchange.send(dummyData, "txt"));
 
@@ -47,15 +43,41 @@ public class GZipTest {
         stop();
     }
 
+    //Content-Encoding is automatically removed by apache httpclient on decompressing
+    //not using it here
+
     @Test
     public void gzipGet() throws Exception {
-        HttpResponse<String> response = SimpleClient.get(SERVER_URL + TEST_RESOURCE).asString();
-        assertEquals(200, response.getStatus());
-        //Content-Encoding is automatically removed by apache httpclient on decompressing
-//        assertEquals("gzip", response.getHeaders().getFirst("Content-Encoding"));
+        InputStream inputStream = null;
+        try {
+            URL obj = new URL(SERVER_URL + TEST_RESOURCE);
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestProperty(Headers.ACCEPT_ENCODING.toString(), "gzip");
+            inputStream = conn.getInputStream();
 
-        String responseBody = response.getBody();
-        assertEquals(dummyData, responseBody);
+            conn.connect();
+            List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
+            assertTrue(strings != null && new HashSet<>(strings).contains("gzip"));
+        } finally {
+            closeQuietly(inputStream);
+        }
+    }
+
+    @Test
+    public void deflateGet() throws Exception {
+        InputStream inputStream = null;
+        try {
+            URL obj = new URL(SERVER_URL + TEST_RESOURCE);
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestProperty(Headers.ACCEPT_ENCODING.toString(), "deflate");
+            inputStream = conn.getInputStream();
+
+            conn.connect();
+            List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
+            assertTrue(strings != null && new HashSet<>(strings).contains("deflate"));
+        } finally {
+            closeQuietly(inputStream);
+        }
     }
 
     @Test

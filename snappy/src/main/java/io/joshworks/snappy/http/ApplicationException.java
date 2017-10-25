@@ -20,11 +20,11 @@ package io.joshworks.snappy.http;
 /**
  * Created by Josh Gontijo on 4/2/17.
  */
-class ExceptionCaught extends RuntimeException {
+class ApplicationException extends RuntimeException {
 
-    public final Exception exception;
+    public final Exception original;
 
-    ExceptionCaught(Exception e) {
-        this.exception = e;
+    ApplicationException(Exception e) {
+        this.original = e;
     }
 }

@@ -27,7 +27,7 @@ public class HttpExchange extends Exchange {
 
     private Body body;
 
-    HttpExchange(HttpServerExchange exchange) {
+    public HttpExchange(HttpServerExchange exchange) {
         super(exchange);
         setNegotiatedContentType();
     }

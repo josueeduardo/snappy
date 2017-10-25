@@ -17,48 +17,53 @@
 
 package io.joshworks.snappy.http;
 
+import io.joshworks.snappy.Exchange;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.function.Consumer;
-
 import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public class HttpEntrypoint implements HttpHandler {
+public abstract class HttpEntrypoint<T extends Exchange> implements HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private final Consumer<HttpExchange> endpoint;
+    private final HttpConsumer<T> endpoint;
     private final ExceptionMapper exceptionMapper;
 
-    public HttpEntrypoint(Consumer<HttpExchange> endpoint, ExceptionMapper exceptionMapper) {
+    public HttpEntrypoint(HttpConsumer<T> endpoint, ExceptionMapper exceptionMapper) {
         this.endpoint = endpoint;
         this.exceptionMapper = exceptionMapper;
     }
 
+    protected abstract T createExchange(HttpServerExchange exchange);
+
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        HttpExchange httpExchange = new HttpExchange(exchange);
+        T httpExchange = createExchange(exchange);
         try {
             if (!exchange.isResponseComplete()) {
                 endpoint.accept(httpExchange);
             }
-        }  catch (Exception e) {
-            //unwraps the exception caught from RestConsumer
-            if(e instanceof ExceptionCaught) {
-                e = ((ExceptionCaught)e).exception;
-            }
+        } catch (Exception e) {
+            if (exchange.isResponseChannelAvailable()) {
+                //unwraps the original caught from RestConsumer
+                if (e instanceof ApplicationException) {
+                    e = ((ApplicationException) e).original;
+                }
 
-            ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(e);
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Application error"), e);
-            exceptionMapper.getOrFallback(e).onException(wrapper, httpExchange);
-            exchange.endExchange();
+                ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(e);
+                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Application error"), e);
+                exceptionMapper.getOrFallback(e).onException(wrapper, httpExchange);
+                exchange.endExchange();
+            } else {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 

@@ -43,7 +43,7 @@ public class RestErrorHandlerTest {
     public static void setup() {
         get("/error1", exchange -> {
         });
-        get("/exception", exchange -> {
+        get("/original", exchange -> {
             throw new RuntimeException(EXCEPTION_MESSAGE);
         });
         get("/restException", exchange -> {
@@ -90,7 +90,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void exceptionThrown() throws Exception {
-        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/exception").asObject(ExceptionResponse.class);
+        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/original").asObject(ExceptionResponse.class);
 
         assertEquals(500, response.getStatus());
         //default response type

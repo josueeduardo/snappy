@@ -88,6 +88,10 @@ public final class Part {
         return valid;
     }
 
+    public boolean isFile() {
+        return isFile;
+    }
+
     public String name() {
         return name;
     }
@@ -102,6 +106,9 @@ public final class Part {
     }
 
     private MediaType getMediaType(HeaderMap headers) {
+        if(headers == null) {
+            return null;
+        }
         HeaderValues headerValues = headers.get(Headers.CONTENT_TYPE);
         return headerValues.isEmpty() ? MediaType.TEXT_PLAIN_TYPE : MediaType.valueOf(headerValues.getFirst());
     }
