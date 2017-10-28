@@ -17,6 +17,8 @@
 
 package io.joshworks.snappy.http;
 
+import java.util.Optional;
+
 /**
  * Created by Josh Gontijo on 3/17/17.
  */
@@ -28,40 +30,86 @@ public class Parameter {
         this.value = value;
     }
 
-    public String orElse(String value) {
-        return isPresent() ? this.value : value;
+    public Optional<Integer> asInt() {
+        return Optional.ofNullable(parseInt());
     }
 
-    public Parameter orElseVal(String value) {
-        String v = isPresent() ? this.value : value;
-        return new Parameter(v);
+    public Optional<Double> asDouble() {
+        return Optional.ofNullable(parseDouble());
     }
 
-    public Integer asInt() {
-        return isPresent() ? Integer.parseInt(value) : null;
+    public Optional<Float> asFloat() {
+        return Optional.ofNullable(parseFloat());
     }
 
-    public Double asDouble() {
-        return isPresent() ? Double.parseDouble(value) : null;
+    public Optional<Boolean> asBoolean() {
+        return Optional.ofNullable(parseBoolean());
     }
 
-    public Float asFloat() {
-        return isPresent() ? Float.parseFloat(value) : null;
+    public Optional<Long> asLong() {
+       return Optional.ofNullable(parseLong());
     }
 
-    public Boolean asBoolean() {
-        return isPresent() ? Boolean.parseBoolean(value) : null;
+    public Optional<String> asString() {
+        return Optional.ofNullable(value);
     }
 
-    public Long asLong() {
-        return isPresent() ? Long.parseLong(value) : null;
+    private Integer parseInt() {
+        if(!isPresent()) {
+            return null;
+        }
+        try {
+            return Integer.parseInt(value);
+        }catch (NumberFormatException nex) {
+            return null;
+        }
     }
 
-    public String asString() {
-        return value;
+    private Double parseDouble() {
+        if(!isPresent()) {
+            return null;
+        }
+        try {
+            return Double.parseDouble(value);
+        }catch (NumberFormatException nex) {
+            return null;
+        }
     }
 
-    public boolean isPresent() {
+    private Float parseFloat() {
+        if(!isPresent()) {
+            return null;
+        }
+        try {
+            return Float.parseFloat(value);
+        }catch (NumberFormatException nex) {
+            return null;
+        }
+    }
+
+    private Boolean parseBoolean() {
+        if(!isPresent()) {
+            return null;
+        }
+        try {
+            return Boolean.parseBoolean(value);
+        }catch (NumberFormatException nex) {
+            return null;
+        }
+    }
+
+    private Long parseLong() {
+        if(!isPresent()) {
+            return null;
+        }
+        try {
+            return Long.parseLong(value);
+        }catch (NumberFormatException nex) {
+            return null;
+        }
+    }
+
+    private boolean isPresent() {
         return value != null && !value.isEmpty();
     }
 }
