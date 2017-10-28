@@ -45,6 +45,9 @@ public class ConnegTest {
         get("/json", exchange -> {
         });
 
+        get("/default", exchange -> {
+        });
+
         get("/xml", exchange -> {
         }, consumes("application/xml"));
 
@@ -60,7 +63,7 @@ public class ConnegTest {
 
         get("/overridden", exchange -> {
             exchange.send("{}", MediaType.APPLICATION_JSON_TYPE);
-        }, produces("text/plain"));
+        }, produces("txt"));
 
         start();
     }

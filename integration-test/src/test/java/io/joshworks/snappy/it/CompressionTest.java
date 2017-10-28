@@ -1,5 +1,6 @@
 package io.joshworks.snappy.it;
 
+import io.joshworks.snappy.it.util.Utils;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -7,8 +8,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashSet;
@@ -17,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -34,6 +34,11 @@ public class CompressionTest {
 
         enableTracer();
         get(TEST_RESOURCE, exchange -> exchange.send(dummyData, "txt"));
+
+        get("/withProduces", exchange -> exchange.send(dummyData), produces("txt"));
+        get("/emptyBody", exchange -> exchange.send(""), produces("txt"));
+        post("/postConsumingBody", exchange -> exchange.send("with body"), produces("txt"));
+        multipart("/multipart", exchange -> exchange.send("with body", "txt"));
 
         start();
     }
@@ -59,7 +64,7 @@ public class CompressionTest {
             List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
             assertTrue(strings != null && new HashSet<>(strings).contains("gzip"));
         } finally {
-            closeQuietly(inputStream);
+            Utils.closeStream(inputStream);
         }
     }
 
@@ -76,7 +81,7 @@ public class CompressionTest {
             List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
             assertTrue(strings != null && new HashSet<>(strings).contains("deflate"));
         } finally {
-            closeQuietly(inputStream);
+            Utils.closeStream(inputStream);
         }
     }
 
@@ -92,26 +97,79 @@ public class CompressionTest {
             List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
             assertTrue(strings == null || !new HashSet<>(strings).contains("gzip"));
         } finally {
-            closeQuietly(inputStream);
+            Utils.closeStream(inputStream);
         }
     }
 
-    private void closeQuietly(InputStream inputStream) {
+    @Test
+    public void emptyBody() throws Exception {
+        InputStream inputStream = null;
         try {
-            if (inputStream != null) {
-                char[] buffer = new char[1024];
-                try (Reader in = new InputStreamReader(inputStream, "UTF-8")) {
-                    int read = 0;
-                    while ((read = in.read(buffer)) > 0) {
-                        //do nothing
-                    }
-                }
-                inputStream.close();
-            }
+            URL obj = new URL(SERVER_URL + "/emptyBody");
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestProperty(Headers.ACCEPT_ENCODING.toString(), "gzip");
+            inputStream = conn.getInputStream();
 
-        } catch (Exception ex) {
-
+            conn.connect();
+            List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
+            assertTrue(strings == null || !new HashSet<>(strings).contains("gzip"));
+        } finally {
+            Utils.closeStream(inputStream);
         }
     }
+
+    @Test
+    public void withProduces() throws Exception {
+        InputStream inputStream = null;
+        try {
+            URL obj = new URL(SERVER_URL + "/withProduces");
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestProperty(Headers.ACCEPT_ENCODING.toString(), "gzip");
+            inputStream = conn.getInputStream();
+
+            conn.connect();
+            List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
+            assertTrue(strings != null && new HashSet<>(strings).contains("gzip"));
+        } finally {
+            Utils.closeStream(inputStream);
+        }
+    }
+
+    @Test
+    public void postConsumingBody() throws Exception {
+        InputStream inputStream = null;
+        try {
+            URL obj = new URL(SERVER_URL + "/postConsumingBody");
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty(Headers.ACCEPT_ENCODING.toString(), "gzip");
+            inputStream = conn.getInputStream();
+
+            conn.connect();
+            List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
+            assertTrue(strings != null && new HashSet<>(strings).contains("gzip"));
+        } finally {
+            Utils.closeStream(inputStream);
+        }
+    }
+
+    @Test
+    public void multipartGzip() throws Exception {
+        InputStream inputStream = null;
+        try {
+            URL obj = new URL(SERVER_URL + "/multipart");
+            HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty(Headers.ACCEPT_ENCODING.toString(), "gzip");
+            inputStream = conn.getInputStream();
+
+            conn.connect();
+            List<String> strings = conn.getHeaderFields().get(Headers.CONTENT_ENCODING.toString());
+            assertTrue(strings != null && new HashSet<>(strings).contains("gzip"));
+        } finally {
+            Utils.closeStream(inputStream);
+        }
+    }
+
 
 }

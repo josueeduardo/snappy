@@ -25,6 +25,12 @@ import io.undertow.server.RoutingHandler;
  */
 public class HttpRootHandler extends RoutingHandler {
 
+    public HttpRootHandler(boolean rewriteQueryParameters) {
+        super(rewriteQueryParameters);
+    }
+
+    public HttpRootHandler() {
+    }
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {

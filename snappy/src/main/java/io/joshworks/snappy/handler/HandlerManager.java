@@ -29,15 +29,13 @@ import io.undertow.server.RoutingHandler;
 import io.undertow.server.handlers.BlockingHandler;
 import io.undertow.server.handlers.PathTemplateHandler;
 import io.undertow.server.handlers.PredicateHandler;
-import io.undertow.server.handlers.encoding.ContentEncodingRepository;
-import io.undertow.server.handlers.encoding.DeflateEncodingProvider;
 import io.undertow.server.handlers.encoding.EncodingHandler;
-import io.undertow.server.handlers.encoding.GzipEncodingProvider;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -59,8 +57,8 @@ public class HandlerManager {
             String basePath,
             boolean httpTracer) {
 
-        final RoutingHandler routingRestHandler = new HttpRootHandler();
-        final PathTemplateHandler websocketHandler = Handlers.pathTemplate();
+        final RoutingHandler routingRestHandler = new HttpRootHandler(false);
+        final PathTemplateHandler websocketHandler = Handlers.pathTemplate(false);
         HttpHandler staticHandler = null;
 
 
@@ -127,7 +125,7 @@ public class HandlerManager {
     }
 
     private static HttpHandler wrapCompressionHandler(HttpHandler original, MappedEndpoint endpoint) {
-        if (MappedEndpoint.Type.REST.equals(endpoint.type)) {
+        if (MappedEndpoint.Type.REST.equals(endpoint.type) || MappedEndpoint.Type.MULTIPART.equals(endpoint.type)) {
             return defaultCompressionHandler(original);
         }
         //TODO not supported
@@ -141,10 +139,7 @@ public class HandlerManager {
     }
 
     private static HttpHandler defaultCompressionHandler(HttpHandler handler) {
-        return new EncodingHandler(new ContentEncodingRepository()
-                .addEncodingHandler("gzip", new GzipEncodingProvider(), 60)
-                .addEncodingHandler("deflate", new DeflateEncodingProvider(), 60))
-                .setNext(handler);
+        return new EncodingHandler.Builder().build(new HashMap<>()).wrap(handler);
     }
 
     private static HttpHandler wrapRequestDump(HttpHandler original, boolean httpTracer) {
