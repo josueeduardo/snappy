@@ -17,11 +17,11 @@
 
 package io.joshworks.snappy;
 
-import io.joshworks.snappy.parser.Parser;
-import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.http.DefaultIoCallback;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Parameter;
+import io.joshworks.snappy.parser.Parser;
+import io.joshworks.snappy.parser.Parsers;
 import io.undertow.io.IoCallback;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
@@ -162,6 +162,13 @@ public class Exchange {
 
     public Exchange header(String name, long value) {
         exchange.getResponseHeaders().put(HttpString.tryFromString(name), value);
+        return this;
+    }
+
+    public Exchange cookie(Cookie cookie) {
+        if (cookie != null) {
+            exchange.getResponseCookies().put(cookie.getName(), cookie);
+        }
         return this;
     }
 
