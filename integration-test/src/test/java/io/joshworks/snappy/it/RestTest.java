@@ -112,7 +112,7 @@ public class RestTest {
     }
 
     @Test
-    public void traillingSlash() throws Exception {
+    public void trailingSlash() throws Exception {
         HttpResponse<SampleData> response = SimpleClient.get(RESOURCE_PATH + "/").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
