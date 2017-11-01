@@ -68,6 +68,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static io.joshworks.snappy.handler.HandlerUtil.BASE_PATH;
+import static io.undertow.UndertowOptions.DEFAULT_MAX_ENTITY_SIZE;
 
 /**
  * Created by josh on 3/5/17.
@@ -108,7 +109,7 @@ public class SnappyServer {
 
     private static final Object LOCK = new Object();
     private static SnappyServer INSTANCE;
-    private long maxEntitySize;
+    private long maxEntitySize = DEFAULT_MAX_ENTITY_SIZE;
 
 
     private SnappyServer() {
