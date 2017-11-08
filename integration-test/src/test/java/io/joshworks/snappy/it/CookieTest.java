@@ -3,10 +3,14 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.SimpleClient;
 import io.undertow.server.handlers.CookieImpl;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.enableTracer;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -37,6 +41,11 @@ public class CookieTest {
 
 
         start();
+    }
+
+    @AfterClass
+    public static void shutdown() {
+        stop();
     }
 
     @Test
