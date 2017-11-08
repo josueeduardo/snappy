@@ -17,10 +17,13 @@
 
 package io.joshworks.examples.discovery.hello;
 
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.extensions.ssr.client.SSRClientExtension;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.portOffset;
+import static io.joshworks.snappy.SnappyServer.register;
+import static io.joshworks.snappy.SnappyServer.start;
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
 
 /**
@@ -35,7 +38,7 @@ public class HelloApp {
         get("/hello", exchange -> {
 
             String message = "Hello";
-            String fromWorldService = SimpleClient.get("http://world-service/world").asString().getBody();
+            String fromWorldService = Unirest.get("http://world-service/world").asString().getBody();
             exchange.send(message + " " + fromWorldService, "txt");
 
         }, consumes("txt"));

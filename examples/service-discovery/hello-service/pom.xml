@@ -13,6 +13,14 @@
 
     <artifactId>hello-service</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.joshworks.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <finalName>${project.artifactId}</finalName>
         <plugins>
