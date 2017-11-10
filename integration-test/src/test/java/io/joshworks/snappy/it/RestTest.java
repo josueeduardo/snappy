@@ -20,11 +20,18 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.SimpleClient;
 import io.joshworks.snappy.it.util.SampleData;
+import io.joshworks.snappy.it.util.Utils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.delete;
+import static io.joshworks.snappy.SnappyServer.enableTracer;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.post;
+import static io.joshworks.snappy.SnappyServer.put;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -42,10 +49,13 @@ public class RestTest {
     @BeforeClass
     public static void setup() {
 
+        enableTracer();
+
         get(TEST_RESOURCE, exchange -> exchange.send(payload));
         post(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
         put(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
         delete(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
+        post("/encoding", exchange -> exchange.send(Utils.toString(exchange.body().asBinary()), "txt"));
 
         get("/statusOnly", exchange -> exchange.status(401));
 
@@ -119,6 +129,20 @@ public class RestTest {
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
+
+    @Test
+    public void encoding() {
+        String sourceString = "'\"@こんにちは-test-123";
+        byte[] sentBytes = sourceString.getBytes();
+
+        HttpResponse<String> response = SimpleClient.post(SERVER_URL + "/encoding")
+                .body(sentBytes)
+                .asString();
+
+        assertEquals(200, response.getStatus());
+        assertEquals(sourceString, response.getBody());
+    }
+
 
 
 }

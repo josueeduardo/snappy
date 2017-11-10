@@ -75,7 +75,7 @@ public class MultipartTest {
                 mime.put(part.name(), part.type().toString());
             }
 
-            exchange.status(200).send(mime, "json");
+            exchange.send(mime, "json");
         });
 
         group("/a", () -> {
