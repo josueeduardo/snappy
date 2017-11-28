@@ -17,7 +17,6 @@ public class ParsersTest {
     @Before
     public void cleanup() {
         Parsers.available.clear();
-        Parsers.mostSpecificOrderedParsers.clear();
     }
 
     @Test
@@ -26,9 +25,9 @@ public class ParsersTest {
         SubTypeWildcardParser subTypeWildcard = new SubTypeWildcardParser();
         WildcardParser wildcard = new WildcardParser();
 
-        Parsers.register(subTypeWildcard);
-        Parsers.register(wildcard);
-        Parsers.register(exact);//register as last
+        Parsers.register(MediaType.valueOf("text/*"), subTypeWildcard);
+        Parsers.register(MediaType.WILDCARD_TYPE, wildcard);
+        Parsers.register(MediaType.TEXT_PLAIN_TYPE, exact);//register as last
 
         Parser parser = Parsers.getParser(MediaType.TEXT_PLAIN_TYPE);
         assertEquals(exact, parser);

@@ -15,11 +15,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>jdbc</module>
-        <module>couchbase-lite</module>
-        <module>hazelcast</module>
         <module>discovery</module>
-        <module>h2-mvstore</module>
         <module>admin</module>
     </modules>
 

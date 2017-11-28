@@ -1,12 +1,8 @@
 package io.joshworks.snappy.parser.parser;
 
 import io.joshworks.snappy.parser.Parser;
-import io.joshworks.snappy.http.MediaType;
 
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by Josh Gontijo on 4/30/17.
@@ -25,10 +21,5 @@ public class SubTypeWildcardParser implements Parser {
     @Override
     public String writeValue(Object value) {
         return null;
-    }
-
-    @Override
-    public Set<MediaType> mediaType() {
-        return new HashSet<>(Arrays.asList(MediaType.valueOf("text/*")));
     }
 }

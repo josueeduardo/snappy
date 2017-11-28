@@ -17,10 +17,7 @@
 
 package io.joshworks.snappy.parser;
 
-import io.joshworks.snappy.http.MediaType;
-
 import java.lang.reflect.Type;
-import java.util.Set;
 
 /**
  * Created by josh on 3/6/17.
@@ -32,6 +29,4 @@ public interface Parser {
     <T> T readValue(String value, Type valueType);
 
     String writeValue(Object value);
-
-    Set<MediaType> mediaType();
 }

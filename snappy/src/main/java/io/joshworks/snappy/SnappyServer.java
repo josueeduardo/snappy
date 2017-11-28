@@ -34,6 +34,7 @@ import io.joshworks.snappy.http.HttpException;
 import io.joshworks.snappy.http.HttpExchange;
 import io.joshworks.snappy.http.Interceptor;
 import io.joshworks.snappy.http.Interceptors;
+import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.MediaTypes;
@@ -664,8 +665,8 @@ public class SnappyServer {
 
             ExecutorBootstrap.init(schedulers, executors);
 
-            Parsers.register(new JsonParser());
-            Parsers.register(new PlainTextParser());
+            Parsers.register(MediaType.APPLICATION_JSON_TYPE, new JsonParser());
+            Parsers.register(MediaType.TEXT_PLAIN_TYPE, new PlainTextParser());
 
             Undertow.Builder serverBuilder = Undertow.builder();
 

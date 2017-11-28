@@ -17,11 +17,7 @@
 
 package io.joshworks.snappy.parser;
 
-import io.joshworks.snappy.http.MediaType;
-
 import java.lang.reflect.Type;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Created by josh on 3/6/17.
@@ -30,24 +26,17 @@ public class PlainTextParser implements Parser {
 
     @Override
     public <T> T readValue(String value, Class<T> valueType) {
-        throw new UnsupportedOperationException("Cannot convert " + valueType + " to " + mediaType());
+        throw new UnsupportedOperationException("Cannot convert " + valueType);
     }
 
     @Override
     public <T> T readValue(String value, Type valueType) {
-        throw new UnsupportedOperationException("Cannot convert " + valueType + " to " + mediaType());
+        throw new UnsupportedOperationException("Cannot convert " + valueType);
     }
 
     @Override
     public String writeValue(Object input) {
         return String.valueOf(input);
-    }
-
-    @Override
-    public Set<MediaType> mediaType() {
-        HashSet<MediaType> types = new HashSet<>();
-        types.add(MediaType.WILDCARD_TYPE);
-        return types;
     }
 
 }
