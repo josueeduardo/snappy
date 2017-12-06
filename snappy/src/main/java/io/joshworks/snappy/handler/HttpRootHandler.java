@@ -29,9 +29,6 @@ public class HttpRootHandler extends RoutingHandler {
         super(rewriteQueryParameters);
     }
 
-    public HttpRootHandler() {
-    }
-
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         removeTrailingSlash(exchange);

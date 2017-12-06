@@ -18,7 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
@@ -71,7 +71,7 @@ public class CustomRestErrorHandlerTest {
 
     @Test
     public void exceptionThrown() throws Exception {
-        HttpResponse<CustomExceptionBody> response = SimpleClient.get("http://localhost:9000/custom-handler-1").asObject(CustomExceptionBody.class);
+        HttpResponse<CustomExceptionBody> response = Unirest.get("http://localhost:9000/custom-handler-1").asObject(CustomExceptionBody.class);
 
         assertEquals(responseStatus_1, response.getStatus());
 
@@ -83,7 +83,7 @@ public class CustomRestErrorHandlerTest {
 
     @Test
     public void exceptionThrownExactMatch() throws Exception {
-        HttpResponse<CustomExceptionBody> response = SimpleClient.get("http://localhost:9000/custom-handler-2").asObject(CustomExceptionBody.class);
+        HttpResponse<CustomExceptionBody> response = Unirest.get("http://localhost:9000/custom-handler-2").asObject(CustomExceptionBody.class);
 
         assertEquals(responseStatus_2, response.getStatus());
 
@@ -95,7 +95,7 @@ public class CustomRestErrorHandlerTest {
 
     @Test
     public void exceptionProvidedMediaType() throws Exception {
-        HttpResponse<String> response = SimpleClient.get("http://localhost:9000/custom-handler-3-mediaType")
+        HttpResponse<String> response = Unirest.get("http://localhost:9000/custom-handler-3-mediaType")
                 .asString();
 
         assertEquals(responseStatus_2, response.getStatus());

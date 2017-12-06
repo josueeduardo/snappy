@@ -18,7 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.it.util.SampleData;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -60,7 +60,7 @@ public class HttpExchangeTest {
 
     @Test
     public void arrayParsing() throws Exception {
-        HttpResponse<SampleData[]> response = SimpleClient.post(SERVER_URL + "/array")
+        HttpResponse<SampleData[]> response = Unirest.post(SERVER_URL + "/array")
                 .header("Content-Type", "application/json")
                 .body(Collections.singletonList(new SampleData("Yolo")))
                 .asObject(SampleData[].class);

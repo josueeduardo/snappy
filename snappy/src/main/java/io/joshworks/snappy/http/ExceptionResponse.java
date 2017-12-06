@@ -32,8 +32,8 @@ public class ExceptionResponse implements Serializable {
         this.id = id;
     }
 
-    public ExceptionResponse(String message) {
-        this("" + System.currentTimeMillis(), message);
+    public static ExceptionResponse of(Exception e) {
+        return new ExceptionResponse(String.valueOf(System.currentTimeMillis()), e != null ? e.getMessage() : "");
     }
 
     public String getMessage() {

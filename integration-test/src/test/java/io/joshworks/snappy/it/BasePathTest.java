@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.it;
 
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import org.junit.Test;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -36,7 +36,7 @@ public class BasePathTest {
             });
             start();
 
-            assertEquals(200, SimpleClient.get("http://localhost:9000/v1/test").asString().getStatus());
+            assertEquals(200, Unirest.get("http://localhost:9000/v1/test").asString().getStatus());
 
         } finally {
             stop();
@@ -51,7 +51,7 @@ public class BasePathTest {
             }));
             start();
 
-            assertEquals(200, SimpleClient.get("http://localhost:9000/v1/a/test").asString().getStatus());
+            assertEquals(200, Unirest.get("http://localhost:9000/v1/a/test").asString().getStatus());
 
         } finally {
             stop();

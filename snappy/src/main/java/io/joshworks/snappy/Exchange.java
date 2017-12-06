@@ -36,10 +36,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.channels.FileChannel;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by Josh Gontijo on 3/19/17.
@@ -202,6 +204,20 @@ public class Exchange {
     public void send(Object response, MediaType mediaType) {
         type(mediaType);
         this.response(response);
+    }
+
+    public void seeOther(URI uri) {
+        Objects.requireNonNull(uri, "URI cannot be null");
+        status(303);
+        header(Headers.LOCATION_STRING, uri.toString());
+        end();
+    }
+
+    public void temporaryRedirect(URI uri) {
+        Objects.requireNonNull(uri, "URI cannot be null");
+        status(307);
+        header(Headers.LOCATION_STRING, uri.toString());
+        end();
     }
 
     public void sendFile(File file) {

@@ -19,10 +19,11 @@ package io.joshworks.snappy.http;
 
 import io.joshworks.snappy.Exchange;
 
+import java.util.function.BiConsumer;
+
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public interface ErrorHandler<T extends Exception> {
+public interface ErrorHandler<T extends Exception> extends BiConsumer<T, Exchange> {
 
-    void onException(ExceptionDetails<T> e, Exchange exchange);
 }

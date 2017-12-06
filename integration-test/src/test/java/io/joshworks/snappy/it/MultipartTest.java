@@ -19,7 +19,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.multipart.Part;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -108,8 +108,8 @@ public class MultipartTest {
         String fileContent = "YOLO"; //content from the test file
 
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
-        HttpResponse<String> response = SimpleClient.post("http://localhost:9000/upload")
-                .field(FILE_PART_NAME, uploadFile, "sample-input.txt")
+        HttpResponse<String> response = Unirest.post("http://localhost:9000/upload")
+                .part(FILE_PART_NAME, uploadFile, "sample-input.txt")
                 .asString();
 
         assertEquals(200, response.getStatus());
@@ -125,9 +125,9 @@ public class MultipartTest {
         String fileContent = "YOLO"; //content from the test file
 
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
-        HttpResponse<String> response = SimpleClient.post("http://localhost:9000/upload")
-                .field(SOME_OTHER_FIELD, parameterValue)
-                .field(FILE_PART_NAME, uploadFile, "sample-input.txt")
+        HttpResponse<String> response = Unirest.post("http://localhost:9000/upload")
+                .part(SOME_OTHER_FIELD, parameterValue)
+                .part(FILE_PART_NAME, uploadFile, "sample-input.txt")
                 .asString();
 
         assertEquals(200, response.getStatus());
@@ -138,13 +138,14 @@ public class MultipartTest {
         assertEquals(fileContent, new String(bytes));
     }
 
+//    FIXME use rest-client 1.5.2
     @Test
-    public void partMime() throws Exception {
+    public void partMime() {
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
-        HttpResponse<JsonNode> response = SimpleClient.post("http://localhost:9000/partMime")
-                .field("textPart", "someContent", "text/plain")
-                .field("jsonPart", new HashMap<>(), false, "application/json")
-                .field("filePart", uploadFile, "sample-input.txt")
+        HttpResponse<JsonNode> response = Unirest.post("http://localhost:9000/partMime")
+                .part("textPart", "someContent", "text/plain")
+                .part("jsonPart", "{}", "application/json")
+                .part("filePart", uploadFile, "sample-input.txt")
                 .asJson();
 
         assertEquals(200, response.getStatus());
@@ -156,8 +157,8 @@ public class MultipartTest {
 
 
     @Test
-    public void resolveUrl() throws Exception {
-        HttpResponse<String> response = SimpleClient.post("http://localhost:9000/a/b")
+    public void resolveUrl() {
+        HttpResponse<String> response = Unirest.post("http://localhost:9000/a/b")
                 .header("accept", "application/json")
                 .asString();
 

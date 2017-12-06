@@ -652,8 +652,8 @@ public class SnappyServer {
     private void startServer() {
         try {
             checkStarted();
-            Info.logo();
-            Info.version();
+            Info.printLogo();
+            Info.printVersion();
 
             Runtime.getRuntime().addShutdownHook(new Thread(SnappyServer::stop));
 

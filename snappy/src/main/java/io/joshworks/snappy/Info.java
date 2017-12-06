@@ -41,10 +41,11 @@ public class Info {
     private static final String LOGO = "logo.txt";
     private static final String VERSION = "version.properties";
     private static final String VERSION_KEY = "version";
+    private static final String UNKNOWN = "UNKNOWN";
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    public static void logo() {
+    public static void printLogo() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(Thread.currentThread().getContextClassLoader().getResourceAsStream(LOGO)))) {
             br.lines().forEach(System.err::println);
         } catch (Exception e) {
@@ -52,13 +53,17 @@ public class Info {
         }
     }
 
-    public static void version() {
+    public static void printVersion() {
+        System.err.println(String.format("Version: %s%n%n", version()));
+    }
+
+    public static String version() {
         try {
             Properties properties = new Properties();
             properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(VERSION));
-            System.err.println(String.format("Version: %s%n%n", properties.get(VERSION_KEY)));
+            return  String.valueOf(properties.getOrDefault(VERSION_KEY, UNKNOWN));
         } catch (Exception ex) {
-            //do nothing
+            return UNKNOWN;
         }
     }
 

@@ -18,7 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -85,7 +85,7 @@ public class GroupTest {
     }
 
     private void assertPath(String path) throws Exception {
-        HttpResponse<String> response = SimpleClient.get(basePath + path).asString();
+        HttpResponse<String> response = Unirest.get(basePath + path).asString();
         assertEquals(200, response.getStatus());
         assertEquals(path, response.getBody());
     }

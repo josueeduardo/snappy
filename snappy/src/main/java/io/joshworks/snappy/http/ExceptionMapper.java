@@ -28,24 +28,25 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception>, ErrorHandler> {
 
-    private final ErrorHandler fallbackInternalError = (e, restExchange) -> {
-        int status = e.assignedStatusCode > 0 ? e.assignedStatusCode : StatusCodes.INTERNAL_SERVER_ERROR;
-        restExchange.status(status);
-
-        ExceptionResponse response = new ExceptionResponse(String.valueOf(e.timestamp), e.exception.getMessage());
-        restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
+    private final ErrorHandler<Exception> fallbackInternalError = (e, restExchange) -> {
+        restExchange.status(StatusCodes.INTERNAL_SERVER_ERROR);
+        restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
     };
 
-    private final ErrorHandler fallbackConneg = (e, restExchange) -> {
+    private final ErrorHandler<HttpException> httpException = (e, restExchange) -> {
+        restExchange.status(e.status);
+        restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
+    };
+
+    private final ErrorHandler<Exception> fallbackConneg = (e, restExchange) -> {
         int status = StatusCodes.UNSUPPORTED_MEDIA_TYPE;
         restExchange.status(status);
-
-        ExceptionResponse response = new ExceptionResponse(String.valueOf(e.timestamp), e.exception.getMessage());
-        restExchange.send(response, MediaType.APPLICATION_JSON_TYPE);
+        restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
     };
 
     public ExceptionMapper() {
         put(Exception.class, fallbackInternalError);
+        put(HttpException.class, httpException);
         put(UnsupportedMediaType.class, fallbackConneg);
     }
 

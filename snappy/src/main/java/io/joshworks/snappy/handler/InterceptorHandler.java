@@ -19,7 +19,6 @@ package io.joshworks.snappy.handler;
 
 import io.joshworks.snappy.Exchange;
 import io.joshworks.snappy.http.ErrorHandler;
-import io.joshworks.snappy.http.ExceptionDetails;
 import io.joshworks.snappy.http.ExceptionMapper;
 import io.joshworks.snappy.http.Interceptor;
 import io.undertow.server.HttpHandler;
@@ -30,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by Josh Gontijo on 3/19/17.
@@ -70,12 +69,12 @@ public class InterceptorHandler extends ChainHandler {
             try {
                 interceptor.intercept(requestExchange);
             } catch (Exception ex) {
-                ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(ex);
+                long now = System.currentTimeMillis();
                 String message = "Error handling " + type.name() + " interceptor, next interceptor will not proceed";
-                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, message), ex);
+                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, message), ex);
                 if (Interceptor.Type.BEFORE.equals(type)) {
                     ErrorHandler<Exception> orFallback = exceptionMapper.getOrFallback(ex);
-                    orFallback.onException(wrapper, requestExchange);
+                    orFallback.accept(ex, requestExchange);
                 }
                 if (!exchange.isComplete()) {
                     exchange.endExchange();

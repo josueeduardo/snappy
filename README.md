@@ -113,7 +113,7 @@ public class App {
 
     public static void main(final String[] args) {
        
-       exception(Exception.class, (error, exchange) -> exchange.status(500).send(error.exception.getMessage()));
+       exception(Exception.class, (ex, exchange) -> exchange.status(500).send(ex.getMessage()));
        
        get("/users", exchange -> {
            throw new RuntimeException("Some error");

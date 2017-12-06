@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.it;
 
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.executor.AppExecutors;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -70,7 +70,7 @@ public class AppExecutorTest {
 
     @Test
     public void defaultExecutor() throws Exception {
-        int status = SimpleClient.get("http://localhost:9000/executor").asString().getStatus();
+        int status = Unirest.get("http://localhost:9000/executor").asString().getStatus();
         assertEquals(200, status);
         if (!executorLatch.await(10, TimeUnit.SECONDS)) {
             fail("Task didn't finish");
@@ -79,7 +79,7 @@ public class AppExecutorTest {
 
     @Test
     public void defaultScheduler() throws Exception {
-        int status = SimpleClient.get("http://localhost:9000/scheduler").asString().getStatus();
+        int status = Unirest.get("http://localhost:9000/scheduler").asString().getStatus();
         assertEquals(200, status);
         if (!schedulerLatch.await(10, TimeUnit.SECONDS)) {
             fail("Task didn't finish");
@@ -88,7 +88,7 @@ public class AppExecutorTest {
 
     @Test
     public void customExecutor() throws Exception {
-        int status = SimpleClient.get("http://localhost:9000/custom-executor").asString().getStatus();
+        int status = Unirest.get("http://localhost:9000/custom-executor").asString().getStatus();
         assertEquals(200, status);
 
         if (!customExecutorLatch.await(10, TimeUnit.SECONDS)) {

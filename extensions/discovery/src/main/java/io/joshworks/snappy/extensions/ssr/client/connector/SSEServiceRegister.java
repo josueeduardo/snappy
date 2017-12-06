@@ -18,7 +18,7 @@
 package io.joshworks.snappy.extensions.ssr.client.connector;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.extensions.ssr.SSRException;
 import io.joshworks.snappy.extensions.ssr.client.SSERegistryClient;
@@ -58,7 +58,7 @@ public class SSEServiceRegister extends ServiceRegister {
         String instancesUrl = PROTOCOL + registryUrl + SSRServerExtension.INSTANCES_URL;
 
         logger.info("Trying to register service to " + registryUrl);
-        HttpResponse<Instance> response = SimpleClient.post(instancesUrl)
+        HttpResponse<Instance> response = Unirest.post(instancesUrl)
                 .header(Headers.CONTENT_TYPE_STRING, "application/json")
                 .body(parser.writeValue(instance))
                 .asObject(Instance.class);

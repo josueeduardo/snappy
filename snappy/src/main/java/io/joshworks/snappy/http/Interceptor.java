@@ -32,18 +32,7 @@ public class Interceptor {
     private final boolean wildcard;
 
     public Interceptor(Type type, String url, Consumer<Exchange> exchange) {
-        if (url == null || url.isEmpty()) {
-            throw new IllegalArgumentException("Interceptor url cannot be null or empty");
-        }
-        if (!url.startsWith("/")) {
-            throw new IllegalArgumentException("Invalid path: " + url);
-        }
-        if (url.endsWith("/")) {
-            url = url.substring(0, url.length() - 1);
-        }
-        if (occurrences(url, HandlerUtil.WILDCARD.charAt(0)) > 1) {
-            throw new IllegalArgumentException("Multiple wildcards were found, this is not supported: " + url);
-        }
+        url = HandlerUtil.parseUrl(url);
 
         this.type = type;
         this.exchange = exchange;
@@ -51,17 +40,7 @@ public class Interceptor {
         this.url = wildcard ? url.substring(0, url.length() - 1) : url;
     }
 
-    private static int occurrences(String str, char val) {
-        int count = 0;
-        for (int i = 0; i < str.length(); i++) {
-            if (str.charAt(i) == val) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public void intercept(Exchange restExchange) throws Exception {
+    public void intercept(Exchange restExchange) {
         this.exchange.accept(restExchange);
     }
 

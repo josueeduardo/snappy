@@ -1,7 +1,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ public class StaticFileTest {
             staticFiles("/pages");
             start();
 
-            HttpResponse<String> response = SimpleClient.get("http://localhost:9000/pages").asString();
+            HttpResponse<String> response = Unirest.get("http://localhost:9000/pages").asString();
             assertEquals(200, response.getStatus());
 
             List<String> contentTypes = response.getHeaders().get("Content-Type");
@@ -42,7 +42,7 @@ public class StaticFileTest {
             staticFiles("/pages", "someFolder");
             start();
 
-            HttpResponse<String> response = SimpleClient.get("http://localhost:9000/pages").asString();
+            HttpResponse<String> response = Unirest.get("http://localhost:9000/pages").asString();
 
             assertEquals(200, response.getStatus());
 

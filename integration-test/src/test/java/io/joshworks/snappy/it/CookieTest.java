@@ -1,7 +1,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.undertow.server.handlers.CookieImpl;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -48,9 +48,10 @@ public class CookieTest {
         stop();
     }
 
+    //    FIXME use rest-client 1.5.2
     @Test
-    public void cookie() throws Exception {
-        HttpResponse<String> response = SimpleClient.get(RESOURCE_PATH).asString();
+    public void cookie() {
+        HttpResponse<String> response = Unirest.get(RESOURCE_PATH).asString();
 
         assertEquals(200, response.getStatus());
 
@@ -58,7 +59,7 @@ public class CookieTest {
         assertNotNull(cookieHeader);
         assertEquals(COOKIE_NAME + "=" + COOKIE_VALUE, cookieHeader);
 
-        response = SimpleClient.get(RESOURCE_PATH).asString();
+        response = Unirest.get(RESOURCE_PATH).asString();
 
         assertEquals(200, response.getStatus());
         assertEquals(COOKIE_VALUE, response.getBody());

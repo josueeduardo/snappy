@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.it;
 
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,25 +45,25 @@ public class MethodNotAllowedTest {
 
     @Test
     public void validGet() throws Exception {
-        int responseStatus = SimpleClient.get("http://localhost:9000/v1/sample").asString().getStatus();
+        int responseStatus = Unirest.get("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(200, responseStatus);
     }
 
     @Test
     public void invalidPut() throws Exception {
-        int responseStatus = SimpleClient.put("http://localhost:9000/v1/sample").asString().getStatus();
+        int responseStatus = Unirest.put("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 
     @Test
     public void invalidPost() throws Exception {
-        int responseStatus = SimpleClient.post("http://localhost:9000/v1/sample").asString().getStatus();
+        int responseStatus = Unirest.post("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 
     @Test
     public void invalidDelete() throws Exception {
-        int responseStatus = SimpleClient.delete("http://localhost:9000/v1/sample").asString().getStatus();
+        int responseStatus = Unirest.delete("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 

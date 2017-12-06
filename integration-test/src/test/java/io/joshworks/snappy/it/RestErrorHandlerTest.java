@@ -18,7 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.ExceptionResponse;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.HttpException;
@@ -41,6 +41,12 @@ public class RestErrorHandlerTest {
 
     @BeforeClass
     public static void setup() {
+
+        exception(CustomExceptionType.class, (e, exchange) ->{
+            exchange.status(405);
+            exchange.send(ExceptionResponse.of(e));
+        });
+
         get("/error1", exchange -> {
         });
         get("/original", exchange -> {
@@ -48,6 +54,14 @@ public class RestErrorHandlerTest {
         });
         get("/restException", exchange -> {
             throw HttpException.badRequest(EXCEPTION_MESSAGE);
+        });
+
+        get("/customType", exchange -> {
+            throw new CustomExceptionType();
+        });
+
+        get("/customHttpException", exchange -> {
+            throw new CustomHttpException(501, "CUSTOM-HTTP-EXCEPTION-MESSAGE");
         });
 
         start();
@@ -59,8 +73,8 @@ public class RestErrorHandlerTest {
     }
 
     @Test
-    public void unsupportedContentType() throws Exception {
-        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/error1")
+    public void unsupportedContentType() {
+        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/error1")
                 .header("Content-Type", "application/xml").asObject(ExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
@@ -75,7 +89,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void unsupportedAcceptedType() throws Exception {
-        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/error1")
+        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/error1")
                 .header("Accept", "application/xml").asObject(ExceptionResponse.class);
 
         assertEquals(415, response.getStatus());
@@ -90,7 +104,7 @@ public class RestErrorHandlerTest {
 
     @Test
     public void exceptionThrown() throws Exception {
-        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/original").asObject(ExceptionResponse.class);
+        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/original").asObject(ExceptionResponse.class);
 
         assertEquals(500, response.getStatus());
         //default response type
@@ -103,8 +117,8 @@ public class RestErrorHandlerTest {
     }
 
     @Test
-    public void fromRestExceptionUtility() throws Exception {
-        HttpResponse<ExceptionResponse> response = SimpleClient.get("http://localhost:9000/restException").asObject(ExceptionResponse.class);
+    public void fromRestExceptionUtility() {
+        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/restException").asObject(ExceptionResponse.class);
 
         assertEquals(400, response.getStatus());
 
@@ -113,5 +127,37 @@ public class RestErrorHandlerTest {
         assertEquals(EXCEPTION_MESSAGE, body.getMessage());
     }
 
+    @Test
+    public void customExceptionType() {
+        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/customType").asObject(ExceptionResponse.class);
+
+        assertEquals(405, response.getStatus());
+        ExceptionResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals(new CustomExceptionType().getMessage(), body.getMessage());
+    }
+
+    @Test
+    public void customHttpException() {
+        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/customHttpException").asObject(ExceptionResponse.class);
+
+        assertEquals(501, response.getStatus());
+        ExceptionResponse body = response.getBody();
+        assertNotNull(body);
+        assertEquals("CUSTOM-HTTP-EXCEPTION-MESSAGE", body.getMessage());
+    }
+
+    public static class CustomExceptionType extends RuntimeException {
+        @Override
+        public String getMessage() {
+            return "YOLO";
+        }
+    }
+
+    public static class CustomHttpException extends HttpException {
+        public CustomHttpException(int status, String message) {
+            super(status, message);
+        }
+    }
 
 }

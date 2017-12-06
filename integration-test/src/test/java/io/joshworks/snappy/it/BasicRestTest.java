@@ -18,12 +18,14 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.SimpleClient;
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.it.util.SampleData;
 import io.joshworks.snappy.it.util.Utils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.net.URI;
 
 import static io.joshworks.snappy.SnappyServer.delete;
 import static io.joshworks.snappy.SnappyServer.enableTracer;
@@ -38,11 +40,9 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by josh on 3/10/17.
  */
-public class RestTest {
+public class BasicRestTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
-    private static final String TEST_RESOURCE = "/echo";
-    private static final String RESOURCE_PATH = SERVER_URL + TEST_RESOURCE;
 
     private static final SampleData payload = new SampleData("Yolo");
 
@@ -51,13 +51,19 @@ public class RestTest {
 
         enableTracer();
 
-        get(TEST_RESOURCE, exchange -> exchange.send(payload));
-        post(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
-        put(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
-        delete(TEST_RESOURCE, exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
+        get("/echo", exchange -> exchange.send(payload));
+        post("/echo", exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
+        put("/echo", exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
+        delete("/echo", exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
         post("/encoding", exchange -> exchange.send(Utils.toString(exchange.body().asBinary()), "txt"));
 
         get("/statusOnly", exchange -> exchange.status(401));
+
+        get("/wildcard/*", exchange -> exchange.status(200));
+
+        get("/seeOther", exchange -> exchange.seeOther(URI.create(SERVER_URL + "/echo")));
+        get("/temporaryRedirect", exchange -> exchange.temporaryRedirect(URI.create(SERVER_URL + "/echo")));
+        get("/seeOtherRelative", exchange -> exchange.temporaryRedirect(URI.create("/echo")));
 
         start();
     }
@@ -68,8 +74,8 @@ public class RestTest {
     }
 
     @Test
-    public void getRequest() throws Exception {
-        HttpResponse<SampleData> response = SimpleClient.get(RESOURCE_PATH).asObject(SampleData.class);
+    public void getRequest() {
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/echo").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
         assertNotNull(responseBody);
@@ -77,8 +83,8 @@ public class RestTest {
     }
 
     @Test
-    public void postRequest() throws Exception {
-        HttpResponse<SampleData> response = SimpleClient.post(RESOURCE_PATH)
+    public void postRequest() {
+        HttpResponse<SampleData> response = Unirest.post(SERVER_URL + "/echo")
                 .header("Content-Type", "application/json")
                 .body(payload)
                 .asObject(SampleData.class);
@@ -90,8 +96,8 @@ public class RestTest {
     }
 
     @Test
-    public void putRequest() throws Exception {
-        HttpResponse<SampleData> response = SimpleClient.put(RESOURCE_PATH)
+    public void putRequest() {
+        HttpResponse<SampleData> response = Unirest.put(SERVER_URL + "/echo")
                 .header("Content-Type", "application/json")
                 .body(payload)
                 .asObject(SampleData.class);
@@ -103,8 +109,8 @@ public class RestTest {
     }
 
     @Test
-    public void deleteRequest() throws Exception {
-        HttpResponse<SampleData> response = SimpleClient.delete(RESOURCE_PATH)
+    public void deleteRequest() {
+        HttpResponse<SampleData> response = Unirest.delete(SERVER_URL + "/echo")
                 .header("Content-Type", "application/json")
                 .body(payload)
                 .asObject(SampleData.class);
@@ -116,18 +122,36 @@ public class RestTest {
     }
 
     @Test
-    public void statusOnly() throws Exception {
-        HttpResponse<String> response = SimpleClient.get(SERVER_URL + "/statusOnly").asString();
+    public void statusOnly() {
+        HttpResponse<String> response = Unirest.get(SERVER_URL + "/statusOnly").asString();
         assertEquals(401, response.getStatus());
     }
 
     @Test
     public void trailingSlash() throws Exception {
-        HttpResponse<SampleData> response = SimpleClient.get(RESOURCE_PATH + "/").asObject(SampleData.class);
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/echo/").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
         SampleData responseBody = response.getBody();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
+    }
+
+    @Test
+    public void wildcard_exactMatch() {
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/wildcard").asObject(SampleData.class);
+        assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    public void wildcard_withAdditionalPath() {
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/wildcard/123").asObject(SampleData.class);
+        assertEquals(200, response.getStatus());
+    }
+
+    @Test
+    public void wildcard_withMultiplePathPath() {
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/wildcard/123/456").asObject(SampleData.class);
+        assertEquals(200, response.getStatus());
     }
 
     @Test
@@ -135,7 +159,7 @@ public class RestTest {
         String sourceString = "'\"@こんにちは-test-123";
         byte[] sentBytes = sourceString.getBytes();
 
-        HttpResponse<String> response = SimpleClient.post(SERVER_URL + "/encoding")
+        HttpResponse<String> response = Unirest.post(SERVER_URL + "/encoding")
                 .body(sentBytes)
                 .asString();
 
@@ -143,6 +167,31 @@ public class RestTest {
         assertEquals(sourceString, response.getBody());
     }
 
+    @Test
+    public void seeOther() {
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/seeOther").asObject(SampleData.class);
+        assertEquals(200, response.getStatus());
+        SampleData responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(payload.value, responseBody.value);
+    }
 
+    @Test
+    public void seeOther_relativePath() {
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/seeOtherRelative").asObject(SampleData.class);
+        assertEquals(200, response.getStatus());
+        SampleData responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(payload.value, responseBody.value);
+    }
+
+    @Test
+    public void temporaryRedirect() {
+        HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/temporaryRedirect").asObject(SampleData.class);
+        assertEquals(200, response.getStatus());
+        SampleData responseBody = response.getBody();
+        assertNotNull(responseBody);
+        assertEquals(payload.value, responseBody.value);
+    }
 
 }

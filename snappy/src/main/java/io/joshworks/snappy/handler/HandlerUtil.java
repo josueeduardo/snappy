@@ -191,7 +191,6 @@ public class HandlerUtil {
     }
 
     private static String resolveUrl(String url) {
-        Objects.requireNonNull(url, Messages.INVALID_URL);
         url = parseUrl(url);
         url = resolveGroup(url);
         return url;

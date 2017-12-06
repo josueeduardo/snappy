@@ -45,34 +45,33 @@ public class HttpDispatcher extends ChainHandler {
     }
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    public void handleRequest(HttpServerExchange exchange) {
         try {
             this.next.handleRequest(exchange);
         } catch (UnsupportedMediaType connex) {
 
-            ExceptionDetails<UnsupportedMediaType> wrapper = new ExceptionDetails<>(connex);
+            long now = System.currentTimeMillis();
             String description = "Unsupported media type " + connex.headerValues + " supported types: " + connex.types;
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, description));
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, description));
 
-            sendErrorResponse(exchange, wrapper);
+            sendErrorResponse(exchange, connex);
             exchange.endExchange();
 
         } catch (Exception e) { //Should not happen (server error)
-            ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(e);
-
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Server error"), e);
-            sendErrorResponse(exchange, wrapper);
+            long now = System.currentTimeMillis();
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, "Server error"), e);
+            sendErrorResponse(exchange, e);
             exchange.endExchange();
 
         }
     }
 
-    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, ExceptionDetails<T> wrapper) {
-        ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(wrapper.exception);
+    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, T ex) {
+        ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(ex);
         try {
-            errorHandler.onException(wrapper, new HttpExchange(exchange));
+            errorHandler.accept(ex, new HttpExchange(exchange));
         } catch (Exception handlingError) {
-            logger.error("Exception was thrown when executing original handler: {}, no body will be sent", errorHandler.getClass().getName(), handlingError);
+            logger.error("Exception was thrown when executing original handler: {}, body will be null", errorHandler.getClass().getName(), handlingError);
         }
     }
 

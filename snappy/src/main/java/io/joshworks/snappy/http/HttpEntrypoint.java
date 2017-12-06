@@ -44,22 +44,22 @@ public abstract class HttpEntrypoint<T extends Exchange> implements HttpHandler 
     protected abstract T createExchange(HttpServerExchange exchange);
 
     @Override
-    public void handleRequest(HttpServerExchange exchange) throws Exception {
+    public void handleRequest(HttpServerExchange exchange) {
         T httpExchange = createExchange(exchange);
         try {
             if (!exchange.isResponseComplete()) {
                 endpoint.accept(httpExchange);
             }
         } catch (Exception e) {
-            if (exchange.isResponseChannelAvailable()) {
+            if (exchange.isResponseChannelAvailable() && !exchange.isResponseComplete()) {
                 //unwraps the original caught from RestConsumer
                 if (e instanceof ApplicationException) {
                     e = ((ApplicationException) e).original;
                 }
 
-                ExceptionDetails<Exception> wrapper = new ExceptionDetails<>(e);
-                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, wrapper.timestamp, "Application error"), e);
-                exceptionMapper.getOrFallback(e).onException(wrapper, httpExchange);
+                long now = System.currentTimeMillis();
+                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, "Application error"), e);
+                exceptionMapper.getOrFallback(e).accept(e, httpExchange);
                 exchange.endExchange();
             } else {
                 logger.error(e.getMessage(), e);

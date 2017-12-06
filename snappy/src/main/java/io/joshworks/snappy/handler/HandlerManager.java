@@ -115,6 +115,7 @@ public class HandlerManager {
 
         HttpHandler root = wrapRootInterceptorHandler(resolved, rootInterceptors);
         HttpHandler handler = wrapRequestDump(root, httpTracer);
+        handler = wrapServerName(handler);
 
         return Handlers.gracefulShutdown(handler);
     }
@@ -144,6 +145,10 @@ public class HandlerManager {
 
     private static HttpHandler wrapRequestDump(HttpHandler original, boolean httpTracer) {
         return httpTracer ? Handlers.requestDump(original) : original;
+    }
+
+    private static HttpHandler wrapServerName(HttpHandler original) {
+        return new ServerNameHandler(original);
     }
 
     private static HttpHandler resolveHandlers(HttpHandler rest, HttpHandler ws, HttpHandler file, List<MappedEndpoint> mappedEndpoints) {
