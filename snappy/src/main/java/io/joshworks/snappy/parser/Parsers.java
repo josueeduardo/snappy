@@ -21,9 +21,11 @@ import io.joshworks.snappy.http.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
@@ -65,7 +67,13 @@ public class Parsers {
         if (contentType == null) {
             throw new ParserNotFoundException("Content type not specified");
         }
-        return available.get(contentType);
+        Parser parser = available.get(contentType);
+        if(parser == null) {
+            String available = Parsers.available.keySet().stream().map(MediaType::toString).collect(Collectors.joining(", "));
+            String message = MessageFormat.format("No registered parser for content type \'{0}\', registered parsers [{1}]", contentType.toString(), available);
+            throw new ParserNotFoundException(message);
+        }
+        return parser;
     }
 
 }

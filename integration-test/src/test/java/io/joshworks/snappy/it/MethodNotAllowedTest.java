@@ -44,25 +44,25 @@ public class MethodNotAllowedTest {
     }
 
     @Test
-    public void validGet() throws Exception {
+    public void validGet() {
         int responseStatus = Unirest.get("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(200, responseStatus);
     }
 
     @Test
-    public void invalidPut() throws Exception {
+    public void invalidPut() {
         int responseStatus = Unirest.put("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 
     @Test
-    public void invalidPost() throws Exception {
+    public void invalidPost() {
         int responseStatus = Unirest.post("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }
 
     @Test
-    public void invalidDelete() throws Exception {
+    public void invalidDelete() {
         int responseStatus = Unirest.delete("http://localhost:9000/v1/sample").asString().getStatus();
         assertEquals(405, responseStatus);
     }

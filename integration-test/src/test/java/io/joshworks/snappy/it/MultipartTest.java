@@ -155,11 +155,11 @@ public class MultipartTest {
         assertEquals("application/octet-stream", response.getBody().getObject().getString("filePart"));
     }
 
-
     @Test
     public void resolveUrl() {
         HttpResponse<String> response = Unirest.post("http://localhost:9000/a/b")
                 .header("accept", "application/json")
+                .contentType("multipart/form-data")
                 .asString();
 
         assertEquals(201, response.getStatus());

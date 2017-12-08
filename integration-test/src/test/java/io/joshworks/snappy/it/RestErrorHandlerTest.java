@@ -42,6 +42,8 @@ public class RestErrorHandlerTest {
     @BeforeClass
     public static void setup() {
 
+        enableTracer();
+
         exception(CustomExceptionType.class, (e, exchange) ->{
             exchange.status(405);
             exchange.send(ExceptionResponse.of(e));
