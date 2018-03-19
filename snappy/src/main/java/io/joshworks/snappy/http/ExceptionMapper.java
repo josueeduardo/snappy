@@ -28,17 +28,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ExceptionMapper extends ConcurrentHashMap<Class<? extends Exception>, ErrorHandler> {
 
-    private final ErrorHandler<Exception> fallbackInternalError = (e, restExchange) -> {
+    private static final ErrorHandler<Exception> fallbackInternalError = (e, restExchange) -> {
         restExchange.status(StatusCodes.INTERNAL_SERVER_ERROR);
         restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
     };
 
-    private final ErrorHandler<HttpException> httpException = (e, restExchange) -> {
+    private static final ErrorHandler<HttpException> httpException = (e, restExchange) -> {
         restExchange.status(e.status);
         restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
     };
 
-    private final ErrorHandler<Exception> fallbackConneg = (e, restExchange) -> {
+    private static final ErrorHandler<Exception> fallbackConneg = (e, restExchange) -> {
         int status = StatusCodes.UNSUPPORTED_MEDIA_TYPE;
         restExchange.status(status);
         restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);

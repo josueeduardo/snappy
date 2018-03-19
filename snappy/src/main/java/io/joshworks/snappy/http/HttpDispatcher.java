@@ -50,16 +50,14 @@ public class HttpDispatcher extends ChainHandler {
             this.next.handleRequest(exchange);
         } catch (UnsupportedMediaType connex) {
 
-            long now = System.currentTimeMillis();
             String description = "Unsupported media type " + connex.headerValues + " supported types: " + connex.types;
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, description));
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, description));
 
             sendErrorResponse(exchange, connex);
             exchange.endExchange();
 
         } catch (Exception e) { //Should not happen (server error)
-            long now = System.currentTimeMillis();
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, "Server error"), e);
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Server error"), e);
             sendErrorResponse(exchange, e);
             exchange.endExchange();
 

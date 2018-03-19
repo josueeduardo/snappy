@@ -227,10 +227,10 @@ public class HandlerUtil {
                 .distinct().toArray(String[]::new);
     }
 
-    public static String exceptionMessageTemplate(HttpServerExchange exchange, long timestamp, String shortMessage) {
+    public static String exceptionMessageTemplate(HttpServerExchange exchange, String shortMessage) {
         HttpString requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestPath();
-        return String.format("[%d] %s %s - %s", timestamp, requestMethod, requestPath, shortMessage);
+        return String.format("%s %s - %s", requestMethod, requestPath, shortMessage);
     }
 
 }

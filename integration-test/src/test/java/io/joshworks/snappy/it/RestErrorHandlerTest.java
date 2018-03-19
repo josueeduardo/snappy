@@ -18,6 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.RestClient;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.ExceptionResponse;
 import io.joshworks.snappy.http.MediaType;
@@ -72,6 +73,7 @@ public class RestErrorHandlerTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test
@@ -90,7 +92,7 @@ public class RestErrorHandlerTest {
     }
 
     @Test
-    public void unsupportedAcceptedType() throws Exception {
+    public void unsupportedAcceptedType() {
         HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/error1")
                 .header("Accept", "application/xml").asObject(ExceptionResponse.class);
 
@@ -105,7 +107,7 @@ public class RestErrorHandlerTest {
     }
 
     @Test
-    public void exceptionThrown() throws Exception {
+    public void exceptionThrown() {
         HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/original").asObject(ExceptionResponse.class);
 
         assertEquals(500, response.getStatus());
@@ -139,14 +141,18 @@ public class RestErrorHandlerTest {
         assertEquals(new CustomExceptionType().getMessage(), body.getMessage());
     }
 
+    //FIXME - intermitent 500
     @Test
     public void customHttpException() {
-        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/customHttpException").asObject(ExceptionResponse.class);
+        try(RestClient client = RestClient.builder().build()) {
+
+        HttpResponse<ExceptionResponse> response = client.get("http://localhost:9000/customHttpException").asObject(ExceptionResponse.class);
 
         assertEquals(501, response.getStatus());
         ExceptionResponse body = response.getBody();
         assertNotNull(body);
         assertEquals("CUSTOM-HTTP-EXCEPTION-MESSAGE", body.getMessage());
+        }
     }
 
     public static class CustomExceptionType extends RuntimeException {
@@ -157,6 +163,7 @@ public class RestErrorHandlerTest {
     }
 
     public static class CustomHttpException extends HttpException {
+
         public CustomHttpException(int status, String message) {
             super(status, message);
         }

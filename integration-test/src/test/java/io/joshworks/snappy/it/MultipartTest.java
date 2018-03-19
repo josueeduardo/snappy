@@ -87,9 +87,11 @@ public class MultipartTest {
         start();
     }
 
+
     @AfterClass
     public static void shutdown() throws IOException {
         stop();
+        Unirest.close();
         Files.delete(output);
     }
 
@@ -138,7 +140,6 @@ public class MultipartTest {
         assertEquals(fileContent, new String(bytes));
     }
 
-//    FIXME use rest-client 1.5.2
     @Test
     public void partMime() {
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");

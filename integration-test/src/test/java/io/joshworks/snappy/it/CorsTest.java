@@ -19,6 +19,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.Headers;
 import io.joshworks.restclient.http.HttpResponse;
+import io.joshworks.restclient.http.RestClient;
 import io.joshworks.restclient.http.Unirest;
 import io.undertow.util.Methods;
 import org.junit.AfterClass;
@@ -40,6 +41,8 @@ public class CorsTest {
     private static final String SERVER_URL = "http://localhost:9000";
 
 
+    RestClient client = RestClient.builder().build();
+
     @BeforeClass
     public static void setup() {
         get("/a", exchange -> exchange.send("A", "txt"));
@@ -51,10 +54,11 @@ public class CorsTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test //only beforeAll will be applied anyway
-    public void cors_accessControl() throws Exception {
+    public void cors_accessControl() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 
@@ -67,7 +71,7 @@ public class CorsTest {
     }
 
     @Test //only beforeAll will be applied anyway
-    public void cors_allowCrendetials() throws Exception {
+    public void cors_allowCrendetials() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 
@@ -80,7 +84,7 @@ public class CorsTest {
     }
 
     @Test //only beforeAll will be applied anyway
-    public void cors_allowedMethods() throws Exception {
+    public void cors_allowedMethods() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 
@@ -101,7 +105,7 @@ public class CorsTest {
     }
 
     @Test //only beforeAll will be applied anyway
-    public void cors_allowedHeaders() throws Exception {
+    public void cors_allowedHeaders() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
         assertEquals(200, response.getStatus());
 

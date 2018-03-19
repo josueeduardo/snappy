@@ -41,6 +41,7 @@ public class MethodNotAllowedTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test

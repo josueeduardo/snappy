@@ -40,10 +40,11 @@ public class EntitySizeTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test
-    public void limitFormParam() throws Exception {
+    public void limitFormParam() {
 
         HttpResponse<JsonNode> response = Unirest.post(SERVER_URL + "/form")
                 .field("message", MESSAGE)
@@ -55,7 +56,7 @@ public class EntitySizeTest {
     }
 
     @Test
-    public void withFormLimit() throws Exception {
+    public void withFormLimit() {
 
         HttpResponse<JsonNode> response = Unirest.post(SERVER_URL + "/form")
                 .field("message", MESSAGE.substring(0, MESSAGE.length() - 5))
@@ -67,7 +68,7 @@ public class EntitySizeTest {
     }
 
     @Test
-    public void limitPlainText() throws Exception {
+    public void limitPlainText() {
 
         HttpResponse<JsonNode> response = Unirest.post(SERVER_URL + "/plain")
                 .body(MESSAGE)

@@ -69,6 +69,7 @@ public class FilterTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Before

@@ -1,12 +1,12 @@
 package io.joshworks.snappy.it;
 
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.it.util.Utils;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -30,7 +30,7 @@ public class CompressionTest {
     private static final String dummyData = IntStream.range(0, 100000).boxed().map(i -> "A").collect(Collectors.joining("-"));
 
     @BeforeClass
-    public static void setup() throws IOException {
+    public static void setup() {
 
         enableTracer();
         get(TEST_RESOURCE, exchange -> exchange.send(dummyData, "txt"));
@@ -46,6 +46,7 @@ public class CompressionTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     //Content-Encoding is automatically removed by apache httpclient on decompressing

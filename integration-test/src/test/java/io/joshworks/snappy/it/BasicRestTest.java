@@ -71,6 +71,7 @@ public class BasicRestTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test

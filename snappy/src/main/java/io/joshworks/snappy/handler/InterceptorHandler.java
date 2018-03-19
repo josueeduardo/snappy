@@ -69,9 +69,8 @@ public class InterceptorHandler extends ChainHandler {
             try {
                 interceptor.intercept(requestExchange);
             } catch (Exception ex) {
-                long now = System.currentTimeMillis();
                 String message = "Error handling " + type.name() + " interceptor, next interceptor will not proceed";
-                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, message), ex);
+                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, message), ex);
                 if (Interceptor.Type.BEFORE.equals(type)) {
                     ErrorHandler<Exception> orFallback = exceptionMapper.getOrFallback(ex);
                     orFallback.accept(ex, requestExchange);

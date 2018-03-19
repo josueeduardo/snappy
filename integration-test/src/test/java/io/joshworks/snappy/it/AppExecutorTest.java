@@ -66,6 +66,7 @@ public class AppExecutorTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test

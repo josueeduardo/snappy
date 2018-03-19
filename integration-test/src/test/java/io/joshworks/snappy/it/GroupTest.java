@@ -57,6 +57,7 @@ public class GroupTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test

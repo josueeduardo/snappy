@@ -66,6 +66,7 @@ public class CustomRestErrorHandlerTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
 

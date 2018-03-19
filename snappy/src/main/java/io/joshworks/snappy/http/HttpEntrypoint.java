@@ -57,8 +57,7 @@ public abstract class HttpEntrypoint<T extends Exchange> implements HttpHandler 
                     e = ((ApplicationException) e).original;
                 }
 
-                long now = System.currentTimeMillis();
-                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, now, "Application error"), e);
+                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Application error"), e);
                 exceptionMapper.getOrFallback(e).accept(e, httpExchange);
                 exchange.endExchange();
             } else {

@@ -46,6 +46,7 @@ public class CookieTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     //    FIXME use rest-client 1.5.2

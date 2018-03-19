@@ -36,8 +36,6 @@ import static org.junit.Assert.assertNotNull;
 public class HttpExchangeTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
-    private static final String TEST_RESOURCE = "/echo";
-    private static final String RESOURCE_PATH = SERVER_URL + TEST_RESOURCE;
 
     private static final SampleData payload = new SampleData("Yolo");
 
@@ -56,10 +54,11 @@ public class HttpExchangeTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
     @Test
-    public void arrayParsing() throws Exception {
+    public void arrayParsing() {
         HttpResponse<SampleData[]> response = Unirest.post(SERVER_URL + "/array")
                 .header("Content-Type", "application/json")
                 .body(Collections.singletonList(new SampleData("Yolo")))

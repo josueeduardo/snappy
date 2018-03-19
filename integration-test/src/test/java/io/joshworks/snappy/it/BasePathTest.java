@@ -28,8 +28,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class BasePathTest {
 
+
     @Test
-    public void getRequest() throws Exception {
+    public void getRequest() {
         try {
             basePath("/v1");
             get("/test", exchange -> {
@@ -40,11 +41,12 @@ public class BasePathTest {
 
         } finally {
             stop();
+            Unirest.close();
         }
     }
 
     @Test
-    public void withGroup() throws Exception {
+    public void withGroup() {
         try {
             basePath("/v1");
             group("/a", () -> get("/test", exchange -> {
@@ -55,6 +57,7 @@ public class BasePathTest {
 
         } finally {
             stop();
+            Unirest.close();
         }
     }
 

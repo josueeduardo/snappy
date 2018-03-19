@@ -47,6 +47,7 @@ public class QueryString {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
     }
 
 
