@@ -141,7 +141,7 @@ public class RestErrorHandlerTest {
         assertEquals(new CustomExceptionType().getMessage(), body.getMessage());
     }
 
-    //FIXME - intermitent 500
+    //FIXME - intermittent 500
     @Test
     public void customHttpException() {
         try(RestClient client = RestClient.builder().build()) {

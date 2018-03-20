@@ -17,18 +17,22 @@
 
 package io.joshworks.snappy.parser;
 
+import io.joshworks.snappy.http.MediaType;
+
 import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Created by josh on 3/6/17.
  */
 public class ParserNotFoundException extends RuntimeException {
 
-    public ParserNotFoundException(String mediaType) {
-        super("Parser not found for media type '" + mediaType + "'");
+    public ParserNotFoundException(String message) {
+        super(message);
     }
 
-    public ParserNotFoundException(String[] mediaTypes) {
-        super("Parser not found for media types '" + Arrays.toString(mediaTypes) + "'");
+    public ParserNotFoundException(MediaType mediaType, Collection<MediaType> available) {
+        super("Parser not found for media type '" + mediaType + "', available types: " +
+                Arrays.toString(available.stream().map(MediaType::toString).toArray(String[]::new)));
     }
 }

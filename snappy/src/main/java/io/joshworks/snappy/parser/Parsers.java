@@ -21,13 +21,13 @@ import io.joshworks.snappy.http.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.MessageFormat;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
+import static io.joshworks.snappy.SnappyServer.*;
 
 /**
  * Created by josh on 3/6/17.
@@ -36,7 +36,7 @@ public class Parsers {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    static final Map<MediaType, Parser> available = new HashMap<>();
+    static final SortedMap<MediaType, Parser> available = new TreeMap<>(new MostSpecificMediaTypeComparator());
 
     private Parsers() {
 
@@ -67,13 +67,35 @@ public class Parsers {
         if (contentType == null) {
             throw new ParserNotFoundException("Content type not specified");
         }
-        Parser parser = available.get(contentType);
-        if(parser == null) {
-            String available = Parsers.available.keySet().stream().map(MediaType::toString).collect(Collectors.joining(", "));
-            String message = MessageFormat.format("No registered parser for content type \'{0}\', registered parsers [{1}]", contentType.toString(), available);
-            throw new ParserNotFoundException(message);
+        for (Map.Entry<MediaType, Parser> entry : available.entrySet()) {
+            if (entry.getKey().isCompatible(contentType)) {
+                return entry.getValue();
+            }
         }
-        return parser;
+
+        throw new ParserNotFoundException(contentType, available.keySet());
     }
 
+    private static class MostSpecificMediaTypeComparator implements Comparator<MediaType> {
+
+        @Override
+        public int compare(MediaType first, MediaType second) {
+            int firstRank = getRank(first);
+            int secondRank = getRank(second);
+            return firstRank == secondRank ? 1 : firstRank - secondRank;
+        }
+
+        public int getRank(MediaType type) {
+            int compatibility = 0;
+            if (type.isWildcardType()) {
+                compatibility++;
+            }
+            if (type.isWildcardSubtype()) {
+                compatibility++;
+            }
+            return compatibility;
+        }
+
+
+    }
 }
