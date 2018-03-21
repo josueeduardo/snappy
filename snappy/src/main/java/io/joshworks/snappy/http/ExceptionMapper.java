@@ -20,16 +20,15 @@ package io.joshworks.snappy.http;
 import io.joshworks.snappy.handler.UnsupportedMediaType;
 import io.undertow.util.StatusCodes;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public class ExceptionMapper  {
+public class ExceptionMapper {
 
-    private static final Map<Class<? extends Exception>, ErrorHandler> mappers = new ConcurrentHashMap<>();
+    private final Map<Class<? extends Exception>, ErrorHandler> mappers = new HashMap<>();
 
 
     private static final ErrorHandler<Exception> fallbackInternalError = (e, restExchange) -> {
@@ -48,34 +47,45 @@ public class ExceptionMapper  {
         restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
     };
 
-    static {
-        mappers.put(Exception.class, fallbackInternalError);
+    public ExceptionMapper() {
         mappers.put(HttpException.class, httpException);
         mappers.put(UnsupportedMediaType.class, fallbackConneg);
-    }
-
-    public ExceptionMapper() {
-
+        mappers.put(Exception.class, fallbackInternalError);
     }
 
     public <T extends Exception> ErrorHandler<T> getOrFallback(T key) {
-        return this.getOrFallback(key, fallbackInternalError);
+        return getOrFallback(key, fallbackInternalError);
     }
 
-    public void put(Class<? extends Exception> type, ErrorHandler handler) {
+    public <T extends Exception> void put(Class<T> type, ErrorHandler<T> handler) {
         mappers.put(type, handler);
     }
 
     public <T extends Exception> ErrorHandler<T> getOrFallback(T key, ErrorHandler fallback) {
         ErrorHandler<T> errorHandler = mappers.get(key.getClass());
         if (errorHandler == null) {
-            Optional<Map.Entry<Class<? extends Exception>, ErrorHandler>> found = mappers.entrySet().stream()
-                    .filter(e -> e.getKey().isAssignableFrom(key.getClass()))
-                    .findFirst();
+            Class<? extends Throwable> mostSpecific = findMostSpecific(key.getClass());
 
-            errorHandler = found.isPresent() ? found.get().getValue() : fallback;
+            errorHandler = mostSpecific != null ? mappers.get(mostSpecific) : fallback;
         }
         return errorHandler;
+    }
+
+    private Class<? extends Throwable> findMostSpecific(Class<? extends Throwable> type) {
+        // we'll keep a reference to the most specific one here
+        Class<? extends Throwable> mostSpecific = null;
+        // here we iterate over your list of types
+        for (Class<? extends Throwable> tType : mappers.keySet()) {
+            // well not even a subtype of tType so ignore it
+            if (!tType.isAssignableFrom(type)) {
+                continue;
+            }
+
+            if (mostSpecific == null || mostSpecific.isAssignableFrom(tType)) {
+                mostSpecific = tType;
+            }
+        }
+        return mostSpecific;
     }
 
 }
