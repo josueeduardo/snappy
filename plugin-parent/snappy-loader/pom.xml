@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>snappy-loader</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
