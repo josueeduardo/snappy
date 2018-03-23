@@ -226,6 +226,7 @@ public class SnappyServer {
      * Register an error interceptor that captures original thrown from endpoints, allowing to change the http response.
      * The default response is mapped to any {@link Exception} and returns an {@link HttpException} body
      *
+     * @param <T> The exception type
      * @param exception The original type that will trigger the handler
      * @param handler   The handler that handles the original and send the appropriate response.
      */
@@ -376,7 +377,6 @@ public class SnappyServer {
      * @param url        The relative URL to be map this endpoint.
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
-     *                   </pre>
      */
     public static void options(String url, HttpConsumer<HttpExchange> endpoint, MediaTypes... mediaTypes) {
         addResource(Methods.OPTIONS, url, endpoint, mediaTypes);
@@ -593,6 +593,7 @@ public class SnappyServer {
      *
      * @param url      The relative URL to be map this endpoint.
      * @param endpoint The endpoint handler
+     * @param maxSize The max size of the form data
      */
     public static synchronized void multipart(String url, HttpConsumer<MultipartExchange> endpoint, long maxSize) {
         multipart(Methods.POST, url, endpoint, maxSize);

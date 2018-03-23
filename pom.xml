@@ -19,7 +19,6 @@
         <module>integration-test</module>
         <module>plugin-parent</module>
         <module>extensions</module>
-        <module>stress-test</module>
     </modules>
 
     <name>Snappy</name>

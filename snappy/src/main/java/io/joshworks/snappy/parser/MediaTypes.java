@@ -61,7 +61,7 @@ public class MediaTypes extends HashSet<MediaType> {
     }
 
     /**
-     * @param headerValues
+     * @param headerValues The list of headers to be matched against
      * @return The first match of the provided content Mime context
      */
     public MediaType match(HeaderValues headerValues) {

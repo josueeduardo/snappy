@@ -43,7 +43,8 @@ public class Parsers {
     }
 
     /**
-     * @param parser The {@link Parser to be registered}
+     * @param mediaType The {@link MediaType} of this Parser
+     * @param parser The {@link Parser} to be registered
      * @throws IllegalArgumentException if a null instance or no media type is provided
      */
     public static void register(MediaType mediaType, Parser parser) {
