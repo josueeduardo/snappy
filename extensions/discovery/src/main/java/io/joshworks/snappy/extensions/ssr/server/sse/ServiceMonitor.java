@@ -23,8 +23,8 @@ import io.joshworks.snappy.parser.JsonParser;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.sse.EventData;
 import io.joshworks.snappy.sse.SseBroadcaster;
+import io.joshworks.snappy.sse.SseCallback;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
-import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ import static io.joshworks.snappy.extensions.ssr.SSRKeys.SSR_LOGGER;
 /**
  * Created by Josh Gontijo on 4/1/17.
  */
-public class ServiceMonitor implements ServerSentEventConnectionCallback {
+public class ServiceMonitor extends SseCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(SSR_LOGGER);
 
@@ -51,7 +51,6 @@ public class ServiceMonitor implements ServerSentEventConnectionCallback {
 
         String instanceId = connection.getParameter(INSTANCE_ID_PARAM);
         if (instanceId != null) {
-            connection.addCloseTask(this::onClose);
             Instance connected = control.updateInstanceState(instanceId, Instance.State.UP);
             logger.info("New service registered instance ID: {}", instanceId);
             broadcastInstanceUpdate(connected, connection);
@@ -59,7 +58,8 @@ public class ServiceMonitor implements ServerSentEventConnectionCallback {
         }
     }
 
-    private void onClose(ServerSentEventConnection connection) {
+    @Override
+    public void onClose(ServerSentEventConnection connection) {
         String instanceId = connection.getParameter(INSTANCE_ID_PARAM);
         logger.info("Service instance disconnected: {}", instanceId);
 

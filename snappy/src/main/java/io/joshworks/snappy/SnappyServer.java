@@ -42,11 +42,12 @@ import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.parser.PlainTextParser;
 import io.joshworks.snappy.property.AppProperties;
 import io.joshworks.snappy.property.PropertyKey;
+import io.joshworks.snappy.sse.SseCallback;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;
+import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -77,7 +78,7 @@ import static io.undertow.UndertowOptions.DEFAULT_MAX_ENTITY_SIZE;
 public class SnappyServer {
 
     public static final String LOGGER_NAME = "snappy";
-    private static final int PORT = 9000;
+    private static final int DEFAULT_PORT = 9000;
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
@@ -100,7 +101,7 @@ public class SnappyServer {
 
     //--------------------- HTTP -------------------
     private Undertow server;
-    private int port = 9000;
+    private int port = DEFAULT_PORT;
     private String bindAddress = "0.0.0.0";
     private boolean httpTracer;
     private final List<Interceptor> interceptors = new LinkedList<>();
@@ -168,7 +169,7 @@ public class SnappyServer {
 
     public static synchronized void portOffset(int offset) {
         checkStarted();
-        instance().port = PORT + offset;
+        instance().port = DEFAULT_PORT + offset;
         instance().adminManager.setPort(AdminManager.ADMIN_PORT + offset);
     }
 
@@ -478,7 +479,7 @@ public class SnappyServer {
      * Define a REST endpoint mapped to the specified HTTP method with default path "/" as url
      *
      * @param method     The HTTP method
-     * @param url        The relative URL to be map this endpoint.
+     * @param url        The relative URL of the endpoint.
      * @param endpoint   The endpoint handler
      * @param mediaTypes (Optional) The accepted and returned types for this endpoint
      */
@@ -549,10 +550,42 @@ public class SnappyServer {
      * Define a Server sent events endpoint with a specified handler. Supports path variables
      * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
      *
+     * @param connectionCallback Endpoint handler.
+     */
+    public static synchronized void sse(SseCallback connectionCallback) {
+        sse(HandlerUtil.BASE_PATH, connectionCallback);
+    }
+
+    /**
+     * Define a Server sent events endpoint with a specified handler. Supports path variables
+     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
+     *
      * @param url                The relative URL to be map this endpoint.
      * @param connectionCallback Endpoint handler.
      */
-    public static synchronized void sse(String url, ServerSentEventConnectionCallback connectionCallback) {
+    public static synchronized void sse(String url, SseCallback connectionCallback) {
+        checkStarted();
+        instance().endpoints.add(HandlerUtil.sse(url, connectionCallback));
+    }
+
+    /**
+     * Define a Server sent events endpoint with a specified handler. Supports path variables
+     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
+     *
+     * @param connectionCallback Endpoint handler.
+     */
+    public static synchronized void sse(BiConsumer<ServerSentEventConnection, String> connectionCallback) {
+        sse(HandlerUtil.BASE_PATH, connectionCallback);
+    }
+
+    /**
+     * Define a Server sent events endpoint with a specified handler. Supports path variables
+     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
+     *
+     * @param url                The relative URL to be map this endpoint.
+     * @param connectionCallback Endpoint handler.
+     */
+    public static synchronized void sse(String url, BiConsumer<ServerSentEventConnection, String> connectionCallback) {
         checkStarted();
         instance().endpoints.add(HandlerUtil.sse(url, connectionCallback));
     }

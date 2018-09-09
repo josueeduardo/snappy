@@ -45,9 +45,7 @@ public class AppExecutors {
 
     }
 
-    private static Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> {
-        logger.error(e.getMessage(), e);
-    };
+    private static Thread.UncaughtExceptionHandler uncaughtExceptionHandler = (t, e) -> logger.error(e.getMessage(), e);
 
     synchronized static void init(ExecutorContainer executorContainer) {
         container = executorContainer;

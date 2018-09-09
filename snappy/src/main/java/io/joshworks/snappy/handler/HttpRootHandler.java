@@ -31,7 +31,8 @@ public class HttpRootHandler extends RoutingHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        removeTrailingSlash(exchange);
+        String path = removeTrailingSlash(exchange.getRelativePath());
+        exchange.setRelativePath(path);
         super.handleRequest(exchange);
     }
 
@@ -44,12 +45,12 @@ public class HttpRootHandler extends RoutingHandler {
      * Instead it would rewrite to
      * <b>/users</b> causing a 404, thus avoiding null path parameter
      */
-    private void removeTrailingSlash(HttpServerExchange exchange) {
+    private String removeTrailingSlash(String originalPath) {
         String trailingSlash = "/";
-        String requestPath = exchange.getRelativePath();
+        String requestPath = originalPath;
         if (requestPath != null && !requestPath.isEmpty() && !requestPath.equals(trailingSlash)) {
             requestPath = requestPath.endsWith(trailingSlash) ? requestPath.substring(0, requestPath.length() - 1) : requestPath;
-            exchange.setRelativePath(requestPath);
         }
+        return requestPath;
     }
 }

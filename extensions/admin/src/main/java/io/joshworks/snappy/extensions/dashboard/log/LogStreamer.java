@@ -1,26 +1,26 @@
 package io.joshworks.snappy.extensions.dashboard.log;
 
+import io.joshworks.snappy.sse.SseCallback;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
-import io.undertow.server.handlers.sse.ServerSentEventConnectionCallback;
 import org.apache.commons.io.input.Tailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Deque;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 /**
  * Created by Josh Gontijo on 5/1/17.
  */
-public class LogStreamer implements ServerSentEventConnectionCallback {
+public class LogStreamer extends SseCallback {
 
     private static final Logger logger = LoggerFactory.getLogger(LogStreamer.class);
 
     private static final String TAILF_PARAM = "tailf";
-    private final Set<Tailer> tailers = new HashSet<>();
+    private final Map<ServerSentEventConnection, Tailer> tailers = new HashMap<>();
 
     private final ExecutorService executor;
     private final String logLocation;
@@ -39,10 +39,7 @@ public class LogStreamer implements ServerSentEventConnectionCallback {
             boolean tailf = Boolean.parseBoolean(tailfParam);
             LogTailer listener = new LogTailer(logLocation, tailf);
             Tailer tailer = new Tailer(listener.file, listener, 500, tailf);
-            connection.addCloseTask(channel -> {
-                tailer.stop();
-                tailers.remove(tailer);
-            });
+            tailers.put(connection, tailer);
             executor.execute(tailer);
         } catch (Exception e) {
             logger.error("Error opening log file", e);
@@ -64,7 +61,32 @@ public class LogStreamer implements ServerSentEventConnectionCallback {
         }
     }
 
+    @Override
+    public void onClose(ServerSentEventConnection connection) {
+        stopTailer(connection);
+    }
+
+    private void stopTailer(ServerSentEventConnection connection) {
+        Tailer removed = tailers.remove(connection);
+        if (removed != null) {
+            removed.stop();
+        }
+    }
+
     public void stopStreaming() {
-        tailers.forEach(Tailer::stop);
+        tailers.forEach((key, value) -> {
+
+            try {
+                stopTailer(key);
+            } catch (Exception e) {
+                logger.warn("Failed to stop file tailer");
+            }
+
+            try {
+                key.close();
+            } catch (IOException e) {
+                logger.warn("Failed to close connection");
+            }
+        });
     }
 }
