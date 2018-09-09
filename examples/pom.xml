@@ -5,13 +5,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.joshworks.snappy</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.3</version>
-    </parent>
 
+    <groupId>io.joshworks.snappy</groupId>
     <artifactId>examples</artifactId>
+    <version>0.3.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -30,12 +27,12 @@
         <dependency>
             <groupId>io.joshworks.snappy</groupId>
             <artifactId>snappy</artifactId>
-            <version>0.3</version>
+            <version>0.3.0</version>
         </dependency>
         <dependency>
             <groupId>io.joshworks.extensions</groupId>
             <artifactId>discovery</artifactId>
-            <version>0.3</version>
+            <version>0.3.0</version>
         </dependency>
     </dependencies>
 

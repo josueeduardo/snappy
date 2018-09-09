@@ -268,7 +268,7 @@ public class App {
         <plugin>
             <groupId>io.joshworks</groupId>
             <artifactId>snappy-maven-plugin</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.3.0</version>
             <executions>
                 <execution>
                     <goals>
