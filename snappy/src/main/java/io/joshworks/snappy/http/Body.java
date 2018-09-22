@@ -33,7 +33,9 @@ import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -85,6 +87,24 @@ public class Body {
 
     public Map<String, Object> asMap() {
         Type type = new TypeToken<Map<String, Object>>() {
+        }.getType();
+        return new Gson().fromJson(asString(), type);
+    }
+
+    public <T> Set<T> asSetOf(Class<T> classType) {
+        Type type = new TypeToken<Set<T>>() {
+        }.getType();
+        return new Gson().fromJson(asString(), type);
+    }
+
+    public <T> Set<T> asListOf(Class<T> classType) {
+        Type type = new TypeToken<List<T>>() {
+        }.getType();
+        return new Gson().fromJson(asString(), type);
+    }
+
+    public <T> Queue<T> asQueueOf(Class<T> classType) {
+        Type type = new TypeToken<Queue<T>>() {
         }.getType();
         return new Gson().fromJson(asString(), type);
     }

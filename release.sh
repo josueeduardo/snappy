@@ -9,7 +9,7 @@ fi
 
 echo "Releasing version $1"
 
-mvn versions:set -DnewVersion=$1
+mvn versions:set -DnewVersion=$1 -DgenerateBackupPoms=false
 mvn clean install
 
 git commit -a -m "Release $1"
