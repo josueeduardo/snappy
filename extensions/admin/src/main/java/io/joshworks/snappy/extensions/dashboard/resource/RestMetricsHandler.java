@@ -48,7 +48,6 @@ public class RestMetricsHandler implements HttpHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         if (enabled) {
-            next.handleRequest(exchange);
             final long start = System.currentTimeMillis();
             exchange.addExchangeCompleteListener((exchange1, nextListener) -> {
                 long time = System.currentTimeMillis() - start;

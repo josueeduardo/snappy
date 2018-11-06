@@ -97,7 +97,7 @@ public class Body {
         return new Gson().fromJson(asString(), type);
     }
 
-    public <T> Set<T> asListOf(Class<T> classType) {
+    public <T> List<T> asListOf(Class<T> classType) {
         Type type = new TypeToken<List<T>>() {
         }.getType();
         return new Gson().fromJson(asString(), type);

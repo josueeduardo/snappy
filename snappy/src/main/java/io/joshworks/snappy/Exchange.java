@@ -148,7 +148,7 @@ public class Exchange {
         return null;
     }
 
-    public MediaType type() {
+    public MediaType contentType() {
         HeaderValues contentType = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
         if (contentType != null && !contentType.isEmpty()) {
             return MediaType.valueOf(contentType.getFirst());

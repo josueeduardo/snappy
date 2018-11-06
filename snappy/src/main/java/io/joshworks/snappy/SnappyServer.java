@@ -120,6 +120,10 @@ public class SnappyServer {
         this.optionBuilder.set(Options.WORKER_IO_THREADS, processors);
         this.optionBuilder.set(Options.WORKER_TASK_CORE_THREADS, processors);
         this.optionBuilder.set(Options.WORKER_TASK_MAX_THREADS, processors * 10);
+        this.optionBuilder.set(Options.REUSE_ADDRESSES, true);
+        this.optionBuilder.set(Options.TCP_NODELAY, true);
+        this.optionBuilder.set(Options.KEEP_ALIVE, true);
+        this.optionBuilder.set(Options.WORKER_NAME, "snappy");
     }
 
     private static SnappyServer instance() {
@@ -145,6 +149,21 @@ public class SnappyServer {
     public static synchronized void tcpNoDeplay(boolean tcpNoDelay) {
         checkStarted();
         instance().optionBuilder.set(Options.TCP_NODELAY, tcpNoDelay);
+    }
+
+    public static synchronized void keepAlive(boolean tcpNoDelay) {
+        checkStarted();
+        instance().optionBuilder.set(Options.KEEP_ALIVE, tcpNoDelay);
+    }
+
+    public static synchronized void readTimeout(int timeout) {
+        checkStarted();
+        instance().optionBuilder.set(Options.READ_TIMEOUT, timeout);
+    }
+
+    public static synchronized void reuseAddress(boolean reuseAddress) {
+        checkStarted();
+        instance().optionBuilder.set(Options.REUSE_ADDRESSES, reuseAddress);
     }
 
     public static synchronized void maxEntitySize(long maxEntitySize) {
