@@ -21,6 +21,7 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -108,9 +109,9 @@ public class ConnegTest {
     @Test
     public void simpleMime() throws Exception {
         HttpResponse<String> response = Unirest.get("http://localhost:9000/v1/simple-mime").header(ACCEPT, "application/json").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertNotNull(response.getHeaders().get(CONTENT_TYPE));
-        assertEquals("application/json", response.getHeaders().get(CONTENT_TYPE).get(0));
+        Assert.assertEquals("application/json", response.getHeaders().get(CONTENT_TYPE).get(0));
     }
 
     @Test
@@ -128,7 +129,7 @@ public class ConnegTest {
                 .header(ACCEPT, "text/plain")
                 .header(ACCEPT, "application/json")
                 .asString();
-        assertEquals(200, stringHttpResponse.getStatus());
+        Assert.assertEquals(200, stringHttpResponse.getStatus());
         assertHeaderEquals("text/plain", stringHttpResponse);
     }
 
@@ -150,7 +151,7 @@ public class ConnegTest {
                 .header(CONTENT_TYPE, "application/json")
                 .header(ACCEPT, "application/json")
                 .asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertHeaderEquals("application/json", response);
     }
 
@@ -159,35 +160,35 @@ public class ConnegTest {
     @Test //this tests the order in which the produces are registered in the MediaTypes
     public void noAcceptSpecified_default_json() throws Exception {
         HttpResponse<String> response = Unirest.get("http://localhost:9000/v1/json").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertHeaderEquals("application/json", response);
     }
 
     @Test
     public void producesTextPlain() throws Exception {
         HttpResponse<String> response = Unirest.get("http://localhost:9000/v1/produces-text").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertHeaderEquals("text/plain", response);
     }
 
     @Test
     public void producesJson() throws Exception {
         HttpResponse<String> response = Unirest.get("http://localhost:9000/v1/produces-json").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertHeaderEquals("application/json", response);
     }
 
     @Test
     public void contentTypeOverridden() throws Exception {
         HttpResponse<String> response = Unirest.get("http://localhost:9000/v1/overridden").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertHeaderEquals("application/json", response);
     }
 
     private void assertHeaderEquals(String expected, HttpResponse response) {
         assertNotNull(response.getHeaders().get(CONTENT_TYPE));
-        assertEquals(1, response.getHeaders().get(CONTENT_TYPE).size());
-        assertEquals(expected, response.getHeaders().get(CONTENT_TYPE).get(0));
+        Assert.assertEquals(1, response.getHeaders().get(CONTENT_TYPE).size());
+        Assert.assertEquals(expected, response.getHeaders().get(CONTENT_TYPE).get(0));
     }
 
 }

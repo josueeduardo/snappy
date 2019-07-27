@@ -42,6 +42,24 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.joshworks.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.7.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.joshworks.stream</groupId>
+            <artifactId>stream-client</artifactId>
+            <version>0.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.1</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

@@ -21,6 +21,7 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.it.util.SampleData;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -64,7 +65,7 @@ public class HttpRequestTest {
                 .body(Collections.singletonList(new SampleData("Yolo")))
                 .asObject(SampleData[].class);
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData[] responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody[0].value);

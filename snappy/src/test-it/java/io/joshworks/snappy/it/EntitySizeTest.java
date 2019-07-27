@@ -4,11 +4,15 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
-import static org.junit.Assert.assertEquals;
+import static io.joshworks.snappy.SnappyServer.maxEntitySize;
+import static io.joshworks.snappy.SnappyServer.multipart;
+import static io.joshworks.snappy.SnappyServer.post;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -50,7 +54,7 @@ public class EntitySizeTest {
                 .field("message", MESSAGE)
                 .asJson();
 
-        assertEquals(500, response.getStatus());
+        Assert.assertEquals(500, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }
@@ -62,7 +66,7 @@ public class EntitySizeTest {
                 .field("message", MESSAGE.substring(0, MESSAGE.length() - 5))
                 .asJson();
 
-        assertEquals(500, response.getStatus());
+        Assert.assertEquals(500, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }
@@ -74,7 +78,7 @@ public class EntitySizeTest {
                 .body(MESSAGE)
                 .asJson();
 
-        assertEquals(500, response.getStatus());
+        Assert.assertEquals(500, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }

@@ -21,6 +21,7 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -58,9 +59,9 @@ public class QueryString {
                 .queryString("q", value)
                 .asJson();
 
-        assertEquals(200, response.getStatus());
-        assertEquals(1, response.body().getObject().keySet().size());
-        assertEquals(value, response.body().getObject().getJSONArray("q").get(0));
+        Assert.assertEquals(200, response.getStatus());
+        Assert.assertEquals(1, response.body().getObject().keySet().size());
+        Assert.assertEquals(value, response.body().getObject().getJSONArray("q").get(0));
     }
 
     @Test
@@ -71,9 +72,9 @@ public class QueryString {
                 .routeParam("path", "anotherValue")
                 .asJson();
 
-        assertEquals(200, response.getStatus());
-        assertEquals(1, response.body().getObject().keySet().size());
-        assertEquals(value, response.body().getObject().getJSONArray("q").get(0));
+        Assert.assertEquals(200, response.getStatus());
+        Assert.assertEquals(1, response.body().getObject().keySet().size());
+        Assert.assertEquals(value, response.body().getObject().getJSONArray("q").get(0));
     }
 
     @Test
@@ -83,9 +84,9 @@ public class QueryString {
                 .routeParam("path", value)
                 .asJson();
 
-        assertEquals(200, response.getStatus());
-        assertEquals(1, response.body().getObject().keySet().size());
-        assertEquals(value, response.body().getObject().getString("path"));
+        Assert.assertEquals(200, response.getStatus());
+        Assert.assertEquals(1, response.body().getObject().keySet().size());
+        Assert.assertEquals(value, response.body().getObject().getString("path"));
     }
 
 

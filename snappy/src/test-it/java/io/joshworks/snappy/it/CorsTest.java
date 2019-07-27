@@ -23,6 +23,7 @@ import io.joshworks.restclient.http.RestClient;
 import io.joshworks.restclient.http.Unirest;
 import io.undertow.util.Methods;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -60,7 +61,7 @@ public class CorsTest {
     @Test //only beforeAll will be applied anyway
     public void cors_accessControl() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();
 
@@ -73,7 +74,7 @@ public class CorsTest {
     @Test //only beforeAll will be applied anyway
     public void cors_allowCrendetials() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();
 
@@ -86,7 +87,7 @@ public class CorsTest {
     @Test //only beforeAll will be applied anyway
     public void cors_allowedMethods() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();
 
@@ -107,7 +108,7 @@ public class CorsTest {
     @Test //only beforeAll will be applied anyway
     public void cors_allowedHeaders() {
         HttpResponse<String> response = Unirest.options(SERVER_URL + "/a").asString();
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
 
         Headers headers = response.getHeaders();
 

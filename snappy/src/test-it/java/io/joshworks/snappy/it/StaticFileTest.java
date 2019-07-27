@@ -4,6 +4,7 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public class StaticFileTest {
             start();
 
             HttpResponse<String> response = Unirest.get("http://localhost:9000/pages").asString();
-            assertEquals(200, response.getStatus());
+            Assert.assertEquals(200, response.getStatus());
 
             List<String> contentTypes = response.getHeaders().get("Content-Type");
             assertNotNull(contentTypes);
@@ -51,7 +52,7 @@ public class StaticFileTest {
 
             HttpResponse<String> response = Unirest.get("http://localhost:9000/pages").asString();
 
-            assertEquals(200, response.getStatus());
+            Assert.assertEquals(200, response.getStatus());
 
             List<String> contentTypes = response.getHeaders().get("Content-Type");
             assertNotNull(contentTypes);

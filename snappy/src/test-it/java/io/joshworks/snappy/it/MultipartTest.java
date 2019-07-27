@@ -22,6 +22,7 @@ import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.multipart.Part;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -114,7 +115,7 @@ public class MultipartTest {
                 .part(FILE_PART_NAME, uploadFile, "sample-input.txt")
                 .asString();
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertTrue(Files.exists(output));
 
         byte[] bytes = Files.readAllBytes(output);
@@ -132,9 +133,9 @@ public class MultipartTest {
                 .part(FILE_PART_NAME, uploadFile, "sample-input.txt")
                 .asString();
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertTrue(Files.exists(output));
-        assertEquals(parameterValue, response.body());//server returns the text parameter
+        Assert.assertEquals(parameterValue, response.body());//server returns the text parameter
 
         byte[] bytes = Files.readAllBytes(output);
         assertEquals(fileContent, new String(bytes));
@@ -149,11 +150,11 @@ public class MultipartTest {
                 .part("filePart", uploadFile, "sample-input.txt")
                 .asJson();
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         assertNotNull(response.body());
-        assertEquals("text/plain", response.body().getObject().getString("textPart"));
-        assertEquals("application/json", response.body().getObject().getString("jsonPart"));
-        assertEquals("application/octet-stream", response.body().getObject().getString("filePart"));
+        Assert.assertEquals("text/plain", response.body().getObject().getString("textPart"));
+        Assert.assertEquals("application/json", response.body().getObject().getString("jsonPart"));
+        Assert.assertEquals("application/octet-stream", response.body().getObject().getString("filePart"));
     }
 
     @Test
@@ -163,7 +164,7 @@ public class MultipartTest {
                 .contentType("multipart/form-data")
                 .asString();
 
-        assertEquals(201, response.getStatus());
+        Assert.assertEquals(201, response.getStatus());
     }
 
 

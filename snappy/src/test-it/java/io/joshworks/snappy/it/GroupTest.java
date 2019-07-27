@@ -20,6 +20,7 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -87,8 +88,8 @@ public class GroupTest {
 
     private void assertPath(String path) throws Exception {
         HttpResponse<String> response = Unirest.get(basePath + path).asString();
-        assertEquals(200, response.getStatus());
-        assertEquals(path, response.body());
+        Assert.assertEquals(200, response.getStatus());
+        Assert.assertEquals(path, response.body());
     }
 
 

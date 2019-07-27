@@ -22,6 +22,7 @@ import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -74,7 +75,7 @@ public class CustomRestErrorHandlerTest {
     public void exceptionThrown() throws Exception {
         HttpResponse<CustomExceptionBody> response = Unirest.get("http://localhost:9000/custom-handler-1").asObject(CustomExceptionBody.class);
 
-        assertEquals(responseStatus_1, response.getStatus());
+        Assert.assertEquals(responseStatus_1, response.getStatus());
 
         CustomExceptionBody body = response.body();
         assertNotNull(body);
@@ -86,7 +87,7 @@ public class CustomRestErrorHandlerTest {
     public void exceptionThrownExactMatch() throws Exception {
         HttpResponse<CustomExceptionBody> response = Unirest.get("http://localhost:9000/custom-handler-2").asObject(CustomExceptionBody.class);
 
-        assertEquals(responseStatus_2, response.getStatus());
+        Assert.assertEquals(responseStatus_2, response.getStatus());
 
         CustomExceptionBody body = response.body();
         assertNotNull(body);
@@ -99,10 +100,10 @@ public class CustomRestErrorHandlerTest {
         HttpResponse<String> response = Unirest.get("http://localhost:9000/custom-handler-3-mediaType")
                 .asString();
 
-        assertEquals(responseStatus_2, response.getStatus());
+        Assert.assertEquals(responseStatus_2, response.getStatus());
         //custom response type
-        assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
-        assertEquals(MediaType.TEXT_PLAIN, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
+        Assert.assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
+        Assert.assertEquals(MediaType.TEXT_PLAIN, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
         assertNotNull(response.body());
         assertTrue(response.body().contains(exceptionBody_2.getUuid()));

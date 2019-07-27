@@ -4,6 +4,7 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import io.undertow.server.handlers.CookieImpl;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -54,7 +55,7 @@ public class CookieTest {
     public void cookie() {
         HttpResponse<String> response = Unirest.get(RESOURCE_PATH).asString();
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
 
         String cookieHeader = response.getHeaders().getFirst("Set-Cookie");
         assertNotNull(cookieHeader);
@@ -62,8 +63,8 @@ public class CookieTest {
 
         response = Unirest.get(RESOURCE_PATH).asString();
 
-        assertEquals(200, response.getStatus());
-        assertEquals(COOKIE_VALUE, response.body());
+        Assert.assertEquals(200, response.getStatus());
+        Assert.assertEquals(COOKIE_VALUE, response.body());
 
     }
 }

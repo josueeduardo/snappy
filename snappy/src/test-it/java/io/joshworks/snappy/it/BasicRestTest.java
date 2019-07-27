@@ -23,6 +23,7 @@ import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.it.util.SampleData;
 import io.joshworks.snappy.it.util.Utils;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -100,7 +101,7 @@ public class BasicRestTest {
     @Test
     public void getRequest() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/echo").asObject(SampleData.class);
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
@@ -113,7 +114,7 @@ public class BasicRestTest {
                 .body(payload)
                 .asObject(SampleData.class);
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
@@ -126,7 +127,7 @@ public class BasicRestTest {
                 .body(payload)
                 .asObject(SampleData.class);
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
@@ -139,7 +140,7 @@ public class BasicRestTest {
                 .body(payload)
                 .asObject(SampleData.class);
 
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
@@ -148,13 +149,13 @@ public class BasicRestTest {
     @Test
     public void statusOnly() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/statusOnly").asString();
-        assertEquals(401, response.getStatus());
+        Assert.assertEquals(401, response.getStatus());
     }
 
     @Test
     public void trailingSlash() throws Exception {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/echo/").asObject(SampleData.class);
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
@@ -163,19 +164,19 @@ public class BasicRestTest {
     @Test
     public void wildcard_exactMatch() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/wildcard").asObject(SampleData.class);
-        assertEquals(404, response.getStatus());
+        Assert.assertEquals(404, response.getStatus());
     }
 
     @Test
     public void wildcard_withAdditionalPath() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/wildcard/123").asObject(SampleData.class);
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
     }
 
     @Test
     public void wildcard_withMultiplePathPath() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/wildcard/123/456").asObject(SampleData.class);
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
     }
 
     @Test
@@ -187,14 +188,14 @@ public class BasicRestTest {
                 .body(sentBytes)
                 .asString();
 
-        assertEquals(200, response.getStatus());
-        assertEquals(sourceString, response.body());
+        Assert.assertEquals(200, response.getStatus());
+        Assert.assertEquals(sourceString, response.body());
     }
 
     @Test
     public void seeOther() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/seeOther").asObject(SampleData.class);
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
@@ -203,7 +204,7 @@ public class BasicRestTest {
     @Test
     public void seeOther_relativePath() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/seeOtherRelative").asObject(SampleData.class);
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
@@ -212,7 +213,7 @@ public class BasicRestTest {
     @Test
     public void temporaryRedirect() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/temporaryRedirect").asObject(SampleData.class);
-        assertEquals(200, response.getStatus());
+        Assert.assertEquals(200, response.getStatus());
         SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
