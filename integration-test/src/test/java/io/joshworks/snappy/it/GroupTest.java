@@ -88,7 +88,7 @@ public class GroupTest {
     private void assertPath(String path) throws Exception {
         HttpResponse<String> response = Unirest.get(basePath + path).asString();
         assertEquals(200, response.getStatus());
-        assertEquals(path, response.getBody());
+        assertEquals(path, response.body());
     }
 
 

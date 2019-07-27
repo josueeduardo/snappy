@@ -76,7 +76,7 @@ public class CustomRestErrorHandlerTest {
 
         assertEquals(responseStatus_1, response.getStatus());
 
-        CustomExceptionBody body = response.getBody();
+        CustomExceptionBody body = response.body();
         assertNotNull(body);
         assertEquals(exceptionBody_1.getUuid(), body.getUuid());
         assertEquals(exceptionBody_1.getTime(), body.getTime());
@@ -88,7 +88,7 @@ public class CustomRestErrorHandlerTest {
 
         assertEquals(responseStatus_2, response.getStatus());
 
-        CustomExceptionBody body = response.getBody();
+        CustomExceptionBody body = response.body();
         assertNotNull(body);
         assertEquals(exceptionBody_2.getUuid(), body.getUuid());
         assertEquals(exceptionBody_2.getTime(), body.getTime());
@@ -104,9 +104,9 @@ public class CustomRestErrorHandlerTest {
         assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
         assertEquals(MediaType.TEXT_PLAIN, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().contains(exceptionBody_2.getUuid()));
-        assertTrue(response.getBody().contains("" + exceptionBody_2.getTime()));
+        assertNotNull(response.body());
+        assertTrue(response.body().contains(exceptionBody_2.getUuid()));
+        assertTrue(response.body().contains("" + exceptionBody_2.getTime()));
     }
 
     private static class CustomExceptionBody {

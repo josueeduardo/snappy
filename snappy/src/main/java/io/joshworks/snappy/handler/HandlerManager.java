@@ -115,7 +115,7 @@ public class HandlerManager {
 
         HttpHandler root = wrapRootInterceptorHandler(resolved, rootInterceptors);
         HttpHandler handler = wrapRequestDump(root, httpTracer);
-//        handler = wrapServerName(handler);
+        handler = wrapServerName(handler);
 
         return Handlers.gracefulShutdown(handler);
     }

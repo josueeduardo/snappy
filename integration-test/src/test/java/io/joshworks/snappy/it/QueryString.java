@@ -59,8 +59,8 @@ public class QueryString {
                 .asJson();
 
         assertEquals(200, response.getStatus());
-        assertEquals(1, response.getBody().getObject().keySet().size());
-        assertEquals(value, response.getBody().getObject().getJSONArray("q").get(0));
+        assertEquals(1, response.body().getObject().keySet().size());
+        assertEquals(value, response.body().getObject().getJSONArray("q").get(0));
     }
 
     @Test
@@ -72,8 +72,8 @@ public class QueryString {
                 .asJson();
 
         assertEquals(200, response.getStatus());
-        assertEquals(1, response.getBody().getObject().keySet().size());
-        assertEquals(value, response.getBody().getObject().getJSONArray("q").get(0));
+        assertEquals(1, response.body().getObject().keySet().size());
+        assertEquals(value, response.body().getObject().getJSONArray("q").get(0));
     }
 
     @Test
@@ -84,8 +84,8 @@ public class QueryString {
                 .asJson();
 
         assertEquals(200, response.getStatus());
-        assertEquals(1, response.getBody().getObject().keySet().size());
-        assertEquals(value, response.getBody().getObject().getString("path"));
+        assertEquals(1, response.body().getObject().keySet().size());
+        assertEquals(value, response.body().getObject().getString("path"));
     }
 
 

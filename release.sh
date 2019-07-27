@@ -1,7 +1,7 @@
 #!/bin/bash
 
 FILE1=$1
-if [ -z "$1" ]
+if [[ -z "$1" ]]
   then
     echo "No version supplied"
     exit 1

@@ -134,7 +134,7 @@ public class MultipartTest {
 
         assertEquals(200, response.getStatus());
         assertTrue(Files.exists(output));
-        assertEquals(parameterValue, response.getBody());//server returns the text parameter
+        assertEquals(parameterValue, response.body());//server returns the text parameter
 
         byte[] bytes = Files.readAllBytes(output);
         assertEquals(fileContent, new String(bytes));
@@ -150,10 +150,10 @@ public class MultipartTest {
                 .asJson();
 
         assertEquals(200, response.getStatus());
-        assertNotNull(response.getBody());
-        assertEquals("text/plain", response.getBody().getObject().getString("textPart"));
-        assertEquals("application/json", response.getBody().getObject().getString("jsonPart"));
-        assertEquals("application/octet-stream", response.getBody().getObject().getString("filePart"));
+        assertNotNull(response.body());
+        assertEquals("text/plain", response.body().getObject().getString("textPart"));
+        assertEquals("application/json", response.body().getObject().getString("jsonPart"));
+        assertEquals("application/octet-stream", response.body().getObject().getString("filePart"));
     }
 
     @Test

@@ -63,7 +63,7 @@ public class CookieTest {
         response = Unirest.get(RESOURCE_PATH).asString();
 
         assertEquals(200, response.getStatus());
-        assertEquals(COOKIE_VALUE, response.getBody());
+        assertEquals(COOKIE_VALUE, response.body());
 
     }
 }

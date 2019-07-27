@@ -33,7 +33,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * Created by josh on 3/10/17.
  */
-public class HttpExchangeTest {
+public class HttpRequestTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
 
@@ -65,7 +65,7 @@ public class HttpExchangeTest {
                 .asObject(SampleData[].class);
 
         assertEquals(200, response.getStatus());
-        SampleData[] responseBody = response.getBody();
+        SampleData[] responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody[0].value);
     }

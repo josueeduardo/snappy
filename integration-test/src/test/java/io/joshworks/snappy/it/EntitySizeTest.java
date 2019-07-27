@@ -51,8 +51,8 @@ public class EntitySizeTest {
                 .asJson();
 
         assertEquals(500, response.getStatus());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().getObject().getLong("id") > 0); //just to cause a call to getLong
+        assertNotNull(response.body());
+        assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }
 
     @Test
@@ -63,8 +63,8 @@ public class EntitySizeTest {
                 .asJson();
 
         assertEquals(500, response.getStatus());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().getObject().getLong("id") > 0); //just to cause a call to getLong
+        assertNotNull(response.body());
+        assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }
 
     @Test
@@ -75,8 +75,8 @@ public class EntitySizeTest {
                 .asJson();
 
         assertEquals(500, response.getStatus());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().getObject().getLong("id") > 0); //just to cause a call to getLong
+        assertNotNull(response.body());
+        assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }
 
 }

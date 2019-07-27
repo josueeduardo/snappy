@@ -19,6 +19,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.it.util.SampleData;
 import io.joshworks.snappy.it.util.Utils;
 import org.junit.AfterClass;
@@ -26,6 +27,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static io.joshworks.snappy.SnappyServer.delete;
 import static io.joshworks.snappy.SnappyServer.enableTracer;
@@ -34,6 +37,7 @@ import static io.joshworks.snappy.SnappyServer.post;
 import static io.joshworks.snappy.SnappyServer.put;
 import static io.joshworks.snappy.SnappyServer.start;
 import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -65,6 +69,20 @@ public class BasicRestTest {
         get("/temporaryRedirect", exchange -> exchange.temporaryRedirect(URI.create(SERVER_URL + "/echo")));
         get("/seeOtherRelative", exchange -> exchange.temporaryRedirect(URI.create("/echo")));
 
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+
+        get("/async", exchange -> {
+            exchange.async(executor, exchange1 -> {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                exchange1.send(exchange1.remoteAddress());
+                exchange1.end();
+            });
+        }, produces(MediaType.TEXT_PLAIN));
+
         start();
     }
 
@@ -75,10 +93,15 @@ public class BasicRestTest {
     }
 
     @Test
+    public void name() throws InterruptedException {
+        Thread.sleep(240000);
+    }
+
+    @Test
     public void getRequest() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/echo").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
@@ -91,7 +114,7 @@ public class BasicRestTest {
                 .asObject(SampleData.class);
 
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
@@ -104,7 +127,7 @@ public class BasicRestTest {
                 .asObject(SampleData.class);
 
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
@@ -117,7 +140,7 @@ public class BasicRestTest {
                 .asObject(SampleData.class);
 
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
@@ -132,7 +155,7 @@ public class BasicRestTest {
     public void trailingSlash() throws Exception {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/echo/").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
@@ -165,14 +188,14 @@ public class BasicRestTest {
                 .asString();
 
         assertEquals(200, response.getStatus());
-        assertEquals(sourceString, response.getBody());
+        assertEquals(sourceString, response.body());
     }
 
     @Test
     public void seeOther() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/seeOther").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
@@ -181,7 +204,7 @@ public class BasicRestTest {
     public void seeOther_relativePath() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/seeOtherRelative").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }
@@ -190,7 +213,7 @@ public class BasicRestTest {
     public void temporaryRedirect() {
         HttpResponse<SampleData> response = Unirest.get(SERVER_URL + "/temporaryRedirect").asObject(SampleData.class);
         assertEquals(200, response.getStatus());
-        SampleData responseBody = response.getBody();
+        SampleData responseBody = response.body();
         assertNotNull(responseBody);
         assertEquals(payload.value, responseBody.value);
     }

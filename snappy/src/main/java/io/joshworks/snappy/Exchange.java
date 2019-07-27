@@ -18,6 +18,7 @@
 package io.joshworks.snappy;
 
 import io.joshworks.snappy.http.DefaultIoCallback;
+import io.joshworks.snappy.http.HttpExchange;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Parameter;
 import io.joshworks.snappy.parser.Parser;
@@ -42,6 +43,8 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Consumer;
 
 /**
  * Created by Josh Gontijo on 3/19/17.
@@ -154,6 +157,11 @@ public class Exchange {
             return MediaType.valueOf(contentType.getFirst());
         }
         return MediaType.WILDCARD_TYPE;
+    }
+
+    public void async(ExecutorService executor, Consumer<HttpExchange> handler) {
+        exchange.unDispatch();
+        exchange.dispatch(executor, () -> handler.accept(new HttpExchange(exchange)));
     }
 
     //--------------- Response ---------------
@@ -276,7 +284,12 @@ public class Exchange {
     }
 
     public void end() {
-        exchange.endExchange();
+        try {
+            exchange.endExchange();
+            exchange.getConnection().close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private String getFileExtension(String fileName) {
