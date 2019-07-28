@@ -20,7 +20,8 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
-import io.joshworks.snappy.http.multipart.Part;
+import io.joshworks.snappy.http.Response;
+import io.joshworks.snappy.http.body.Part;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -58,31 +59,28 @@ public class MultipartTest {
 
 
         enableTracer();
-        multipart("/upload", exchange -> {
-            Part part = exchange.part(FILE_PART_NAME);
+        post("/upload", req -> {
+            Part part = req.multiPartBody().part(FILE_PART_NAME);
             if (!saveFileToTemp(part.file().path())) {
-                exchange.status(500);
+                return Response.internalServerError();
             }
 
-            Part parameter = exchange.part(SOME_OTHER_FIELD);
+            Part parameter = req.multiPartBody().part(SOME_OTHER_FIELD);
             String parameterValue = parameter.value();
 
-            exchange.status(200).send(parameterValue, "txt");
+            return Response.ok().type("txt").body(parameterValue);
         });
 
-        multipart("/partMime", exchange -> {
+        post("/partMime", req -> {
             Map<String, Object> mime = new HashMap<>();
-            for (Part part : exchange.parts()) {
+            for (Part part : req.multiPartBody()) {
                 mime.put(part.name(), part.type().toString());
             }
-
-            exchange.send(mime, "json");
+            return Response.withBody(mime);
         });
 
         group("/a", () -> {
-            multipart("/b", exchange -> {
-                exchange.status(201);
-            });
+            post("/b", req -> Response.ok());
         });
 
         start();

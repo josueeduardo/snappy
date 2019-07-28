@@ -19,8 +19,8 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.Headers;
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.RestClient;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import io.undertow.util.Methods;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -29,7 +29,11 @@ import org.junit.Test;
 
 import java.util.List;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.cors;
+import static io.joshworks.snappy.SnappyServer.enableTracer;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -41,13 +45,11 @@ public class CorsTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
 
-
-    RestClient client = RestClient.builder().build();
-
     @BeforeClass
     public static void setup() {
-        get("/a", exchange -> exchange.send("A", "txt"));
+        get("/a", req -> Response.withBody("A").type("txt"));
         cors();
+        enableTracer();
 
         start();
     }

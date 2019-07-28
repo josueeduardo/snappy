@@ -20,7 +20,8 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.http.ConnegHandler;
 import io.joshworks.snappy.http.ExceptionMapper;
 import io.joshworks.snappy.http.HttpDispatcher;
-import io.joshworks.snappy.http.Interceptor;
+import io.joshworks.snappy.http.InterceptorHandler;
+import io.joshworks.snappy.http.Interceptors;
 import io.undertow.Handlers;
 import io.undertow.predicate.Predicate;
 import io.undertow.predicate.Predicates;
@@ -38,7 +39,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by josh on 3/11/17.
@@ -51,8 +52,7 @@ public class HandlerManager {
     //chain of responsibility
     public static HttpHandler createRootHandler(
             List<MappedEndpoint> mappedEndpoints,
-            List<Interceptor> rootInterceptors,
-            List<Interceptor> endpointInterceptors,
+            Interceptors interceptors,
             ExceptionMapper exceptionMapper,
             String basePath,
             boolean httpTracer) {
@@ -64,46 +64,32 @@ public class HandlerManager {
 
         for (MappedEndpoint me : mappedEndpoints) {
 
+            InterceptorHandler interceptor = new InterceptorHandler(me.handler, interceptors.requestInterceptors(), interceptors.responseInterceptors());
+
             if (MappedEndpoint.Type.REST.equals(me.type)) {
                 HttpHandler httpDispatcher =
                         new BlockingHandler(
                                 new HttpDispatcher(
                                         new ConnegHandler(
-                                                new InterceptorHandler(me.handler, endpointInterceptors), me.mediaTypes
+                                                interceptor, me.mediaTypes
                                         ),
                                         exceptionMapper
                                 )
                         );
 
-                String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
-
-                HttpHandler httpHandler = wrapCompressionHandler(httpDispatcher, me);
-                routingRestHandler.add(me.method, endpointPath, httpHandler);
-            }
-            if (MappedEndpoint.Type.MULTIPART.equals(me.type)) {
-                HttpHandler httpDispatcher =
-                        new BlockingHandler(
-                                new HttpDispatcher(
-                                        new ConnegHandler(
-                                                new InterceptorHandler(me.handler, endpointInterceptors), me.mediaTypes),
-                                        exceptionMapper)
-                        );
-
-                String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
+                String endpointPath = endpointPath(basePath, me);
 
                 HttpHandler httpHandler = wrapCompressionHandler(httpDispatcher, me);
                 routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.SSE.equals(me.type)) {
-                InterceptorHandler interceptorHandler = new InterceptorHandler(me.handler, endpointInterceptors);
-                HttpHandler httpHandler = wrapCompressionHandler(interceptorHandler, me);
+                HttpHandler httpHandler = wrapCompressionHandler(interceptor, me);
 
-                String endpointPath = HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
+                String endpointPath = endpointPath(basePath, me);
                 routingRestHandler.add(me.method, endpointPath, httpHandler);
             }
             if (MappedEndpoint.Type.WS.equals(me.type)) {
-                InterceptorHandler interceptorHandler = new InterceptorHandler(me.handler, endpointInterceptors);
-                HttpHandler httpHandler = wrapCompressionHandler(interceptorHandler, me);
+                HttpHandler httpHandler = wrapCompressionHandler(interceptor, me);
                 websocketHandler.add(me.url, httpHandler);
             }
             if (MappedEndpoint.Type.STATIC.equals(me.type)) {
@@ -111,22 +97,28 @@ public class HandlerManager {
             }
         }
 
-        HttpHandler resolved = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
+        HttpHandler handler = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
 
-        HttpHandler root = wrapRootInterceptorHandler(resolved, rootInterceptors);
-        HttpHandler handler = wrapRequestDump(root, httpTracer);
+        handler = wrapRootInterceptorHandler(handler, interceptors);
+        handler = wrapRequestDump(handler, httpTracer);
         handler = wrapServerName(handler);
 
         return Handlers.gracefulShutdown(handler);
     }
 
+    private static String endpointPath(String basePath, MappedEndpoint me) {
+        return HandlerUtil.BASE_PATH.equals(basePath) ? me.url : basePath + me.url;
+    }
 
-    private static HttpHandler wrapRootInterceptorHandler(HttpHandler original, List<Interceptor> interceptors) {
-        return interceptors.isEmpty() ? original : new InterceptorHandler(original, interceptors);
+    private static HttpHandler wrapRootInterceptorHandler(HttpHandler original, Interceptors interceptors) {
+        if (interceptors.rootRequestInterceptors().isEmpty() && interceptors.rootResponseInterceptors().isEmpty()) {
+            return original;
+        }
+        return new InterceptorHandler(original, interceptors.rootRequestInterceptors(), interceptors.rootResponseInterceptors());
     }
 
     private static HttpHandler wrapCompressionHandler(HttpHandler original, MappedEndpoint endpoint) {
-        if (MappedEndpoint.Type.REST.equals(endpoint.type) || MappedEndpoint.Type.MULTIPART.equals(endpoint.type)) {
+        if (MappedEndpoint.Type.REST.equals(endpoint.type)) {
             return defaultCompressionHandler(original);
         }
         //TODO not supported

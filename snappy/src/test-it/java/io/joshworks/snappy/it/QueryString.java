@@ -20,13 +20,15 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
-import static org.junit.Assert.assertEquals;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 
 /**
  * Created by josh on 3/10/17.
@@ -38,9 +40,9 @@ public class QueryString {
     @BeforeClass
     public static void setup() {
 
-        get("/echoQuery/{path}", exchange -> exchange.send(exchange.queryParameters()));
-        get("/echoQuery", exchange -> exchange.send(exchange.queryParameters()));
-        get("/echoPath/{path}", exchange -> exchange.send(exchange.pathParameters()));
+        get("/echoQuery/{path}", req -> Response.withBody(req.queryParameters()));
+        get("/echoQuery", req -> Response.withBody(req.queryParameters()));
+        get("/echoPath/{path}", req -> Response.withBody(req.pathParameters()));
 
         start();
     }

@@ -2,6 +2,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import io.undertow.server.handlers.CookieImpl;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -32,12 +33,11 @@ public class CookieTest {
     public static void setup() {
 
         enableTracer();
-        get(TEST_RESOURCE, exchange -> {
-            if(exchange.cookie(COOKIE_NAME) == null){
-                exchange.cookie(new CookieImpl(COOKIE_NAME, COOKIE_VALUE)).end();
-                return;
+        get(TEST_RESOURCE, req -> {
+            if(req.cookie(COOKIE_NAME) == null){
+                return Response.ok().cookie(new CookieImpl(COOKIE_NAME, COOKIE_VALUE));
             }
-            exchange.send(exchange.cookie(COOKIE_NAME).getValue(), "txt");
+            return Response.withBody(req.cookie(COOKIE_NAME).getValue()).type("txt");
         });
 
 

@@ -17,7 +17,7 @@ public class ServerNameHandler implements HttpHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
-        exchange.getResponseHeaders().add(Headers.SERVER, SERVER_NAME);
+        exchange.getResponseHeaders().put(Headers.SERVER, SERVER_NAME);
         next.handleRequest(exchange);
     }
 }

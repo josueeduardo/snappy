@@ -21,15 +21,20 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.RestClient;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.ExceptionResponse;
-import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.HttpException;
+import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.Response;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.enableTracer;
+import static io.joshworks.snappy.SnappyServer.exception;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -46,25 +51,21 @@ public class RestErrorHandlerTest {
 
         enableTracer();
 
-        exception(CustomExceptionType.class, (e, exchange) ->{
-            exchange.status(405);
-            exchange.send(ExceptionResponse.of(e));
-        });
+        exception(CustomExceptionType.class, (e, req) -> Response.withStatus(405).body(ExceptionResponse.of(e)));
 
-        get("/error1", exchange -> {
-        });
-        get("/original", exchange -> {
+        get("/error1", req -> Response.ok());
+        get("/original", req -> {
             throw new RuntimeException(EXCEPTION_MESSAGE);
         });
-        get("/restException", exchange -> {
+        get("/restException", req -> {
             throw HttpException.badRequest(EXCEPTION_MESSAGE);
         });
 
-        get("/customType", exchange -> {
+        get("/customType", req -> {
             throw new CustomExceptionType();
         });
 
-        get("/customHttpException", exchange -> {
+        get("/customHttpException", req -> {
             throw new CustomHttpException(501, "CUSTOM-HTTP-EXCEPTION-MESSAGE");
         });
 

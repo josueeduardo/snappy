@@ -21,7 +21,8 @@ import io.joshworks.snappy.handler.HandlerManager;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.joshworks.snappy.http.ExceptionMapper;
-import io.joshworks.snappy.http.Interceptor;
+import io.joshworks.snappy.http.Interceptors;
+import io.joshworks.snappy.http.RequestInterceptor;
 import io.undertow.server.HttpHandler;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class AdminManager {
     private int port = ADMIN_PORT;
     private String bindAddress = "127.0.0.1";
     private final List<MappedEndpoint> endpoints = new ArrayList<>();
-    private final List<Interceptor> interceptors = new ArrayList<>();
+    final Interceptors interceptors = new Interceptors();
 
     private MappedEndpoint adminPage;
 
@@ -49,7 +50,7 @@ public class AdminManager {
         if (adminPage != null) {
             endpoints.add(adminPage);
         }
-        return HandlerManager.createRootHandler(endpoints, interceptors, new ArrayList<>(), new ExceptionMapper(), HandlerUtil.BASE_PATH, false);
+        return HandlerManager.createRootHandler(endpoints, interceptors, new ExceptionMapper(), HandlerUtil.BASE_PATH, false);
     }
 
     public void addEndpoint(MappedEndpoint endpoint) {
@@ -61,12 +62,8 @@ public class AdminManager {
     }
 
     //TODO implement interceptors to admin page
-    public void setAdminPage(String url, String docPath, List<Interceptor> interceptors) {
+    public void setAdminPage(String url, String docPath, List<RequestInterceptor> interceptors) {
         adminPage = HandlerUtil.staticFiles(url, docPath);
-    }
-
-    void addInterceptor(Interceptor interceptor) {
-        interceptors.add(interceptor);
     }
 
     public int getPort() {

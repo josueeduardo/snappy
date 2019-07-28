@@ -20,6 +20,7 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.Response;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -43,21 +44,21 @@ public class CustomRestErrorHandlerTest {
 
     @BeforeClass
     public static void setup() {
-        exception(Exception.class, (e, exchange) -> exchange.status(responseStatus_1).send(exceptionBody_1));
-        exception(UnsupportedOperationException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2));
+        exception(Exception.class, (e, req) -> Response.withStatus(responseStatus_1).body(exceptionBody_1));
+        exception(UnsupportedOperationException.class, (e, req) -> Response.withStatus(responseStatus_2).body(exceptionBody_2));
         //custom media type
-        exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
-        exception(NumberFormatException.class, (e, exchange) -> exchange.status(responseStatus_2).send(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
+        exception(NumberFormatException.class, (e, req) -> Response.withStatus(responseStatus_2).body(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
+        exception(NumberFormatException.class, (e, req) -> Response.withStatus(responseStatus_2).body(exceptionBody_2, MediaType.TEXT_PLAIN_TYPE));
 
-        get("/custom-handler-1", exchange -> {
+        get("/custom-handler-1", req -> {
             throw new RuntimeException("Some error");
         });
 
-        get("/custom-handler-2", exchange -> {
+        get("/custom-handler-2", req -> {
             throw new UnsupportedOperationException("Some other error");
         });
 
-        get("/custom-handler-3-mediaType", exchange -> {
+        get("/custom-handler-3-mediaType", req -> {
             throw new NumberFormatException("Some error with custom media type");
         });
 

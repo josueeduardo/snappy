@@ -19,6 +19,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import io.joshworks.snappy.it.util.SampleData;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -27,7 +28,9 @@ import org.junit.Test;
 
 import java.util.Collections;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.post;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -43,9 +46,9 @@ public class HttpRequestTest {
     @BeforeClass
     public static void setup() {
 
-        post("/array", exchange -> {
-            SampleData[] sampleData = exchange.body().asObject(SampleData[].class);
-            exchange.send(sampleData);
+        post("/array", req -> {
+            SampleData[] sampleData = req.body().asObject(SampleData[].class);
+            return Response.withBody(sampleData);
         });
 
 

@@ -17,38 +17,36 @@
 
 package io.joshworks.snappy.http;
 
-import io.joshworks.snappy.Exchange;
 import io.joshworks.snappy.handler.HandlerUtil;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public abstract class HttpEntrypoint<T extends Exchange> implements HttpHandler {
+public class HttpEntrypoint implements HttpHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
-    private final HttpConsumer<T> endpoint;
+    private final Handler endpoint;
     private final ExceptionMapper exceptionMapper;
 
-    public HttpEntrypoint(HttpConsumer<T> endpoint, ExceptionMapper exceptionMapper) {
+    public HttpEntrypoint(Handler endpoint, ExceptionMapper exceptionMapper) {
         this.endpoint = endpoint;
         this.exceptionMapper = exceptionMapper;
     }
 
-    protected abstract T createExchange(HttpServerExchange exchange);
-
     @Override
     public void handleRequest(HttpServerExchange exchange) {
-        T httpExchange = createExchange(exchange);
+        RequestContext request = exchange.getAttachment(HttpDispatcher.REQUEST);
         try {
             if (!exchange.isResponseComplete()) {
-                endpoint.accept(httpExchange);
+                Response response = endpoint.apply(request);
+                exchange.putAttachment(HttpDispatcher.RESPONSE, response);
             }
         } catch (Exception e) {
             if (exchange.isResponseChannelAvailable() && !exchange.isResponseComplete()) {
@@ -58,8 +56,8 @@ public abstract class HttpEntrypoint<T extends Exchange> implements HttpHandler 
                 }
 
                 logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Application error"), e);
-                exceptionMapper.getOrFallback(e).accept(e, httpExchange);
-                exchange.endExchange();
+                Response response = exceptionMapper.getOrFallback(e).apply(e, request);
+                exchange.putAttachment(HttpDispatcher.RESPONSE, response);
             } else {
                 logger.error(e.getMessage(), e);
             }

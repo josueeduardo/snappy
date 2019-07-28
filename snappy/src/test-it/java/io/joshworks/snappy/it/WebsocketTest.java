@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.SnappyServer.websocket;
 import static org.junit.Assert.fail;
 
 /**

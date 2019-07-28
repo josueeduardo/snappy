@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.http;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by Josh Gontijo on 4/2/17.
@@ -25,17 +25,17 @@ import java.util.function.Consumer;
  * When used with original handlers it will unwrap the real cause and pass it in
  */
 @FunctionalInterface
-public interface HttpConsumer<T> extends Consumer<T> {
+public interface Handler extends Function<Request, Response> {
 
     @Override
-    default void accept(final T elem) {
+    default Response apply(Request request) {
         try {
-            acceptThrows(elem);
+            return applyThrows(request);
         } catch (final Exception e) {
             throw new ApplicationException(e);
         }
     }
 
-    void acceptThrows(T elem) throws Exception;
+    Response applyThrows(Request request) throws Exception;
 
 }

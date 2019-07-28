@@ -17,8 +17,6 @@
 
 package io.joshworks.snappy;
 
-import io.joshworks.snappy.executor.ExecutorConfig;
-import io.joshworks.snappy.executor.SchedulerConfig;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by josh on 3/11/17.
@@ -61,7 +59,7 @@ public class Info {
         try {
             Properties properties = new Properties();
             properties.load(Thread.currentThread().getContextClassLoader().getResourceAsStream(VERSION));
-            return  String.valueOf(properties.getOrDefault(VERSION_KEY, UNKNOWN));
+            return String.valueOf(properties.getOrDefault(VERSION_KEY, UNKNOWN));
         } catch (Exception ex) {
             return UNKNOWN;
         }
@@ -83,16 +81,6 @@ public class Info {
         System.err.println();
     }
 
-    public static void threadConfig(List<ExecutorConfig> executorConfig, List<SchedulerConfig> schedulerConfig) {
-        System.err.println("------------- APP THREAD CONFIG -------------");
-        if (executorConfig.isEmpty() && schedulerConfig.isEmpty()) {
-            System.err.println("No executors configured (default will be used)");
-        }
-        executorConfig.forEach(exec -> logExecutors(exec.getName(), exec.getExecutor()));
-        schedulerConfig.forEach(entry -> logExecutors(entry.getName(), entry.getScheduler()));
-        System.err.println();
-    }
-
     public static void serverConfig(OptionMap.Builder options) {
         System.err.println("--------------- SERVER CONFIG ---------------");
         options.getMap().forEach(option -> {
@@ -108,7 +96,7 @@ public class Info {
     }
 
     private static void logEndpoints(List<MappedEndpoint> endpoints, String basePath) {
-        if(endpoints.isEmpty()) {
+        if (endpoints.isEmpty()) {
             System.err.println("NO ENDPOINTS FOUND");
             return;
         }

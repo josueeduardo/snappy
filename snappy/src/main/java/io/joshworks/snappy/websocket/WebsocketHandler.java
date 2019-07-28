@@ -17,7 +17,7 @@
 
 package io.joshworks.snappy.websocket;
 
-import io.joshworks.snappy.handler.InterceptorHandler;
+import io.joshworks.snappy.http.InterceptorHandler;
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;

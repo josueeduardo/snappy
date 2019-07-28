@@ -15,10 +15,13 @@
  *
  */
 
-package io.joshworks.snappy.http;
+package io.joshworks.snappy.http.body;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.joshworks.snappy.http.ConnegHandler;
+import io.joshworks.snappy.http.JsonNode;
+import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.parser.Parser;
 import io.joshworks.snappy.parser.ParserUtil;
 import io.joshworks.snappy.parser.Parsers;
@@ -39,6 +42,7 @@ import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
 /**
+ * Request body
  * Created by josh on 3/12/17.
  */
 public class Body {
@@ -53,7 +57,6 @@ public class Body {
 
         ConnegHandler.NegotiatedMediaType negotiatedMediaType = exchange.getAttachment(ConnegHandler.NEGOTIATED_MEDIA_TYPE);
         this.negotiatedConsumeType = negotiatedMediaType == null ? MediaType.APPLICATION_JSON_TYPE : negotiatedMediaType.consumes;
-
     }
 
     public InputStream asBinary() {

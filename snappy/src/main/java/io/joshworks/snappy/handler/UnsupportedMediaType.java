@@ -20,8 +20,6 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.undertow.util.HeaderValues;
 
-import java.util.stream.Collectors;
-
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
@@ -38,7 +36,7 @@ public class UnsupportedMediaType extends Exception {
     }
 
     public static UnsupportedMediaType unsuportedMediaType(HeaderValues headerValues, MediaTypes types) {
-        String typesString = headerValues.isEmpty() ? "" : headerValues.stream().collect(Collectors.joining(", "));
+        String typesString = headerValues.isEmpty() ? "" : String.join(", ", headerValues);
         typesString = "[" + typesString + "]";
         return new UnsupportedMediaType(MESSAGE_PREFIX + typesString, headerValues, types);
     }

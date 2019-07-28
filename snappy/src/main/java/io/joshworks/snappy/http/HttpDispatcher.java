@@ -22,10 +22,11 @@ import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.UnsupportedMediaType;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import io.undertow.util.AttachmentKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by Josh Gontijo on 3/5/17.
@@ -37,6 +38,9 @@ public class HttpDispatcher extends ChainHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(LOGGER_NAME);
 
+    static AttachmentKey<Response> RESPONSE = AttachmentKey.create(Response.class);
+    static AttachmentKey<RequestContext> REQUEST = AttachmentKey.create(RequestContext.class);
+
     private final ExceptionMapper exceptionMapper;
 
     public HttpDispatcher(HttpHandler next, ExceptionMapper exceptionMapper) {
@@ -46,31 +50,34 @@ public class HttpDispatcher extends ChainHandler {
 
     @Override
     public void handleRequest(HttpServerExchange exchange) {
+        RequestContext requestContext = new RequestContext(exchange);
         try {
+            exchange.putAttachment(REQUEST, requestContext);
             this.next.handleRequest(exchange);
+
+            Response response = exchange.getAttachment(RESPONSE);
+            if (response != null) { //TODO ASYNC ?
+                response.handle(exchange);
+            }
+
         } catch (UnsupportedMediaType connex) {
 
-            String description = "Unsupported media type " + connex.headerValues + " supported types: " + connex.types;
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, description));
+            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Unsupported media type " + connex.headerValues + " supported types: " + connex.types));
 
-            sendErrorResponse(exchange, connex);
+            sendErrorResponse(exchange, requestContext, connex);
             exchange.endExchange();
 
         } catch (Exception e) { //Should not happen (server error)
             logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Server error"), e);
-            sendErrorResponse(exchange, e);
+            sendErrorResponse(exchange, requestContext, e);
             exchange.endExchange();
 
         }
     }
 
-    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, T ex) {
-        ErrorHandler<T> errorHandler = exceptionMapper.getOrFallback(ex);
-        try {
-            errorHandler.accept(ex, new HttpExchange(exchange));
-        } catch (Exception handlingError) {
-            logger.error("Exception was thrown when executing original handler: {}, body will be null", errorHandler.getClass().getName(), handlingError);
-        }
+    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, RequestContext requestContext, T ex) {
+        Response response = exceptionMapper.apply(ex, requestContext);
+        response.handle(exchange);
     }
 
 }

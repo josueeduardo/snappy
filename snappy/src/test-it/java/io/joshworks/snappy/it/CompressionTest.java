@@ -1,6 +1,8 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.Response;
 import io.joshworks.snappy.it.util.Utils;
 import io.undertow.util.Headers;
 import org.junit.AfterClass;
@@ -15,7 +17,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.enableTracer;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.post;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.parser.MediaTypes.consumes;
 import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertTrue;
 
@@ -33,12 +40,12 @@ public class CompressionTest {
     public static void setup() {
 
         enableTracer();
-        get(TEST_RESOURCE, exchange -> exchange.send(dummyData, "txt"));
+        get(TEST_RESOURCE, req -> Response.withBody(dummyData).type("txt"));
 
-        get("/withProduces", exchange -> exchange.send(dummyData), produces("txt"));
-        get("/emptyBody", exchange -> exchange.send(""), produces("txt"));
-        post("/postConsumingBody", exchange -> exchange.send("with body"), produces("txt"));
-        multipart("/multipart", exchange -> exchange.send("with body", "txt"));
+        get("/withProduces", req -> Response.withBody(dummyData), produces("txt"));
+        get("/emptyBody", req -> Response.withBody(""), produces("txt"));
+        post("/postConsumingBody", req -> Response.withBody("with body"), produces("txt"));
+        post("/multipart", req -> Response.withBody("with body").type("txt"), consumes(MediaType.MULTIPART_FORM_DATA));
 
         start();
     }

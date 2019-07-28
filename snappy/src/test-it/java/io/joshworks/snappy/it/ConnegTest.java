@@ -20,12 +20,16 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.basePath;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
 import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertEquals;
@@ -43,28 +47,14 @@ public class ConnegTest {
     public static void setup() {
         basePath("/v1");
 
-        get("/json", exchange -> {
-        });
-
-        get("/default", exchange -> {
-        });
-
-        get("/xml", exchange -> {
-        }, consumes("application/xml"));
-
-        get("/simple-mime", exchange -> {
-        }, consumes("json"));
-
+        get("/json", req -> Response.ok());
+        get("/default", req -> Response.ok());
+        get("/xml", req -> Response.ok(), consumes("application/xml"));
+        get("/simple-mime", req -> Response.ok(), consumes("json"));
         //produces
-        get("/produces-json", exchange -> {
-        }, produces("application/json"));
-
-        get("/produces-text", exchange -> {
-        }, produces("text/plain"));
-
-        get("/overridden", exchange -> {
-            exchange.send("{}", MediaType.APPLICATION_JSON_TYPE);
-        }, produces("txt"));
+        get("/produces-json", req -> Response.ok(), produces("application/json"));
+        get("/produces-text", req -> Response.ok(), produces("text/plain"));
+        get("/overridden", req -> Response.withBody("{}").type(MediaType.APPLICATION_JSON_TYPE), produces("txt"));
 
         start();
     }

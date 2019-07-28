@@ -18,11 +18,15 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
-import static org.junit.Assert.assertEquals;
+import static io.joshworks.snappy.SnappyServer.basePath;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.group;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 
 /**
  * Created by josh on 3/11/17.
@@ -34,8 +38,7 @@ public class BasePathTest {
     public void getRequest() {
         try {
             basePath("/v1");
-            get("/test", exchange -> {
-            });
+            get("/test", req -> Response.ok());
             start();
 
             Assert.assertEquals(200, Unirest.get("http://localhost:9000/v1/test").asString().getStatus());
@@ -50,8 +53,7 @@ public class BasePathTest {
     public void withGroup() {
         try {
             basePath("/v1");
-            group("/a", () -> get("/test", exchange -> {
-            }));
+            group("/a", () -> get("/test", req -> Response.ok()));
             start();
 
             Assert.assertEquals(200, Unirest.get("http://localhost:9000/v1/a/test").asString().getStatus());

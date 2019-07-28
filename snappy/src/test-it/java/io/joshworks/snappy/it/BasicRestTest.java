@@ -19,7 +19,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
-import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.Response;
 import io.joshworks.snappy.it.util.SampleData;
 import io.joshworks.snappy.it.util.Utils;
 import org.junit.AfterClass;
@@ -28,8 +28,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.net.URI;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static io.joshworks.snappy.SnappyServer.delete;
 import static io.joshworks.snappy.SnappyServer.enableTracer;
@@ -38,7 +36,6 @@ import static io.joshworks.snappy.SnappyServer.post;
 import static io.joshworks.snappy.SnappyServer.put;
 import static io.joshworks.snappy.SnappyServer.start;
 import static io.joshworks.snappy.SnappyServer.stop;
-import static io.joshworks.snappy.parser.MediaTypes.produces;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -56,33 +53,19 @@ public class BasicRestTest {
 
         enableTracer();
 
-        get("/echo", exchange -> exchange.send(payload));
-        post("/echo", exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
-        put("/echo", exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
-        delete("/echo", exchange -> exchange.send(exchange.body().asObject(SampleData.class)));
-        post("/encoding", exchange -> exchange.send(Utils.toString(exchange.body().asBinary()), "txt"));
+        get("/echo", req -> Response.withBody(payload));
+        post("/echo", req -> Response.withBody(req.body().asObject(SampleData.class)));
+        put("/echo", req -> Response.withBody(req.body().asObject(SampleData.class)));
+        delete("/echo", req -> Response.withBody(req.body().asObject(SampleData.class)));
+        post("/encoding", req -> Response.withBody(Utils.toString(req.body().asBinary())).type("txt"));
 
-        get("/statusOnly", exchange -> exchange.status(401));
+        get("/statusOnly", req -> Response.withStatus(401));
 
-        get("/wildcard/*", exchange -> exchange.status(200));
+        get("/wildcard/*", req -> Response.withStatus(200));
 
-        get("/seeOther", exchange -> exchange.seeOther(URI.create(SERVER_URL + "/echo")));
-        get("/temporaryRedirect", exchange -> exchange.temporaryRedirect(URI.create(SERVER_URL + "/echo")));
-        get("/seeOtherRelative", exchange -> exchange.temporaryRedirect(URI.create("/echo")));
-
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
-        get("/async", exchange -> {
-            exchange.async(executor, exchange1 -> {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                exchange1.send(exchange1.remoteAddress());
-                exchange1.end();
-            });
-        }, produces(MediaType.TEXT_PLAIN));
+        get("/seeOther", req -> Response.seeOther(URI.create(SERVER_URL + "/echo")));
+        get("/temporaryRedirect", req -> Response.temporaryRedirect(URI.create(SERVER_URL + "/echo")));
+        get("/seeOtherRelative", req -> Response.temporaryRedirect(URI.create("/echo")));
 
         start();
     }
@@ -91,11 +74,6 @@ public class BasicRestTest {
     public static void shutdown() {
         stop();
         Unirest.close();
-    }
-
-    @Test
-    public void name() throws InterruptedException {
-        Thread.sleep(240000);
     }
 
     @Test

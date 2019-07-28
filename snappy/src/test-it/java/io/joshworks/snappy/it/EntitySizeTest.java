@@ -3,13 +3,14 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Request;
+import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.joshworks.snappy.SnappyServer.maxEntitySize;
-import static io.joshworks.snappy.SnappyServer.multipart;
 import static io.joshworks.snappy.SnappyServer.post;
 import static io.joshworks.snappy.SnappyServer.start;
 import static io.joshworks.snappy.SnappyServer.stop;
@@ -28,17 +29,22 @@ public class EntitySizeTest {
     private static final long MULTIPART_MAX_ENTITY_SIZE = MESSAGE.length() - 2;
 
 
-
     @BeforeClass
     public static void setup() {
 
         maxEntitySize(MAX_ENTITY_SIZE);
-        multipart("/form", exchange -> System.out.println(exchange.partNames()));
-        multipart("/multipart", exchange -> System.out.println(exchange.partNames()));
-        multipart("/withLimit", exchange -> System.out.println(exchange.partNames()), MAX_ENTITY_SIZE - 1);
-        post("/plain", exchange -> System.out.println(exchange.body().asString()));
+        post("/form", EntitySizeTest::printAndReturn);
+        post("/multipart", EntitySizeTest::printAndReturn);
+        //FIXME add limit
+//        post("/withLimit", EntitySizeTest::printAndReturn, MAX_ENTITY_SIZE - 1);
+        post("/plain", EntitySizeTest::printAndReturn);
 
         start();
+    }
+
+    private static Response printAndReturn(Request req) {
+        System.out.println(req.multiPartBody().partNames());
+        return Response.ok();
     }
 
     @AfterClass

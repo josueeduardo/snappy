@@ -17,13 +17,11 @@
 
 package io.joshworks.snappy.http;
 
-import io.joshworks.snappy.Exchange;
-
-import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public interface ErrorHandler<T extends Exception> extends BiConsumer<T, Exchange> {
+public interface ErrorHandler<T extends Exception> extends BiFunction<T, Request, Response> {
 
 }

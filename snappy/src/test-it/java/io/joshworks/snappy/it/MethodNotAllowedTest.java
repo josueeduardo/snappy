@@ -18,6 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -33,8 +34,7 @@ public class MethodNotAllowedTest {
     @BeforeClass
     public static void setup() {
         basePath("/v1");
-        get("/sample", exchange -> {
-        });
+        get("/sample", req -> Response.ok());
         start();
     }
 

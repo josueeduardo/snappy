@@ -54,6 +54,6 @@ public class MappedEndpoint {
     }
 
     public enum Type {
-        REST, WS, STATIC, SSE, MULTIPART
+        REST, WS, STATIC, SSE
     }
 }

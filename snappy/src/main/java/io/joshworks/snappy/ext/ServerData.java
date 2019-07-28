@@ -20,7 +20,7 @@ package io.joshworks.snappy.ext;
 import io.joshworks.snappy.AdminManager;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.joshworks.snappy.http.ExceptionMapper;
-import io.joshworks.snappy.http.Interceptor;
+import io.joshworks.snappy.http.Interceptors;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class ServerData {
     public final int port;
     public final String bindAddress;
     public final boolean httpTracer;
-    public final List<Interceptor> interceptors;
+    public final Interceptors interceptors;
     public final ExceptionMapper exceptionMapper;
     public final String basePath;
     public final List<MappedEndpoint> mappedEndpoints;
@@ -41,7 +41,7 @@ public class ServerData {
     public ServerData(int port,
                       String bindAddress,
                       boolean httpTracer,
-                      List<Interceptor> interceptors,
+                      Interceptors interceptors,
                       ExceptionMapper exceptionMapper,
                       String basePath,
                       AdminManager adminManager,

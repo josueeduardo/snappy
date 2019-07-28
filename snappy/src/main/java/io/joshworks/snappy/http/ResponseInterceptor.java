@@ -15,28 +15,23 @@
  *
  */
 
-package io.joshworks.snappy.parser;
+package io.joshworks.snappy.http;
 
-import java.lang.reflect.Type;
+import java.util.function.BiConsumer;
 
 /**
- * Created by josh on 3/6/17.
+ * Created by Josh Gontijo on 3/18/17.
  */
-public class PlainTextParser implements Parser {
+public class ResponseInterceptor extends Interceptor {
+    private final BiConsumer<RequestContext, Response> handler;
 
-    @Override
-    public <T> T readValue(String value, Class<T> valueType) {
-        throw new UnsupportedOperationException("Cannot convert " + valueType);
+    public ResponseInterceptor(String url, BiConsumer<RequestContext, Response> handler) {
+        super(url);
+        this.handler = handler;
     }
 
-    @Override
-    public <T> T readValue(String value, Type valueType) {
-        throw new UnsupportedOperationException("Cannot convert " + valueType);
-    }
-
-    @Override
-    public String writeValue(Object input) {
-        return input == null ? null : String.valueOf(input);
+    public void intercept(RequestContext reqContext, Response response) {
+        this.handler.accept(reqContext, response);
     }
 
 }

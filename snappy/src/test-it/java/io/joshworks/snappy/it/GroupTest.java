@@ -19,13 +19,16 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static io.joshworks.snappy.SnappyServer.*;
-import static org.junit.Assert.assertEquals;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.group;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 
 /**
  * Created by Josh Gontijo on 3/17/17.
@@ -37,18 +40,18 @@ public class GroupTest {
     @BeforeClass
     public static void setup() {
 
-        get("/a", exchange -> exchange.send(exchange.path(), "txt"));
+        get("/a", req -> Response.withBody(req.path()).type("txt"));
         group("/groupA", () -> {
-            get("/", exchange -> exchange.send(exchange.path(), "txt"));
-            get("/b", exchange -> exchange.send(exchange.path(), "txt"));
-            get("/c", exchange -> exchange.send(exchange.path(), "txt"));
+            get("/", req -> Response.withBody(req.path()).type("txt"));
+            get("/b", req -> Response.withBody(req.path()).type("txt"));
+            get("/c", req -> Response.withBody(req.path()).type("txt"));
 
             group("/groupB", () -> {
-                get("/d", exchange -> exchange.send(exchange.path(), "txt"));
+                get("/d", req -> Response.withBody(req.path()).type("txt"));
             });
 
             group("/{param}", () -> {
-                get("/e", exchange -> exchange.send(exchange.path(), "txt"));
+                get("/e", req -> Response.withBody(req.path()).type("txt"));
             });
         });
 

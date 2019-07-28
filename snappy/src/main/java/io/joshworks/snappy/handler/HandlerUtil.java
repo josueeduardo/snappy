@@ -20,11 +20,9 @@ package io.joshworks.snappy.handler;
 import io.joshworks.snappy.Messages;
 import io.joshworks.snappy.http.ExceptionMapper;
 import io.joshworks.snappy.http.Group;
-import io.joshworks.snappy.http.HttpConsumer;
+import io.joshworks.snappy.http.Handler;
 import io.joshworks.snappy.http.HttpEntrypoint;
-import io.joshworks.snappy.http.HttpExchange;
 import io.joshworks.snappy.http.MediaType;
-import io.joshworks.snappy.http.multipart.MultipartExchange;
 import io.joshworks.snappy.parser.MediaTypes;
 import io.joshworks.snappy.sse.BroadcasterSetup;
 import io.joshworks.snappy.sse.SseCallback;
@@ -39,6 +37,7 @@ import io.undertow.server.handlers.resource.ClassPathResourceManager;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import io.undertow.util.HeaderValues;
+import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.websockets.WebSocketProtocolHandshakeHandler;
@@ -69,7 +68,7 @@ public class HandlerUtil {
 
     public static MappedEndpoint rest(HttpString method,
                                       String url,
-                                      HttpConsumer<HttpExchange> endpoint,
+                                      Handler endpoint,
                                       ExceptionMapper exceptionMapper,
                                       MediaTypes... mimeTypes) {
 
@@ -78,13 +77,10 @@ public class HandlerUtil {
 
         url = resolveUrl(url);
 
-        HttpHandler handler = new HttpEntrypoint<HttpExchange>(endpoint, exceptionMapper) {
-            @Override
-            protected HttpExchange createExchange(HttpServerExchange exchange) {
-                return new HttpExchange(exchange);
-            }
-        };
-        return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, handler, mimeTypes);
+        HttpHandler handler = new HttpEntrypoint(endpoint, exceptionMapper);
+        HttpHandler predicateHandler = Handlers.predicate(HandlerUtil::formData, multipartHandler(endpoint, exceptionMapper, 1L), handler);
+
+        return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, predicateHandler, mimeTypes);
     }
 
     public static MappedEndpoint websocket(String url, AbstractReceiveListener endpoint) {
@@ -113,12 +109,12 @@ public class HandlerUtil {
     }
 
     public static MappedEndpoint sse(String url, BiConsumer<ServerSentEventConnection, String> connectionCallback) {
-       return sse(url, new SseCallback() {
-           @Override
-           public void connected(ServerSentEventConnection connection, String lastEventId) {
-               connectionCallback.accept(connection, lastEventId);
-           }
-       });
+        return sse(url, new SseCallback() {
+            @Override
+            public void connected(ServerSentEventConnection connection, String lastEventId) {
+                connectionCallback.accept(connection, lastEventId);
+            }
+        });
     }
 
     public static MappedEndpoint sse(String url, SseCallback connectionCallback) {
@@ -137,7 +133,7 @@ public class HandlerUtil {
         url = resolveUrl(url);
         url = url.isEmpty() ? BASE_PATH : url;
         docPath = docPath.startsWith(BASE_PATH) ? docPath.replaceFirst(BASE_PATH, "") : docPath;
-        HttpHandler handler = Handlers.path()
+        io.undertow.server.HttpHandler handler = Handlers.path()
                 .addPrefixPath(url,
                         Handlers.resource(new ClassPathResourceManager(Thread.currentThread().getContextClassLoader(), docPath))
                                 .addWelcomeFiles(INDEX_HTML));
@@ -150,32 +146,17 @@ public class HandlerUtil {
     }
 
 
-    public static MappedEndpoint multipart(HttpString method, String url, HttpConsumer<MultipartExchange> endpoint, ExceptionMapper exceptionMapper,long maxSize) {
-        url = resolveUrl(url);
-
-        validateHttpMethod(method);
-
+    private static HttpHandler multipartHandler(Handler endpoint, ExceptionMapper exceptionMapper, long maxSize) {
         MultiPartParserDefinition multiPartParserDefinition = new MultiPartParserDefinition();
         multiPartParserDefinition.setMaxIndividualFileSize(maxSize);
 
         EagerFormParsingHandler formHandler = new EagerFormParsingHandler(FormParserFactory.builder().addParser(multiPartParserDefinition).build());
-        formHandler.setNext(new HttpEntrypoint<MultipartExchange>(endpoint, exceptionMapper) {
-            @Override
-            protected MultipartExchange createExchange(HttpServerExchange exchange) {
-                return new MultipartExchange(exchange);
-            }
-        });
-
-        return new MappedEndpoint(
-                method.toString(),
-                url,
-                MappedEndpoint.Type.MULTIPART,
-                formHandler,
-                new MediaTypes[]{MediaTypes.consumes(MediaType.APPLICATION_FORM_URLENCODED), MediaTypes.consumes(MediaType.MULTIPART_FORM_DATA)});
+        formHandler.setNext(new HttpEntrypoint(endpoint, exceptionMapper));
+        return formHandler;
     }
 
     private static void validateHttpMethod(HttpString method) {
-        if(!Methods.POST.equals(method) && !Methods.PUT.equals(method) && !Methods.DELETE.equals(method)) {
+        if (!Methods.POST.equals(method) && !Methods.PUT.equals(method) && !Methods.DELETE.equals(method)) {
             throw new IllegalArgumentException("Only POST, PUT and DELETE are supported");
         }
     }
@@ -245,6 +226,11 @@ public class HandlerUtil {
         HttpString requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestPath();
         return String.format("%s %s - %s", requestMethod, requestPath, shortMessage);
+    }
+
+    private static boolean formData(HttpServerExchange exchange) {
+        HeaderValues contentType = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
+        return contentType != null && contentType.stream().anyMatch(v -> v.equalsIgnoreCase(MediaType.MULTIPART_FORM_DATA) || v.equalsIgnoreCase(MediaType.APPLICATION_FORM_URLENCODED));
     }
 
 }

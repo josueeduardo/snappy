@@ -2,6 +2,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Response;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -16,11 +17,9 @@ public class RequestBodyTest {
 
     @Test
     public void setOf() {
-        post("/set", exchange -> {
-
-            Set<String> strings = exchange.body().asSetOf(String.class);
-            exchange.send(strings);
-
+        post("/set", req -> {
+            Set<String> strings = req.body().asSetOf(String.class);
+            return Response.withBody(strings);
         });
         start();
 

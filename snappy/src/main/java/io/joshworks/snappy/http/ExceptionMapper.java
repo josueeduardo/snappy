@@ -31,21 +31,20 @@ public class ExceptionMapper {
     private final Map<Class<? extends Exception>, ErrorHandler> mappers = new HashMap<>();
 
 
-    private static final ErrorHandler<Exception> fallbackInternalError = (e, restExchange) -> {
-        restExchange.status(StatusCodes.INTERNAL_SERVER_ERROR);
-        restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
-    };
+    private static final ErrorHandler<Exception> fallbackInternalError = (e, restExchange) ->
+            Response.internalServerError()
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .body(ExceptionResponse.of(e));
 
-    private static final ErrorHandler<HttpException> httpException = (e, restExchange) -> {
-        restExchange.status(e.status);
-        restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
-    };
+    private static final ErrorHandler<HttpException> httpException = (e, restExchange) ->
+            Response.withStatus(e.status)
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .body(ExceptionResponse.of(e));
 
-    private static final ErrorHandler<Exception> fallbackConneg = (e, restExchange) -> {
-        int status = StatusCodes.UNSUPPORTED_MEDIA_TYPE;
-        restExchange.status(status);
-        restExchange.send(ExceptionResponse.of(e), MediaType.APPLICATION_JSON_TYPE);
-    };
+    private static final ErrorHandler<Exception> fallbackConneg = (e, restExchange) ->
+            Response.withStatus(StatusCodes.UNSUPPORTED_MEDIA_TYPE)
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .body(ExceptionResponse.of(e));
 
     public ExceptionMapper() {
         mappers.put(HttpException.class, httpException);
@@ -53,8 +52,13 @@ public class ExceptionMapper {
         mappers.put(Exception.class, fallbackInternalError);
     }
 
-    public <T extends Exception> ErrorHandler<T> getOrFallback(T key) {
-        return getOrFallback(key, fallbackInternalError);
+    public <T extends Exception> ErrorHandler<T> getOrFallback(T ex) {
+        return getOrFallback(ex, fallbackInternalError);
+    }
+
+    public <T extends Exception> Response apply(T ex, Request request) {
+        ErrorHandler<Exception> orFallback = getOrFallback(ex, fallbackInternalError);
+        return orFallback.apply(ex, request);
     }
 
     public <T extends Exception> void put(Class<T> type, ErrorHandler<T> handler) {

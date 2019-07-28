@@ -19,20 +19,24 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.Request;
+import io.joshworks.snappy.http.Response;
+import io.undertow.util.HttpString;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import static io.joshworks.snappy.SnappyServer.*;
-import static org.junit.Assert.assertEquals;
+import static io.joshworks.snappy.SnappyServer.after;
+import static io.joshworks.snappy.SnappyServer.afterAll;
+import static io.joshworks.snappy.SnappyServer.before;
+import static io.joshworks.snappy.SnappyServer.beforeAll;
+import static io.joshworks.snappy.SnappyServer.get;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * Created by josh on 3/10/17.
@@ -41,28 +45,24 @@ public class FilterTest {
 
     private static final String SERVER_URL = "http://localhost:9000";
 
-    private static CountDownLatch filterAfterCalled;
-    private static CountDownLatch filterAfterAllCalled;
-
     @BeforeClass
     public static void setup() {
-        get("/a", exchange -> exchange.send("A", "txt"));
-        get("/b", exchange -> exchange.send("B", "txt"));
-        get("/b/c", exchange -> exchange.send("B", "txt"));
-        get("/a/c", exchange -> exchange.send("AC", "txt"));
-        get("/a/c/d", exchange -> exchange.send("ACD", "txt"));
+        get("/a", FilterTest::copyHeader);
+        get("/b", FilterTest::copyHeader);
+        get("/b/c", FilterTest::copyHeader);
+        get("/a/c", FilterTest::copyHeader);
+        get("/a/c/d", FilterTest::copyHeader);
 
-        beforeAll("/b", exchange -> exchange.header("FILTER-BEFORE-ALL-B", "OK"));
-        beforeAll("/*", exchange -> exchange.header("FILTER-BEFORE-ALL", "OK"));
+        beforeAll("/b", req -> req.header("FILTER-BEFORE-ALL-B", "OK"));
+        beforeAll("/*", req -> req.header("FILTER-BEFORE-ALL", "OK"));
+        afterAll("/*", (req, res) -> res.header("FILTER-AFTER-ALL", "OK"));
 
-        afterAll("/*", exchange -> filterAfterAllCalled.countDown());
+        before("/a/*", req -> req.header("FILTER-1", "OK"));
+        before("/a/c/*", req -> req.header("FILTER-2", "OK"));
+        before("/b", req -> req.header("EXACT-FILTER", "OK"));
 
 
-        before("/a/*", exchange -> exchange.header("FILTER-1", "OK"));
-        before("/a/c/*", exchange -> exchange.header("FILTER-2", "OK"));
-        before("/b", exchange -> exchange.header("EXACT-FILTER", "OK"));
-
-        after("/b", exchange -> filterAfterCalled.countDown());
+        after("/b", (req, res) -> res.header("FILTER-AFTER", "OK"));
 
         start();
     }
@@ -75,12 +75,18 @@ public class FilterTest {
 
     @Before
     public void reset() {
-        filterAfterCalled = new CountDownLatch(1);
-        filterAfterAllCalled = new CountDownLatch(1);
+    }
+
+    private static Response copyHeader(Request req) {
+        Response response = Response.ok();
+        for (HttpString headerName : req.headers().getHeaderNames()) {
+            response.header(headerName.toString(), req.header(headerName.toString()).getFirst());
+        }
+        return response;
     }
 
     @Test //only beforeAll will be applied anyway
-    public void noFilter() throws Exception {
+    public void noFilter() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/a").asString();
         Assert.assertEquals(200, response.getStatus());
         assertNull(response.getHeaders().get("FILTER-1"));
@@ -90,7 +96,7 @@ public class FilterTest {
     }
 
     @Test
-    public void singleFilter() throws Exception {
+    public void singleFilter() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/a/c").asString();
         assertNotNull(response.getHeaders().get("FILTER-1"));
         Assert.assertEquals(1, response.getHeaders().get("FILTER-1").size());
@@ -100,7 +106,7 @@ public class FilterTest {
     }
 
     @Test
-    public void multiple() throws Exception {
+    public void multiple() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/a/c/d").asString();
         assertNotNull(response.getHeaders().get("FILTER-1"));
         Assert.assertEquals(1, response.getHeaders().get("FILTER-1").size());
@@ -112,7 +118,7 @@ public class FilterTest {
     }
 
     @Test
-    public void exact() throws Exception {
+    public void exact() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/b").asString();
         assertNotNull(response.getHeaders().get("EXACT-FILTER"));
         Assert.assertEquals(1, response.getHeaders().get("EXACT-FILTER").size());
@@ -122,7 +128,7 @@ public class FilterTest {
     }
 
     @Test
-    public void exact_no_match() throws Exception {
+    public void exact_no_match() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/b/c").asString();
         assertNull(response.getHeaders().get("EXACT-FILTER"));
         assertNull(response.getHeaders().get("FILTER-1"));
@@ -136,33 +142,33 @@ public class FilterTest {
         Assert.assertEquals(1, response.getHeaders().get("EXACT-FILTER").size());
         assertNull(response.getHeaders().get("FILTER-1"));
         assertNull(response.getHeaders().get("FILTER-2"));
-
-        if (!filterAfterCalled.await(10, TimeUnit.SECONDS)) {
-            fail("Filter after wasn't called");
-        }
-
+        assertNull(response.getHeaders().get("FILTER-2"));
     }
 
     @Test
-    public void filter_exact_AllBefore() throws Exception {
+    public void filter_exact_AllBefore() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/b").asString();
         assertNotNull(response.getHeaders().get("FILTER-BEFORE-ALL-B"));
-        if (!filterAfterAllCalled.await(10, TimeUnit.SECONDS)) {
-            fail("Filter after all wasn't called");
-        }
     }
 
     @Test
-    public void filter_wildcard_AllBefore() throws Exception {
+    public void filter_wildcard_AllBefore() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/a").asString();
         assertNotNull(response.getHeaders().get("FILTER-BEFORE-ALL"));
     }
 
     @Test
-    public void filter_wildcard_AllBefore_nonexistentPath() throws Exception {
+    public void filter_wildcard_AllBefore_nonexistentPath() {
         HttpResponse<String> response = Unirest.get(SERVER_URL + "/nonexistentPath").asString();
         Assert.assertEquals(404, response.getStatus());
-        assertNotNull(response.getHeaders().get("FILTER-BEFORE-ALL"));
+        assertNull(response.getHeaders().get("FILTER-BEFORE-ALL"));
+    }
+
+    @Test
+    public void filter_wildcard_afterAll_nonexistentPath() {
+        HttpResponse<String> response = Unirest.get(SERVER_URL + "/nonexistentPath").asString();
+        Assert.assertEquals(404, response.getStatus());
+        assertNotNull(response.getHeaders().get("FILTER-AFTER-ALL"));
     }
 
 
