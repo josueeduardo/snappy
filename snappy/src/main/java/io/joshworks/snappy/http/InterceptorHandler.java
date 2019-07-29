@@ -47,16 +47,12 @@ public class InterceptorHandler extends ChainHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) throws Exception {
         String url = exchange.getRequestPath();
+
         boolean proceed = interceptRequest(exchange, url);
-        if (!proceed) {
-            return;
+        if (proceed) {
+            next.handleRequest(exchange);
         }
-
-        exchange.addExchangeCompleteListener((completeExchange, nextListener) -> {
-            interceptResponse(exchange, url);
-        });
-
-
+        interceptResponse(exchange, url);
     }
 
     private boolean interceptRequest(HttpServerExchange exchange, String url) {
@@ -68,7 +64,6 @@ public class InterceptorHandler extends ChainHandler {
             try {
                 interceptor.intercept(context);
                 if (context.response != null) { //aborted
-                    exchange.putAttachment(HttpDispatcher.RESPONSE, context.response);
                     context.response.handle(exchange);
                     return false;
                 }
@@ -76,7 +71,7 @@ public class InterceptorHandler extends ChainHandler {
                 String message = "Error handling interceptor, request will not proceed";
                 logger.error(HandlerUtil.exceptionMessageTemplate(exchange, message), ex);
                 Response response = exceptionMapper.apply(ex, context);
-                exchange.putAttachment(HttpDispatcher.RESPONSE, response);
+                response.handle(exchange);
                 return false;
             }
         }
@@ -94,10 +89,8 @@ public class InterceptorHandler extends ChainHandler {
                 //no response, it means HttpDispatcher hasn't been called,
                 //A response is required and there's none, create one and end the request
                 if (response == null) {
-                    response = Response.withStatus(exchange.getStatusCode());
-                    interceptor.intercept(requestContext, response);
-                    response = requestContext.response == null ? response : requestContext.response;
-                    response.handle(exchange);
+                    System.err.println("TODO ######### ATTACHAMENTS ARE NOT AVAILABLE REQUEST HAS ALREADY BEEN COMPLETED ##############################");
+
                 } else {
                     interceptor.intercept(requestContext, response);
                     response = requestContext.response == null ? response : requestContext.response;

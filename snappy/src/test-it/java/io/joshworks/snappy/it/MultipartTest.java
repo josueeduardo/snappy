@@ -20,6 +20,7 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Response;
 import io.joshworks.snappy.http.body.Part;
 import org.junit.AfterClass;
@@ -36,7 +37,12 @@ import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.enableTracer;
+import static io.joshworks.snappy.SnappyServer.group;
+import static io.joshworks.snappy.SnappyServer.post;
+import static io.joshworks.snappy.SnappyServer.start;
+import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.parser.MediaTypes.consumes;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -69,7 +75,7 @@ public class MultipartTest {
             String parameterValue = parameter.value();
 
             return Response.ok().type("txt").body(parameterValue);
-        });
+        }, consumes(MediaType.MULTIPART_FORM_DATA));
 
         post("/partMime", req -> {
             Map<String, Object> mime = new HashMap<>();
@@ -77,10 +83,10 @@ public class MultipartTest {
                 mime.put(part.name(), part.type().toString());
             }
             return Response.withBody(mime);
-        });
+        }, consumes(MediaType.MULTIPART_FORM_DATA));
 
         group("/a", () -> {
-            post("/b", req -> Response.ok());
+            post("/b", req -> Response.created(), consumes(MediaType.MULTIPART_FORM_DATA));
         });
 
         start();

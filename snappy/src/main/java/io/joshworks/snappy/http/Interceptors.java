@@ -31,7 +31,6 @@ public class Interceptors {
     private final List<ResponseInterceptor> responseInterceptors = new LinkedList<>();
 
     private final List<RequestInterceptor> rootRequestInterceptors = new LinkedList<>();
-    private final List<ResponseInterceptor> rootResponseInterceptors = new LinkedList<>();
 
     public void add(RequestInterceptor interceptor) {
         requestInterceptors.add(interceptor);
@@ -45,11 +44,6 @@ public class Interceptors {
         rootRequestInterceptors.add(interceptor);
     }
 
-    public void addRoot(ResponseInterceptor interceptor) {
-        rootResponseInterceptors.add(interceptor);
-    }
-
-
     public List<RequestInterceptor> requestInterceptors() {
         return requestInterceptors;
     }
@@ -60,10 +54,6 @@ public class Interceptors {
 
     public List<RequestInterceptor> rootRequestInterceptors() {
         return rootRequestInterceptors;
-    }
-
-    public List<ResponseInterceptor> rootResponseInterceptors() {
-        return rootResponseInterceptors;
     }
 
     public static RequestInterceptor cors() {

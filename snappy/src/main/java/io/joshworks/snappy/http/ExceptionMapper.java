@@ -18,8 +18,10 @@
 package io.joshworks.snappy.http;
 
 import io.joshworks.snappy.handler.UnsupportedMediaType;
+import io.joshworks.snappy.http.body.BodyReadException;
 import io.undertow.util.StatusCodes;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,17 +33,17 @@ public class ExceptionMapper {
     private final Map<Class<? extends Exception>, ErrorHandler> mappers = new HashMap<>();
 
 
-    private static final ErrorHandler<Exception> fallbackInternalError = (e, restExchange) ->
+    private static final ErrorHandler<Exception> fallbackInternalError = (e, req) ->
             Response.internalServerError()
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .body(ExceptionResponse.of(e));
 
-    private static final ErrorHandler<HttpException> httpException = (e, restExchange) ->
+    private static final ErrorHandler<HttpException> httpException = (e, req) ->
             Response.withStatus(e.status)
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .body(ExceptionResponse.of(e));
 
-    private static final ErrorHandler<Exception> fallbackConneg = (e, restExchange) ->
+    private static final ErrorHandler<Exception> fallbackConneg = (e, req) ->
             Response.withStatus(StatusCodes.UNSUPPORTED_MEDIA_TYPE)
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .body(ExceptionResponse.of(e));
@@ -50,6 +52,46 @@ public class ExceptionMapper {
         mappers.put(HttpException.class, httpException);
         mappers.put(UnsupportedMediaType.class, fallbackConneg);
         mappers.put(Exception.class, fallbackInternalError);
+        mappers.put(IOException.class, ioExceptionHandler());
+        mappers.put(BodyReadException.class, bodyReadException());
+    }
+
+    private static ErrorHandler<IOException> ioExceptionHandler() {
+        return (ioex, req) -> {
+            try {
+                //request too large
+                //from UndertowMessages.MESSAGES
+                if (ioex.getMessage().startsWith("UT000020")) {
+                    return Response.withStatus(StatusCodes.REQUEST_ENTITY_TOO_LARGE)
+                            .type(MediaType.APPLICATION_JSON_TYPE)
+                            .body(ExceptionResponse.of(ioex));
+                }
+            } catch (Exception e) {
+                return fallbackInternalError.apply(ioex, req);
+            }
+            return fallbackInternalError.apply(ioex, req);
+        };
+    }
+
+    private static ErrorHandler<BodyReadException> bodyReadException() {
+        return (brex, req) -> {
+            try {
+                if (brex.getCause() == null) {
+                    return fallbackInternalError.apply(brex, req);
+                }
+
+                //request too large
+                //from UndertowMessages.MESSAGES
+                if (brex.getCause().getMessage().startsWith("UT000020")) {
+                    return Response.withStatus(StatusCodes.REQUEST_ENTITY_TOO_LARGE)
+                            .type(MediaType.APPLICATION_JSON_TYPE)
+                            .body(ExceptionResponse.of((Exception) brex.getCause()));
+                }
+            } catch (Exception e) {
+                return Response.internalServerError();
+            }
+            return Response.internalServerError();
+        };
     }
 
     public <T extends Exception> ErrorHandler<T> getOrFallback(T ex) {

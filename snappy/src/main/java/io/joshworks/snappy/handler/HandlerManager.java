@@ -36,6 +36,7 @@ import io.undertow.util.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -111,10 +112,11 @@ public class HandlerManager {
     }
 
     private static HttpHandler wrapRootInterceptorHandler(HttpHandler original, Interceptors interceptors) {
-        if (interceptors.rootRequestInterceptors().isEmpty() && interceptors.rootResponseInterceptors().isEmpty()) {
+        if (interceptors.rootRequestInterceptors().isEmpty()) {
             return original;
         }
-        return new InterceptorHandler(original, interceptors.rootRequestInterceptors(), interceptors.rootResponseInterceptors());
+        //No point in having response root interceptor since the response will be already completed
+        return new InterceptorHandler(original, interceptors.rootRequestInterceptors(), new ArrayList<>());
     }
 
     private static HttpHandler wrapCompressionHandler(HttpHandler original, MappedEndpoint endpoint) {

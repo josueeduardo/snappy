@@ -106,6 +106,7 @@ public class SnappyServer {
     private static final Object LOCK = new Object();
     private static SnappyServer INSTANCE;
     private long maxEntitySize = DEFAULT_MAX_ENTITY_SIZE;
+    private long maxMultipartSize;
 
 
     private SnappyServer() {
@@ -163,6 +164,11 @@ public class SnappyServer {
     public static synchronized void maxEntitySize(long maxEntitySize) {
         checkStarted();
         instance().maxEntitySize = maxEntitySize;
+    }
+
+    public static synchronized void maxMultipartSize(long maxMultipartSize) {
+        checkStarted();
+        instance().maxMultipartSize = maxMultipartSize;
     }
 
     public static synchronized void adminPort(int adminPort) {
@@ -269,17 +275,6 @@ public class SnappyServer {
     public static synchronized void beforeAll(String url, Consumer<RequestContext> consumer) {
         checkStarted();
         instance().interceptors.addRoot(new RequestInterceptor(HandlerUtil.parseUrl(url), consumer));
-    }
-
-    /**
-     * Adds an interceptor that executed after all other handlers are executed, changes to {@link Request} has no effect.
-     *
-     * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
-     * @param consumer The code to be executed when a URL matches the provided pattern
-     */
-    public static synchronized void afterAll(String url, BiConsumer<RequestContext, Response> consumer) {
-        checkStarted();
-        instance().interceptors.addRoot(new ResponseInterceptor(HandlerUtil.parseUrl(url), consumer));
     }
 
     /**
@@ -482,7 +477,7 @@ public class SnappyServer {
 
     private static synchronized void addResource(HttpString method, String url, Handler endpoint, MediaTypes... mediaTypes) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.rest(method, url, endpoint, instance().exceptionMapper, mediaTypes));
+        instance().endpoints.add(HandlerUtil.rest(method, url, instance().maxMultipartSize, endpoint, instance().exceptionMapper, mediaTypes));
     }
 
     /**

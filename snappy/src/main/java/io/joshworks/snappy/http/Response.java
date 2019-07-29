@@ -104,9 +104,15 @@ public class Response {
         return response;
     }
 
+    public static Response created() {
+        Response response = new Response();
+        response.status = StatusCodes.CREATED;
+        return response;
+    }
+
     public static Response internalServerError() {
         Response response = new Response();
-        response.status = StatusCodes.OK;
+        response.status = StatusCodes.INTERNAL_SERVER_ERROR;
         return response;
     }
 
@@ -272,7 +278,7 @@ public class Response {
 
         @Override
         void handle(HttpServerExchange exchange, Response response) {
-            if (response == null) {
+            if (response == null || body == null) {
                 return;
             }
             try {

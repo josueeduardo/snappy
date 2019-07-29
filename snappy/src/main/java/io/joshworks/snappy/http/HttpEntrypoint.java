@@ -56,7 +56,7 @@ public class HttpEntrypoint implements HttpHandler {
                 }
 
                 logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Application error"), e);
-                Response response = exceptionMapper.getOrFallback(e).apply(e, request);
+                Response response = exceptionMapper.apply(e, request);
                 exchange.putAttachment(HttpDispatcher.RESPONSE, response);
             } else {
                 logger.error(e.getMessage(), e);

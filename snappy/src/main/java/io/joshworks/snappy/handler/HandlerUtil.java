@@ -68,6 +68,7 @@ public class HandlerUtil {
 
     public static MappedEndpoint rest(HttpString method,
                                       String url,
+                                      long maxMultipartSize,
                                       Handler endpoint,
                                       ExceptionMapper exceptionMapper,
                                       MediaTypes... mimeTypes) {
@@ -78,7 +79,7 @@ public class HandlerUtil {
         url = resolveUrl(url);
 
         HttpHandler handler = new HttpEntrypoint(endpoint, exceptionMapper);
-        HttpHandler predicateHandler = Handlers.predicate(HandlerUtil::formData, multipartHandler(endpoint, exceptionMapper, 1L), handler);
+        HttpHandler predicateHandler = Handlers.predicate(HandlerUtil::formData, multipartHandler(endpoint, exceptionMapper, maxMultipartSize), handler);
 
         return new MappedEndpoint(method.toString(), url, MappedEndpoint.Type.REST, predicateHandler, mimeTypes);
     }
@@ -230,7 +231,19 @@ public class HandlerUtil {
 
     private static boolean formData(HttpServerExchange exchange) {
         HeaderValues contentType = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
-        return contentType != null && contentType.stream().anyMatch(v -> v.equalsIgnoreCase(MediaType.MULTIPART_FORM_DATA) || v.equalsIgnoreCase(MediaType.APPLICATION_FORM_URLENCODED));
+        if (contentType == null) {
+            return false;
+        }
+        for (String reqType : contentType) {
+            MediaType type = MediaType.valueOf(reqType);
+            if (MediaType.MULTIPART_FORM_DATA_TYPE.isCompatible(type)) {
+                return true;
+            }
+            if (MediaType.APPLICATION_FORM_URLENCODED_TYPE.isCompatible(type)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

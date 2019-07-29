@@ -3,6 +3,7 @@ package io.joshworks.snappy.it;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.JsonNode;
 import io.joshworks.restclient.http.Unirest;
+import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Request;
 import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
@@ -11,9 +12,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import static io.joshworks.snappy.SnappyServer.maxEntitySize;
+import static io.joshworks.snappy.SnappyServer.maxMultipartSize;
 import static io.joshworks.snappy.SnappyServer.post;
 import static io.joshworks.snappy.SnappyServer.start;
 import static io.joshworks.snappy.SnappyServer.stop;
+import static io.joshworks.snappy.parser.MediaTypes.consumes;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -33,11 +36,14 @@ public class EntitySizeTest {
     public static void setup() {
 
         maxEntitySize(MAX_ENTITY_SIZE);
-        post("/form", EntitySizeTest::printAndReturn);
-        post("/multipart", EntitySizeTest::printAndReturn);
-        //FIXME add limit
-//        post("/withLimit", EntitySizeTest::printAndReturn, MAX_ENTITY_SIZE - 1);
-        post("/plain", EntitySizeTest::printAndReturn);
+        maxMultipartSize(MULTIPART_MAX_ENTITY_SIZE);
+        post("/form", EntitySizeTest::printAndReturn, consumes(MediaType.APPLICATION_FORM_URLENCODED));
+        post("/multipart", EntitySizeTest::printAndReturn, consumes(MediaType.MULTIPART_FORM_DATA));
+
+        post("/plain", req -> {
+            System.out.println(req.body().asString());
+            return Response.ok();
+        });
 
         start();
     }
@@ -60,7 +66,7 @@ public class EntitySizeTest {
                 .field("message", MESSAGE)
                 .asJson();
 
-        Assert.assertEquals(500, response.getStatus());
+        Assert.assertEquals(413, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }
@@ -72,7 +78,9 @@ public class EntitySizeTest {
                 .field("message", MESSAGE.substring(0, MESSAGE.length() - 5))
                 .asJson();
 
-        Assert.assertEquals(500, response.getStatus());
+        System.out.println(response.asString());
+
+        Assert.assertEquals(413, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }
@@ -84,7 +92,7 @@ public class EntitySizeTest {
                 .body(MESSAGE)
                 .asJson();
 
-        Assert.assertEquals(500, response.getStatus());
+        Assert.assertEquals(413, response.getStatus());
         assertNotNull(response.body());
         assertTrue(response.body().getObject().getLong("id") > 0); //just to cause a call to getLong
     }

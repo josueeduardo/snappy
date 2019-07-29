@@ -43,7 +43,6 @@ import static org.junit.Assert.assertNotNull;
  */
 public class RestErrorHandlerTest {
 
-
     private static final String EXCEPTION_MESSAGE = "SOME ERROR OCCURRED";
 
     @BeforeClass

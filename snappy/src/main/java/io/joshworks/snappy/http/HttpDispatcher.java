@@ -51,10 +51,9 @@ public class HttpDispatcher extends ChainHandler {
     @Override
     public void handleRequest(HttpServerExchange exchange) {
         RequestContext requestContext = new RequestContext(exchange);
+        exchange.putAttachment(REQUEST, requestContext);
         try {
-            exchange.putAttachment(REQUEST, requestContext);
             this.next.handleRequest(exchange);
-
             Response response = exchange.getAttachment(RESPONSE);
             if (response != null) { //TODO ASYNC ?
                 response.handle(exchange);
@@ -63,21 +62,22 @@ public class HttpDispatcher extends ChainHandler {
         } catch (UnsupportedMediaType connex) {
 
             logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Unsupported media type " + connex.headerValues + " supported types: " + connex.types));
-
-            sendErrorResponse(exchange, requestContext, connex);
+            sendErrorResponse(exchange, connex);
             exchange.endExchange();
 
         } catch (Exception e) { //Should not happen (server error)
             logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Server error"), e);
-            sendErrorResponse(exchange, requestContext, e);
-            exchange.endExchange();
-
+            sendErrorResponse(exchange, e);
         }
     }
 
-    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, RequestContext requestContext, T ex) {
-        Response response = exceptionMapper.apply(ex, requestContext);
-        response.handle(exchange);
+    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, T ex) {
+        try {
+            Response response = exceptionMapper.apply(ex, new Request(exchange));
+            response.handle(exchange);
+        } catch (Exception handlingError) {
+            logger.error("Exception was thrown when executing handler, body will be null", handlingError);
+        }
     }
 
 }

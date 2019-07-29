@@ -64,7 +64,7 @@ public class Body {
             byte[] bytes = ParserUtil.getBytes(this.is);
             return new ByteArrayInputStream(bytes);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new BodyReadException(e);
         }
     }
 
@@ -73,8 +73,8 @@ public class Body {
         try {
             rawBody = ParserUtil.getBytes(is);
             return new String(rawBody);
-        } catch (IOException e2) {
-            throw new RuntimeException(e2);
+        } catch (IOException e) {
+            throw new BodyReadException(e);
         }
     }
 
@@ -84,7 +84,7 @@ public class Body {
             String jsonString = new String(bytes, getCharset()).trim();
             return new JsonNode(jsonString);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new BodyReadException(e);
         }
     }
 
@@ -127,9 +127,13 @@ public class Body {
     }
 
     private String readData() {
-        //ref: http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
-        Scanner s = new Scanner(is, getCharset()).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
+        try {
+            //ref: http://web.archive.org/web/20140531042945/https://weblogs.java.net/blog/pat/archive/2004/10/stupid_scanner_1.html
+            Scanner s = new Scanner(is, getCharset()).useDelimiter("\\A");
+            return s.hasNext() ? s.next() : "";
+        } catch (Exception e) {
+            throw new BodyReadException(e);
+        }
     }
 
     private String getCharset() {
