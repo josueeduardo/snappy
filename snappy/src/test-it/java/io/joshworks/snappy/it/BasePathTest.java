@@ -19,6 +19,7 @@ package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.Response;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -32,6 +33,12 @@ import static io.joshworks.snappy.SnappyServer.stop;
  * Created by josh on 3/11/17.
  */
 public class BasePathTest {
+
+    @AfterClass
+    public static void shutdown() {
+        stop();
+        Unirest.close();
+    }
 
 
     @Test

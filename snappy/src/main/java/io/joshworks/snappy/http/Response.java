@@ -175,6 +175,11 @@ public class Response {
         return this;
     }
 
+    public Response body(String response) {
+        this.body = new DataBody(response);
+        return this;
+    }
+
     public Response body(Object response, String mediaType) {
         return body(response, MediaType.valueOf(mediaType));
     }
@@ -267,6 +272,24 @@ public class Response {
             //do nothing
         }
     }
+
+    private static class StringBody extends ResponseBody {
+
+        private final String data;
+
+        public StringBody(String data) {
+            this.data = data;
+        }
+
+        @Override
+        void handle(HttpServerExchange exchange, Response response) {
+            if (data == null) {
+                return;
+            }
+            exchange.getResponseSender().send(data);
+        }
+    }
+
 
     private static class DataBody extends ResponseBody {
 

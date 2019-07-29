@@ -17,7 +17,9 @@
 
 package io.joshworks.snappy.it;
 
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.it.util.DummyExtension;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import static io.joshworks.snappy.SnappyServer.*;
@@ -29,6 +31,11 @@ import static org.junit.Assert.assertTrue;
  */
 public class ExtensionTest {
 
+    @AfterClass
+    public static void shutdown() {
+        stop();
+        Unirest.close();
+    }
 
     @Test
     public void onStart() throws Exception {

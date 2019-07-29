@@ -101,8 +101,8 @@ public class HandlerManager {
         HttpHandler handler = resolveHandlers(routingRestHandler, websocketHandler, staticHandler, mappedEndpoints);
 
         handler = wrapRootInterceptorHandler(handler, interceptors);
-        handler = wrapRequestDump(handler, httpTracer);
         handler = wrapServerName(handler);
+        handler = wrapRequestDump(handler, httpTracer);
 
         return Handlers.gracefulShutdown(handler);
     }

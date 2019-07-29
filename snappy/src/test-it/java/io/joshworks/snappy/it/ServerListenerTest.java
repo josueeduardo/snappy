@@ -1,5 +1,7 @@
 package io.joshworks.snappy.it;
 
+import io.joshworks.restclient.http.Unirest;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -12,6 +14,12 @@ import static org.junit.Assert.fail;
  * Created by Josh Gontijo on 7/7/17.
  */
 public class ServerListenerTest {
+
+    @AfterClass
+    public static void shutdown() {
+        stop();
+        Unirest.close();
+    }
 
     @Test
     public void onStartListener() throws Exception {

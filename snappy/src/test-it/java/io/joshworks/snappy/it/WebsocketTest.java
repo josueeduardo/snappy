@@ -1,5 +1,6 @@
 package io.joshworks.snappy.it;
 
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.joshworks.stream.client.StreamClient;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -54,6 +55,8 @@ public class WebsocketTest {
     @AfterClass
     public static void shutdown() {
         stop();
+        Unirest.close();
+        StreamClient.shutdown();
     }
 
     @Test

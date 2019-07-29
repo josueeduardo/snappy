@@ -25,8 +25,9 @@ import io.joshworks.snappy.http.HttpException;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Response;
 import io.undertow.util.Headers;
+import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -45,12 +46,14 @@ public class RestErrorHandlerTest {
 
     private static final String EXCEPTION_MESSAGE = "SOME ERROR OCCURRED";
 
+    RestClient client;
+
     @BeforeClass
     public static void setup() {
 
         enableTracer();
 
-        exception(CustomExceptionType.class, (e, req) -> Response.withStatus(405).body(ExceptionResponse.of(e)));
+            exception(CustomExceptionType.class, (e, req) -> Response.withStatus(405).body(ExceptionResponse.of(e)));
 
         get("/error1", req -> Response.ok());
         get("/original", req -> {
@@ -80,12 +83,13 @@ public class RestErrorHandlerTest {
     @Test
     public void unsupportedContentType() {
         HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/error1")
-                .header("Content-Type", "application/xml").asObject(ExceptionResponse.class);
+                .header("Content-Type", "application/xml")
+                .asObject(ExceptionResponse.class);
 
-        Assert.assertEquals(415, response.getStatus());
+        assertEquals(415, response.getStatus());
         //default response type
-        Assert.assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
-        Assert.assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
+        assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
         ExceptionResponse body = response.body();
         assertNotNull(body);
@@ -95,12 +99,13 @@ public class RestErrorHandlerTest {
     @Test
     public void unsupportedAcceptedType() {
         HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/error1")
-                .header("Accept", "application/xml").asObject(ExceptionResponse.class);
+                .header("Accept", "application/xml")
+                .asObject(ExceptionResponse.class);
 
-        Assert.assertEquals(415, response.getStatus());
+        assertEquals(415, response.getStatus());
         //default response type
-        Assert.assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
-        Assert.assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
+        assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
+        assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
         ExceptionResponse body = response.body();
         assertNotNull(body);
@@ -109,23 +114,28 @@ public class RestErrorHandlerTest {
 
     @Test
     public void exceptionThrown() {
-        HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/original").asObject(ExceptionResponse.class);
+        try {
+            HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/original").asObject(ExceptionResponse.class);
 
-        Assert.assertEquals(500, response.getStatus());
-        //default response type
-        Assert.assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
-        Assert.assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
+            assertEquals(500, response.getStatus());
+            //default response type
+            assertEquals(1, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).size());
+            assertEquals(MediaType.APPLICATION_JSON, response.getHeaders().get(Headers.CONTENT_TYPE.toString()).get(0));
 
-        ExceptionResponse body = response.body();
-        assertNotNull(body);
-        assertEquals(EXCEPTION_MESSAGE, body.getMessage());
+            ExceptionResponse body = response.body();
+            assertNotNull(body);
+            assertEquals(EXCEPTION_MESSAGE, body.getMessage());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void fromRestExceptionUtility() {
         HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/restException").asObject(ExceptionResponse.class);
 
-        Assert.assertEquals(400, response.getStatus());
+        assertEquals(400, response.getStatus());
 
         ExceptionResponse body = response.body();
         assertNotNull(body);
@@ -136,7 +146,7 @@ public class RestErrorHandlerTest {
     public void customExceptionType() {
         HttpResponse<ExceptionResponse> response = Unirest.get("http://localhost:9000/customType").asObject(ExceptionResponse.class);
 
-        Assert.assertEquals(405, response.getStatus());
+        assertEquals(405, response.getStatus());
         ExceptionResponse body = response.body();
         assertNotNull(body);
         assertEquals(new CustomExceptionType().getMessage(), body.getMessage());
@@ -145,14 +155,14 @@ public class RestErrorHandlerTest {
     //FIXME - intermittent 500
     @Test
     public void customHttpException() {
-        try(RestClient client = RestClient.builder().build()) {
+        try (RestClient client = RestClient.builder().build()) {
 
-        HttpResponse<ExceptionResponse> response = client.get("http://localhost:9000/customHttpException").asObject(ExceptionResponse.class);
+            HttpResponse<ExceptionResponse> response = client.get("http://localhost:9000/customHttpException").asObject(ExceptionResponse.class);
 
-        Assert.assertEquals(501, response.getStatus());
-        ExceptionResponse body = response.body();
-        assertNotNull(body);
-        assertEquals("CUSTOM-HTTP-EXCEPTION-MESSAGE", body.getMessage());
+            assertEquals(501, response.getStatus());
+            ExceptionResponse body = response.body();
+            assertNotNull(body);
+            assertEquals("CUSTOM-HTTP-EXCEPTION-MESSAGE", body.getMessage());
         }
     }
 
