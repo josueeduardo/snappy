@@ -727,6 +727,7 @@ public class SnappyServer {
                 new ServerData(port,
                         bindAddress,
                         httpTracer,
+                        maxMultipartSize,
                         interceptors,
                         exceptionMapper,
                         basePath,

@@ -1,6 +1,8 @@
 package io.joshworks.snappy.extensions.dashboard.resource;
 
-import io.joshworks.snappy.http.HttpExchange;
+
+import io.joshworks.snappy.http.Request;
+import io.joshworks.snappy.http.Response;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,35 +20,31 @@ public class ResourcesMetricResource {
         this.resourceMetricHolder = registeredMetricHandlers;
     }
 
-    public void getMetrics(HttpExchange exchange) {
-        exchange.send(resourceMetricHolder.getMetrics());
+    public Response getMetrics(Request exchange) {
+        return Response.withBody(resourceMetricHolder.getMetrics());
     }
 
-    public void getMetric(HttpExchange exchange) {
+    public Response getMetric(Request exchange) {
         String id = exchange.pathParameter("id");
         List<RestMetric> foundById = resourceMetricHolder.getMetrics().stream()
                 .filter(rm -> id.equals(rm.id))
                 .collect(Collectors.toList());
 
-        if (foundById.isEmpty()) {
-            exchange.status(404);
-        } else {
-            exchange.send(foundById.get(0));
-        }
+        return foundById.isEmpty() ? Response.notFound() : Response.withBody(foundById.get(0));
     }
 
-    public void updateMetric(HttpExchange exchange) {
+    public Response updateMetric(Request exchange) {
         Object enabled = exchange.body().asMap().get("enabled");
-        if(enabled != null) {
+        if (enabled != null) {
             boolean metricsEnabled = Boolean.parseBoolean(String.valueOf(enabled));
             resourceMetricHolder.setMetricsEnabled(metricsEnabled);
         }
-        exchange.status(204);
+        return Response.noContent();
     }
 
-    public void metricStatus(HttpExchange exchange) {
+    public Response metricStatus(Request exchange) {
         Map<String, Object> response = new HashMap<>();
         response.put("enabled", resourceMetricHolder.isMetricsEnabled());
-        exchange.send(response);
+        return Response.withBody(response);
     }
 }

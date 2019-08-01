@@ -17,7 +17,6 @@
 
 package io.joshworks.snappy.extensions.ssr.server;
 
-import io.joshworks.snappy.executor.AppExecutors;
 import io.joshworks.snappy.ext.ServerData;
 import io.joshworks.snappy.ext.SnappyExtension;
 import io.joshworks.snappy.extensions.ssr.server.service.InstancesResource;
@@ -31,6 +30,8 @@ import io.undertow.util.Methods;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static io.joshworks.snappy.parser.MediaTypes.consumes;
 import static io.joshworks.snappy.parser.MediaTypes.produces;
@@ -47,6 +48,7 @@ public class SSRServerExtension implements SnappyExtension {
 
     private final ServiceControl serviceControl = new ServiceControl();
 
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     //TODO move to common
     public static final String INSTANCES_URL = "/instances";
@@ -61,13 +63,14 @@ public class SSRServerExtension implements SnappyExtension {
 
         config.mappedEndpoints.add(serviceMonitor(config));
 
-        hearbeat = new Hearbeat(AppExecutors.scheduler(), ackPeriod);
+        hearbeat = new Hearbeat(scheduler, ackPeriod);
         hearbeat.start();
 
     }
 
     @Override
     public void onShutdown() {
+        scheduler.shutdown();
         hearbeat.stop();
     }
 
@@ -86,6 +89,7 @@ public class SSRServerExtension implements SnappyExtension {
 
         MappedEndpoint updateInstance = HandlerUtil.rest(Methods.PUT,
                 INSTANCES_URL + "/{instanceId}",
+                config.maxMultipartSize,
                 instanceResource::updateServiceState,
                 config.exceptionMapper,
                 consumes("json"),
@@ -94,6 +98,7 @@ public class SSRServerExtension implements SnappyExtension {
 
         MappedEndpoint register = HandlerUtil.rest(Methods.POST,
                 INSTANCES_URL,
+                config.maxMultipartSize,
                 instanceResource::register,
                 config.exceptionMapper,
                 consumes("json"),
@@ -107,18 +112,29 @@ public class SSRServerExtension implements SnappyExtension {
         final ServiceResource serviceResource = new ServiceResource(serviceControl);
 
 
-        MappedEndpoint getServices = HandlerUtil.rest(Methods.GET, SERVICES_URL, serviceResource::getServices,
+        MappedEndpoint getServices = HandlerUtil.rest(
+                Methods.GET, SERVICES_URL,
+                config.maxMultipartSize,
+                serviceResource::getServices,
                 config.exceptionMapper,
                 consumes("json"),
                 produces("json"));
 
 
-        MappedEndpoint getService = HandlerUtil.rest(Methods.GET, SERVICES_NAME_URL, serviceResource::getService,
+        MappedEndpoint getService = HandlerUtil.rest(
+                Methods.GET,
+                SERVICES_NAME_URL,
+                config.maxMultipartSize,
+                serviceResource::getService,
                 config.exceptionMapper,
                 consumes("json"),
                 produces("json"));
 
-        MappedEndpoint addLink = HandlerUtil.rest(Methods.PUT, SERVICES_NAME_URL, serviceResource::addLink,
+        MappedEndpoint addLink = HandlerUtil.rest(
+                Methods.PUT,
+                SERVICES_NAME_URL,
+                config.maxMultipartSize,
+                serviceResource::addLink,
                 config.exceptionMapper,
                 consumes("json"),
                 produces("json"));

@@ -17,11 +17,9 @@
 
 package io.joshworks.snappy.extensions.dashboard.stats;
 
-import io.joshworks.snappy.executor.AppExecutors;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Josue on 08/02/2017.
@@ -36,14 +34,14 @@ public class ServerStats {
     public ServerStats() {
 
         memory = new Memory();
-
-        threadPools.addAll(AppExecutors.executors().entrySet().stream()
-                .map(entry -> new PoolStats(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList()));
-
-        threadPools.addAll(AppExecutors.schedulers().entrySet().stream()
-                .map(entry -> new PoolStats(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList()));
+//
+//        threadPools.addAll(AppExecutors.executors().entrySet().stream()
+//                .map(entry -> new PoolStats(entry.getKey(), entry.getValue()))
+//                .collect(Collectors.toList()));
+//
+//        threadPools.addAll(AppExecutors.schedulers().entrySet().stream()
+//                .map(entry -> new PoolStats(entry.getKey(), entry.getValue()))
+//                .collect(Collectors.toList()));
 //
 //        resources = metricsHandlers.stream().map(RestMetricsHandler::getRestMetrics).collect(Collectors.toList());
 //        appMetrics.putAll(Metrics.getData());

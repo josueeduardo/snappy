@@ -29,6 +29,7 @@ import io.joshworks.snappy.handler.HandlerUtil;
 import io.joshworks.snappy.handler.MappedEndpoint;
 import io.joshworks.snappy.http.ExceptionMapper;
 import io.joshworks.snappy.http.MediaType;
+import io.joshworks.snappy.http.Response;
 import io.joshworks.snappy.property.AppProperties;
 import io.undertow.util.Methods;
 import org.slf4j.Logger;
@@ -121,12 +122,14 @@ public class AdminExtension implements SnappyExtension {
         MappedEndpoint getMetrics = HandlerUtil.rest(
                 Methods.GET,
                 RESOURCES_METRIC_ENDPOINT,
+                config.maxMultipartSize,
                 endpoint::getMetrics,
                 new ExceptionMapper());
 
         MappedEndpoint getMetric = HandlerUtil.rest(
                 Methods.GET,
                 RESOURCE_METRIC_ENDPOINT,
+                config.maxMultipartSize,
                 endpoint::getMetric,
                 new ExceptionMapper());
 
@@ -134,6 +137,7 @@ public class AdminExtension implements SnappyExtension {
         MappedEndpoint updateMetric = HandlerUtil.rest(
                 Methods.PUT,
                 RESOURCES_METRIC_STATUS_ENDPOINT,
+                config.maxMultipartSize,
                 endpoint::updateMetric,
                 new ExceptionMapper());
 
@@ -141,6 +145,7 @@ public class AdminExtension implements SnappyExtension {
         MappedEndpoint metricStatus = HandlerUtil.rest(
                 Methods.GET,
                 RESOURCES_METRIC_STATUS_ENDPOINT,
+                config.maxMultipartSize,
                 endpoint::metricStatus,
                 new ExceptionMapper());
 
@@ -181,8 +186,8 @@ public class AdminExtension implements SnappyExtension {
 
     private void registerStatsEndpoint(ServerData config) {
 
-        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, STATS_ENDPOINT, exchange -> {
-            exchange.send(new ServerStats(), MediaType.APPLICATION_JSON_TYPE);
+        MappedEndpoint getMetrics = HandlerUtil.rest(Methods.GET, STATS_ENDPOINT, config.maxMultipartSize, exchange -> {
+            return Response.withBody(new ServerStats()).type(MediaType.APPLICATION_JSON_TYPE);
         }, new ExceptionMapper());
 
 
@@ -196,6 +201,7 @@ public class AdminExtension implements SnappyExtension {
         MappedEndpoint getMetrics = HandlerUtil.rest(
                 Methods.GET,
                 METRICS_ENDPOINT,
+                config.maxMultipartSize,
                 appMetricsResource::getMetrics,
                 new ExceptionMapper());
 
@@ -203,6 +209,7 @@ public class AdminExtension implements SnappyExtension {
         MappedEndpoint getMetric = HandlerUtil.rest(
                 Methods.GET,
                 METRIC_ENDPOINT,
+                config.maxMultipartSize,
                 appMetricsResource::getMetric,
                 new ExceptionMapper());
 
@@ -210,6 +217,7 @@ public class AdminExtension implements SnappyExtension {
         MappedEndpoint updateMetrics = HandlerUtil.rest(
                 Methods.PUT,
                 METRICS_STATUS_ENDPOINT,
+                config.maxMultipartSize,
                 appMetricsResource::updateMetricState,
                 new ExceptionMapper());
 
@@ -217,6 +225,7 @@ public class AdminExtension implements SnappyExtension {
         MappedEndpoint metricsStatus = HandlerUtil.rest(
                 Methods.GET,
                 METRICS_STATUS_ENDPOINT,
+                config.maxMultipartSize,
                 appMetricsResource::updateMetricState,
                 new ExceptionMapper());
 

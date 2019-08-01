@@ -1,7 +1,8 @@
 package io.joshworks.snappy.extensions.dashboard.metrics;
 
 import io.joshworks.snappy.http.MediaType;
-import io.joshworks.snappy.http.HttpExchange;
+import io.joshworks.snappy.http.Request;
+import io.joshworks.snappy.http.Response;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,29 +12,29 @@ import java.util.Map;
  */
 public class AppMetricsResource {
 
-    public void getMetrics(HttpExchange exchange) {
-        exchange.send(Metrics.getData(), MediaType.APPLICATION_JSON_TYPE);
+    public Response getMetrics(Request request) {
+        return Response.withBody(Metrics.getData()).type(MediaType.APPLICATION_JSON_TYPE);
     }
 
-    public void getMetric(HttpExchange exchange) {
+    public Response getMetric(Request exchange) {
         String id = exchange.pathParameter("id");
-        exchange.send(Metrics.getData(id));
+        return Response.withBody(Metrics.getData(id));
     }
 
-    public void updateMetricState(HttpExchange exchange) {
+    public Response updateMetricState(Request exchange) {
         Map<String, Object> map = exchange.body().asMap();
         Object enabled = map.get("enabled");
         if (enabled != null) {
             boolean metricsEnabled = Boolean.parseBoolean(String.valueOf(enabled));
             Metrics.setEnabled(metricsEnabled);
         }
-        exchange.status(204);
+        return Response.withStatus(204);
     }
 
-    public void metricStatus(HttpExchange exchange) {
+    public Response metricStatus(Request exchange) {
         Map<String, Object> response = new HashMap<>();
         response.put("enabled", Metrics.isEnabled());
-        exchange.send(response);
+        return Response.withBody(response);
     }
 
 }

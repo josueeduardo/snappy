@@ -18,6 +18,7 @@
 package io.joshworks.snappy.extensions.dashboard.metrics;
 
 import io.joshworks.snappy.extensions.dashboard.AdminExtension;
+import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
@@ -30,8 +31,7 @@ public class AdminTest {
 
     @BeforeClass
     public static void setup() {
-        get("/test", exchange -> {
-        });
+        get("/test", req -> Response.ok());
         register(new AdminExtension());
 
 

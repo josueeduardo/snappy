@@ -18,7 +18,8 @@
 package io.joshworks.snappy.extensions.ssr.server.service;
 
 
-import io.joshworks.snappy.http.HttpExchange;
+import io.joshworks.snappy.http.Request;
+import io.joshworks.snappy.http.Response;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -35,23 +36,23 @@ public class ServiceResource implements Serializable {
         this.control = control;
     }
 
-    public void getServices(HttpExchange exchange) {
+    public Response getServices(Request request) {
         Set<Service> services = control.getServices();
-        exchange.send(services);
+        return Response.withBody(services);
     }
 
 
-    public void getService(HttpExchange exchange) {
+    public Response getService(Request exchange) {
         Service service = control.getService(exchange.pathParameter("name"));
-        exchange.send(service);
+        return Response.withBody(service);
     }
 
-    public void addLink(HttpExchange exchange)  {
-        String source = exchange.pathParameter("name");
-        String target = exchange.body().asJson().getObject().getString("target");
+    public Response addLink(Request request)  {
+        String source = request.pathParameter("name");
+        String target = request.body().asJson().getObject().getString("target");
 
         control.addLink(source, target);
-        exchange.send(204);
+        return Response.withStatus(204);
     }
 
 //    @PUT

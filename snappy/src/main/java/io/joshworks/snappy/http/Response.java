@@ -110,6 +110,18 @@ public class Response {
         return response;
     }
 
+    public static Response notFound() {
+        Response response = new Response();
+        response.status = StatusCodes.NOT_FOUND;
+        return response;
+    }
+
+    public static Response noContent() {
+        Response response = new Response();
+        response.status = StatusCodes.NO_CONTENT;
+        return response;
+    }
+
     public static Response internalServerError() {
         Response response = new Response();
         response.status = StatusCodes.INTERNAL_SERVER_ERROR;

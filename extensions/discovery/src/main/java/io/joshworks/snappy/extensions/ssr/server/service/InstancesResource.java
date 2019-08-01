@@ -19,7 +19,8 @@ package io.joshworks.snappy.extensions.ssr.server.service;
 
 import io.joshworks.snappy.extensions.ssr.Instance;
 import io.joshworks.snappy.http.HttpException;
-import io.joshworks.snappy.http.HttpExchange;
+import io.joshworks.snappy.http.Request;
+import io.joshworks.snappy.http.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,8 +38,8 @@ public class InstancesResource {
         this.control = control;
     }
 
-    public void register(HttpExchange exchange) {
-        Instance instance = exchange.body().asObject(Instance.class);
+    public Response register(Request request) {
+        Instance instance = request.body().asObject(Instance.class);
 
         if (instance == null || instance.getState() == null) { //it only supports state update as for now
             throw HttpException.badRequest("Invalid instance");
@@ -47,12 +48,12 @@ public class InstancesResource {
         Instance registered = control.register(instance);
 //        sessionStore.pushInstanceState(registered);
 
-        exchange.status(201).send(registered);
+        return Response.created().body(registered);
     }
 
-    public void updateServiceState(HttpExchange exchange) {
-        String instanceId = exchange.pathParameter("instanceId");
-        Instance instance = exchange.body().asObject(Instance.class);
+    public Response updateServiceState(Request request) {
+        String instanceId = request.pathParameter("instanceId");
+        Instance instance = request.body().asObject(Instance.class);
 
         if (instance == null || instance.getState() == null) { //it only supports state update as for now
             throw HttpException.badRequest("Invalid instance");
@@ -66,6 +67,6 @@ public class InstancesResource {
         }
 //        sessionStore.pushInstanceState(updated);
 
-        exchange.status(204);
+        return Response.withStatus(204);
     }
 }

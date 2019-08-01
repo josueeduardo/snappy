@@ -37,10 +37,12 @@ public class ServerData {
     public final String basePath;
     public final List<MappedEndpoint> mappedEndpoints;
     public final AdminManager adminManager;
+    public final long maxMultipartSize;
 
     public ServerData(int port,
                       String bindAddress,
                       boolean httpTracer,
+                      long maxMultipartSize,
                       Interceptors interceptors,
                       ExceptionMapper exceptionMapper,
                       String basePath,
@@ -50,6 +52,7 @@ public class ServerData {
         this.port = port;
         this.bindAddress = bindAddress;
         this.httpTracer = httpTracer;
+        this.maxMultipartSize = maxMultipartSize;
         this.interceptors = interceptors;
         this.exceptionMapper = exceptionMapper;
         this.basePath = basePath;
