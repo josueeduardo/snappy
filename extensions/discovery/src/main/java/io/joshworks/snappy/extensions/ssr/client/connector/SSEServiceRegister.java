@@ -66,7 +66,7 @@ public class SSEServiceRegister extends ServiceRegister {
         if (response.getStatus() != 201) {
             throw new SSRException(response.getStatus() + " - " + response.getStatusText(), response.getStatus());
         }
-        Instance registered = response.getBody();
+        Instance registered = response.body();
 
         String registryUrl = PROTOCOL + this.registryUrl + SSRServerExtension.MONITOR_URL + "/" + registered.getId();
         disconnect();
