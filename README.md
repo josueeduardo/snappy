@@ -27,7 +27,7 @@ Features:
     <dependency>
         <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.1</version>
     </dependency>
     
 ```
@@ -264,18 +264,12 @@ public class App {
 ### Uber jar ###
 ```xml
 <build>
+    <finalName>${project.artifactId}</finalName>
     <plugins>
         <plugin>
-            <groupId>io.joshworks</groupId>
-            <artifactId>snappy-maven-plugin</artifactId>
-            <version>0.3.0</version>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>repackage</goal>
-                    </goals>
-                </execution>
-            </executions>
+            <groupId>org.springframework.boot</groupId>
+            <version>2.1.6.RELEASE</version>
+            <artifactId>spring-boot-maven-plugin</artifactId>
         </plugin>
     </plugins>
 </build>
