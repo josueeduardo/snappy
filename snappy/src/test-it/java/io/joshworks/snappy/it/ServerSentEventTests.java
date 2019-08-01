@@ -1,6 +1,8 @@
 package io.joshworks.snappy.it;
 
+import io.joshworks.restclient.http.Unirest;
 import io.joshworks.stream.client.StreamClient;
+import org.junit.AfterClass;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -15,6 +17,13 @@ import static org.junit.Assert.fail;
  * Created by Josh Gontijo on 7/6/17.
  */
 public class ServerSentEventTests {
+
+    @AfterClass
+    public static void shutdown() {
+        stop();
+        Unirest.close();
+        StreamClient.shutdown();
+    }
 
     @Test
     public void handler() throws Exception {

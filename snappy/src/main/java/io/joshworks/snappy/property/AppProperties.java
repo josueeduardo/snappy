@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.util.Optional;
 import java.util.Properties;
 
-import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
  * Created by josh on 3/10/17.
@@ -101,12 +101,6 @@ public class AppProperties {
             logger.warn("No property key found for '{}'", key);
             return Optional.empty();
         }
-
-        String resolved = resolveProperty(properties, key);
-        if (resolved == null) {
-            logger.warn("No resolved found for property key: " + key);
-            return Optional.empty();
-        }
-        return Optional.of(resolved);
+        return Optional.ofNullable(resolveProperty(properties, key));
     }
 }

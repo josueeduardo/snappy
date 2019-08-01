@@ -93,8 +93,9 @@ public class InterceptorHandler extends ChainHandler {
 
                 } else {
                     interceptor.intercept(requestContext, response);
-                    response = requestContext.response == null ? response : requestContext.response;
-                    exchange.putAttachment(HttpDispatcher.RESPONSE, requestContext.response);
+                    if (requestContext.response != null) {
+                        exchange.putAttachment(HttpDispatcher.RESPONSE, response);
+                    }
                 }
 
             } catch (Exception ex) {

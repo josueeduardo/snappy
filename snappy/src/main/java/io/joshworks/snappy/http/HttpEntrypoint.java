@@ -23,6 +23,8 @@ import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
@@ -60,6 +62,7 @@ public class HttpEntrypoint implements HttpHandler {
                 exchange.putAttachment(HttpDispatcher.RESPONSE, response);
             } else {
                 logger.error(e.getMessage(), e);
+                exchange.putAttachment(HttpDispatcher.RESPONSE, Response.internalServerError());
             }
         }
     }

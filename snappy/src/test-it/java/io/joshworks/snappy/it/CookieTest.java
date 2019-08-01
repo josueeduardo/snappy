@@ -50,7 +50,6 @@ public class CookieTest {
         Unirest.close();
     }
 
-    //    FIXME use rest-client 1.5.2
     @Test
     public void cookie() {
         HttpResponse<String> response = Unirest.get(RESOURCE_PATH).asString();
