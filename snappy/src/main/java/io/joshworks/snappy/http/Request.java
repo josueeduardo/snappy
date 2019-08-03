@@ -79,13 +79,13 @@ public class Request {
         return parameters;
     }
 
-    public String pathParameter(String key) {
+    public String pathParameter(String parameterName) {
         PathTemplateMatch pathMatch = exchange.getAttachment(PathTemplateMatch.ATTACHMENT_KEY);
-        return pathMatch.getParameters().get(key);
+        return pathMatch.getParameters().get(parameterName);
     }
 
-    public Parameter pathParameterVal(String key) {
-        return new Parameter(pathParameter(key));
+    public Parameter pathParameterVal(String parameterName) {
+        return new Parameter(pathParameter(parameterName));
     }
 
     public Map<String, Deque<String>> queryParameters() {
@@ -139,6 +139,48 @@ public class Request {
 
     public InetSocketAddress remoteAddress() {
         return exchange.getSourceAddress();
+    }
+
+    /**
+     * Returns the 'Authorization' header where the value must be present and must contain the 'Basic' prefix
+     * The value returned is the stripped header value
+     * e.g: Authorization: Basic abc-123
+     * Will return abc-123
+     *
+     * @return The first basic authorization header value without the 'Basic' prefix, null if no header is available,
+     * no 'Basic' prefix was found or
+     */
+    public String basicAuth() {
+        return extractAuthorizationValue("Basic", this);
+    }
+
+    /**
+     * Returns the 'Authorization' header where the value must be present and must contain the 'Basic' prefix
+     * The value returned is the stripped header value
+     * e.g: Authorization: Basic abc-123
+     * Will return abc-123
+     *
+     * @return The first basic authorization header value without the 'Basic' prefix, null if no header is available,
+     * no 'Basic' prefix was found or
+     */
+    public String bearerAuth() {
+        return extractAuthorizationValue("Bearer", this);
+    }
+
+    static String extractAuthorizationValue(String type, Request request) {
+        HeaderValues values = request.header(Headers.AUTHORIZATION_STRING);
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+
+        for (String value : values) {
+            String[] parts = value.split(" ");
+            if (parts.length == 2 && parts[0].trim().equals(type)) {
+                String valTrimmed = parts[1].trim();
+                return valTrimmed.isEmpty() ? null : valTrimmed;
+            }
+        }
+        return null;
     }
 
     public String userAgent() {

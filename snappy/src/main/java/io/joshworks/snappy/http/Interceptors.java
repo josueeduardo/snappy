@@ -17,10 +17,15 @@
 
 package io.joshworks.snappy.http;
 
+import io.undertow.util.HeaderValues;
+import io.undertow.util.Headers;
 import io.undertow.util.Methods;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiPredicate;
 
 /**
  * Created by Josh Gontijo on 3/23/17.
@@ -66,6 +71,41 @@ public class Interceptors {
                         .header("Access-Control-Allow-Headers", "Origin, Accept, X-Requested-With, Content-Type, Authorization, Access-Control-Request-Method, Access-Control-Request-Headers");
                 req.abortWith(response);
             }
+        });
+    }
+
+    public static RequestInterceptor secured(String pattern, BiPredicate<String, String> handler) {
+        return new RequestInterceptor(pattern, (req) -> {
+            HeaderValues values = req.header(Headers.AUTHORIZATION_STRING);
+            if (values == null || values.isEmpty()) {
+                req.abortWith(Response.unauthorized());
+                return;
+            }
+
+            for (String value : values) {
+                String[] parts = value.split(" ");
+                if (parts.length == 2) {
+                    String keyTrimmed = parts[0].trim();
+                    String valTrimmed = parts[1].trim();
+                    String type = keyTrimmed.isEmpty() ? null : keyTrimmed;
+                    String val = valTrimmed.isEmpty() ? null : valTrimmed;
+                    if (type != null && val != null && handler.test(type, val)) {
+                        return;
+                    }
+                }
+            }
+            req.abortWith(Response.unauthorized());
+        });
+    }
+
+    public static RequestInterceptor basicAuthentication(String pattern, BiPredicate<String, String> userPswAuthenticator) {
+        return secured(pattern, (type, value) -> {
+            if (!type.equals("Basic")) {
+                return false;
+            }
+            String decoded = new String(Base64.getDecoder().decode(value), StandardCharsets.UTF_8);
+            String[] split = decoded.split(":");
+            return userPswAuthenticator.test(split[0], split[1]);
         });
     }
 
