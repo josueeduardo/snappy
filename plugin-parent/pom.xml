@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.joshworks.snappy</groupId>
-    <artifactId>parent</artifactId>
-    <version>0.5.0-SNAPSHOT</version>
+    <parent>
+        <groupId>io.joshworks.snappy</groupId>
+        <artifactId>parent</artifactId>
+        <version>0.4.1</version>
+    </parent>
+
+    <artifactId>plugin-parent</artifactId>
     <packaging>pom</packaging>
+    <version>0.4.1</version>
 
     <properties>
-        <maven.compiler.source>12</maven.compiler.source>
-        <maven.compiler.target>12</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <modules>
-        <module>snappy</module>
-        <module>plugin-parent</module>
-        <module>extensions</module>
+        <module>snappy-maven-plugin</module>
+        <module>snappy-loader</module>
     </modules>
-
-    <name>Snappy</name>
-    <description>A tiny and powerful server for Java 8</description>
 
     <licenses>
         <license>
@@ -44,7 +42,6 @@
         </developer>
     </developers>
 
-
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
@@ -55,44 +52,6 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>3.0.0</version>
-                <executions>
-                    <execution>
-                        <id>add-test-source</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>add-test-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/test-it/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>add-test-resource</id>
-                        <phase>generate-test-sources</phase>
-                        <goals>
-                            <goal>add-test-resource</goal>
-                        </goals>
-                        <configuration>
-                            <resources>
-                                <resource>
-                                    <directory>src/test-it/resources</directory>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
     <profiles>
         <profile>

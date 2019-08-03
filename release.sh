@@ -10,10 +10,6 @@ echo "Releasing version $1"
 
 mvn versions:set -DnewVersion="$1" -DgenerateBackupPoms=false
 mvn clean install
-rc=$?
-if [[ $rc -ne 0 ]] ; then
-  echo '#### TESTES FAILED ###'; exit $rc
-fi
 
 git commit -a -m "Release $1"
 git push origin master
