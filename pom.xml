@@ -22,6 +22,7 @@
         <module>extensions</module>
     </modules>
 
+    <name>Snappy</name>
     <description>A tiny and powerful server for Java 8</description>
 
     <licenses>
