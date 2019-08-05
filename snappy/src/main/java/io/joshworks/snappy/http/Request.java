@@ -62,8 +62,13 @@ public class Request {
         return exchange.getRequestHeaders();
     }
 
-    public HeaderValues header(String headerName) {
+    public HeaderValues headers(String headerName) {
         return exchange.getRequestHeaders().get(headerName);
+    }
+
+    public String header(String headerName) {
+        HeaderValues values = headers(headerName);
+        return values == null || values.isEmpty() ? null : values.getFirst();
     }
 
     public int status() {
@@ -168,7 +173,7 @@ public class Request {
     }
 
     static String extractAuthorizationValue(String type, Request request) {
-        HeaderValues values = request.header(Headers.AUTHORIZATION_STRING);
+        HeaderValues values = request.headers(Headers.AUTHORIZATION_STRING);
         if (values == null || values.isEmpty()) {
             return null;
         }

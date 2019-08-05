@@ -115,11 +115,23 @@ public class Response {
     }
 
     public static Response created(Object body) {
-        return created().body(new DataBody(body));
+        return created().body(body);
     }
 
     public static Response created(Object body, String type) {
         return created(body).type(type);
+    }
+
+    public static Response badRequest() {
+        return Response.withStatus(StatusCodes.BAD_REQUEST);
+    }
+
+    public static Response badRequest(Object body) {
+        return badRequest().body(body);
+    }
+
+    public static Response badRequest(Object body, String type) {
+        return badRequest().body(body).type(type);
     }
 
     public static Response notFound() {
@@ -141,17 +153,11 @@ public class Response {
     }
 
     public static Response internalServerError(Exception e) {
-        Response response = new Response();
-        response.body = new DataBody(ExceptionResponse.of(e));
-        response.status = StatusCodes.INTERNAL_SERVER_ERROR;
-        return response;
+        return internalServerError().body(ExceptionResponse.of(e));
     }
 
     public static Response internalServerError(String errorId, Exception e) {
-        Response response = new Response();
-        response.body = new DataBody(new ExceptionResponse(errorId, e == null ? "INTERNAL_SERVER_ERROR" : e.getMessage()));
-        response.status = StatusCodes.INTERNAL_SERVER_ERROR;
-        return response;
+        return internalServerError().body(new ExceptionResponse(errorId, e == null ? "INTERNAL_SERVER_ERROR" : e.getMessage()));
     }
 
     public static Response unauthorized() {

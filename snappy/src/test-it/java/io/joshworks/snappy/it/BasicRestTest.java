@@ -57,7 +57,7 @@ public class BasicRestTest {
         post("/echo", req -> Response.withBody(req.body().asObject(SampleData.class)));
         put("/echo", req -> Response.withBody(req.body().asObject(SampleData.class)));
         delete("/echo", req -> Response.withBody(req.body().asObject(SampleData.class)));
-        post("/encoding", req -> Response.withBody(Utils.toString(req.body().asBinary())).type("txt"));
+        post("/encoding", req -> Response.withBody(Utils.toString(req.body().asByteStream())).type("txt"));
 
         get("/statusOnly", req -> Response.withStatus(401));
 

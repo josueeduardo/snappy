@@ -76,7 +76,7 @@ public class Interceptors {
 
     public static RequestInterceptor secured(String pattern, BiPredicate<String, String> handler) {
         return new RequestInterceptor(pattern, (req) -> {
-            HeaderValues values = req.header(Headers.AUTHORIZATION_STRING);
+            HeaderValues values = req.headers(Headers.AUTHORIZATION_STRING);
             if (values == null || values.isEmpty()) {
                 req.abortWith(Response.unauthorized());
                 return;

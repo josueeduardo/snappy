@@ -724,12 +724,16 @@ public class SnappyServer {
 
     private void overrideFromProps() {
         //http
-        this.port = AppProperties.getInt(PropertyKey.HTTP_PORT).orElse(this.port);
+        int offset = AppProperties.getInt(PropertyKey.HTTP_PORT_OFFSET).orElse(0);
+        int port = this.port + offset;
+        int adminPort = this.adminManager.getPort() + offset;
+
+        this.port = AppProperties.getInt(PropertyKey.HTTP_PORT).orElse(port);
         this.httpTracer = AppProperties.getBoolean(PropertyKey.HTTP_TRACER).orElse(this.httpTracer);
         this.bindAddress = AppProperties.get(PropertyKey.HTTP_BIND_ADDRESS).orElse(this.bindAddress);
 
         //admin http
-        this.adminManager.setPort(AppProperties.getInt(PropertyKey.ADMIN_HTTP_PORT).orElse(this.adminManager.getPort()));
+        this.adminManager.setPort(AppProperties.getInt(PropertyKey.ADMIN_HTTP_PORT).orElse(adminPort));
         this.adminManager.setBindAddress(AppProperties.get(PropertyKey.ADMIN_HTTP_BIND_ADDRESS).orElse(this.adminManager.getBindAddress()));
 
         //xnio
