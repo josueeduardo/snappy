@@ -90,7 +90,7 @@ public class FilterTest {
     private static Response copyHeader(Request req) {
         Response response = Response.ok();
         for (HttpString headerName : req.headers().getHeaderNames()) {
-            response.header(headerName.toString(), req.header(headerName.toString()).getFirst());
+            response.header(headerName.toString(), req.header(headerName.toString()));
         }
         return response;
     }

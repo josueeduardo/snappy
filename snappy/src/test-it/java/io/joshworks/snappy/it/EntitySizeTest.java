@@ -1,7 +1,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.JsonNode;
+import io.joshworks.restclient.http.Json;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Request;
@@ -62,7 +62,7 @@ public class EntitySizeTest {
     @Test
     public void limitFormParam() {
 
-        HttpResponse<JsonNode> response = Unirest.post(SERVER_URL + "/form")
+        HttpResponse<Json> response = Unirest.post(SERVER_URL + "/form")
                 .field("message", MESSAGE)
                 .asJson();
 
@@ -74,7 +74,7 @@ public class EntitySizeTest {
     @Test
     public void withFormLimit() {
 
-        HttpResponse<JsonNode> response = Unirest.post(SERVER_URL + "/form")
+        HttpResponse<Json> response = Unirest.post(SERVER_URL + "/form")
                 .field("message", MESSAGE.substring(0, MESSAGE.length() - 5))
                 .asJson();
 
@@ -88,7 +88,7 @@ public class EntitySizeTest {
     @Test
     public void limitPlainText() {
 
-        HttpResponse<JsonNode> response = Unirest.post(SERVER_URL + "/plain")
+        HttpResponse<Json> response = Unirest.post(SERVER_URL + "/plain")
                 .body(MESSAGE)
                 .asJson();
 
