@@ -153,7 +153,7 @@ public class Response {
     }
 
     public static Response internalServerError(Exception e) {
-        return internalServerError().body(ExceptionResponse.of(e));
+        return internalServerError(ErrorContext.errorId(), e);
     }
 
     public static Response internalServerError(String errorId, Exception e) {
