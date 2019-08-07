@@ -223,10 +223,10 @@ public class HandlerUtil {
                 .distinct().toArray(String[]::new);
     }
 
-    public static String exceptionMessageTemplate(HttpServerExchange exchange, String shortMessage) {
+    public static String exceptionMessageTemplate(String errorId, HttpServerExchange exchange, String shortMessage) {
         HttpString requestMethod = exchange.getRequestMethod();
         String requestPath = exchange.getRequestPath();
-        return String.format("%s %s - %s", requestMethod, requestPath, shortMessage);
+        return "[" + errorId + "] " + requestMethod + " " + requestPath + " - " + shortMessage;
     }
 
     private static boolean formData(HttpServerExchange exchange) {

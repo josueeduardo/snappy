@@ -25,9 +25,7 @@ import io.joshworks.snappy.http.HttpException;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Response;
 import io.undertow.util.Headers;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -53,7 +51,7 @@ public class RestErrorHandlerTest {
 
         enableTracer();
 
-            exception(CustomExceptionType.class, (e, req) -> Response.withStatus(405).body(ExceptionResponse.of(e)));
+        exception(CustomExceptionType.class, (e, req) -> Response.withStatus(405).body(ExceptionResponse.of(e)));
 
         get("/error1", req -> Response.ok());
         get("/original", req -> {
@@ -93,7 +91,7 @@ public class RestErrorHandlerTest {
 
         ExceptionResponse body = response.body();
         assertNotNull(body);
-        assertNotNull(body.getMessage());
+        assertNotNull(body.message);
     }
 
     @Test
@@ -109,7 +107,7 @@ public class RestErrorHandlerTest {
 
         ExceptionResponse body = response.body();
         assertNotNull(body);
-        assertNotNull(body.getMessage());
+        assertNotNull(body.message);
     }
 
     @Test
@@ -124,7 +122,7 @@ public class RestErrorHandlerTest {
 
             ExceptionResponse body = response.body();
             assertNotNull(body);
-            assertEquals(EXCEPTION_MESSAGE, body.getMessage());
+            assertEquals(EXCEPTION_MESSAGE, body.message);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,7 +137,7 @@ public class RestErrorHandlerTest {
 
         ExceptionResponse body = response.body();
         assertNotNull(body);
-        assertEquals(EXCEPTION_MESSAGE, body.getMessage());
+        assertEquals(EXCEPTION_MESSAGE, body.message);
     }
 
     @Test
@@ -149,7 +147,7 @@ public class RestErrorHandlerTest {
         assertEquals(405, response.getStatus());
         ExceptionResponse body = response.body();
         assertNotNull(body);
-        assertEquals(new CustomExceptionType().getMessage(), body.getMessage());
+        assertEquals(new CustomExceptionType().getLocalizedMessage(), body.message);
     }
 
     //FIXME - intermittent 500
@@ -162,7 +160,7 @@ public class RestErrorHandlerTest {
             assertEquals(501, response.getStatus());
             ExceptionResponse body = response.body();
             assertNotNull(body);
-            assertEquals("CUSTOM-HTTP-EXCEPTION-MESSAGE", body.getMessage());
+            assertEquals("CUSTOM-HTTP-EXCEPTION-MESSAGE", body.message);
         }
     }
 

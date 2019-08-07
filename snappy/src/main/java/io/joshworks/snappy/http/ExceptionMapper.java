@@ -39,7 +39,7 @@ public class ExceptionMapper {
                     .body(ExceptionResponse.of(e));
 
     private static final ErrorHandler<HttpException> httpException = (e, req) ->
-            Response.withStatus(e.status)
+            Response.withStatus(e.exception.status)
                     .type(MediaType.APPLICATION_JSON_TYPE)
                     .body(ExceptionResponse.of(e));
 
@@ -61,31 +61,31 @@ public class ExceptionMapper {
             try {
                 //request too large
                 //from UndertowMessages.MESSAGES
-                if (ioex.getMessage().startsWith("UT000020")) {
+                if (ioex.exception.getMessage().startsWith("UT000020")) {
                     return Response.withStatus(StatusCodes.REQUEST_ENTITY_TOO_LARGE)
                             .type(MediaType.APPLICATION_JSON_TYPE)
                             .body(ExceptionResponse.of(ioex));
                 }
-            } catch (Exception e) {
-                return fallbackInternalError.apply(ioex, req);
+            } catch (Exception ignored) {
+
             }
-            return fallbackInternalError.apply(ioex, req);
+            return fallbackInternalError.apply(new ErrorContext<>(ioex.id, ioex.exception), req);
         };
     }
 
     private static ErrorHandler<BodyReadException> bodyReadException() {
         return (brex, req) -> {
             try {
-                if (brex.getCause() == null) {
-                    return fallbackInternalError.apply(brex, req);
+                if (brex.exception.getCause() == null) {
+                    return fallbackInternalError.apply(new ErrorContext<>(brex.id, brex.exception), req);
                 }
 
                 //request too large
                 //from UndertowMessages.MESSAGES
-                if (brex.getCause().getMessage().startsWith("UT000020")) {
+                if (brex.exception.getCause().getMessage().startsWith("UT000020")) {
                     return Response.withStatus(StatusCodes.REQUEST_ENTITY_TOO_LARGE)
                             .type(MediaType.APPLICATION_JSON_TYPE)
-                            .body(ExceptionResponse.of((Exception) brex.getCause()));
+                            .body(ExceptionResponse.of(new ErrorContext<>(brex.id, (Exception) brex.exception.getCause())));
                 }
             } catch (Exception e) {
                 return Response.internalServerError();
@@ -98,9 +98,9 @@ public class ExceptionMapper {
         return getOrFallback(ex, fallbackInternalError);
     }
 
-    public <T extends Exception> Response apply(T ex, Request request) {
+    public <T extends Exception> Response apply(String id, T ex, Request request) {
         ErrorHandler<Exception> orFallback = getOrFallback(ex, fallbackInternalError);
-        return orFallback.apply(ex, request);
+        return orFallback.apply(new ErrorContext<>(id, ex), request);
     }
 
     public <T extends Exception> void put(Class<T> type, ErrorHandler<T> handler) {

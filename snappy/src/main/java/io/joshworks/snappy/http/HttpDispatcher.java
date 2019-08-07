@@ -60,20 +60,21 @@ public class HttpDispatcher extends ChainHandler {
             }
 
         } catch (UnsupportedMediaType connex) {
-
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Unsupported media type " + connex.headerValues + " supported types: " + connex.types));
-            sendErrorResponse(exchange, connex);
+            String errorId = ErrorContext.errorId();
+            logger.error(HandlerUtil.exceptionMessageTemplate(errorId, exchange, "Unsupported media type " + connex.headerValues + " supported types: " + connex.types));
+            sendErrorResponse(errorId, exchange, connex);
             exchange.endExchange();
 
         } catch (Exception e) { //Should not happen (server error)
-            logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Server error"), e);
-            sendErrorResponse(exchange, e);
+            String errorId = ErrorContext.errorId();
+            logger.error(HandlerUtil.exceptionMessageTemplate(errorId, exchange, "Server error"), e);
+            sendErrorResponse(errorId, exchange, e);
         }
     }
 
-    private <T extends Exception> void sendErrorResponse(HttpServerExchange exchange, T ex) {
+    private <T extends Exception> void sendErrorResponse(String errorId, HttpServerExchange exchange, T ex) {
         try {
-            Response response = exceptionMapper.apply(ex, new Request(exchange));
+            Response response = exceptionMapper.apply(errorId, ex, new Request(exchange));
             response.handle(exchange);
         } catch (Exception handlingError) {
             logger.error("Exception was thrown when executing handler, body will be null", handlingError);

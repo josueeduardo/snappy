@@ -24,24 +24,17 @@ import java.io.Serializable;
  */
 public class ExceptionResponse implements Serializable {
 
-    private final String id;
-    private final String message;
+    public final String id;
+    public final String message;
 
     public ExceptionResponse(String id, String message) {
-        this.message = message;
         this.id = id;
+        this.message = message;
     }
 
-    public static ExceptionResponse of(Exception e) {
-        return new ExceptionResponse(String.valueOf(System.currentTimeMillis()), e != null ? e.getMessage() : "");
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public String getId() {
-        return id;
+    public static <T extends Exception> ExceptionResponse of(ErrorContext<T> e) {
+        String message = e.exception != null ? e.exception.getMessage() : null;
+        return new ExceptionResponse(e.id, message);
     }
 
     @Override

@@ -37,6 +37,7 @@ public class InterceptorHandler extends ChainHandler {
     private final List<RequestInterceptor> requestInterceptors;
     private final List<ResponseInterceptor> responseInterceptors;
     private final ExceptionMapper exceptionMapper = new ExceptionMapper();
+    public static final String MESSAGE = "Error handling interceptor, request will not proceed";
 
     public InterceptorHandler(HttpHandler next, List<RequestInterceptor> requestInterceptors, List<ResponseInterceptor> responseInterceptors) {
         super(next);
@@ -68,9 +69,9 @@ public class InterceptorHandler extends ChainHandler {
                     return false;
                 }
             } catch (Exception ex) {
-                String message = "Error handling interceptor, request will not proceed";
-                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, message), ex);
-                Response response = exceptionMapper.apply(ex, context);
+                String errorId = String.valueOf(System.currentTimeMillis());
+                logger.error(HandlerUtil.exceptionMessageTemplate(errorId, exchange, MESSAGE), ex);
+                Response response = exceptionMapper.apply(errorId, ex, context);
                 response.handle(exchange);
                 return false;
             }
@@ -88,20 +89,19 @@ public class InterceptorHandler extends ChainHandler {
             try {
                 //no response, it means HttpDispatcher hasn't been called,
                 //A response is required and there's none, create one and end the request
-                if (response == null) {
-                    System.err.println("TODO ######### ATTACHAMENTS ARE NOT AVAILABLE REQUEST HAS ALREADY BEEN COMPLETED ##############################");
-
-                } else {
+                if (response != null) {
                     interceptor.intercept(requestContext, response);
                     if (requestContext.response != null) {
                         exchange.putAttachment(HttpDispatcher.RESPONSE, response);
                     }
+                } else {
+                    logger.warn("No response object attached to the exchange context, request already completed");
                 }
 
             } catch (Exception ex) {
-                String message = "Error handling " + interceptor.getClass().getSimpleName() + ", request will not proceed";
-                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, message), ex);
-                response = exceptionMapper.apply(ex, requestContext);
+                String errorId = ErrorContext.errorId();
+                logger.error(HandlerUtil.exceptionMessageTemplate(errorId, exchange, MESSAGE), ex);
+                response = exceptionMapper.apply(errorId, ex, requestContext);
                 exchange.putAttachment(HttpDispatcher.RESPONSE, response);
                 return;
             }

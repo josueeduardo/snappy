@@ -23,8 +23,6 @@ import io.undertow.server.HttpServerExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 import static io.joshworks.snappy.SnappyServer.LOGGER_NAME;
 
 /**
@@ -57,8 +55,9 @@ public class HttpEntrypoint implements HttpHandler {
                     e = ((ApplicationException) e).original;
                 }
 
-                logger.error(HandlerUtil.exceptionMessageTemplate(exchange, "Application error"), e);
-                Response response = exceptionMapper.apply(e, request);
+                String errorId = ErrorContext.errorId();
+                logger.error(HandlerUtil.exceptionMessageTemplate(errorId, exchange, "Application error"), e);
+                Response response = exceptionMapper.apply(errorId, e, request);
                 exchange.putAttachment(HttpDispatcher.RESPONSE, response);
             } else {
                 logger.error(e.getMessage(), e);

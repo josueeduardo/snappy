@@ -22,6 +22,6 @@ import java.util.function.BiFunction;
 /**
  * Created by Josh Gontijo on 3/15/17.
  */
-public interface ErrorHandler<T extends Exception> extends BiFunction<T, Request, Response> {
+public interface ErrorHandler<T extends Exception> extends BiFunction<ErrorContext<T>, Request, Response> {
 
 }
