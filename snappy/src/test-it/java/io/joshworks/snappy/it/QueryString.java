@@ -18,7 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.JsonNode;
+import io.joshworks.restclient.http.Json;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.Response;
 import org.junit.AfterClass;
@@ -57,7 +57,7 @@ public class QueryString {
     @Test
     public void queryParam() throws Exception {
         String value = "queryValue";
-        HttpResponse<JsonNode> response = Unirest.get(SERVER_URL + "/echoQuery")
+        HttpResponse<Json> response = Unirest.get(SERVER_URL + "/echoQuery")
                 .queryString("q", value)
                 .asJson();
 
@@ -69,7 +69,7 @@ public class QueryString {
     @Test
     public void queryParamWithPath() throws Exception {
         String value = "queryValue";
-        HttpResponse<JsonNode> response = Unirest.get(SERVER_URL + "/echoQuery/{path}")
+        HttpResponse<Json> response = Unirest.get(SERVER_URL + "/echoQuery/{path}")
                 .queryString("q", value)
                 .routeParam("path", "anotherValue")
                 .asJson();
@@ -82,7 +82,7 @@ public class QueryString {
     @Test
     public void pathParameters() throws Exception {
         String value = "pathValue";
-        HttpResponse<JsonNode> response = Unirest.get(SERVER_URL + "/echoPath/{path}")
+        HttpResponse<Json> response = Unirest.get(SERVER_URL + "/echoPath/{path}")
                 .routeParam("path", value)
                 .asJson();
 

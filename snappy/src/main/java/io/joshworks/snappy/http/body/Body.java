@@ -59,10 +59,17 @@ public class Body {
         this.negotiatedConsumeType = negotiatedMediaType == null ? MediaType.APPLICATION_JSON_TYPE : negotiatedMediaType.consumes;
     }
 
-    public InputStream asBinary() {
+    public InputStream asByteStream() {
         try {
-            byte[] bytes = ParserUtil.getBytes(this.is);
-            return new ByteArrayInputStream(bytes);
+            return new ByteArrayInputStream(asByteArray());
+        } catch (Exception e) {
+            throw new BodyReadException(e);
+        }
+    }
+
+    public byte[] asByteArray() {
+        try {
+            return ParserUtil.getBytes(this.is);
         } catch (Exception e) {
             throw new BodyReadException(e);
         }

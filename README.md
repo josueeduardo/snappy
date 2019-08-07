@@ -27,7 +27,7 @@ Features:
     <dependency>
         <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
-        <version>0.3.0</version>
+        <version>0.5.0</version>
     </dependency>
     
 ```
@@ -35,6 +35,7 @@ Features:
 ### Import ###
 ```java
 import static io.joshworks.snappy.SnappyServer.*;
+import static io.joshworks.snappy.http.Response.*;
 ```
 
 ### Hello ###
@@ -42,7 +43,7 @@ import static io.joshworks.snappy.SnappyServer.*;
 public class App {
 
     public static void main(final String[] args) {
-       get("/hello", exchange -> exchange.send("Hello !", "txt")); //or text/plain
+       get("/hello", req -> ok("Hello !", "txt")); //or text/plain
        start(); //9000
     }
 }
@@ -53,10 +54,7 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-       get("/hello/{name}", exchange -> {
-           String name = exchange.pathParameter("name");
-           exchange.send("Hello " + name, "txt");
-       });
+       get("/hello/{name}", req -> ok("Hello " + req.pathParameter("name"), "txt"));
        
        start();
     }
@@ -68,8 +66,10 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-       post("/users", exchange -> {
-           User user = exchange.body().asObject(User.class);
+       post("/users", req -> {
+           User user = req.body().asObject(User.class);
+           //..
+           return ok();
        });
        
        start();
@@ -82,7 +82,7 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-       get("/users", exchange -> exchange.send(new User("Yolo")));
+       get("/users", req -> ok(new User("John Doe")));
        start();
     }
 }
@@ -93,16 +93,25 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
+        
+       beforeAll("/users", req -> System.out.println("A")); 
+       before("/users", req -> System.out.println("B")); 
+       after("/users", (req, res) -> System.out.println("C")); 
+       afterAll("/users", (req, res) -> System.out.println("D")); 
        
-       before("/*", exchange -> System.out.println("Before All")); 
-       after("/users", exchange -> System.out.println("After users")); 
-       
-       get("/users", exchange -> {
-           //...
+       get("/users", req -> {
+           System.out.println("Users");
+            return ok();
        });
-
-       
+               
        start();
+        
+        // Prints:
+        //A
+        //B
+        //Users
+        //C
+        //D
     }
 }
 ```
@@ -113,7 +122,7 @@ public class App {
 
     public static void main(final String[] args) {
        
-       exception(Exception.class, (ex, exchange) -> exchange.status(500).send(ex.getMessage()));
+       exception(Exception.class, (ex, req) -> Response.internalServerError(ex));
        
        get("/users", exchange -> {
            throw new RuntimeException("Some error");
@@ -144,21 +153,10 @@ public class App {
 public class App {
 
     public static void main(final String[] args) {
-        multipart("/fileUpload", exchange -> {
-            Path theFile = exchange.part("theFile").file().path();
+        post("/fileUpload", req -> {
+            Path theFile = req.multiPartBody("theFile").file().path();
             Files.copy(theFile, someOutputStream);
         });
-    }
-}
-```
-
-### Rest client ###
-```java
-public class App {
-
-    public static void main(final String[] args) {
-        //wrapped Unirest api
-           String page = SimpleClient.get("http://www.google.com").asString();
     }
 }
 ```
@@ -168,9 +166,11 @@ public class App {
 public class ClockServer {
 
     public static void main(final String[] args) {
-            sse("/real-time");
+            ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+            sse("/clock");
     
-            onStart(() -> AppExecutors.scheduleAtFixedRate(() ->
+            onStart(() -> scheduler.scheduleAtFixedRate(() ->
                     SseBroadcaster.broadcast(new Date().toString()), 1, 1, TimeUnit.SECONDS));
     
             start();
@@ -209,7 +209,7 @@ public class App {
     public static void main(final String[] args) {
        Parsers.register(myXmlParser);
        
-       get("/xml", exchange -> exchange.send("some-xml"), produces("xml"));
+       get("/xml", req -> ok("<root></root>"), produces("xml"));
        
     }
 }
@@ -224,39 +224,19 @@ public class App {
         // /groupA/b
         // /groupA/subgroup/c
         group("/groupA", () -> {
-            get("/a", exchange -> {/* ... */});
-            put("/b", exchange -> {/* ... */});
+            get("/a", req -> {/* ... */});
+            put("/b", req -> {/* ... */});
 
             group("/subgroup", () -> {
-                get("/c", exchange -> {/* ... */});
+                get("/c", req -> {/* ... */});
             });
         });
 
         // /groupB/d
         group("/groupB", () -> {
-            get("/d", exchange -> {/* ... */});
+            get("/d", req -> {/* ... */});
         });
         
-        }
-}
-```
-
-### Executors ###
-```java
-public class App {
-
-     public static void main(String[] args) {
-            executors("my-thread-pool", 10, 20, 60000); //corePoolSize, maxPoolSize, keepAliveMillis
-            schedulers("another-thread-pool", 10, 60000); //corePoolSize, keepAliveMillis
-            
-            //.... then
-            
-            AppExecutors.submit(myRunnable); //uses default
-            AppExecutors.submit("my-thread-pool", myRunnable);
-            
-            AppExecutors.schedule(myCallable, 10, TimeUnit.SECONDS);
-            AppExecutors.schedule("another-thread-pool", myCallable, 10, TimeUnit.SECONDS);
-            
         }
 }
 ```
@@ -264,51 +244,14 @@ public class App {
 ### Uber jar ###
 ```xml
 <build>
+    <finalName>${project.artifactId}</finalName>
     <plugins>
         <plugin>
-            <groupId>io.joshworks</groupId>
+            <groupId>io.joshworks.snappy</groupId>
             <artifactId>snappy-maven-plugin</artifactId>
-            <version>0.3.0</version>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>repackage</goal>
-                    </goals>
-                </execution>
-            </executions>
+            <version>0.5.0</version>
         </plugin>
     </plugins>
 </build>
-```
-
-### Server API ###
-```java
- 
-    start()
-    stop()
-    
-    port(int port)
-    address(String address)
-    portOffset(int offset)
-    adminPort(int port)
-    adminAddress(String address)
-    tcpNoDeplay(boolean tcpNoDelay)
-    
-    onStart(Runnable task)
-    onShutdown(Runnable task)
-    
-    ioThreads(int ioThreads)
-    workerThreads(int core, int max)
-    
-    register(SnappyExtension extension)
-    
-    enableTracer()
-    cors()
-    
-    executor(String name, int corePoolSize, int maxPoolSize, long keepAliveMillis)
-    scheduler(String name, int corePoolSize, long keepAliveMillis)
-    
-    
-    
 ```
 

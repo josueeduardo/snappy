@@ -24,6 +24,7 @@ public final class PropertyKey {
 
     //http
     public static final String HTTP_PORT = "http.port";
+    public static final String HTTP_PORT_OFFSET = "http.portOffset";
     public static final String HTTP_BIND_ADDRESS = "http.bind";
     public static final String HTTP_TRACER = "http.tracer";
     public static final String TCP_NO_DELAY = "tcp.nodelay";
@@ -36,11 +37,5 @@ public final class PropertyKey {
     public static final String XNIO_IO_THREADS = "xnio.io.threads";
     public static final String XNIO_MAX_WORKER_THREAD = "xnio.worker.maxThread";
     public static final String XNIO_CORE_WORKER_THREAD = "xnio.worker.coreThread";
-
-    //app executors
-    public static final String EXECUTOR_PREFIX = "executor.";
-    public static final String SCHEDULER_PREFIX = "scheduler.";
-    public static final String EXECUTOR_CORE_POOL_SIZE = "core";
-    public static final String EXECUTOR_MAX_POOL_SIZE = "max";
 
 }

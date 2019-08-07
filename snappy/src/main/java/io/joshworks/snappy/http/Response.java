@@ -46,9 +46,9 @@ public class Response {
         return response;
     }
 
-    public Response withBody(Object data, MediaType mediaType) {
+    public Response withBody(Object body, MediaType mediaType) {
         Response response = new Response();
-        response.body(data, mediaType);
+        response.body(body, mediaType);
         return response;
     }
 
@@ -66,14 +66,14 @@ public class Response {
         return response;
     }
 
-    public Response withBody(byte[] data) {
+    public Response withBody(byte[] body) {
         Response response = new Response();
         response.body(body);
         response.setResponseMediaType(MediaType.APPLICATION_OCTET_STREAM_TYPE);
         return response;
     }
 
-    public Response withBody(ByteBuffer data) {
+    public Response withBody(ByteBuffer body) {
         Response response = new Response();
         response.body(body);
         response.setResponseMediaType(MediaType.APPLICATION_OCTET_STREAM_TYPE);
@@ -99,15 +99,39 @@ public class Response {
     }
 
     public static Response ok() {
-        Response response = new Response();
-        response.status = StatusCodes.OK;
-        return response;
+        return new Response().status(StatusCodes.OK);
+    }
+
+    public static Response ok(Object body) {
+        return ok().body(body).status(StatusCodes.OK);
+    }
+
+    public static Response ok(Object body, String type) {
+        return ok(body).type(type);
     }
 
     public static Response created() {
-        Response response = new Response();
-        response.status = StatusCodes.CREATED;
-        return response;
+        return new Response().status(StatusCodes.CREATED);
+    }
+
+    public static Response created(Object body) {
+        return created().body(body);
+    }
+
+    public static Response created(Object body, String type) {
+        return created(body).type(type);
+    }
+
+    public static Response badRequest() {
+        return Response.withStatus(StatusCodes.BAD_REQUEST);
+    }
+
+    public static Response badRequest(Object body) {
+        return badRequest().body(body);
+    }
+
+    public static Response badRequest(Object body, String type) {
+        return badRequest().body(body).type(type);
     }
 
     public static Response notFound() {
@@ -126,6 +150,22 @@ public class Response {
         Response response = new Response();
         response.status = StatusCodes.INTERNAL_SERVER_ERROR;
         return response;
+    }
+
+    public static Response internalServerError(Exception e) {
+        return internalServerError().body(ExceptionResponse.of(e));
+    }
+
+    public static Response internalServerError(String errorId, Exception e) {
+        return internalServerError().body(new ExceptionResponse(errorId, e == null ? "INTERNAL_SERVER_ERROR" : e.getMessage()));
+    }
+
+    public static Response unauthorized() {
+        return new Response().status(StatusCodes.UNAUTHORIZED);
+    }
+
+    public static Response forbidden() {
+        return new Response().status(StatusCodes.FORBIDDEN);
     }
 
     public static Response seeOther(URI uri) {
@@ -284,24 +324,6 @@ public class Response {
             //do nothing
         }
     }
-
-    private static class StringBody extends ResponseBody {
-
-        private final String data;
-
-        public StringBody(String data) {
-            this.data = data;
-        }
-
-        @Override
-        void handle(HttpServerExchange exchange, Response response) {
-            if (data == null) {
-                return;
-            }
-            exchange.getResponseSender().send(data);
-        }
-    }
-
 
     private static class DataBody extends ResponseBody {
 

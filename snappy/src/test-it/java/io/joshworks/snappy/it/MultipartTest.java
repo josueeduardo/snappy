@@ -18,7 +18,7 @@
 package io.joshworks.snappy.it;
 
 import io.joshworks.restclient.http.HttpResponse;
-import io.joshworks.restclient.http.JsonNode;
+import io.joshworks.restclient.http.Json;
 import io.joshworks.restclient.http.Unirest;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Response;
@@ -148,7 +148,7 @@ public class MultipartTest {
     @Test
     public void partMime() {
         InputStream uploadFile = Thread.currentThread().getContextClassLoader().getResourceAsStream("sample-input.txt");
-        HttpResponse<JsonNode> response = Unirest.post("http://localhost:9000/partMime")
+        HttpResponse<Json> response = Unirest.post("http://localhost:9000/partMime")
                 .part("textPart", "someContent", "text/plain")
                 .part("jsonPart", "{}", "application/json")
                 .part("filePart", uploadFile, "sample-input.txt")

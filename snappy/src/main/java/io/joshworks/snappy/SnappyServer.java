@@ -64,7 +64,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import static io.joshworks.snappy.handler.HandlerUtil.BASE_PATH;
 import static io.undertow.UndertowOptions.DEFAULT_MAX_ENTITY_SIZE;
@@ -275,6 +277,40 @@ public class SnappyServer {
     public static synchronized void beforeAll(String url, Consumer<RequestContext> consumer) {
         checkStarted();
         instance().interceptors.addRoot(new RequestInterceptor(HandlerUtil.parseUrl(url), consumer));
+    }
+
+    /**
+     * Adds an interceptor that returns 401 status code when the 'Authorization' header value does not match the type or the expected value.
+     *
+     * @param url      The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
+     * @param type     The 'Authorization' value prefix to match against, 'Basic', 'Bearer', etc
+     * @param expected The expected value supplier
+     */
+    public static synchronized void secured(String url, String type, Supplier<String> expected) {
+        secured(url, (s, s2) -> s.equals(type) && s2.equals(expected.get()));
+    }
+
+    /**
+     * Adds an interceptor that returns 401 status code when the 'Authorization' header value does not match the type or the expected value.
+     *
+     * @param url           The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
+     * @param authenticator The authenticator that accepts the 'type' and the value 'value' of the Authorization header.
+     *                      If it evaluates to false, then 401 is returned
+     */
+    public static synchronized void secured(String url, BiPredicate<String, String> authenticator) {
+        checkStarted();
+        instance().interceptors.addRoot(Interceptors.secured(url, authenticator));
+    }
+
+    /**
+     * Adds an interceptor that returns 401 status code when the 'Authorization' header value does not match the type or the expected value.
+     *
+     * @param url                  The URL pattern the interceptor will execute, only exact matches and wildcard (*) is allowed
+     * @param userPswAuthenticator The username and password authenticator, when return is false the request is aborted with 401
+     */
+    public static synchronized void basicAuthSecured(String url, BiPredicate<String, String> userPswAuthenticator) {
+        checkStarted();
+        instance().interceptors.addRoot(Interceptors.basicAuthentication(url, userPswAuthenticator));
     }
 
     /**
@@ -688,12 +724,16 @@ public class SnappyServer {
 
     private void overrideFromProps() {
         //http
-        this.port = AppProperties.getInt(PropertyKey.HTTP_PORT).orElse(this.port);
+        int offset = AppProperties.getInt(PropertyKey.HTTP_PORT_OFFSET).orElse(0);
+        int port = this.port + offset;
+        int adminPort = this.adminManager.getPort() + offset;
+
+        this.port = AppProperties.getInt(PropertyKey.HTTP_PORT).orElse(port);
         this.httpTracer = AppProperties.getBoolean(PropertyKey.HTTP_TRACER).orElse(this.httpTracer);
         this.bindAddress = AppProperties.get(PropertyKey.HTTP_BIND_ADDRESS).orElse(this.bindAddress);
 
         //admin http
-        this.adminManager.setPort(AppProperties.getInt(PropertyKey.ADMIN_HTTP_PORT).orElse(this.adminManager.getPort()));
+        this.adminManager.setPort(AppProperties.getInt(PropertyKey.ADMIN_HTTP_PORT).orElse(adminPort));
         this.adminManager.setBindAddress(AppProperties.get(PropertyKey.ADMIN_HTTP_BIND_ADDRESS).orElse(this.adminManager.getBindAddress()));
 
         //xnio
