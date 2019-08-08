@@ -27,7 +27,7 @@ Features:
     <dependency>
         <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
-        <version>0.5.0</version>
+        <version>0.5.2</version>
     </dependency>
     
 ```
@@ -249,7 +249,7 @@ public class App {
         <plugin>
             <groupId>io.joshworks.snappy</groupId>
             <artifactId>snappy-maven-plugin</artifactId>
-            <version>0.5.0</version>
+            <version>0.5.2</version>
         </plugin>
     </plugins>
 </build>
