@@ -560,6 +560,25 @@ public class SnappyServer {
     }
 
     /**
+     * Define a Server sent events endpoint without a handler at base path of the root or current endpoint group.
+     * Clients connected to this server will only be able to receive message via {@link SseBroadcaster#broadcast(String)}
+     */
+    public static synchronized SseBroadcaster sse() {
+        return sse(HandlerUtil.BASE_PATH);
+    }
+
+    /**
+     * Define a Server sent events endpoint without a handler.
+     * Clients connected to this server will only be able to receive message via {@link SseBroadcaster#broadcast(String)}
+     *
+     * @param url The url this endpoint will be available
+     */
+    public static synchronized SseBroadcaster sse(String url) {
+        return sse(url, sse -> {
+        });
+    }
+
+    /**
      * Define a Server sent events endpoint with a specified handler. Supports path variables
      * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseContext} or {@link io.joshworks.snappy.sse.SseBroadcaster}
      * The handler is the handler is called when the connection is established

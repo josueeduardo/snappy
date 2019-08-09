@@ -66,6 +66,15 @@ public class SseBroadcaster {
         }
     }
 
+    public int connected() {
+        return connections.size();
+    }
+
+    public int connectedToGroup(String group) {
+        Set<SseContext> connections = broadcastGroups.get(group);
+        return connections == null ? 0 : connections.size();
+    }
+
     void joinGroup(String group, SseContext context) {
         validateGroupName(group);
         broadcastGroups.compute(group, (k, v) -> {
