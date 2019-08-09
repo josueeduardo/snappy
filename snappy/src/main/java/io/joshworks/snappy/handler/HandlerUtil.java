@@ -24,8 +24,9 @@ import io.joshworks.snappy.http.Handler;
 import io.joshworks.snappy.http.HttpEntrypoint;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.parser.MediaTypes;
-import io.joshworks.snappy.sse.BroadcasterSetup;
-import io.joshworks.snappy.sse.SseCallback;
+import io.joshworks.snappy.sse.SnappyServerSentEventHandler;
+import io.joshworks.snappy.sse.SseBroadcaster;
+import io.joshworks.snappy.sse.SseHandler;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Handlers;
 import io.undertow.server.HttpHandler;
@@ -34,8 +35,6 @@ import io.undertow.server.handlers.form.EagerFormParsingHandler;
 import io.undertow.server.handlers.form.FormParserFactory;
 import io.undertow.server.handlers.form.MultiPartParserDefinition;
 import io.undertow.server.handlers.resource.ClassPathResourceManager;
-import io.undertow.server.handlers.sse.ServerSentEventConnection;
-import io.undertow.server.handlers.sse.ServerSentEventHandler;
 import io.undertow.util.HeaderValues;
 import io.undertow.util.Headers;
 import io.undertow.util.HttpString;
@@ -48,7 +47,6 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static io.joshworks.snappy.Messages.INVALID_URL;
@@ -109,24 +107,24 @@ public class HandlerUtil {
         return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, websocket);
     }
 
-    public static MappedEndpoint sse(String url, BiConsumer<ServerSentEventConnection, String> connectionCallback) {
-        return sse(url, new SseCallback() {
-            @Override
-            public void connected(ServerSentEventConnection connection, String lastEventId) {
-                connectionCallback.accept(connection, lastEventId);
-            }
-        });
-    }
+//    public static MappedEndpoint sse(String url, SseHandler handler) {
+//        return sse(url, new SseCallback() {
+//
+//            @Override
+//            public void connected(ServerSentEventConnection connection, String lastEventId) {
+//
+//                connectionCallback.accept(connection, lastEventId);
+//            }
+//
+//
+//
+//        });
+//    }
 
-    public static MappedEndpoint sse(String url, SseCallback connectionCallback) {
+    public static MappedEndpoint sse(String url, SseHandler handler, SseBroadcaster broadcaster) {
         url = resolveUrl(url);
 
-        ServerSentEventHandler serverSentEventHandler = Handlers.serverSentEvents((connection, lastEventId) -> {
-            connection.addCloseTask(connectionCallback::onClose);
-            connectionCallback.connected(connection, lastEventId);
-        });
-        BroadcasterSetup.register(serverSentEventHandler);
-
+        SnappyServerSentEventHandler serverSentEventHandler = new SnappyServerSentEventHandler(handler, broadcaster);
         return new MappedEndpoint(Methods.GET_STRING, url, MappedEndpoint.Type.SSE, serverSentEventHandler);
     }
 

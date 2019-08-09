@@ -17,15 +17,26 @@
 
 package io.joshworks.snappy.sse;
 
-import io.undertow.server.handlers.sse.ServerSentEventHandler;
+import io.joshworks.snappy.http.ApplicationException;
+
+import java.util.function.Consumer;
 
 /**
- * Created by Josh Gontijo on 4/1/17.
+ * Created by Josh Gontijo on 4/2/17.
+ * Wraps checked exceptions into unchecked original
+ * When used with original handlers it will unwrap the real cause and pass it in
  */
-public class BroadcasterSetup {
+@FunctionalInterface
+public interface SseHandler extends Consumer<SseContext> {
 
-    //Indirect method, simply to not have to expose the SseBroadcaster#register
-    public static void register(ServerSentEventHandler handler) {
-        SseBroadcaster.register(handler);
+    @Override
+    default void accept(SseContext sse) {
+        try {
+            acceptThrows(sse);
+        } catch (final Exception e) {
+            throw new ApplicationException(e);
+        }
     }
+
+    void acceptThrows(SseContext sse) throws Exception;
 }

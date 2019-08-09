@@ -41,12 +41,12 @@ import io.joshworks.snappy.parser.Parsers;
 import io.joshworks.snappy.parser.PlainTextParser;
 import io.joshworks.snappy.property.AppProperties;
 import io.joshworks.snappy.property.PropertyKey;
-import io.joshworks.snappy.sse.SseCallback;
+import io.joshworks.snappy.sse.SseBroadcaster;
+import io.joshworks.snappy.sse.SseHandler;
 import io.joshworks.snappy.websocket.WebsocketEndpoint;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
 import io.undertow.server.HttpHandler;
-import io.undertow.server.handlers.sse.ServerSentEventConnection;
 import io.undertow.util.HttpString;
 import io.undertow.util.Methods;
 import io.undertow.websockets.core.AbstractReceiveListener;
@@ -120,7 +120,7 @@ public class SnappyServer {
         this.optionBuilder.set(Options.REUSE_ADDRESSES, true);
         this.optionBuilder.set(Options.TCP_NODELAY, true);
         this.optionBuilder.set(Options.KEEP_ALIVE, true);
-        this.optionBuilder.set(Options.WORKER_NAME, "snappy");
+        this.optionBuilder.set(Options.WORKER_NAME, "snappy-worker");
     }
 
     private static SnappyServer instance() {
@@ -560,58 +560,29 @@ public class SnappyServer {
     }
 
     /**
-     * Define a Server sent events endpoint without a handler. Supports path variables
-     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
+     * Define a Server sent events endpoint with a specified handler. Supports path variables
+     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseContext} or {@link io.joshworks.snappy.sse.SseBroadcaster}
+     * The handler is the handler is called when the connection is established
      *
-     * @param url The relative URL to be map this endpoint.
+     * @param handler Endpoint handler
      */
-    public static synchronized void sse(String url) {
+    public static synchronized SseBroadcaster sse(SseHandler handler) {
+        return sse(HandlerUtil.BASE_PATH, handler);
+    }
+
+    /**
+     * Define a Server sent events endpoint with a specified handler. Supports path variables
+     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseContext} or {@link io.joshworks.snappy.sse.SseBroadcaster}
+     * The handler is the handler is called when the connection is established
+     *
+     * @param url     The relative URL to be map this endpoint.
+     * @param handler Endpoint handler
+     */
+    public static synchronized SseBroadcaster sse(String url, SseHandler handler) {
         checkStarted();
-        instance().endpoints.add(HandlerUtil.sse(url, null));
-    }
-
-    /**
-     * Define a Server sent events endpoint with a specified handler. Supports path variables
-     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
-     *
-     * @param connectionCallback Endpoint handler.
-     */
-    public static synchronized void sse(SseCallback connectionCallback) {
-        sse(HandlerUtil.BASE_PATH, connectionCallback);
-    }
-
-    /**
-     * Define a Server sent events endpoint with a specified handler. Supports path variables
-     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
-     *
-     * @param url                The relative URL to be map this endpoint.
-     * @param connectionCallback Endpoint handler.
-     */
-    public static synchronized void sse(String url, SseCallback connectionCallback) {
-        checkStarted();
-        instance().endpoints.add(HandlerUtil.sse(url, connectionCallback));
-    }
-
-    /**
-     * Define a Server sent events endpoint with a specified handler. Supports path variables
-     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
-     *
-     * @param connectionCallback Endpoint handler.
-     */
-    public static synchronized void sse(BiConsumer<ServerSentEventConnection, String> connectionCallback) {
-        sse(HandlerUtil.BASE_PATH, connectionCallback);
-    }
-
-    /**
-     * Define a Server sent events endpoint with a specified handler. Supports path variables
-     * Data can be broadcast to this endpoint by using {@link io.joshworks.snappy.sse.SseBroadcaster}
-     *
-     * @param url                The relative URL to be map this endpoint.
-     * @param connectionCallback Endpoint handler.
-     */
-    public static synchronized void sse(String url, BiConsumer<ServerSentEventConnection, String> connectionCallback) {
-        checkStarted();
-        instance().endpoints.add(HandlerUtil.sse(url, connectionCallback));
+        SseBroadcaster broadcaster = new SseBroadcaster();
+        instance().endpoints.add(HandlerUtil.sse(url, handler, broadcaster));
+        return broadcaster;
     }
 
     /**

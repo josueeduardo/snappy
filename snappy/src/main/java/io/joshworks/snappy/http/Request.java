@@ -23,13 +23,14 @@ import io.undertow.server.HttpServerExchange;
 import io.undertow.server.handlers.Cookie;
 import io.undertow.util.HeaderMap;
 import io.undertow.util.HeaderValues;
-import io.undertow.util.Headers;
 import io.undertow.util.PathTemplateMatch;
 
 import java.net.InetSocketAddress;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+
+import static io.joshworks.snappy.http.HeaderUtils.extractAuthorizationValue;
 
 /**
  * Created by Josh Gontijo on 3/19/17.
@@ -63,16 +64,12 @@ public class Request {
     }
 
     public HeaderValues headers(String headerName) {
-        return exchange.getRequestHeaders().get(headerName);
+        return headers().get(headerName);
     }
 
     public String header(String headerName) {
         HeaderValues values = headers(headerName);
         return values == null || values.isEmpty() ? null : values.getFirst();
-    }
-
-    public int status() {
-        return exchange.getStatusCode();
     }
 
     public Map<String, String> pathParameters() {
@@ -156,7 +153,7 @@ public class Request {
      * no 'Basic' prefix was found or
      */
     public String basicAuth() {
-        return extractAuthorizationValue("Basic", this);
+        return extractAuthorizationValue("Basic", headers());
     }
 
     /**
@@ -169,38 +166,14 @@ public class Request {
      * no 'Basic' prefix was found or
      */
     public String bearerAuth() {
-        return extractAuthorizationValue("Bearer", this);
-    }
-
-    static String extractAuthorizationValue(String type, Request request) {
-        HeaderValues values = request.headers(Headers.AUTHORIZATION_STRING);
-        if (values == null || values.isEmpty()) {
-            return null;
-        }
-
-        for (String value : values) {
-            String[] parts = value.split(" ");
-            if (parts.length == 2 && parts[0].trim().equals(type)) {
-                String valTrimmed = parts[1].trim();
-                return valTrimmed.isEmpty() ? null : valTrimmed;
-            }
-        }
-        return null;
+        return extractAuthorizationValue("Bearer", headers());
     }
 
     public String userAgent() {
-        HeaderValues userAgent = exchange.getRequestHeaders().get(Headers.USER_AGENT);
-        if (userAgent != null && !userAgent.isEmpty()) {
-            return userAgent.getFirst();
-        }
-        return null;
+        return HeaderUtils.userAgent(headers());
     }
 
     public MediaType contentType() {
-        HeaderValues contentType = exchange.getRequestHeaders().get(Headers.CONTENT_TYPE);
-        if (contentType != null && !contentType.isEmpty()) {
-            return MediaType.valueOf(contentType.getFirst());
-        }
-        return MediaType.WILDCARD_TYPE;
+        return HeaderUtils.contentType(headers());
     }
 }

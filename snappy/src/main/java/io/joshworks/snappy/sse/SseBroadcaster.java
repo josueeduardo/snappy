@@ -17,88 +17,102 @@
 
 package io.joshworks.snappy.sse;
 
-import io.joshworks.snappy.parser.Parser;
-import io.joshworks.snappy.parser.Parsers;
-import io.joshworks.snappy.http.MediaType;
 import io.undertow.server.handlers.sse.ServerSentEventConnection;
-import io.undertow.server.handlers.sse.ServerSentEventHandler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 /**
  * Created by josh on 3/9/17.
  */
 public class SseBroadcaster {
 
-    static final List<ServerSentEventHandler> endpoints = new ArrayList<>();
-    private static final Map<String, Set<ServerSentEventConnection>> groups = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<ServerSentEventConnection, SseContext> connections = new ConcurrentHashMap<>();
+    private final Map<String, Set<SseContext>> broadcastGroups = new ConcurrentHashMap<>();
 
-    private SseBroadcaster() {
-    }
 
-    public static void broadcast(String data, String... groups) {
-        all(groups).forEach(sseConn -> sseConn.send(data));
-    }
-
-    public static void broadcast(Object data, MediaType mediaType, String... groups) {
-        Parser parser = Parsers.getParser(mediaType);
-        broadcast(parser.writeValue(data), groups);
-    }
-
-    public static void broadcast(String data, Predicate<ServerSentEventConnection> filter, String... groups) {
-        all(groups).filter(filter).forEach(conn -> conn.send(data));
-    }
-
-    public static void broadcast(Object data, MediaType mediaType, Predicate<ServerSentEventConnection> filter, String... groups) {
-        Parser parser = Parsers.getParser(mediaType);
-        broadcast(parser.writeValue(data), filter, groups);
-    }
-
-    public static void broadcast(EventData eventData, String... groups) {
-        all(groups).forEach(sseConn -> sseConn.send(eventData.data, eventData.event, eventData.id, null));
-    }
-
-    public static void broadcast(EventData eventData, Predicate<ServerSentEventConnection> filter, String... groups) {
-        all(groups).filter(filter).forEach(sseConn -> sseConn.send(eventData.data, eventData.event, eventData.id, null));
-    }
-
-    private static Stream<ServerSentEventConnection> all(String... groupFilter) {
-        if (groupFilter.length > 0) {
-            Set<String> groupVals = new HashSet<>(Arrays.asList(groupFilter));
-            return groups.entrySet().stream()
-                    .filter(es -> groupVals.contains(es.getKey()))
-                    .flatMap(sse -> sse.getValue().stream());
+    public void broadcast(String data) {
+        for (SseContext context : connections.values()) {
+            context.send(data);
         }
-        return endpoints.stream().flatMap(sse -> sse.getConnections().stream());
     }
 
-    public static void addToGroup(final String name, final ServerSentEventConnection connection) {
-        groups.putIfAbsent(name, Collections.unmodifiableSet(new HashSet<>(Arrays.asList(connection))));
-        groups.computeIfPresent(name, (s, serverSentEventConnections) -> {
-            Set<ServerSentEventConnection> conns = new HashSet<>(serverSentEventConnections);
-            conns.add(connection);
-            return Collections.unmodifiableSet(conns);
+    public void broadcast(EventData eventData) {
+        for (SseContext context : connections.values()) {
+            context.send(eventData);
+        }
+    }
+
+    public void broadcast(String group, String data) {
+        validateGroupName(group);
+        Set<SseContext> contexts = broadcastGroups.get(group);
+        if (contexts != null) {
+            for (SseContext context : contexts) {
+                context.send(data);
+            }
+        }
+    }
+
+    public void broadcast(String group, EventData eventData) {
+        validateGroupName(group);
+        Set<SseContext> contexts = broadcastGroups.get(group);
+        if (contexts != null) {
+            for (SseContext context : contexts) {
+                context.send(eventData);
+            }
+        }
+    }
+
+    void joinGroup(String group, SseContext context) {
+        validateGroupName(group);
+        broadcastGroups.compute(group, (k, v) -> {
+            v = v == null ? Collections.newSetFromMap(new ConcurrentHashMap<>()) : v;
+            v.add(context);
+            return v;
         });
-        connection.addCloseTask(channel ->
-                groups.computeIfPresent(name, (s, serverSentEventConnections) -> {
-                    Set<ServerSentEventConnection> conns = new HashSet<>(serverSentEventConnections);
-                    conns.remove(connection);
-                    conns = Collections.unmodifiableSet(conns);
-                    return conns.isEmpty() ? null : conns;
-                }));
     }
 
-    static void register(ServerSentEventHandler handler) {
-        endpoints.add(handler);
+    void leaveGroup(String group, SseContext context) {
+        validateGroupName(group);
+        Set<SseContext> contexts = broadcastGroups.get(group);
+        if (contexts != null) {
+            contexts.remove(context);
+            if (contexts.isEmpty()) {
+                broadcastGroups.remove(group);
+            }
+        }
+    }
+
+    void add(SseContext context) {
+        connections.put(context.connection, context);
+    }
+
+    void remove(ServerSentEventConnection connection) {
+        if (connection == null) {
+            return;
+        }
+        SseContext context = connections.remove(connection);
+        if (context == null) {
+            return;
+        }
+        Iterator<Map.Entry<String, Set<SseContext>>> iterator = broadcastGroups.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, Set<SseContext>> entry = iterator.next();
+            Set<SseContext> ctxs = entry.getValue();
+            ctxs.remove(context);
+            if (ctxs.isEmpty()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private void validateGroupName(String group) {
+        if (group == null || group.trim().isEmpty()) {
+            throw new IllegalArgumentException("Group name must not me null or empty");
+        }
     }
 
 }

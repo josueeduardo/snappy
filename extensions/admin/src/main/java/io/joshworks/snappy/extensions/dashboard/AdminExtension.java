@@ -31,6 +31,7 @@ import io.joshworks.snappy.http.ExceptionMapper;
 import io.joshworks.snappy.http.MediaType;
 import io.joshworks.snappy.http.Response;
 import io.joshworks.snappy.property.AppProperties;
+import io.joshworks.snappy.sse.SseBroadcaster;
 import io.undertow.util.Methods;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,12 +94,13 @@ public class AdminExtension implements SnappyExtension {
         registerAppMetricsEndpoint(config);
 
         String logLocation = AppProperties.get(LOG_LOCATION).orElse(null);
+        SseBroadcaster broadcaster = new SseBroadcaster();
         if (logLocation == null || logLocation.isEmpty()) {
             logger.warn(LOG_LOCATION + " not specified, log won't be available");
         } else {
-            streamer = new LogStreamer(executor, logLocation);
+            streamer = new LogStreamer(executor, logLocation, broadcaster);
         }
-        config.adminManager.addEndpoint(HandlerUtil.sse(LOG_SSE, streamer));
+        config.adminManager.addEndpoint(HandlerUtil.sse(LOG_SSE, streamer::handle, broadcaster));
     }
 
     @Override

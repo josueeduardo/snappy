@@ -11,7 +11,7 @@ public class RequestContext extends Request {
 
     Response response;
 
-    public RequestContext(HttpServerExchange exchange) {
+    RequestContext(HttpServerExchange exchange) {
         super(exchange);
     }
 

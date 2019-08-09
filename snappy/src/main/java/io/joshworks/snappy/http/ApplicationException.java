@@ -20,11 +20,11 @@ package io.joshworks.snappy.http;
 /**
  * Created by Josh Gontijo on 4/2/17.
  */
-class ApplicationException extends RuntimeException {
+public class ApplicationException extends RuntimeException {
 
     public final Exception original;
 
-    ApplicationException(Exception e) {
+    public ApplicationException(Exception e) {
         this.original = e;
     }
 }

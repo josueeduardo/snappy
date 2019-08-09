@@ -14,8 +14,10 @@ public class LogTailer extends TailerListenerAdapter {
     private static final long MAX_FILE_SIZE = 10; //mb
 
     final File file;
+    private SseBroadcaster broadcaster;
 
-    public LogTailer(String filePath, boolean tailf) {
+    public LogTailer(String filePath, boolean tailf, SseBroadcaster broadcaster) {
+        this.broadcaster = broadcaster;
         this.file = getFile(filePath, tailf);
     }
 
@@ -38,7 +40,7 @@ public class LogTailer extends TailerListenerAdapter {
 
     @Override
     public void handle(String line) {
-        SseBroadcaster.broadcast(line);
+        broadcaster.broadcast(line);
     }
 
 }
