@@ -27,7 +27,7 @@ Features:
     <dependency>
         <groupId>io.joshworks.snappy</groupId>
         <artifactId>snappy</artifactId>
-        <version>0.5.2</version>
+        <version>0.6.0</version>
     </dependency>
     
 ```
@@ -168,10 +168,10 @@ public class ClockServer {
     public static void main(final String[] args) {
             ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-            sse("/clock");
-    
-            onStart(() -> scheduler.scheduleAtFixedRate(() ->
-                    SseBroadcaster.broadcast(new Date().toString()), 1, 1, TimeUnit.SECONDS));
+            SseBroadcaster broadcaster =  sse("/clock");
+            //curl http://localhost:9000/clock
+
+            onStart(() -> scheduler.scheduleAtFixedRate(() -> broadcaster.broadcast(new Date().toString()), 1, 1, TimeUnit.SECONDS));
     
             start();
         }
@@ -180,24 +180,22 @@ public class ClockServer {
 
 ### SSE groups / topics ###
 ```java
-public class BroadcastEndpoint implements ServerSentEventConnectionCallback {
-
-    @Override
-    public void connected(ServerSentEventConnection connection, String lastEventId) {
-        SseBroadcaster.addToGroup("my-group", connection);
-    }
-}
-
 public class App {
 
     public static void main(final String[] args) {
-       sse("/event-stream", new BroadcastEndpoint());
-       start();
-       
-       //curl http://localhost:9000/event-stream
-       
-       //Send messages to all clients in 'my-group'
-       SSEBroadcaster.broadcast("some data", "my-group");
+        SseBroadcaster broadcaster = sse("/subscribe/{group}", sse -> {
+            sse.joinGroup(sse.pathParameter("group"));
+        });
+
+        //curl http://localhost:9000/subscribe/group-a
+        //curl http://localhost:9000/subscribe/group-b
+
+        post("/publish/{group}", req -> {
+            String group = req.pathParameter("group");
+            String message = req.body().asString();
+            broadcaster.broadcast(group, message);
+            return ok();
+        });
     }
 }
 ```
