@@ -88,7 +88,6 @@ public class SnappyServerSentEventHandler implements HttpHandler {
         PathTemplateMatch pt = exchange.getAttachment(PathTemplateMatch.ATTACHMENT_KEY);
 
         final SseContext context = new SseContext(connection, exchange, broadcaster);
-        logger.info("Opened SSE connection to {}, from path {}", context.remoteAddress(), context.path());
 
         if (pt != null) {
             for (Map.Entry<String, String> p : pt.getParameters().entrySet()) {
@@ -99,7 +98,6 @@ public class SnappyServerSentEventHandler implements HttpHandler {
         connection.addCloseTask(new ChannelListener<ServerSentEventConnection>() {
             @Override
             public void handleEvent(ServerSentEventConnection channel) {
-                logger.info("Closed connection to {}, path {}", context.remoteAddress(), context.path());
                 broadcaster.remove(connection);
                 try {
                     context.onClose();
