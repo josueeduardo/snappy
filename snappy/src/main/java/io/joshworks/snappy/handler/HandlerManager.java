@@ -125,7 +125,7 @@ public class HandlerManager {
         } else if (MappedEndpoint.Type.SSE.equals(endpoint.type)) {
             return defaultCompressionHandler(original);
         } else {
-            logger.warn("GZIP encoding not implemented for {} endpoints, response will not be compressed for '{}'.", endpoint.type, endpoint.url);
+            logger.warn("Content encoding not implemented for {} endpoints, response will not be compressed for '{}'.", endpoint.type, endpoint.url);
             return original;
         }
     }
