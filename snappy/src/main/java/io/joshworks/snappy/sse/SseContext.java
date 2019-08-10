@@ -91,6 +91,14 @@ public class SseContext extends Request {
         return this;
     }
 
+    /**
+     * Returns the keep alive time of this connection.
+     *
+     * @return The keep alive time in milliseconds
+     */
+    public long keepAlive() {
+        return connection.getKeepAliveTime();
+    }
 
     public String lastEventId() {
         return connection.getRequestHeaders().getLast(LAST_EVENT_ID);
