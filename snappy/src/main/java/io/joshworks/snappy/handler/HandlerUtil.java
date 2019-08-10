@@ -107,20 +107,6 @@ public class HandlerUtil {
         return new MappedEndpoint(MappedEndpoint.Type.WS.name(), url, MappedEndpoint.Type.WS, websocket);
     }
 
-//    public static MappedEndpoint sse(String url, SseHandler handler) {
-//        return sse(url, new SseCallback() {
-//
-//            @Override
-//            public void connected(ServerSentEventConnection connection, String lastEventId) {
-//
-//                connectionCallback.accept(connection, lastEventId);
-//            }
-//
-//
-//
-//        });
-//    }
-
     public static MappedEndpoint sse(String url, SseHandler handler, SseBroadcaster broadcaster) {
         url = resolveUrl(url);
 
