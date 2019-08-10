@@ -122,12 +122,9 @@ public class HandlerManager {
     private static HttpHandler wrapCompressionHandler(HttpHandler original, MappedEndpoint endpoint) {
         if (MappedEndpoint.Type.REST.equals(endpoint.type)) {
             return defaultCompressionHandler(original);
-        }
-        //TODO not supported
-//        else if(MappedEndpoint.Type.SSE.equals(endpoint.type)) {
-//            return gzipHandler(original, new GzipEncodingProvider());
-//        }
-        else {
+        } else if (MappedEndpoint.Type.SSE.equals(endpoint.type)) {
+            return defaultCompressionHandler(original);
+        } else {
             logger.warn("GZIP encoding not implemented for {} endpoints, response will not be compressed for '{}'.", endpoint.type, endpoint.url);
             return original;
         }
