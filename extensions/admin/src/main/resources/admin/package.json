@@ -16,7 +16,7 @@
   "dependencies": {
     "axios": "^0.14.0",
     "classnames": "^2.2.5",
-    "highcharts": "^5.0.10",
+    "highcharts": "^8.2.0",
     "highcharts-drilldown": "^0.1.2",
     "highcharts-more": "^0.1.2",
     "justgage": "^1.2.2",
